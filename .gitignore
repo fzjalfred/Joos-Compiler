@@ -1,0 +1,8 @@
+.cache/
+.ivy2/
+.sbt/
+.scala_history_jline3
+main
+project/project/
+project/target/
+target/
