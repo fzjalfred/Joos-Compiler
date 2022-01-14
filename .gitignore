@@ -1,6 +1,7 @@
 .cache/
 .ivy2/
 .sbt/
+.idea/
 .scala_history_jline3
 main
 project/project/
