@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  
+  <title>
+  CS 444&#x2F;644
+  
+  Joos
+  
+  </title>
+  
+
+  
+  <link rel="stylesheet" href="https://student.cs.uwaterloo.ca/~cs444/main.css">
+  
+
+  
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-131016756-2"></script>
+  <script src="scripts/analytics.js"></script>
+  -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+
+<script src=https://student.cs.uwaterloo.ca/~cs444/scripts/mathjax-config.js></script>
+<script id="MathJax-script" async src=https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;npm&#x2F;mathjax@3&#x2F;es5&#x2F;tex-mml-chtml.js></script>
+
+
+  <script src="https://student.cs.uwaterloo.ca/~cs444/scripts/email.js"></script>
+  
+
+  
+  <link rel="stylesheet" href="https://student.cs.uwaterloo.ca/~cs444/fonts/MerriweatherSans.css">
+  <link rel="stylesheet" href="https://student.cs.uwaterloo.ca/~cs444/fonts/Lato.css">
+  <link rel="stylesheet" href="https://student.cs.uwaterloo.ca/~cs444/fonts/Inconsolata.css">
+  
+
+</head>
+
+<body>
+  <header>
+    <nav>
+      <div>
+      <p class="page-heading">
+      <a href="https://student.cs.uwaterloo.ca/~cs444">CS 444&#x2F;644</a>
+      &nbsp;&nbsp;
+      Compiler Construction (Winter 2022)
+      </p>
+      </div>
+      <div>
+      
+      <p><a href="https://student.cs.uwaterloo.ca/~cs444">
+        Home
+      </a></p>
+      
+      
+      <p><a href="https://student.cs.uwaterloo.ca/~cs444/courseinfo/">
+        Outline
+      </a></p>
+      
+      
+      
+      <p><a href="https://student.cs.uwaterloo.ca/~cs444/schedule/">
+        Schedule
+      </a></p>
+      
+      
+      
+      <p><a href="https://student.cs.uwaterloo.ca/~cs444/assignments/">
+        Assignments
+      </a></p>
+      
+      
+      
+      <p><a href="https://student.cs.uwaterloo.ca/~cs444/resources/">
+        Resources
+      </a></p>
+      
+      
+      
+      <p><a href="https://student.cs.uwaterloo.ca/~cs444/piazza/">
+        Piazza
+      </a></p>
+      
+      
+      </div>
+    </nav>
+  </header>
+  <main>
+    
+    <h2 id="the-joos-languages">The Joos Languages</h2>
+<p><em>Acknowledgement: The Joos-related parts of the course are adapted by
+permission from <a href="https://cs.au.dk/%7Emis">Michael Schwartzbach</a>'s <a href="https://web.archive.org/web/20181223074151/http://www.cs.au.dk/%7Emis/dOvs/">dOvs</a>
+course at Aarhus University.</em></p>
+<p>The Joos 1W language is defined as a subset of Java 1.3 as specified
+in the <a href="https://web.archive.org/web/20111225035254/http://java.sun.com:80/docs/books/jls/second_edition/html/jTOC.doc.html">Java Language Specification (2nd Edition)</a>.
+Some features of Java 1.3
+are not included in Joos 1W. Thus the parts of the JLS pertaining
+to these features do not apply to Joos 1W. The following chart
+shows the features of Java 1.3, and the specific subset of features
+included in Joos 1W (as well as the original dialects Joos 0, 1, and 2 from
+the dOvs course). Clicking on each feature shows example code.</p>
+<table border=1>
+<tr>
+<td align=center colspan=6><b>Class structure</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/extends.html">extends</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implements.html">implements</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/staticmethoddeclaration.html">static method declaration</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/classimport.html">class import</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/packageimport.html">package import</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/package.html">package</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/interfaces.html">public interfaces</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/staticfielddeclaration.html">static field declaration</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/ppinterfaces.html">package private interfaces</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/omittedfinalfieldinitializer.html">omitted final field initializer</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/multiplefieldsperdeclaration.html">multiple fields per declaration</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/multipletypesperfile.html">multiple types per file</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/interfaceconstants.html">interface constants</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/unicodeinput.html">Unicode input</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/nestedtypes.html">nested types</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Method and field access</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/externalcall.html">external call</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implicitthisforfields.html">implicit this for fields</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implicitthisformethods.html">implicit this for methods</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/accessstaticfield.html">access static field</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/callstaticmethods.html">call static methods</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/nonthisfieldaccess.html">non-this field access</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/methodoverloading.html">method overloading</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/arraylength.html">array length</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implicitthisclassforstaticfields.html">implicit this class for static fields</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implicitthisclassforstaticmethods.html">implicit this class for static methods</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/closestmatchmethodoverloading.html">closest match method overloading</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/arraymethodcall.html">array method call</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/supermethodcall.html">super method call</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/superfieldaccess.html">super field access</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/nonstaticaccessofstaticfield.html">non-static access of static field</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/nonstaticaccessofstaticmethod.html">non-static access of static method</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Modifiers</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/publicclasses.html">public classes</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/protectedfields.html">protected fields</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/publicconstructors.html">public constructors</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/publicmethods.html">public methods</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/publicfields.html">public fields</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/protectedmethods.html">protected methods</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/abstract.html">abstract</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/finalclasses.html">final classes</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/finalmethods.html">final methods</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/protectedconstructors.html">protected constructors</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/finalfields.html">final field declaration</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/synchronized.html">synchronized</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/transient.html">transient</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/strictfp.html">strictfp</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/nativeint.html">restricted static native int m(int)</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>X</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/native.html">general native methods</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/volatile.html">volatile</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/packageprivateclasses.html">package private classes</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/packageprivatemethods.html">package private methods and constructors</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/packageprivatefields.html">package private fields</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/privatemethods.html">private methods and constructors</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/privatefields.html">private fields</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/finalformals.html">final formals</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/finallocals.html">final locals</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Constructors</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/implicitsupercall.html">implicit super call</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/fieldinitializers.html">field initializers</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/constructoroverloading.html">constructor overloading</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/omittedconstructor.html">omitted constructor</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/explicitsupercall.html">explicit super call</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/closestmatchconstructoroverloading.html">closest match constructor overloading</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/thiscall.html">this call</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/instanceinitializers.html">instance initializers</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/staticinitializers.html">static initializers</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Method structure</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/nestedblocks.html">nested blocks</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/arbitraryreturn.html">arbitrary return</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/omittedvoidreturn.html">omitted void return</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/arbitrarylocaldeclaration.html">arbitrary local declaration</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/omittedlocalinitializer.html">omitted local initializer</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/localvariableinowninitializer.html">local variable in
+own initializer</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/multiplevariablesperdeclaration.html">multiple variables per declaration</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Control flow</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/if.html">if</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/while.html">while</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/for.html">for (simple)</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/formult.html">for (general)</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/dowhile.html">do-while</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/switch.html">switch</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/break.html">break</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/continue.html">continue</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/labeledstatement.html">labeled statement</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/synchronizedstatement.html">synchronized statement</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Exceptions</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/throws.html">throws</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/throw.html">throw</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/trycatch.html">try/catch</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/finally.html">finally</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Types</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/boolean.html">boolean</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/int.html">int</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/char.html">char</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/byte.html">byte</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/short.html">short</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/array.html">array</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/array_suffix.html">array declaration after variable name</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/array_return.html">array return type</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/array_return_suffix.html">array return type after method signature</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/multiarray.html">multidimensional array</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/long.html">long</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/float.html">float</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/double.html">double</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr>
+<td align=center colspan=6><b>Literals and names</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/intliterals.html">int literals</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/booleanliterals.html">boolean literals</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/stringliterals.html">string literals</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/nullliteral.html">null literal</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/this.html">this primary expression</a></td>
+    <td align=center></td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/charliterals.html">char literals</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/characterescapes.html">character escapes</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/unicodeescapes.html">Unicode escapes</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/compoundnames.html">compound names</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/classliterals.html">class literals</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/octalandhexliterals.html">octal and hex literals</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/longliterals.html">long literals</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/floatingpointliterals.html">floating point literals</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/arraydata.html">array data</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+<tr><td><a href="../../joos/features/comment.html">comments</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+<tr><td><a href="../../joos/features/javadoc.html">Javadoc comments</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>&nbsp;</td>
+</tr>
+</tr>
+<tr>
+<td align=center colspan=6><b>Operations</b></td>
+</tr>
+<tr>
+  <td><i>Feature</i></td>
+  <td><i>Joos 0</i></td>
+  <td><i>Joos 1</i></td>
+  <td><i><b>Joos 1W</b></i></td>
+  <td><i>Joos 2</i></td>
+  <td><i>Java 1.3</i></td>
+</tr>
+<tr><td><a href="../../joos/features/arithmeticoperations.html">arithmetic operations</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/comparisonoperations.html">comparison operations</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/eagerbooleanoperations.html">eager boolean operations</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implicitstringconcatenation.html">implicit string concatenation</a></td>
+    <td align=center>X</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/lazybooleanoperations.html">lazy boolean operations</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/instanceof.html">instanceof</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/primitivecasts.html">primitive casts</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/referencecasts.html">reference casts</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/widening.html">widening conversions</a></td>
+    <td align=center>&nbsp;</td><td align=center>X</td><td align=center><b>X</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/narrowing.html">narrowing conversions</a></td>
+    <td align=center>&nbsp;</td><td align=center></td><td align=center><b></b></td><td align=center></td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/bitwiseoperations.html">bitwise operations</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/incrementanddecrement.html">increment and decrement</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>X</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/assignmentoperations.html">assignment operations</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/unaryplus.html">unary plus</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/choice.html">choice</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/bitshift.html">bit shift</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+<tr><td><a href="../../joos/features/implicitintegerconstantcasts.html">implicit integer constant casts</a></td>
+    <td align=center>&nbsp;</td><td align=center>&nbsp;</td><td align=center><b>&nbsp;</b></td><td align=center>&nbsp;</td><td align=center>X</td>
+</tr>
+</table>
+
+    
+  </main>
+  <br>
+  <footer>
+    <p>
+      <a href="https://www.cs.uwaterloo.ca">Cheriton School of Computer Science</a>,
+      <a href="https://www.uwaterloo.ca">University of Waterloo</a>
+    </p>
+  </footer>
+</body>
+</html>
