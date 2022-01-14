@@ -1,4 +1,4 @@
-package main
+package scala
 
 object HelloSbt {
     def main(args: Array[String]) = {
