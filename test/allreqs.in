@@ -1,0 +1,421 @@
+/* ******Class structure******* */
+
+public class A extends java.lang.Thread {
+  public A() {}
+}
+
+public class A implements java.io.Serializable {
+  public A() {}
+  int x;
+}
+
+public class A {
+  public A() {}
+  public static int m() {
+    return 42;
+  }
+}
+
+import java.util.Vector;
+
+public class A {
+  public A() {}
+  protected Vector c;
+}
+
+import java.util.*;
+
+public class A {
+  public A() {}
+  protected Vector c;
+}
+
+package dovs.joos.features;
+
+public class A {
+  public A() {}
+  protected int x;
+}
+
+public interface A {}
+
+public class A {
+  protected static int x;
+}
+
+
+/* ******Class structure******* */
+
+public class A {
+  public A() {}
+  public int m(java.util.Vector x) {
+    return x.size();
+  }
+}
+
+public class A {
+  public A() {}
+  protected int x;
+  public int m() {
+    return x;
+  }
+}
+
+public class A {
+  public A() {}
+  public int m1() {
+    return 42;
+  }
+  public int m2() {
+    return m1();
+  }
+}
+
+public class A {
+  public A() {}
+  public int m() {
+    return java.util.Calendar.MONDAY;
+  }
+}
+
+public class A {
+  public A() {}
+  public void m2() {
+    java.lang.System.exit();
+  }
+}
+
+public class A {
+  public A() {}
+  public int x;
+  public void m() {
+    new A().x = 42;
+  }
+}
+
+public class A {
+  public int m1(int x) {
+    return 42;
+  }
+  public int m1(boolean x) {
+    return 87;
+  }
+  public int m2() {
+    return this.m1(true);
+  }
+}
+
+public class A {
+  public A() {}
+  public int m() {
+    int[] x = new int[42];
+    return x.length;
+  }
+}
+
+
+/* ******Modifiers******* */
+public class A {
+  public A() {}
+}
+
+public class A {
+  public A() {}
+  protected int x;
+}
+
+public class A {
+  public A() {}
+}
+
+public class A {
+  public A() {}
+  public int m() {
+    return 42;
+  }
+}
+
+public class A {
+  public A() {}
+  public int x;
+}
+
+public class A {
+  public A() {}
+  protected int m() {
+    return 42;
+  }
+}
+
+public abstract class A {
+  public A() {}
+  public abstract int m();
+}
+
+public final class A {
+    public A() {}
+}
+
+public class A {
+  public A() {}
+  public final int m() {
+    return 42;
+  }
+}
+
+public class A {
+  protected A() {}
+}
+
+public class A {
+    public static native int m(int i);
+}
+
+
+
+/* ******Constructors******* */
+public class A {
+  public A() { /* super(); */}
+}
+
+public class A {
+  public A() {}
+  protected int x = 42;
+}
+
+public class A {
+  public A() {}
+  public A(int x) {}
+}
+
+
+/* ******Method structure******* */
+public class A {
+  public A() {}
+  public int m() {
+    int x = 42;
+    int y = 87;
+    { int z = x+y;
+      return z;
+    }
+  }
+}
+
+public class A {
+  public A() {}
+  public int m(int x) {
+    if (x==42) 
+      return 87;
+    else
+      return 17;
+  }
+}
+
+public class A {
+  public A() {}
+  public void m() {
+    /* return; */
+  }
+}
+
+public class A {
+  public A() {}
+  public void m() {
+    int x = 42;
+    x = x+1;
+    int y = x+87;
+  }
+}
+
+
+
+/* ******Control flow******* */
+public class A {
+  public A() {}
+  public int m(int x) {
+    int y = 0;
+    if (x==0) y=42;
+    else y=87;
+    return y;
+  }
+}
+
+public class A {
+  public A() {}
+  public int m(int x) {
+    while (x>0) x=x-1;
+    return x;
+  }
+}
+
+public class A {
+  public A() {}
+  public int m(int x) {
+    int y = 0;
+    for (int i=x; i>0; i=i-1) y=y+1;
+    return y;
+  }
+}
+
+
+/* ******Types******* */
+public class A {
+  public A() {}
+  protected boolean x;
+}
+
+public class A {
+  public A() {}
+  protected int x;
+}
+
+public class A {
+  public A() {}
+  protected char x;
+}
+
+public class A {
+  public A() {}
+  protected byte x;
+}
+
+public class A {
+  public A() {}
+  protected short x;
+}
+
+public class A {
+  public A() {}
+  protected int[] x;
+}
+
+public class A {
+  public A() {}
+  public int[] foo() { return null; }
+}
+
+
+/* ******Literals and names******* */
+public class A {
+  public A() {}
+  protected int x = 42;
+}
+
+public class A {
+  public A() {}
+  protected boolean x = false;
+}
+
+public class A {
+  public A() {}
+  protected String x = "foo";
+}
+
+public class A {
+  public A() {}
+  protected A x = null;
+}
+
+public class A {
+  public A() {}
+  public A returnThis() {
+    return this;
+  }
+}
+
+public class A {
+  public A() {}
+  protected char x = 'a';
+}
+
+public class A {
+  public A() {}
+  protected String x = "\b\t\n\f\r\"\'\\\064";
+}
+
+public class A {
+  public A() {}
+  public void m() {
+    java.util.Vector x = null;
+  }
+}
+
+/* This is a comment. */
+// This is another comment.
+
+public class A {
+    public A() {}
+}
+
+/** A Javadoc comment starts with a slash and two asterisks. */
+
+public class A {
+    public A() {}
+}
+
+
+/* ******Operations******* */
+public class A {
+  public A() {}
+  public int m(int x) {
+    return -2*x+87%x-(x/7);
+  }
+}
+
+public class A {
+  public A() {}
+  public boolean m(int x) {
+    return (x<87) && (x>42) && (x<=86) && (x>=43) && (x==51) && (x!=52) ;
+  }
+}
+
+public class A {
+  public A() {}
+  public boolean m(boolean x) {
+    return (x & true) | !x;
+  }
+}
+
+public class A {
+  public A() {}
+  public String m(int x) {
+    return "foo" + x + true + null;
+  }
+}
+
+public class A {
+  public A() {}
+  public String m(int x) {
+    return "foo" + x + true + null;
+  }
+}
+
+public class A {
+  public A() {}
+  public boolean m(Object x) {
+    return x instanceof A;
+  }
+}
+
+public class A {
+  public A() {}
+  public int m(byte x) {
+    return (int)x;
+  }
+}
+
+public class A {
+  public A() {}
+  public A m(Object x) {
+    return (A)x;
+  }
+}
+
+public class A {
+  public A() {}
+  public void m(char c) {
+    int i = 0;
+    i = c;
+  }
+}
+

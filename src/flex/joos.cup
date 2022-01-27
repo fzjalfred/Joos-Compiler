@@ -1,0 +1,115 @@
+import java_cup.runtime.*;
+import java.util.*;
+import java.io.*;
+
+parser code {:
+
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {
+                m.append(" in line "+(s.left+1));
+                if (s.right >= 0)
+                    m.append(", column "+(s.right+1));
+            }
+        }
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:};
+
+/** Terminals */
+
+terminal Token                  ID;
+
+// Literals
+terminal Integer         INTGERLITERAL;
+terminal String          STRINGLITERAL;
+terminal NullLiteral            NULLLITERAL;
+terminal ThisLiteral            THISLITERAL;
+terminal TrueLiteral            TRUELITERAL;
+terminal FalseLiteral           FALSELITERAL;
+
+// Type
+terminal Token                  BOOL, INT, CHAR, BYTE, SHORT; // how to represent Array?
+
+// OP
+terminal Token                  PLUS, MINUS, STAR, DIVIDES, MOD; //Arithmatic OP
+terminal Token                  BINARYAND, BINARYOR, NOT; // logic OP
+terminal Token                  EQ, LT, LE, GT, GE, NE;  // Comp OP
+terminal Token                  BITWISEAND, BITWISEOR; // bitwise OP
+
+terminal Token                  NEW;    // other
+
+// Symbols
+terminal Token                  LEFTPARN, RIGHTPARN, LEFTBRACKET, RIGHTBARCKET,LEFTCURLY, RIGHTCURLY; // ()[]{}
+terminal Token                  COMMA, DOT, SEMICOLUMN; // ,.
+
+// Keywords
+terminal Token                  FOR, WHILE, IF, ELSE, RETURN, NATIVE, PACKAGE, IMPORT; //program keywords
+terminal Token                  CLASS, INTERFACE, ABSTRACT, PUBLIC, PRIVATE, PROTECTED, STATIC, EXTENDS, IMPLEMENTS, SUPER; // class keywords
+
+
+// fix
+terminal Token                  FINAL;
+terminal Token                  VOID;
+terminal Token                  SINGLEQUOTE;
+terminal Token                  DOUBLEQUOTE;
+terminal Token                  INSTANCEOF;
+terminal Token                  ASSIGN;
+
+// deleted
+//terminal Token                  INC, DEC;   // increment
+
+//terminal Token                  TIMES, SHIFTLEFT, SHIFTRIGHT; 
+//terminal Token                  BITWISEXOR, SHIFTLEFTOP, SHIFTRIGHTOP;
+//terminal FloatLiteral           FLOATLITERAL;
+terminal CharLiteral            CHARLITERAL;
+
+
+/* Non terminals used in the grammar section.*/
+non terminal Object     expr_list, expr_part;
+non terminal Integer    expr, factor, term;
+
+
+expr_list ::= expr_list expr_part
+                 |
+                 expr_part;
+expr_part ::= expr:e
+                 {: System.out.println(" = " + e); :}
+                 SEMICOLUMN
+                 ;
+
+expr      ::= expr:e PLUS factor:f
+                 {: RESULT = new Integer(e.intValue() + f.intValue()); :}
+                 |
+                 expr:e MINUS factor:f
+                 {: RESULT = new Integer(e.intValue() - f.intValue()); :}
+                 |
+                 factor:f
+                 {: RESULT = new Integer(f.intValue()); :}
+                 ;
+factor    ::= factor:f STAR term:t
+                 {: RESULT = new Integer(f.intValue() * t.intValue()); :}
+                 |
+                 factor:f DIVIDES term:t
+                 {: RESULT = new Integer(f.intValue() / t.intValue()); :}
+                 |
+                 term:t
+                 {: RESULT = new Integer(t.intValue()); :}
+                 ;
+term      ::= LEFTPARN expr:e RIGHTPARN
+                 {: RESULT = e; :}
+                 |
+                 INTGERLITERAL:n
+                 {: RESULT = n; :}
+                 |
+                 ID:i
+                 {: RESULT = i.type; :}
+                 ;

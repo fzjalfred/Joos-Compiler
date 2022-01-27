@@ -1,0 +1,14 @@
+package HelloWorld;
+
+public class A {
+  public A() {}
+  public boolean m(boolean x) {
+    return (x && true) || x;
+  }
+}
+
+public class Main {
+	static public void main(String argv[]) {
+	    System.out.print("HelloWorld!");
+    }
+}
