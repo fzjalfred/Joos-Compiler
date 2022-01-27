@@ -31,8 +31,7 @@ NUM = ([1-9][0-9]+)|[0-9]
 IDENT = [A-Za-z_][A-Za-z_0-9]*
 STRING = \"([^\\\"]|\\.)*\"
 SINGLECHAR = \'.\'
-
-
+COMMENTS = (\/\/.*)|(\/\*[^]*\*\/)
 
 %%
    
@@ -68,6 +67,7 @@ SINGLECHAR = \'.\'
     "else"            { return symbol(sym.ELSE, "else"); }
     "while"           { return symbol(sym.WHILE, "while"); }
     "for"             { return symbol(sym.FOR, "for"); }
+    "return"          { return symbol(sym.RETURN, "return"); }
 
     //"print"           { return symbol(sym.PRINT); }
 
@@ -128,6 +128,8 @@ SINGLECHAR = \'.\'
     {IDENT}       { return symbol(sym.ID, new String(yytext()));}
     {STRING}      { return symbol(sym.STRINGLITERAL, new String(yytext())); }
     {SINGLECHAR}  { return symbol(sym.CHARLITERAL, new String(yytext())); }
+
+    {COMMENTS}      { /* do nothing */ }
 
     {WhiteSpace}       { /* do nothing */ }   
     <<EOF>> { return symbol(sym.EOF); }

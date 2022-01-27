@@ -1,6 +1,6 @@
 SRCS=target/scala-2.13/CS444Compiler-assembly-0.1.0-SNAPSHOT.jar
 LIBS=lib/*.jar
-FLEXS=src/flex/*
+FLEXS=src/flex/* src/lexer/*
 JAVA_OPT=-Xss10m
 
 # Compiler used
@@ -11,10 +11,16 @@ SRC_DIRS ?= ./src
 
 
 .PHONY: clean
-all: flex main
+all: lexer main
 
-flex	:	$(FLEXS)
-	java -cp ./lib/jflex-1.6.1.jar jflex.Main -d src/lexer src/flex/lcalc.flex
+lexer	:	$(FLEXS)
+	java -cp ./lib/jflex-1.6.1.jar jflex.Main -d ./src/lexer ./src/flex/joos.flex;
+	java -cp ./lib/java-cup-11b.jar java_cup.Main -destdir ./src/lexer < ./src/flex/joos.cup;
+	javac -d ./build -cp ./lib/java-cup-11b.jar  ./src/lexer/*.java;
+	cd build && jar cvf ../lib/lexer.jar ./*.class;
+	@echo "#!/bin/sh\n\
+java -cp ./lib/lexer.jar:./lib/java-cup-11b-runtime.jar Main \$$@" > lexer
+	chmod +x lexer
 
 $(SRCS) : $(shell find $(SRC_DIRS) -name *.scala -o -name *.java)
 	sbt assembly
@@ -26,5 +32,7 @@ java $(JAVA_OPT) -jar $(SRCS) $(LIBS) \$$@" > main
 
 clean:
 	rm -f main
+	rm -f lexer
+	rm -rf build/*
 	sbt clean
 
