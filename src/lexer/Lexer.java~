@@ -396,9 +396,8 @@ class Lexer implements java_cup.runtime.Scanner {
         return new Symbol(type, yyline, yycolumn, new Token(type, ""));
     }
     
-    private Symbol symbol(int type, Object value) {
-        String lexeme = value.toString();
-        return new Symbol(type, yyline, yycolumn, new Token(type, lexeme));
+    private Symbol symbol(int type, String value) {
+        return new Symbol(type, yyline, yycolumn, new Token(type, value));
     }
 
 
@@ -801,7 +800,7 @@ class Lexer implements java_cup.runtime.Scanner {
             }
           case 63: break;
           case 3: 
-            { return symbol(sym.INTGERLITERAL, new Integer(yytext()));
+            { return symbol(sym.INTGERLITERAL, new String(yytext()));
             }
           case 64: break;
           case 4: 

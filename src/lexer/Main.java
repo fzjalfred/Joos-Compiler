@@ -8,7 +8,7 @@ public class Main {
 			Lexer p = new Lexer(new FileReader(argv[0]));
 			while(true) {
 				Token tk = Token.class.cast(p.next_token().value);
-				System.out.print(sym.terminalNames[tk.type]+" "+tk.lexeme+"\n");
+				tk.print();
 				if (tk.type == sym.EOF){
 					break;
 				}

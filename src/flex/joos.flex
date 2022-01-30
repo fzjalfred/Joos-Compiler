@@ -17,9 +17,8 @@ import java_cup.runtime.*;
         return new Symbol(type, yyline, yycolumn, new Token(type, ""));
     }
     
-    private Symbol symbol(int type, Object value) {
-        String lexeme = value.toString();
-        return new Symbol(type, yyline, yycolumn, new Token(type, lexeme));
+    private Symbol symbol(int type, String value) {
+        return new Symbol(type, yyline, yycolumn, new Token(type, value));
     }
 %}
    
