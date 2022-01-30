@@ -1,2 +1,0 @@
-#!/bin/sh
-java -cp ./lib/lexer.jar:./lib/java-cup-11b-runtime.jar Main $@

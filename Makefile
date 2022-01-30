@@ -15,11 +15,11 @@ all: lexer main
 
 lexer	:	$(FLEXS)
 	java -cp ./lib/jflex-1.6.1.jar jflex.Main -d ./src/lexer ./src/flex/joos.flex;
-	java -cp ./lib/java-cup-11b.jar java_cup.Main -destdir ./src/lexer < ./src/flex/joos.cup;
-	javac -d ./build -cp ./lib/java-cup-11b.jar  ./src/lexer/*.java;
+	java -cp ./lib/java_cup.jar java_cup.Main -destdir ./src/lexer  < ./src/flex/joos.cup;
+	javac -d ./build -cp ./lib/java_cup.jar  ./src/lexer/*.java;
 	cd build && jar cvf ../lib/lexer.jar ./*.class;
 	@echo "#!/bin/sh\n\
-java -cp ./lib/lexer.jar:./lib/java-cup-11b-runtime.jar Main \$$@" > lexer
+java -cp ./lib/lexer.jar:./lib/java_cup.jar Main \$$@" > lexer
 	chmod +x lexer
 
 $(SRCS) : $(shell find $(SRC_DIRS) -name *.scala -o -name *.java)
@@ -34,5 +34,4 @@ clean:
 	rm -f main
 	rm -f lexer
 	rm -rf build/*
-	sbt clean
 
