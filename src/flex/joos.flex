@@ -124,7 +124,7 @@ COMMENTS = (\/\/.*)|(\/\*[^]*\*\/)
     "&&"               { return symbol(sym.BINARYAND, "&&"); }
     "instanceof"      { return symbol(sym.INSTANCEOF, "instanceof"); }
    
-    {NUM}      { return symbol(sym.INTGERLITERAL, new Integer(yytext())); }
+    {NUM}      { return symbol(sym.INTGERLITERAL, new String(yytext())); }
     {IDENT}       { return symbol(sym.ID, new String(yytext()));}
     {STRING}      { return symbol(sym.STRINGLITERAL, new String(yytext())); }
     {SINGLECHAR}  { return symbol(sym.CHARLITERAL, new String(yytext())); }
