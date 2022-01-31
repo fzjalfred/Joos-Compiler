@@ -1,14 +1,11 @@
-package HelloWorld;
+/**
+ * This method is supposed to test whether access to the resulting
+ * objects of method calls are parsed correctly.
+ **/
 
-public class A {
-  public A() {}
-  public boolean m(boolean x) {
-    return (x && true) || x;
-  }
-}
+ /* eleven */ * /* times */ 12 - 9;
 
-public class Main {
-	static public void main(String argv[]) {
-	    System.out.print("HelloWorld!");
-    }
-}
+ /**** 
+ *  asdasd 
+ *  asdasd
+ *  */
