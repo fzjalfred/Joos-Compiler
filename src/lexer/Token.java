@@ -1,13 +1,17 @@
+package lexer;
 import java.io.*;
+import java.util.ArrayList;
 
-public class Token {
+import ast.ASTNode;
+
+public class Token extends ASTNode {
     public int type;
-    public String lexeme;
     public Token(int type, String lexeme) {
+        super(new ArrayList<ASTNode>(), lexeme);
         this.type = type;
-        this.lexeme = lexeme;
     }
-    public void print() {
-        System.out.print(sym.terminalNames[type]+" "+lexeme+"\n");
+    @Override
+    public String toString() {
+        return "Token(type: " + sym.terminalNames[type] + " value: " + value + ")";
     }
 }

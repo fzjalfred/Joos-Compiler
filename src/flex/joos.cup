@@ -1,6 +1,8 @@
+package lexer;
 import java_cup.runtime.*;
 import java.util.*;
 import java.io.*;
+import ast.*;
 
 parser code {:
 
@@ -21,6 +23,34 @@ parser code {:
     public void report_fatal_error(String message, Object info) {
         report_error(message, info);
         System.exit(1);
+    }
+    private List<ASTNode> list(){
+            return new ArrayList<ASTNode>();
+    }
+
+    private List<ASTNode> list(ASTNode e1){
+        return new ArrayList<ASTNode>(){{add(e1);}};
+    }
+
+    private List<ASTNode> list(ASTNode e1, ASTNode e2){
+            return new ArrayList<ASTNode>(){{add(e1); add(e2);}};
+    }
+
+    private List<ASTNode> list(ASTNode e1, ASTNode e2, ASTNode e3){
+        return new ArrayList<ASTNode>(){{add(e1); add(e2); add(e3);}};
+    }
+    private List<ASTNode> list(ASTNode e1, ASTNode e2, ASTNode e3, ASTNode e4){
+        return new ArrayList<ASTNode>(){{add(e1); add(e2); add(e3); add(e4);}};
+    }
+    private List<ASTNode> list(ASTNode e1, ASTNode e2, ASTNode e3, ASTNode e4, ASTNode e5){
+            return new ArrayList<ASTNode>(){{add(e1); add(e2); add(e3); add(e4); add(e5);}};
+    }
+    private List<ASTNode> addList(ASTNode e1, ASTNode e2){  // add e2 to e1's children, then return e1's children
+        System.out.println("Begin current node is " + e1 + " add node " + e2);
+        List<ASTNode> children = e1.children;
+        children.add(e2);
+        System.out.println("Done current node is " + e1 + " add node " + e2);
+        return children;
     }
 :};
 
@@ -56,56 +86,58 @@ terminal Token                  FOR, WHILE, IF, ELSE, RETURN, NATIVE, PACKAGE, I
 terminal Token                  CLASS, INTERFACE, ABSTRACT, PUBLIC, PROTECTED, STATIC, EXTENDS, IMPLEMENTS, SUPER, FINAL; // class keywords
 
 /** Non-terminals **/
-non terminal                    compilation_unit;   // the goal of joos
-non terminal                    type_decls;
-non terminal                    type_decl;
-non terminal                    import_decls;    // import java...
-non terminal                    import_decl;
-non terminal                    package_decl;   // package cs444.a1...
+non terminal  CompilationUnit                   compilation_unit;   // the goal of joos
+non terminal  TypeDecls                  type_decls;
+non terminal  TypeDecl                  type_decl;
+non terminal  ImportDecls                  import_decls;    // import java...
+non terminal  ImportDecl                  import_decl;
+non terminal  PackageDecl                  package_decl;   // package cs444.a1...
 non terminal                    single_type_import_decl;
 non terminal                    type_import_ondemand_decl;
 
 
 // modifiers
-nonterminal                     modifiers;
-nonterminal                     access_modifier, nonaccess_modifier;
-nonterminal                     modifier;
+nonterminal  Modifiers             modifiers;
+nonterminal  Token                 modifier;
 
 
 
 // class
-non terminal                    class_decl; // class modifiers class identifier Super interface classbody
-non terminal                    interface_decl;
-non terminal                    Super; // Super: extends ClassType;
-non terminal                    interfaces; // : implements InterfaceTypeList
-non terminal                    class_body;     // {class_body_decls}
-non terminal                    class_body_decls, class_body_decl;
-non terminal                    class_member_decl, constructor_decl; // one of class_body_decl;
-non terminal                    field_decl, method_decl; // ++ class_decl, interface_decl be one of class_member_decl;
-non terminal                    interface_body; // {interface_member_decl}
-non terminal                    interface_member_decls;
-non terminal                    interface_member_decl; //  one of abstract_method_decl, class_decl, interface_decl;
-non terminal                    abstract_method_decl;   // optional abstract + methoddeclar
-non terminal                    extends_interfaces;
+non terminal    ClassDecl                    class_decl; // class modifiers class identifier Super interface classbody
+non terminal    InterfaceDecl                    interface_decl;
+non terminal    Super                    Super; // Super: extends ClassType;
+non terminal    Interfaces                    interfaces; // : implements InterfaceTypeList
+non terminal    ClassBody                    class_body;     // {class_body_decls}
+non terminal    ClassBodyDecls                class_body_decls;
+non terminal    ClassBodyDecl                class_body_decl;
+non terminal    ClassMemberDecl                class_member_decl;
+non terminal    ConstructorDecl                constructor_decl; // one of class_body_decl;
+non terminal    FieldDecl                field_decl;
+non terminal    MethodDecl                 method_decl; // ++ class_decl, interface_decl be one of class_member_decl;
+non terminal    InterfaceBody                interface_body; // {interface_member_decl}
+non terminal    InterfaceMemberDecls                interface_member_decls;
+non terminal    InterfaceMemberDecl                interface_member_decl; //  one of abstract_method_decl, class_decl, interface_decl;
+non terminal    AbstractMethodDecl                abstract_method_decl;   // optional abstract + methoddeclar
+non terminal    ExtendsInterfaces                extends_interfaces;
 
 
 // method
 non terminal                    constructor_declarator;
 non terminal                    constructor_body;
-non terminal                    method_header;
-non terminal                    method_body;
+non terminal   MethodHeader                 method_header;
+non terminal   MethodBody                 method_body;
 non terminal                    method_declarator;
 
 // type
-non terminal                    type;       // int, int[]
-non terminal                    class_type;
-non terminal                    interface_type;
-non terminal                    interface_typelist;
-non terminal                    primitive_type;
-non terminal                    numeric_type;
-non terminal                    reference_type;
-non terminal                    class_or_interface_type;
-non terminal                    array_type; // Type []
+non terminal    Type                 type;       // int, int[]
+non terminal    ClassOrInterfaceType                    class_type;
+non terminal    ClassOrInterfaceType                    interface_type;
+non terminal    InterfaceTypeList                    interface_typelist;
+non terminal    PrimitiveType                    primitive_type;
+non terminal    NumericType                    numeric_type;
+non terminal    ReferenceType                    reference_type;
+non terminal    ClassOrInterfaceType                    class_or_interface_type;
+non terminal    ArrayType                    array_type; // Type []
 non terminal                    dims;
 
 
@@ -165,7 +197,7 @@ non terminal                    paramater;
 non terminal                    argument_list;
 
 // Name
-non terminal                     name;
+non terminal      Name               name;
 
 
 
@@ -178,41 +210,36 @@ start with compilation_unit;
 /** ============= GRAMMAR ============= */
 
 // start
-compilation_unit ::= | package_decl
-                    | import_decls
-                    | type_decls
-                    | package_decl import_decls
-                    | package_decl type_decls
-                    | import_decls type_decls
-                    | package_decl import_decls type_decls;
+compilation_unit ::= | package_decl:e1 {:RESULT = new CompilationUnit(list(e1, null, null), "");  :}
+                    | import_decls:e2  {:RESULT = new CompilationUnit(list(null, e2, null), "");  :}
+                    | type_decls:e3 {:RESULT = new CompilationUnit(list(null, null, e3), "");  :}
+                    | package_decl:e1 import_decls:e2 {:RESULT = new CompilationUnit(list(e1, e2, null), "");  :}
+                    | package_decl:e1 type_decls:e3 {:RESULT =  new CompilationUnit(list(e1, null, e3), "");  :}
+                    | import_decls:e2 type_decls:e3 {:RESULT = new CompilationUnit(list(null, e2, e3), "");  :}
+                    | package_decl:e1 import_decls:e2 type_decls:e3 {:RESULT = new CompilationUnit(list(e1, e2, e3), "");  :};
 
 
-import_decls ::=  import_decl
-                    | import_decls import_decl;
+import_decls ::=  import_decl:e1 {:RESULT = new ImportDecls(list(e1), "");  :}
+                    | import_decls:e1 import_decl:e2 {:RESULT = new ImportDecls(addList(e1, e2), "");:};
 
-import_decl ::= single_type_import_decl
-                    | type_import_ondemand_decl;
+import_decl ::= single_type_import_decl {:RESULT = new ImportDecl(list(), ""); :}
+                    | type_import_ondemand_decl {:RESULT = new ImportDecl(list(), ""); :};
 
 single_type_import_decl ::= IMPORT  name SEMICOLUMN;
 
 type_import_ondemand_decl ::= IMPORT name DOT STAR SEMICOLUMN;
 
-type_decls ::=  type_decls type_decl
-                | type_decl;
+type_decls ::=  type_decls:e1 type_decl:e2 {:RESULT = new TypeDecls(addList(e1, e2), "");:}
+                | type_decl: e1 {:RESULT = new TypeDecls(list(e1), "");:};
 
-type_decl ::= class_decl
-            | interface_decl
-            | SEMICOLUMN;
+type_decl ::= class_decl:e1 {:RESULT = new TypeDecl(list(e1), ""); :}
+            | interface_decl:e1 {:RESULT = new TypeDecl(list(e1), ""); :}
+            | SEMICOLUMN {:RESULT = new TypeDecl(list(), ""); :};
 
-package_decl    ::=  PACKAGE name SEMICOLUMN;
-//type_name   ::= ID
-//                | package_or_type_name DOT ID;
-//ambiguous_name   ::= ID
-//                | ambiguous_name DOT ID;
-//ambiguous_name   ::= ID
-//                | ambiguous_name DOT ID;
-name ::= ID
-        | name DOT ID;
+package_decl    ::=  PACKAGE name:e1 SEMICOLUMN {:RESULT = new PackageDecl(list(e1), ""); :};
+
+name ::= ID:e1 {:RESULT = new Name(list(e1), "");:}
+        | name:e1 DOT ID:e2 {:RESULT = new Name(addList(e1, e2), "");:};
 
 
 
@@ -410,96 +437,101 @@ expr ::= assignment_expr;
 // type
 dims ::= LEFTBRACKET RIGHTBARCKET;
 
-type ::= primitive_type
-        | reference_type;
+type ::= primitive_type:e {:RESULT = e;:}
+        | reference_type:e {:RESULT = e;:};
 
 
 
-primitive_type ::= numeric_type
-                 | BOOL;
+primitive_type ::= numeric_type:e {:RESULT = e;:}
+                 | BOOL:e {:RESULT = new PrimitiveType(list(), e.value);:};
 
-numeric_type ::= BYTE | SHORT | INT | CHAR;
+numeric_type ::= BYTE:e {:RESULT = new NumericType(list(), e.value);:}
+                | SHORT:e {:RESULT = new NumericType(list(), e.value);:}
+                | INT:e {:RESULT = new NumericType(list(), e.value);:}
+                | CHAR:e {:RESULT = new NumericType(list(), e.value);:};
 
-reference_type ::= class_or_interface_type
-                |  array_type;
+reference_type ::= class_or_interface_type:e {:RESULT = e;:}
+                |  array_type:e {:RESULT = e;:};
 
-class_or_interface_type ::= name;
+class_or_interface_type ::= name:e {:RESULT = new ClassOrInterfaceType(list(e), "");:};
 
 class_type ::= class_or_interface_type;
 interface_type ::= class_or_interface_type;
 
-array_type ::= name dims
-            |  primitive_type dims;
+array_type ::= name:e dims  {:RESULT = new ArrayType(list(new ClassOrInterfaceType(list(e), "")), "");:}
+            |  primitive_type:e dims {:RESULT = new ArrayType(list(e), "");:};
 
 
 // class and interface
-modifier ::= access_modifier | nonaccess_modifier | STATIC; // The doc also include private, final, strictfp
+modifier ::= PUBLIC:e {:RESULT = e;:}
+        | PROTECTED:e {:RESULT = e;:}
+        | ABSTRACT:e {:RESULT = e;:}
+        | NATIVE:e {:RESULT = e;:}
+        | FINAL:e {:RESULT = e;:}
+        | STATIC:e {:RESULT = e;:};
 
-access_modifier ::= PUBLIC | PROTECTED;
-
-nonaccess_modifier ::= ABSTRACT | NATIVE | FINAL;
-
-modifiers ::= modifier | modifier modifiers;
+modifiers ::= modifier:e {:RESULT = new Modifiers(list(e), "");:}
+           | modifiers:e1 modifier:e2 {:RESULT = new Modifiers(addList(e1,e2), "");:};
 
 // class
-class_decl ::= CLASS ID class_body // identifier not found
+class_decl ::= CLASS ID:e2 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, null, null, e5), "");:}// identifier not found
                |
-               modifiers CLASS ID class_body
+               modifiers:e1 CLASS ID:e2 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, null, null, e5), "");:}
                |
-               modifiers CLASS ID Super class_body
+               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
-               modifiers CLASS ID interfaces class_body
+               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
                |
-               modifiers CLASS ID Super interfaces class_body
+               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
                |
-               CLASS ID Super class_body
+               CLASS ID:e2 Super:e3 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, e3, null, e5), "");:}
                |
-               CLASS ID Super interfaces class_body
+               CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, e3, e4, e5), "");:}
                |
-               CLASS ID interfaces class_body
+               CLASS ID:e2 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, null, e4, e5), "");:}
                ;
 
 
-interface_decl ::= INTERFACE ID interface_body
+interface_decl ::= INTERFACE ID:e2 interface_body:e4 {:RESULT = new InterfaceDecl(list(null, e2, null, e4), "");:}
                    |
-                   modifiers INTERFACE ID interface_body
+                   modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:RESULT = new InterfaceDecl(list(e1, e2, null, e4), "");:}
                    |
-                   INTERFACE ID extends_interfaces interface_body
+                   INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:RESULT = new InterfaceDecl(list(null, e2, e3, e4), "");:}
                    |
-                   modifiers INTERFACE ID extends_interfaces interface_body
+                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:RESULT = new InterfaceDecl(list(e1, e2, e3, e4), "");:}
                    ;
 
-extends_interfaces ::= EXTENDS interface_type
-                    |  extends_interfaces COMMA interface_type;
+extends_interfaces ::= EXTENDS interface_type:e {:RESULT = new ExtendsInterfaces(list(e), "");:}
+                    |  extends_interfaces:e1 COMMA interface_type:e2 {:RESULT = new ExtendsInterfaces(addList(e1,e2), "");:};
 
-Super ::= EXTENDS class_type;
+Super ::= EXTENDS class_type:e {:RESULT = new Super(list(e), "");:};
 
-interfaces ::= IMPLEMENTS  interface_typelist;
+interfaces ::= IMPLEMENTS  interface_typelist:e {:RESULT = new Interfaces(list(e), "");:};
 
-interface_typelist ::= interface_type
+interface_typelist ::= interface_type:e {:RESULT = new InterfaceTypeList(list(e), "");:}
                        |
-                       interface_typelist COMMA interface_type
+                       interface_typelist:e1 COMMA interface_type:e2 {:RESULT = new InterfaceTypeList(addList(e1,e2), "");:}
                        ;
 
 
-class_body ::= LEFTCURLY class_body_decls RIGHTCURLY
+class_body ::= LEFTCURLY class_body_decls:e RIGHTCURLY {:RESULT = new ClassBody(list(e), "");:}
                |
-               LEFTCURLY RIGHTCURLY
+               LEFTCURLY RIGHTCURLY {:RESULT = new ClassBody(list(null), "");:}
                ;
 
-class_body_decls ::= class_body_decl
+class_body_decls ::= class_body_decl:e {:RESULT = new ClassBodyDecls(list(e), "");:}
                      |
-                     class_body_decls class_body_decl
+                     class_body_decls:e1 class_body_decl:e2 {:RESULT = new ClassBodyDecls(addList(e1,e2), "");:}
                      ;
 
-class_body_decl ::= class_member_decl
+class_body_decl ::= class_member_decl:e {:RESULT = new ClassBodyDecl(list(e), "");:}
                     |
-                    constructor_decl
+                    constructor_decl:e {:RESULT = new ClassBodyDecl(list(e), "");:}
                     ;
 
-class_member_decl ::= field_decl
+class_member_decl ::= field_decl:e {:RESULT = e;:}
                       |
-                      method_decl
+                      method_decl:e {:RESULT = e;:}
                       ;
 
 constructor_decl ::= modifiers constructor_declarator constructor_body
@@ -507,19 +539,19 @@ constructor_decl ::= modifiers constructor_declarator constructor_body
                      constructor_declarator constructor_body
                      ;
 
-field_decl ::= modifiers type var_declarators SEMICOLUMN
+field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:RESULT = new FieldDecl(list(e1,e2,null), "");:} //TODO: replace null with e3
                |
-               type var_declarators SEMICOLUMN
+               type:e1 var_declarators:e2 SEMICOLUMN {:RESULT = new FieldDecl(list(e1,null), "");:}
                ;
 
 // adding in 8.4
 // is this delcaration or declarator cuz abstract_method_decl asking for declarator
-method_decl ::= method_header method_body; // missing method header and method body
-method_header ::=  modifiers type method_declarator
-                |  modifiers VOID method_declarator;
+method_decl ::= method_header:e1 method_body:e2 {:RESULT = new MethodDecl(list(e1,e2), "");:}; //TODO: replace null with e3
+method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, null), "");:}
+                |  modifiers:e1 VOID:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, null), "");:};
 
-method_body ::= block
-                | SEMICOLUMN;
+method_body ::= block:e  {:RESULT = new MethodBody(list(null), "");:} //TODO: replace null with e
+                | SEMICOLUMN {:RESULT = new MethodBody(list(null), "");:};
 
 
 method_declarator ::= ID LEFTPARN parameter_list RIGHTPARN
@@ -534,16 +566,16 @@ paramater ::= type var_declarator_id;
 abstract_method_decl ::= modifiers type method_declarator;
 
 
-interface_body ::= LEFTCURLY interface_member_decls RIGHTCURLY
+interface_body ::= LEFTCURLY interface_member_decls:e RIGHTCURLY {:RESULT = new InterfaceBody(list(e), "");:}
                    |
-                   LEFTCURLY RIGHTCURLY
+                   LEFTCURLY RIGHTCURLY {:RESULT = new InterfaceBody(list(), "");:}
                    ;
 
-interface_member_decls ::= interface_member_decl
+interface_member_decls ::= interface_member_decl:e {:RESULT = new InterfaceMemberDecls(list(e), "");:}
                            |
-                           interface_member_decls interface_member_decl
+                           interface_member_decls:e1 interface_member_decl:e2 {:RESULT = new InterfaceMemberDecls(addList(e1,e2), "");:}
                            ;
-interface_member_decl ::= abstract_method_decl
+interface_member_decl ::= abstract_method_decl  {:RESULT = new InterfaceMemberDecl(list(), "");:}
                           ;
 
 
