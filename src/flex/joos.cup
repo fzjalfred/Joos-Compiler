@@ -59,13 +59,13 @@ parser code {:
 terminal Token                  ID;
 
 // Literals
-terminal /* IntegerLiteral*/         INTGERLITERAL;
-terminal /* CharLiteral */           CHARLITERAL;
-terminal /* StringLiteral */         STRINGLITERAL;
-terminal /* NullLiteral */          NULLLITERAL;
-terminal /* ThisLiteral */            THISLITERAL;
-terminal /* TrueLiteral */           TRUELITERAL;
-terminal /* FalseLiteral */          FALSELITERAL;
+terminal    Token/* IntegerLiteral*/         INTGERLITERAL;
+terminal    Token /* CharLiteral */           CHARLITERAL;
+terminal    Token/* StringLiteral */         STRINGLITERAL;
+terminal    Token/* NullLiteral */          NULLLITERAL;
+terminal    Token/* ThisLiteral */            THISLITERAL;
+terminal    Token/* TrueLiteral */           TRUELITERAL;
+terminal    Token/* FalseLiteral */          FALSELITERAL;
 
 // Type
 terminal Token                  VOID, BOOL, INT, CHAR, BYTE, SHORT; // how to represent Array?
@@ -122,11 +122,11 @@ non terminal    ExtendsInterfaces                extends_interfaces;
 
 
 // method
-non terminal                    constructor_declarator;
-non terminal                    constructor_body;
+non terminal   ConstructorDeclarator                 constructor_declarator;
+non terminal   ConstructorBody                 constructor_body;
 non terminal   MethodHeader                 method_header;
 non terminal   MethodBody                 method_body;
-non terminal                    method_declarator;
+non terminal   MethodDeclarator                 method_declarator;
 
 // type
 non terminal    Type                 type;       // int, int[]
@@ -138,63 +138,71 @@ non terminal    NumericType                    numeric_type;
 non terminal    ReferenceType                    reference_type;
 non terminal    ClassOrInterfaceType                    class_or_interface_type;
 non terminal    ArrayType                    array_type; // Type []
-non terminal                    dims;
+non terminal    Dims                dims;
 
 
 
 // statements (side effects)
-non terminal                    block; // {block_statement[opt]}
-non terminal                    block_statements;
-non terminal                    block_statement;    // one of statement, class decl, local_var_decl
-non terminal                    local_var_decl_statement; // local_var_decl + ;
-non terminal                    local_var_decl;
-non terminal                    var_declarators;
-non terminal                    var_declarator;
-non terminal                    var_declarator_id;
-non terminal                    statement, statement_no_short_if, statement_without_trailing_substatement;
-non terminal                    if_then_statement, if_then_else_statement, if_then_else_statement_no_short_if;
-non terminal                    for_statement, for_statement_no_short_if;
-non terminal                    for_init, for_update;
-non terminal                    while_statement, while_statement_no_short_if;
-non terminal                    return_statement;
-non terminal                    empty_statement; //;
+non terminal    Block                block; // {block_statement[opt]}
+non terminal    BlockStmts                block_statements;
+non terminal    BlockStmt                block_statement;    // one of statement, class decl, local_var_decl
+non terminal    LocalVarDeclStmt                local_var_decl_statement; // local_var_decl + ;
+non terminal    LocalVarDecl                local_var_decl;
+non terminal    VarDeclarators                var_declarators;
+non terminal    VarDeclarator                var_declarator;
+non terminal    VarDeclaratorID                var_declarator_id;
+non terminal    Stmt                statement;
+non terminal    StmtNotIf                statement_no_short_if;
+non terminal    StmtWithoutSubstmt                statement_without_trailing_substatement;
+non terminal    IfThenStmt                if_then_statement;
+non terminal    IfThenElseStmt                if_then_else_statement;
+non terminal    IfThenElseStmtNotIf                if_then_else_statement_no_short_if;
+non terminal    ForStmt                for_statement;
+non terminal    ForStmtNotIf                for_statement_no_short_if;
+non terminal    ForInit                for_init;
+non terminal    ForUpdate                for_update;
+non terminal    WhileStmt                while_statement;
+non terminal    WhileStmtNotIf                while_statement_no_short_if;
+non terminal    ReturnStmt                return_statement;
+non terminal    EmptyStmt                empty_statement; //;
 
 // evaluate the expression, if it has a value, than it's discard
 
-non terminal                    expression_statement; // expression_statement = statement_expression + ;
-non terminal                    statement_expression;
-non terminal                    statement_expression_list; // seperate statement_expression by ','
-non terminal                    assignment_expr; //
-non terminal                    assignment;
+non terminal    ExprStmt                expression_statement; // expression_statement = statement_expression + ;
+non terminal    StmtExpr                statement_expression;
+non terminal    StmtExprList                statement_expression_list; // seperate statement_expression by ','
+non terminal    AssignmentExpr                assignment_expr; //
+non terminal    Assignment                assignment;
 
 // experssions (have values) and always use return value
-non terminal                    expr;           // any statement that returns a value
-non terminal                    cast_expr;
-non terminal                    array_access;
-non terminal                    array_creation_expr;
-non terminal                    field_access;   //{...}.ID
-non terminal                    class_instance_creation_expression;
-non terminal                    primary, primary_no_new_array; // simplest kinds of expressions that evaluate first
-non terminal                    literal;    // 123, "abc"
-non terminal                    method_invocation;
-non terminal                    unary_expr;   // -, +
-non terminal                    unary_expr_not_plus_minus; // !, cast
-non terminal                    post_fix_expr;
-non terminal                    multiplicative_expr; // *, / %
-non terminal                    additive_expr;  // +, -
-non terminal                    relation_expr;  // >, <, = instanceof
-non terminal                    equality_expr; // ==, !=
-non terminal                    and_expr; // &
-non terminal                    or_expr; // |
-non terminal                    conditional_and_expr;
-non terminal                    conditional_or_expr;
-non terminal                    lhs;        // left hand side: ambiguous_name, field_access, array_access
-non terminal                    dim_expr;
+non terminal    Expr                expr;           // any statement that returns a value
+non terminal    CastExpr                cast_expr;
+non terminal    ArrayAccess                array_access;
+non terminal    ArrayCreationExpr                array_creation_expr;
+non terminal    FieldAccess                field_access;   //{...}.ID
+non terminal    ClassInstanceCreateExpr                class_instance_creation_expression;
+non terminal    Primary                primary;
+non terminal    PrimaryNoArray      primary_no_new_array; // simplest kinds of expressions that evaluate first
+non terminal    Token                literal;    // 123, "abc"
+non terminal    MethodInvocation                method_invocation;
+non terminal    UnaryExpr                unary_expr;   // -, +
+non terminal    UnaryExprNotPlusMinus                unary_expr_not_plus_minus; // !, cast
+non terminal    PostFixExpr                post_fix_expr;
+non terminal    MultiplicativeExpr                multiplicative_expr; // *, / %
+non terminal    AdditiveExpr                additive_expr;  // +, -
+non terminal    RelationExpr                relation_expr;  // >, <, = instanceof
+non terminal    EqualityExpr                equality_expr; // ==, !=
+non terminal    AndExpr                and_expr; // &
+non terminal    OrExpr                or_expr; // |
+non terminal    ConditionalAndExpr                conditional_and_expr;
+non terminal    ConditionalOrExpr                conditional_or_expr;
+non terminal    LHS                lhs;        // left hand side: ambiguous_name, field_access, array_access
+non terminal    DimExpr                dim_expr;
 
 // parameters/arguments
-non terminal                    parameter_list;
-non terminal                    paramater;
-non terminal                    argument_list;
+non terminal    ParameterList                parameter_list;
+non terminal    Parameter                paramater;
+non terminal    ArgumentList                argument_list;
 
 // Name
 non terminal      Name               name;
@@ -246,196 +254,201 @@ name ::= ID:e1 {:RESULT = new Name(list(e1), "");:}
 
 // Statements
 
-block ::= LEFTCURLY block_statements RIGHTCURLY
-        | LEFTCURLY RIGHTCURLY;
+block ::= LEFTCURLY block_statements:e RIGHTCURLY {:RESULT = new Block(list(e), "");:}
+        | LEFTCURLY RIGHTCURLY {:RESULT = new Block(list(), "");:};
 
-block_statements ::= block_statements block_statement
-                    | block_statement;
+block_statements ::= block_statements:e1 block_statement:e2 {:RESULT = new BlockStmts(addList(e1, e2), "");:}
+                    | block_statement:e {:RESULT = new BlockStmts(list(e), "");:};
 
-block_statement ::= local_var_decl_statement
-                    | statement;
+// not sure
+block_statement ::= local_var_decl_statement:e {:RESULT = new BlockStmt(list(e), "");:}
+                    | statement:e {:RESULT = new BlockStmt(list(e), "");:}/**{:RESULT = new Block(list(e), "");:}*/;
 
-local_var_decl_statement  ::= local_var_decl SEMICOLUMN;
+local_var_decl_statement  ::= local_var_decl:e SEMICOLUMN {:RESULT = new LocalVarDeclStmt(list(e), "");:};
 
-local_var_decl  ::= type var_declarators;
+local_var_decl  ::= type:e1 var_declarators:e2 {:RESULT = new LocalVarDecl(list(e1, e2), "");:};
 
-var_declarators ::= var_declarator
-                    | var_declarators COMMA var_declarator;
+var_declarators ::= var_declarator:e  {:RESULT = new VarDeclarators(list(e), "");:}
+                    | var_declarators:e1 COMMA var_declarator:e2 {:RESULT = new VarDeclarators(addList(e1, e2), "");:};
 
-var_declarator ::= var_declarator_id
-                    | var_declarator_id ASSIGN expr;
+var_declarator ::= var_declarator_id:e {:RESULT = new VarDeclarator(list(e, null), "");:}
+                    | var_declarator_id:e1 ASSIGN expr:e2 {:RESULT = new VarDeclarator(list(e1, e2), "");:};
 
-var_declarator_id ::= ID;
+var_declarator_id ::= ID:e {:RESULT = new VarDeclaratorID(list(e), "");:};
 
-statement ::= statement_without_trailing_substatement
-            | if_then_statement
-            | if_then_else_statement
-            | while_statement
-            | for_statement;
+statement ::= statement_without_trailing_substatement:e {:RESULT = new Stmt(list(e), "");:}
+            | if_then_statement:e {:RESULT = new Stmt(list(e), "");:}
+            | if_then_else_statement:e {:RESULT = new Stmt(list(e), "");:}
+            | while_statement:e {:RESULT = new Stmt(list(e), "");:}
+            | for_statement:e {:RESULT = new Stmt(list(e), "");:};
 
 statement_without_trailing_substatement ::= block   // single statement
                                             | empty_statement
                                             | expression_statement
                                             | return_statement;
 
-statement_no_short_if ::= statement_without_trailing_substatement
-                        | if_then_else_statement_no_short_if
-                        | while_statement_no_short_if
-                        | for_statement_no_short_if;
+statement_no_short_if ::= statement_without_trailing_substatement:e {:RESULT = new StmtNotIf(list(e), "");:}
+                        | if_then_else_statement_no_short_if:e {:RESULT = new StmtNotIf(list(e), "");:}
+                        | while_statement_no_short_if:e {:RESULT = new StmtNotIf(list(e), "");:}
+                        | for_statement_no_short_if:e {:RESULT = new StmtNotIf(list(e), "");:};
 
-empty_statement ::= SEMICOLUMN;
+empty_statement ::= SEMICOLUMN {:RESULT = new EmptyStmt(list(), "");:};
+// not sure
+expression_statement ::= statement_expression:e SEMICOLUMN {:RESULT = new ExprStmt(list(e), "");:};
 
-expression_statement ::= statement_expression SEMICOLUMN;
-
-statement_expression ::= assignment
-                        | method_invocation
-                        | class_instance_creation_expression;
+statement_expression ::= assignment:e {:RESULT = new StmtExpr(list(e), "");:}
+                        | method_invocation:e {:RESULT = new StmtExpr(list(e), "");:}
+                        | class_instance_creation_expression:e {:RESULT = new StmtExpr(list(e), "");:};
 
 
 // if statement
 
-if_then_statement ::= IF LEFTPARN expr RIGHTPARN statement;
+if_then_statement ::= IF LEFTPARN expr:e1 RIGHTPARN statement:e2 {:RESULT = new IfThenStmt(list(e1, e2), "");:};
 
-if_then_else_statement ::= IF LEFTPARN expr RIGHTPARN statement_no_short_if ELSE statement;
+if_then_else_statement ::= IF LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 ELSE statement:e3 {:RESULT = new IfThenElseStmt(list(e1, e2, e3), "");:};
 
-if_then_else_statement_no_short_if ::= IF LEFTPARN expr RIGHTPARN statement_no_short_if ELSE statement_no_short_if;
+if_then_else_statement_no_short_if ::= IF LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 ELSE statement_no_short_if:e3 {:RESULT = new IfThenElseStmtNotIf(list(e1, e2, e3), "");:};
 
 // while statement
-while_statement ::= WHILE LEFTPARN expr RIGHTPARN statement;
+while_statement ::= WHILE LEFTPARN expr:e1 RIGHTPARN statement:e2 {:RESULT = new WhileStmt(list(e1, e2), "");:};
 
-while_statement_no_short_if ::= WHILE LEFTPARN expr RIGHTPARN statement_no_short_if;
+while_statement_no_short_if ::= WHILE LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 {:RESULT = new WhileStmtNotIf(list(e1, e2), "");:};
 
 // for statement
-for_statement ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement
-                | FOR LEFTPARN for_init SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement
-                | FOR LEFTPARN  SEMICOLUMN expr  SEMICOLUMN  RIGHTPARN statement
-                | FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN for_update  RIGHTPARN statement
-                | FOR LEFTPARN for_init SEMICOLUMN expr  SEMICOLUMN  RIGHTPARN statement
-                | FOR LEFTPARN for_init SEMICOLUMN  SEMICOLUMN for_update RIGHTPARN statement
-                | FOR LEFTPARN  SEMICOLUMN expr SEMICOLUMN for_update RIGHTPARN statement
-                | FOR LEFTPARN for_init  SEMICOLUMN expr SEMICOLUMN for_update RIGHTPARN statement;
+for_statement ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(null, null, null, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(e1, null, null, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(null, e2, null, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN for_update:e3  RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(null, null, e3, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(e1, e2, null, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN for_update:e3 RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(e1, null, e3, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(null, e2, e3, e4), "");:}
+                | FOR LEFTPARN for_init:e1  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(e1, e2, e3, e4), "");:};
 
-for_statement_no_short_if ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN for_init SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN  SEMICOLUMN expr  SEMICOLUMN  RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN for_update  RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN for_init SEMICOLUMN expr  SEMICOLUMN  RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN for_init SEMICOLUMN  SEMICOLUMN for_update RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN  SEMICOLUMN expr SEMICOLUMN for_update RIGHTPARN statement_no_short_if
-                | FOR LEFTPARN for_init  SEMICOLUMN expr SEMICOLUMN for_update RIGHTPARN statement_no_short_if;
+for_statement_no_short_if ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, null, null, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, null, null, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, e2, null, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN for_update:e3  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, null, e3, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, e2, null, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, null, e3, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, e2, e3, e4), "");:}
+                | FOR LEFTPARN for_init:e1  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, e2, e3, e4), "");:};
 
-for_init ::=  type var_declarator
-            | statement_expression;
+for_init ::=  type:e1 var_declarator:e2 {:RESULT = new ForInit(list(e1, e2), "");:}
+            | statement_expression:e1 {:RESULT = new ForInit(list(e1, null), "");:};
 
-for_update ::=  statement_expression;
+for_update ::=  statement_expression:e {:RESULT = new ForUpdate(list(e), "");:};
 
-statement_expression_list ::= statement_expression
-                            | statement_expression_list COMMA statement_expression;
+statement_expression_list ::= statement_expression:e {:RESULT = new StmtExprList(list(e), "");:}
+                            | statement_expression_list:e1 COMMA statement_expression:e2 {:RESULT = new StmtExprList(addList(e1, e2), "");:};
 
-return_statement ::= RETURN expr SEMICOLUMN
-                    | RETURN SEMICOLUMN;
+return_statement ::= RETURN expr:e SEMICOLUMN {:RESULT = new ReturnStmt(list(e), "");:}
+                    | RETURN SEMICOLUMN {:RESULT = new ReturnStmt(list(), "");:};
 
 // expressions
-dim_expr ::= LEFTBRACKET expr RIGHTBARCKET;
+dim_expr ::= LEFTBRACKET expr:e RIGHTBARCKET {:RESULT = new DimExpr(list(e), "");:};
 
-primary ::= primary_no_new_array
-            | array_creation_expr;
+primary ::= primary_no_new_array:e {:RESULT = new Primary(list(e), "");:}
+            | array_creation_expr:e {:RESULT = new Primary(list(e), "");:};
 
-array_creation_expr ::= NEW primitive_type dim_expr
-                    |  NEW class_or_interface_type dim_expr;
-
-
-
-primary_no_new_array ::= literal
-                         | THISLITERAL
-                         | LEFTPARN expr RIGHTPARN
-                         | class_instance_creation_expression
-                         | field_access
-                         | method_invocation
-                         | array_access;
+array_creation_expr ::= NEW primitive_type:e1 dim_expr:e2 {:RESULT = new ArrayCreationExpr(list(e1, e2), "");:}
+                    |  NEW class_or_interface_type:e1 dim_expr:e2 {:RESULT = new ArrayCreationExpr(list(e1, e2), "");:};
 
 
-literal ::= INTGERLITERAL | TRUELITERAL | FALSELITERAL | CHARLITERAL | STRINGLITERAL | NULLLITERAL;
 
-class_instance_creation_expression ::= NEW class_or_interface_type LEFTPARN argument_list RIGHTPARN
-                                    |  NEW class_or_interface_type LEFTPARN RIGHTPARN;
-
-argument_list ::=  expr
-                | argument_list COMMA expr;
-
-
-array_access ::= name LEFTBRACKET expr RIGHTBARCKET
-                | primary_no_new_array LEFTBRACKET expr RIGHTBARCKET;
-
-field_access ::= primary DOT ID;
-
-method_invocation ::= name LEFTPARN argument_list RIGHTPARN
-                    | name LEFTPARN  RIGHTPARN
-                    | primary DOT ID LEFTPARN argument_list RIGHTPARN
-                    | primary DOT ID LEFTPARN  RIGHTPARN;
-
-post_fix_expr ::= primary
-                  | name;
-
-unary_expr  ::=  unary_expr_not_plus_minus
-                | MINUS unary_expr;
-
-unary_expr_not_plus_minus   ::= NOT unary_expr
-                            |   cast_expr
-                            | post_fix_expr;
+primary_no_new_array ::= literal:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | THISLITERAL:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | LEFTPARN expr:e RIGHTPARN {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | class_instance_creation_expression:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | field_access:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | method_invocation:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | array_access:e {:RESULT = new PrimaryNoArray(list(e), "");:};
 
 
-cast_expr   ::= LEFTPARN primitive_type RIGHTPARN unary_expr
-                | LEFTPARN expr RIGHTPARN unary_expr_not_plus_minus
-                | LEFTPARN primitive_type dims RIGHTPARN unary_expr
-                | LEFTPARN name dims RIGHTPARN unary_expr_not_plus_minus;
+literal ::= INTGERLITERAL:e {:RESULT = e;:}
+            | TRUELITERAL:e {:RESULT = e;:}
+            | FALSELITERAL:e {:RESULT = e;:}
+            | CHARLITERAL:e {:RESULT = e;:}
+            | STRINGLITERAL:e {:RESULT = e;:}
+            | NULLLITERAL:e {:RESULT = e;:};
 
-multiplicative_expr ::= unary_expr
-                    |   multiplicative_expr STAR unary_expr
-                    |   multiplicative_expr DIVIDES unary_expr
-                    |   multiplicative_expr MOD unary_expr;
+class_instance_creation_expression ::= NEW class_or_interface_type:e1 LEFTPARN argument_list:e2 RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, e2), "");:}
+                                    |  NEW class_or_interface_type:e1 LEFTPARN RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, null), "");:};
 
-additive_expr ::= multiplicative_expr
-                | additive_expr PLUS multiplicative_expr
-                | additive_expr MINUS multiplicative_expr;
+argument_list ::=  expr:e1 {:RESULT = new ArgumentList(list(e1), "");:}
+                | argument_list:e1 COMMA expr:e2 {:RESULT = new ArgumentList(addList(e1, e2), "");:};
 
-relation_expr ::= additive_expr
-                | relation_expr LT additive_expr
-                | relation_expr GT additive_expr
-                | relation_expr LE additive_expr
-                | relation_expr GE additive_expr
-                | relation_expr INSTANCEOF reference_type;
 
-equality_expr ::= relation_expr
-                | equality_expr EQ relation_expr
-                | equality_expr NE relation_expr;
+array_access ::= name:e1 LEFTBRACKET expr:e2 RIGHTBARCKET {:RESULT = new ArrayAccess(list(e1, e2), "");:}
+                | primary_no_new_array:e1 LEFTBRACKET expr:e2 RIGHTBARCKET {:RESULT = new ArrayAccess(list(e1, e2), "");:};
 
-and_expr ::= equality_expr
-            | and_expr BITWISEAND equality_expr;
+field_access ::= primary:e1 DOT ID:e2 {:RESULT = new FieldAccess(list(e1, e2), "");:};
 
-or_expr ::= and_expr
-          | or_expr BITWISEOR and_expr;
+method_invocation ::= name:e1 LEFTPARN argument_list:e3 RIGHTPARN {:RESULT = new MethodInvocation(list(e1, null, e3), "");:}
+                    | name:e1 LEFTPARN  RIGHTPARN {:RESULT = new MethodInvocation(list(e1, null, null), "");:}
+                    | primary:e1 DOT ID:e2 LEFTPARN argument_list:e3 RIGHTPARN {:RESULT = new MethodInvocation(list(e1, e2, e3), "");:}
+                    | primary:e1 DOT ID:e2 LEFTPARN  RIGHTPARN {:RESULT = new MethodInvocation(list(e1, e2, null), "");:};
+// Not sure for the 3 below
+post_fix_expr ::= primary:e {:RESULT = new PostFixExpr(list(e), "");:}
+                  | name:e {:RESULT = new PostFixExpr(list(e), "");:};
 
-conditional_and_expr ::= or_expr
-                        | conditional_and_expr BINARYAND or_expr;
+unary_expr  ::=  unary_expr_not_plus_minus:e {:RESULT = new UnaryExpr(list(e), "");:}
+                | MINUS:e1 unary_expr:e2 {:RESULT = new UnaryExpr(list(e1, e2), "");:};
 
-conditional_or_expr ::= conditional_and_expr
-                        | conditional_or_expr BINARYOR conditional_and_expr;
+unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNotPlusMinus(list(e1, e2), "");:}
+                            |   cast_expr:e1 {:RESULT = new UnaryExprNotPlusMinus(list(e1, null), "");:}
+                            | post_fix_expr:e1 {:RESULT = new UnaryExprNotPlusMinus(list(e1, null), "");:};
 
-assignment_expr ::= conditional_or_expr
-                |   assignment;
+cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
+                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
+                | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:}
+                | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:};
 
-assignment ::= lhs ASSIGN assignment_expr;
+multiplicative_expr ::= unary_expr:e {:RESULT = new MultiplicativeExpr(list(e), "");:}
+                    |   multiplicative_expr:e1 STAR:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
+                    |   multiplicative_expr:e1 DIVIDES:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
+                    |   multiplicative_expr:e1 MOD:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:};
 
-lhs ::= name
-        | field_access
-        | array_access;
+additive_expr ::= multiplicative_expr:e {:RESULT = new AdditiveExpr(list(e), "");:}
+                | additive_expr:e1 PLUS:e2 multiplicative_expr:e3 {:RESULT = new AdditiveExpr(list(e1, e2, e3), "");:}
+                | additive_expr:e1 MINUS:e2 multiplicative_expr:e3 {:RESULT = new AdditiveExpr(list(e1, e2, e3), "");:};
 
-expr ::= assignment_expr;
+relation_expr ::= additive_expr:e {:RESULT = new RelationExpr(list(e), "");:}
+                | relation_expr:e1 LT:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
+                | relation_expr:e1 GT:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
+                | relation_expr:e1 LE:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
+                | relation_expr:e1 GE:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
+                | relation_expr:e1 INSTANCEOF:e2 reference_type:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:};
+
+equality_expr ::= relation_expr:e {:RESULT = new EqualityExpr(list(e), "");:}
+                | equality_expr:e1 EQ:e2 relation_expr:e3 {:RESULT = new EqualityExpr(list(e1, e2, e3), "");:}
+                | equality_expr:e1 NE:e2 relation_expr:e3 {:RESULT = new EqualityExpr(list(e1, e2, e3), "");:};
+
+and_expr ::= equality_expr:e {:RESULT = new AndExpr(list(e), "");:}
+            | and_expr:e1 BITWISEAND equality_expr:e2 {:RESULT = new AndExpr(list(e1, e2), "");:};
+
+or_expr ::= and_expr:e {:RESULT = new OrExpr(list(e), "");:}
+          | or_expr:e1 BITWISEOR and_expr:e2 {:RESULT = new OrExpr(list(e1, e2), "");:};
+
+conditional_and_expr ::= or_expr:e {:RESULT = new ConditionalAndExpr(list(e), "");:}
+                        | conditional_and_expr:e1 BINARYAND or_expr:e2 {:RESULT = new ConditionalAndExpr(list(e1, e2), "");:};
+
+conditional_or_expr ::= conditional_and_expr:e {:RESULT = new ConditionalOrExpr(list(e), "");:}
+                        | conditional_or_expr:e1 BINARYOR conditional_and_expr:e2 {:RESULT = new ConditionalOrExpr(list(e1, e2), "");:};
+
+assignment_expr ::= conditional_or_expr:e {:RESULT = new AssignmentExpr(list(e), "");:}
+                |   assignment:e {:RESULT = new AssignmentExpr(list(e), "");:};
+
+assignment ::= lhs:e1 ASSIGN assignment_expr:e2 {:RESULT = new Assignment(list(e1, e2), "");:};
+
+lhs ::= name:e {:RESULT = new LHS(list(e), "");:}
+        | field_access:e {:RESULT = new LHS(list(e), "");:}
+        | array_access:e {:RESULT = new LHS(list(e), "");:};
+
+expr ::= assignment_expr:e {:RESULT = new Expr(list(e), "");:};
 
 
 // type
-dims ::= LEFTBRACKET RIGHTBARCKET;
+dims ::= LEFTBRACKET RIGHTBARCKET {:RESULT = new Dims(list(), "");:};
 
 type ::= primitive_type:e {:RESULT = e;:}
         | reference_type:e {:RESULT = e;:};
@@ -534,36 +547,36 @@ class_member_decl ::= field_decl:e {:RESULT = e;:}
                       method_decl:e {:RESULT = e;:}
                       ;
 
-constructor_decl ::= modifiers constructor_declarator constructor_body
+constructor_decl ::= modifiers:e1 constructor_declarator:e2 constructor_body:e3 {:RESULT = new ConstructorDecl(list(e1,e2,e3),"");:}
                      |
-                     constructor_declarator constructor_body
+                     constructor_declarator:e2 constructor_body:e3 {:RESULT = new ConstructorDecl(list(null,e2,e3),"");:}
                      ;
 
-field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:RESULT = new FieldDecl(list(e1,e2,null), "");:} //TODO: replace null with e3
+field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:RESULT = new FieldDecl(list(e1,e2,e3), "");:} //TODO: replace null with e3
                |
-               type:e1 var_declarators:e2 SEMICOLUMN {:RESULT = new FieldDecl(list(e1,null), "");:}
+               type:e1 var_declarators:e2 SEMICOLUMN {:RESULT = new FieldDecl(list(e1, e2, null), "");:}
                ;
 
 // adding in 8.4
 // is this delcaration or declarator cuz abstract_method_decl asking for declarator
 method_decl ::= method_header:e1 method_body:e2 {:RESULT = new MethodDecl(list(e1,e2), "");:}; //TODO: replace null with e3
-method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, null), "");:}
-                |  modifiers:e1 VOID:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, null), "");:};
+method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, e3), "");:}
+                |  modifiers:e1 VOID:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, e3), "");:};
 
-method_body ::= block:e  {:RESULT = new MethodBody(list(null), "");:} //TODO: replace null with e
+method_body ::= block:e  {:RESULT = new MethodBody(list(e), "");:} //TODO: replace null with e
                 | SEMICOLUMN {:RESULT = new MethodBody(list(null), "");:};
 
 
-method_declarator ::= ID LEFTPARN parameter_list RIGHTPARN
-                    | ID LEFTPARN RIGHTPARN;
+method_declarator ::= ID:e1 LEFTPARN parameter_list:e2 RIGHTPARN {:RESULT = new MethodDeclarator(list(e1, e2), "");:}
+                    | ID:e1 LEFTPARN RIGHTPARN {:RESULT = new MethodDeclarator(list(e1, null), "");:};
 
-parameter_list ::=  paramater
-                   | parameter_list COMMA paramater;
+parameter_list ::=  paramater:e {:RESULT = new ParameterList(list(e), "");:}
+                   | parameter_list:e1 COMMA paramater:e2 {:RESULT = new ParameterList(addList(e1, e2), "");:};
 
-paramater ::= type var_declarator_id;
+paramater ::= type:e1 var_declarator_id:e2 {:RESULT = new Parameter(list(e1, e2), "");:};
 
 
-abstract_method_decl ::= modifiers type method_declarator;
+abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 {:RESULT = new AbstractMethodDecl(list(e1, e2, e3), "");:};
 
 
 interface_body ::= LEFTCURLY interface_member_decls:e RIGHTCURLY {:RESULT = new InterfaceBody(list(e), "");:}
@@ -579,12 +592,12 @@ interface_member_decl ::= abstract_method_decl  {:RESULT = new InterfaceMemberDe
                           ;
 
 
-constructor_declarator ::= ID LEFTPARN parameter_list RIGHTPARN
+constructor_declarator ::= ID LEFTPARN parameter_list:e RIGHTPARN {:RESULT = new ConstructorDeclarator(list(e), "");:}
                            |
-                           ID LEFTPARN RIGHTPARN
+                           ID LEFTPARN RIGHTPARN {:RESULT = new ConstructorDeclarator(list(), "");:}
                            ;
-constructor_body ::= LEFTCURLY block_statements RIGHTCURLY
+constructor_body ::= LEFTCURLY block_statements:e RIGHTCURLY {:RESULT = new ConstructorBody(list(e), "");:}
                      |
-                     LEFTCURLY RIGHTCURLY;
+                     LEFTCURLY RIGHTCURLY {:RESULT = new ConstructorBody(list(), "");:};
 
 
