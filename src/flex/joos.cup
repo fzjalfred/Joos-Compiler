@@ -60,7 +60,7 @@ terminal Token                  ID;
 
 // Literals
 terminal    Token/* IntegerLiteral*/         INTGERLITERAL;
-terminal    Token /* CharLiteral */           CHARLITERAL;
+terminal    Token/* CharLiteral */           CHARLITERAL;
 terminal    Token/* StringLiteral */         STRINGLITERAL;
 terminal    Token/* NullLiteral */          NULLLITERAL;
 terminal    Token/* ThisLiteral */            THISLITERAL;
@@ -92,8 +92,8 @@ non terminal  TypeDecl                  type_decl;
 non terminal  ImportDecls                  import_decls;    // import java...
 non terminal  ImportDecl                  import_decl;
 non terminal  PackageDecl                  package_decl;   // package cs444.a1...
-non terminal                    single_type_import_decl;
-non terminal                    type_import_ondemand_decl;
+non terminal  SingleTypeImportDecl                  single_type_import_decl;
+non terminal  TypeImportOndemandDecl                  type_import_ondemand_decl;
 
 
 // modifiers
@@ -183,7 +183,7 @@ non terminal    FieldAccess                field_access;   //{...}.ID
 non terminal    ClassInstanceCreateExpr                class_instance_creation_expression;
 non terminal    Primary                primary;
 non terminal    PrimaryNoArray      primary_no_new_array; // simplest kinds of expressions that evaluate first
-non terminal    Token                literal;    // 123, "abc"
+non terminal    Literal                literal;    // 123, "abc"
 non terminal    MethodInvocation                method_invocation;
 non terminal    UnaryExpr                unary_expr;   // -, +
 non terminal    UnaryExprNotPlusMinus                unary_expr_not_plus_minus; // !, cast
@@ -230,19 +230,19 @@ compilation_unit ::= | package_decl:e1 {:RESULT = new CompilationUnit(list(e1, n
 import_decls ::=  import_decl:e1 {:RESULT = new ImportDecls(list(e1), "");  :}
                     | import_decls:e1 import_decl:e2 {:RESULT = new ImportDecls(addList(e1, e2), "");:};
 
-import_decl ::= single_type_import_decl {:RESULT = new ImportDecl(list(), ""); :}
-                    | type_import_ondemand_decl {:RESULT = new ImportDecl(list(), ""); :};
+import_decl ::= single_type_import_decl:e {:RESULT = e; :}
+                    | type_import_ondemand_decl:e {:RESULT = e; :};
 
-single_type_import_decl ::= IMPORT  name SEMICOLUMN;
+single_type_import_decl ::= IMPORT name:e SEMICOLUMN {:RESULT = new SingleTypeImportDecl(list(e), "");:};
 
-type_import_ondemand_decl ::= IMPORT name DOT STAR SEMICOLUMN;
+type_import_ondemand_decl ::= IMPORT name:e DOT STAR SEMICOLUMN {:RESULT = new TypeImportOndemandDecl(list(e), "");:};
 
 type_decls ::=  type_decls:e1 type_decl:e2 {:RESULT = new TypeDecls(addList(e1, e2), "");:}
                 | type_decl: e1 {:RESULT = new TypeDecls(list(e1), "");:};
 
-type_decl ::= class_decl:e1 {:RESULT = new TypeDecl(list(e1), ""); :}
-            | interface_decl:e1 {:RESULT = new TypeDecl(list(e1), ""); :}
-            | SEMICOLUMN {:RESULT = new TypeDecl(list(), ""); :};
+type_decl ::= class_decl:e {:RESULT = e; :}
+            | interface_decl:e {:RESULT = e; :}
+            | SEMICOLUMN {:RESULT = null; :};
 
 package_decl    ::=  PACKAGE name:e1 SEMICOLUMN {:RESULT = new PackageDecl(list(e1), ""); :};
 
@@ -255,16 +255,16 @@ name ::= ID:e1 {:RESULT = new Name(list(e1), "");:}
 // Statements
 
 block ::= LEFTCURLY block_statements:e RIGHTCURLY {:RESULT = new Block(list(e), "");:}
-        | LEFTCURLY RIGHTCURLY {:RESULT = new Block(list(), "");:};
+        | LEFTCURLY RIGHTCURLY {:RESULT = new Block(list(null), "");:};
 
 block_statements ::= block_statements:e1 block_statement:e2 {:RESULT = new BlockStmts(addList(e1, e2), "");:}
                     | block_statement:e {:RESULT = new BlockStmts(list(e), "");:};
 
 // not sure
-block_statement ::= local_var_decl_statement:e {:RESULT = new BlockStmt(list(e), "");:}
-                    | statement:e {:RESULT = new BlockStmt(list(e), "");:}/**{:RESULT = new Block(list(e), "");:}*/;
+block_statement ::= local_var_decl_statement:e {:RESULT = e;:}
+                    | statement:e {:RESULT = e;:}/**{:RESULT = new Block(list(e), "");:}*/;
 
-local_var_decl_statement  ::= local_var_decl:e SEMICOLUMN {:RESULT = new LocalVarDeclStmt(list(e), "");:};
+local_var_decl_statement  ::= local_var_decl:e SEMICOLUMN {:RESULT = e;:};
 
 local_var_decl  ::= type:e1 var_declarators:e2 {:RESULT = new LocalVarDecl(list(e1, e2), "");:};
 
@@ -276,21 +276,21 @@ var_declarator ::= var_declarator_id:e {:RESULT = new VarDeclarator(list(e, null
 
 var_declarator_id ::= ID:e {:RESULT = new VarDeclaratorID(list(e), "");:};
 
-statement ::= statement_without_trailing_substatement:e {:RESULT = new Stmt(list(e), "");:}
-            | if_then_statement:e {:RESULT = new Stmt(list(e), "");:}
-            | if_then_else_statement:e {:RESULT = new Stmt(list(e), "");:}
-            | while_statement:e {:RESULT = new Stmt(list(e), "");:}
-            | for_statement:e {:RESULT = new Stmt(list(e), "");:};
+statement ::= statement_without_trailing_substatement:e {:RESULT = e;:}
+            | if_then_statement:e {:RESULT = e;:}
+            | if_then_else_statement:e {:RESULT = e;:}
+            | while_statement:e {:RESULT = e;:}
+            | for_statement:e {:RESULT = e;:};
 
-statement_without_trailing_substatement ::= block   // single statement
-                                            | empty_statement
-                                            | expression_statement
-                                            | return_statement;
+statement_without_trailing_substatement ::= block:e {:RESULT = e;:}   // single statement
+                                            | empty_statement:e {:RESULT = e;:}
+                                            | expression_statement:e {:RESULT = e;:}
+                                            | return_statement:e {:RESULT = e;:};
 
 statement_no_short_if ::= statement_without_trailing_substatement:e {:RESULT = new StmtNotIf(list(e), "");:}
-                        | if_then_else_statement_no_short_if:e {:RESULT = new StmtNotIf(list(e), "");:}
-                        | while_statement_no_short_if:e {:RESULT = new StmtNotIf(list(e), "");:}
-                        | for_statement_no_short_if:e {:RESULT = new StmtNotIf(list(e), "");:};
+                        | if_then_else_statement_no_short_if:e {:RESULT = e;:}
+                        | while_statement_no_short_if:e {:RESULT = e;:}
+                        | for_statement_no_short_if:e {:RESULT = e;:};
 
 empty_statement ::= SEMICOLUMN {:RESULT = new EmptyStmt(list(), "");:};
 // not sure
@@ -342,34 +342,34 @@ statement_expression_list ::= statement_expression:e {:RESULT = new StmtExprList
                             | statement_expression_list:e1 COMMA statement_expression:e2 {:RESULT = new StmtExprList(addList(e1, e2), "");:};
 
 return_statement ::= RETURN expr:e SEMICOLUMN {:RESULT = new ReturnStmt(list(e), "");:}
-                    | RETURN SEMICOLUMN {:RESULT = new ReturnStmt(list(), "");:};
+                    | RETURN SEMICOLUMN {:RESULT = new ReturnStmt(list(null), "");:};
 
 // expressions
 dim_expr ::= LEFTBRACKET expr:e RIGHTBARCKET {:RESULT = new DimExpr(list(e), "");:};
 
-primary ::= primary_no_new_array:e {:RESULT = new Primary(list(e), "");:}
-            | array_creation_expr:e {:RESULT = new Primary(list(e), "");:};
+primary ::= primary_no_new_array:e {:RESULT = e;:}
+            | array_creation_expr:e {:RESULT = e;:};
 
 array_creation_expr ::= NEW primitive_type:e1 dim_expr:e2 {:RESULT = new ArrayCreationExpr(list(e1, e2), "");:}
                     |  NEW class_or_interface_type:e1 dim_expr:e2 {:RESULT = new ArrayCreationExpr(list(e1, e2), "");:};
 
 
 
-primary_no_new_array ::= literal:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+primary_no_new_array ::= literal:e {:RESULT = e;:}
                          | THISLITERAL:e {:RESULT = new PrimaryNoArray(list(e), "");:}
                          | LEFTPARN expr:e RIGHTPARN {:RESULT = new PrimaryNoArray(list(e), "");:}
-                         | class_instance_creation_expression:e {:RESULT = new PrimaryNoArray(list(e), "");:}
-                         | field_access:e {:RESULT = new PrimaryNoArray(list(e), "");:}
-                         | method_invocation:e {:RESULT = new PrimaryNoArray(list(e), "");:}
-                         | array_access:e {:RESULT = new PrimaryNoArray(list(e), "");:};
+                         | class_instance_creation_expression:e {:RESULT = e;:}
+                         | field_access:e {:RESULT = e;:}
+                         | method_invocation:e {:RESULT = e;:}
+                         | array_access:e {:RESULT = e;:};
 
 
-literal ::= INTGERLITERAL:e {:RESULT = e;:}
-            | TRUELITERAL:e {:RESULT = e;:}
-            | FALSELITERAL:e {:RESULT = e;:}
-            | CHARLITERAL:e {:RESULT = e;:}
-            | STRINGLITERAL:e {:RESULT = e;:}
-            | NULLLITERAL:e {:RESULT = e;:};
+literal ::= INTGERLITERAL:e {:RESULT = new Literal(list(e), "");:}
+            | TRUELITERAL:e {:RESULT = new Literal(list(e), "");:}
+            | FALSELITERAL:e {:RESULT = new Literal(list(e), "");:}
+            | CHARLITERAL:e {:RESULT = new Literal(list(e), "");:}
+            | STRINGLITERAL:e {:RESULT = new Literal(list(e), "");:}
+            | NULLLITERAL:e {:RESULT = new Literal(list(e), "");:};
 
 class_instance_creation_expression ::= NEW class_or_interface_type:e1 LEFTPARN argument_list:e2 RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, e2), "");:}
                                     |  NEW class_or_interface_type:e1 LEFTPARN RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, null), "");:};
@@ -378,8 +378,8 @@ argument_list ::=  expr:e1 {:RESULT = new ArgumentList(list(e1), "");:}
                 | argument_list:e1 COMMA expr:e2 {:RESULT = new ArgumentList(addList(e1, e2), "");:};
 
 
-array_access ::= name:e1 LEFTBRACKET expr:e2 RIGHTBARCKET {:RESULT = new ArrayAccess(list(e1, e2), "");:}
-                | primary_no_new_array:e1 LEFTBRACKET expr:e2 RIGHTBARCKET {:RESULT = new ArrayAccess(list(e1, e2), "");:};
+array_access ::= name:e1 dim_expr:e2 {:RESULT = new ArrayAccess(list(e1, e2), "");:}
+                | primary_no_new_array:e1 dim_expr:e2 {:RESULT = new ArrayAccess(list(e1, e2), "");:};
 
 field_access ::= primary:e1 DOT ID:e2 {:RESULT = new FieldAccess(list(e1, e2), "");:};
 
@@ -388,55 +388,55 @@ method_invocation ::= name:e1 LEFTPARN argument_list:e3 RIGHTPARN {:RESULT = new
                     | primary:e1 DOT ID:e2 LEFTPARN argument_list:e3 RIGHTPARN {:RESULT = new MethodInvocation(list(e1, e2, e3), "");:}
                     | primary:e1 DOT ID:e2 LEFTPARN  RIGHTPARN {:RESULT = new MethodInvocation(list(e1, e2, null), "");:};
 // Not sure for the 3 below
-post_fix_expr ::= primary:e {:RESULT = new PostFixExpr(list(e), "");:}
+post_fix_expr ::= primary:e {:RESULT = e;:}
                   | name:e {:RESULT = new PostFixExpr(list(e), "");:};
 
-unary_expr  ::=  unary_expr_not_plus_minus:e {:RESULT = new UnaryExpr(list(e), "");:}
+unary_expr  ::=  unary_expr_not_plus_minus:e {:RESULT = e;:}
                 | MINUS:e1 unary_expr:e2 {:RESULT = new UnaryExpr(list(e1, e2), "");:};
 
 unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNotPlusMinus(list(e1, e2), "");:}
-                            |   cast_expr:e1 {:RESULT = new UnaryExprNotPlusMinus(list(e1, null), "");:}
-                            | post_fix_expr:e1 {:RESULT = new UnaryExprNotPlusMinus(list(e1, null), "");:};
+                            |   cast_expr:e {:RESULT = e;:}
+                            | post_fix_expr:e {:RESULT = e;:};
 
 cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
                 | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
                 | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:}
                 | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:};
 
-multiplicative_expr ::= unary_expr:e {:RESULT = new MultiplicativeExpr(list(e), "");:}
+multiplicative_expr ::= unary_expr:e {:RESULT = e;:}
                     |   multiplicative_expr:e1 STAR:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
                     |   multiplicative_expr:e1 DIVIDES:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
                     |   multiplicative_expr:e1 MOD:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:};
 
-additive_expr ::= multiplicative_expr:e {:RESULT = new AdditiveExpr(list(e), "");:}
+additive_expr ::= multiplicative_expr:e {:RESULT = e;:}
                 | additive_expr:e1 PLUS:e2 multiplicative_expr:e3 {:RESULT = new AdditiveExpr(list(e1, e2, e3), "");:}
                 | additive_expr:e1 MINUS:e2 multiplicative_expr:e3 {:RESULT = new AdditiveExpr(list(e1, e2, e3), "");:};
 
-relation_expr ::= additive_expr:e {:RESULT = new RelationExpr(list(e), "");:}
+relation_expr ::= additive_expr:e {:RESULT = e;:}
                 | relation_expr:e1 LT:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
                 | relation_expr:e1 GT:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
                 | relation_expr:e1 LE:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
                 | relation_expr:e1 GE:e2 additive_expr:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:}
                 | relation_expr:e1 INSTANCEOF:e2 reference_type:e3 {:RESULT = new RelationExpr(list(e1, e2, e3), "");:};
 
-equality_expr ::= relation_expr:e {:RESULT = new EqualityExpr(list(e), "");:}
+equality_expr ::= relation_expr:e {:RESULT = e;:}
                 | equality_expr:e1 EQ:e2 relation_expr:e3 {:RESULT = new EqualityExpr(list(e1, e2, e3), "");:}
                 | equality_expr:e1 NE:e2 relation_expr:e3 {:RESULT = new EqualityExpr(list(e1, e2, e3), "");:};
 
-and_expr ::= equality_expr:e {:RESULT = new AndExpr(list(e), "");:}
+and_expr ::= equality_expr:e {:RESULT = e;:}
             | and_expr:e1 BITWISEAND equality_expr:e2 {:RESULT = new AndExpr(list(e1, e2), "");:};
 
-or_expr ::= and_expr:e {:RESULT = new OrExpr(list(e), "");:}
+or_expr ::= and_expr:e {:RESULT = e;:}
           | or_expr:e1 BITWISEOR and_expr:e2 {:RESULT = new OrExpr(list(e1, e2), "");:};
 
-conditional_and_expr ::= or_expr:e {:RESULT = new ConditionalAndExpr(list(e), "");:}
+conditional_and_expr ::= or_expr:e {:RESULT = e;:}
                         | conditional_and_expr:e1 BINARYAND or_expr:e2 {:RESULT = new ConditionalAndExpr(list(e1, e2), "");:};
 
-conditional_or_expr ::= conditional_and_expr:e {:RESULT = new ConditionalOrExpr(list(e), "");:}
+conditional_or_expr ::= conditional_and_expr:e {:RESULT = e;:}
                         | conditional_or_expr:e1 BINARYOR conditional_and_expr:e2 {:RESULT = new ConditionalOrExpr(list(e1, e2), "");:};
 
-assignment_expr ::= conditional_or_expr:e {:RESULT = new AssignmentExpr(list(e), "");:}
-                |   assignment:e {:RESULT = new AssignmentExpr(list(e), "");:};
+assignment_expr ::= conditional_or_expr:e {:RESULT = e;:}
+                |   assignment:e {:RESULT = e;:};
 
 assignment ::= lhs:e1 ASSIGN assignment_expr:e2 {:RESULT = new Assignment(list(e1, e2), "");:};
 
@@ -444,11 +444,11 @@ lhs ::= name:e {:RESULT = new LHS(list(e), "");:}
         | field_access:e {:RESULT = new LHS(list(e), "");:}
         | array_access:e {:RESULT = new LHS(list(e), "");:};
 
-expr ::= assignment_expr:e {:RESULT = new Expr(list(e), "");:};
+expr ::= assignment_expr:e {:RESULT = e;:};
 
 
 // type
-dims ::= LEFTBRACKET RIGHTBARCKET {:RESULT = new Dims(list(), "");:};
+dims ::= LEFTBRACKET RIGHTBARCKET;
 
 type ::= primitive_type:e {:RESULT = e;:}
         | reference_type:e {:RESULT = e;:};
@@ -458,7 +458,7 @@ type ::= primitive_type:e {:RESULT = e;:}
 primitive_type ::= numeric_type:e {:RESULT = e;:}
                  | BOOL:e {:RESULT = new PrimitiveType(list(), e.value);:};
 
-numeric_type ::= BYTE:e {:RESULT = new NumericType(list(), e.value);:}
+numeric_type ::= BYTE:e {:RESULT = new NumericType(list(e), e.value);:}
                 | SHORT:e {:RESULT = new NumericType(list(), e.value);:}
                 | INT:e {:RESULT = new NumericType(list(), e.value);:}
                 | CHAR:e {:RESULT = new NumericType(list(), e.value);:};
@@ -468,8 +468,8 @@ reference_type ::= class_or_interface_type:e {:RESULT = e;:}
 
 class_or_interface_type ::= name:e {:RESULT = new ClassOrInterfaceType(list(e), "");:};
 
-class_type ::= class_or_interface_type;
-interface_type ::= class_or_interface_type;
+class_type ::= class_or_interface_type:e {:RESULT = e;:};
+interface_type ::= class_or_interface_type:e {:RESULT = e;:};
 
 array_type ::= name:e dims  {:RESULT = new ArrayType(list(new ClassOrInterfaceType(list(e), "")), "");:}
             |  primitive_type:e dims {:RESULT = new ArrayType(list(e), "");:};
@@ -537,9 +537,9 @@ class_body_decls ::= class_body_decl:e {:RESULT = new ClassBodyDecls(list(e), ""
                      class_body_decls:e1 class_body_decl:e2 {:RESULT = new ClassBodyDecls(addList(e1,e2), "");:}
                      ;
 
-class_body_decl ::= class_member_decl:e {:RESULT = new ClassBodyDecl(list(e), "");:}
+class_body_decl ::= class_member_decl:e {:RESULT = e;:}
                     |
-                    constructor_decl:e {:RESULT = new ClassBodyDecl(list(e), "");:}
+                    constructor_decl:e {:RESULT = e;:}
                     ;
 
 class_member_decl ::= field_decl:e {:RESULT = e;:}
@@ -581,23 +581,23 @@ abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 {:RESULT = ne
 
 interface_body ::= LEFTCURLY interface_member_decls:e RIGHTCURLY {:RESULT = new InterfaceBody(list(e), "");:}
                    |
-                   LEFTCURLY RIGHTCURLY {:RESULT = new InterfaceBody(list(), "");:}
+                   LEFTCURLY RIGHTCURLY {:RESULT = new InterfaceBody(list(null), "");:}
                    ;
 
 interface_member_decls ::= interface_member_decl:e {:RESULT = new InterfaceMemberDecls(list(e), "");:}
                            |
                            interface_member_decls:e1 interface_member_decl:e2 {:RESULT = new InterfaceMemberDecls(addList(e1,e2), "");:}
                            ;
-interface_member_decl ::= abstract_method_decl  {:RESULT = new InterfaceMemberDecl(list(), "");:}
+interface_member_decl ::= abstract_method_decl:e  {:RESULT = e;:}
                           ;
 
 
-constructor_declarator ::= ID LEFTPARN parameter_list:e RIGHTPARN {:RESULT = new ConstructorDeclarator(list(e), "");:}
+constructor_declarator ::= ID:e1 LEFTPARN parameter_list:e2 RIGHTPARN {:RESULT = new ConstructorDeclarator(list(e1, e2), "");:}
                            |
-                           ID LEFTPARN RIGHTPARN {:RESULT = new ConstructorDeclarator(list(), "");:}
+                           ID:e1 LEFTPARN RIGHTPARN {:RESULT = new ConstructorDeclarator(list(e1, null), "");:}
                            ;
 constructor_body ::= LEFTCURLY block_statements:e RIGHTCURLY {:RESULT = new ConstructorBody(list(e), "");:}
                      |
-                     LEFTCURLY RIGHTCURLY {:RESULT = new ConstructorBody(list(), "");:};
+                     LEFTCURLY RIGHTCURLY {:RESULT = new ConstructorBody(list(null), "");:};
 
 
