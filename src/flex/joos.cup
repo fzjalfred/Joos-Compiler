@@ -308,33 +308,6 @@ private boolean IncorrectCastExpr(ASTNode node){
         return false;
     }
 
-    private boolean InvalidShrinkingPositiveInt(ASTNode node) throws Exception{
-        if (!(node instanceof Literal)) {
-            return false;
-        }
-
-        String value = node.children.get(0).value;
-
-        System.out.println(value);
-        if (value.equals("2147483648")){
-            throw new Exception("Syntax Error");
-            }
-
-
-//        char [] chars = new char[] {'2','1','4','7','4','8','3','6','4','8' };
-//        if (value.length == 10 ) {
-//            for (int i = 0; i < 10; i++) {
-//                if (value[i] < chars[i]) {
-//                    break;
-//                } else if (value[i] > chars[i]) {
-//                    return true;
-//                }
-//
-//            }
-//        }
-        return false;
-    }
-
     // check only one public class
     public String publicFileName = "";
     public List<String> classList = new ArrayList<String>();
@@ -367,6 +340,13 @@ private boolean IncorrectCastExpr(ASTNode node){
         //System.out.println(methodName);
         if (methodName.equals("super") || methodName.equals("this")) {
             throw new Exception("Invalid method name super or this");
+        }
+    }
+
+    private void setNumberBound(ASTNode node, long num) throws Exception{
+        if (node instanceof NumericLiteral ){
+            NumericLiteral literal = (NumericLiteral)node;
+            literal.setBound(num);
         }
     }
 
@@ -420,6 +400,7 @@ non terminal  TypeImportOndemandDecl                  type_import_ondemand_decl;
 // modifiers
 nonterminal  Modifiers             modifiers;
 nonterminal  Token                 modifier;
+nonterminal NumericLiteral         numeric_literal;
 
 
 
@@ -688,8 +669,9 @@ primary_no_new_array ::= literal:e {:RESULT = e;:}
                          | array_access:e {:RESULT = e;:};
 
 
-literal ::= INTGERLITERAL:e {:if (InvalidIntRange(e)) throw new Exception("Syntax Error");
-            else RESULT = new Literal(list(e), "");:}
+numeric_literal ::= INTGERLITERAL:e {:RESULT = new NumericLiteral(list(e), "");:};
+
+literal ::= numeric_literal:e {:RESULT = e;:}
             | TRUELITERAL:e {:RESULT = new Literal(list(e), "");:}
             | FALSELITERAL:e {:RESULT = new Literal(list(e), "");:}
             | CHARLITERAL:e {:if (NotCorrectEscapeChar(e)) throw new Exception("Syntax Error");
@@ -718,8 +700,8 @@ method_invocation ::= name:e1 LEFTPARN argument_list:e3 RIGHTPARN {:checkInvalid
 post_fix_expr ::= primary:e {:RESULT = e;:}
                   | name:e {:RESULT = new PostFixExpr(list(e), "");:};
 
-unary_expr  ::=  unary_expr_not_plus_minus:e {: RESULT = e;:}
-                | MINUS:e1 unary_expr:e2 {:RESULT = new UnaryExpr(list(e1, e2), "");:};
+unary_expr  ::=  unary_expr_not_plus_minus:e {:RESULT = e;:}
+                | MINUS:e1 unary_expr:e2 {:setNumberBound(e2, 2147483648l);RESULT = new UnaryExpr(list(e1, e2), "");:};
 
 unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNotPlusMinus(list(e1, e2), "");:}
                             |   cast_expr:e {:RESULT = e;:}
@@ -731,7 +713,7 @@ cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:RESULT = ne
                 | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:}
                 | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:};
 
-multiplicative_expr ::= unary_expr:e {:RESULT = e;:}
+multiplicative_expr ::= unary_expr:e {:setNumberBound(e, 2147483647l); RESULT = e;:}
                     |   multiplicative_expr:e1 STAR:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
                     |   multiplicative_expr:e1 DIVIDES:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
                     |   multiplicative_expr:e1 MOD:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:};
