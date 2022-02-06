@@ -327,6 +327,19 @@ private boolean IncorrectCastExpr(ASTNode node){
         }
         return false;
     }
+    private void checkModifiers(ASTNode modifiers) throws Exception {
+        if (!(ifContainModifier(modifiers, "public") || ifContainModifier(modifiers, "protected"))) {
+            throw new Exception("Contains no access modifiers");
+        }
+        int length = modifiers.children.size();
+        for (int i = 0; i < length; i++) {
+            for (int j = i+1; j < length; j++) {
+                if (modifiers.children.get(i).value == modifiers.children.get(j).value) {
+                    throw new Exception("Duplicated Modifier name");
+                }
+            }
+        }
+    }
     // only one and only one public class can exist; public class name should match filename.
     private void checkInvalidFileName(ASTNode modifiers, Token id) throws Exception{
         classList.add(id.value);
@@ -847,12 +860,10 @@ modifiers ::= modifier:e {:RESULT = new Modifiers(list(e), "");:}
 
 // class
 // class modifier: public protected  abstract static final
-class_decl ::= CLASS ID:e2 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, null, null, e5), "");:}// identifier not found
-               |
-               modifiers:e1 CLASS ID:e2 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+class_decl ::= modifiers:e1 CLASS ID:e2 class_body:e5 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, null, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
                modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
@@ -860,23 +871,13 @@ class_decl ::= CLASS ID:e2 class_body:e5 {:checkInvalidFileName(null, e2); RESUL
                |
                modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
-               |
-               CLASS ID:e2 Super:e3 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, e3, null, e5), "");:}
-               |
-               CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, e3, e4, e5), "");:}
-               |
-               CLASS ID:e2 interfaces:e4 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, null, e4, e5), "");:}
                ;
 
 
-interface_decl ::= INTERFACE ID:e2 interface_body:e4 {:checkInvalidFileName(null, e2); RESULT = new InterfaceDecl(list(null, e2, null, e4), "");:}
-                   |
-                   modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+interface_decl ::= modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
                    else RESULT = new InterfaceDecl(list(e1, e2, null, e4), "");:}
                    |
-                   INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkInvalidFileName(null, e2); RESULT = new InterfaceDecl(list(null, e2, e3, e4), "");:}
-                   |
-                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
                    else RESULT = new InterfaceDecl(list(e1, e2, e3, e4), "");:}
                    ;
 
@@ -913,24 +914,19 @@ class_member_decl ::= field_decl:e {:RESULT = e;:}
                       method_decl:e {:RESULT = e;:}
                       ;
 
-constructor_decl ::= modifiers:e1 constructor_declarator:e2 constructor_body:e3 {: if (NotConstructorModifier(e1)) throw new Exception("Syntax Error");
+constructor_decl ::= modifiers:e1 constructor_declarator:e2 constructor_body:e3 {:checkModifiers(e1);  if (NotConstructorModifier(e1)) throw new Exception("Syntax Error");
                     else RESULT = new ConstructorDecl(list(e1,e2,e3),"");:}
-                     |
-                     constructor_declarator:e2 constructor_body:e3 {:RESULT = new ConstructorDecl(list(null,e2,e3),"");:}
                      ;
 
-field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:if (NotFieldModifier(e1)) throw new Exception("Syntax Error");
-                else RESULT = new FieldDecl(list(e1,e2,e3), "");:}
-               |
-               type:e1 var_declarators:e2 SEMICOLUMN {:RESULT = new FieldDecl(list(e1, e2, null), "");:}
-               ;
+field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:checkModifiers(e1); if (NotFieldModifier(e1)) throw new Exception("Syntax Error");
+                else RESULT = new FieldDecl(list(e1,e2,e3), "");:};
 
 // adding in 8.4
 // is this delcaration or declarator cuz abstract_method_decl asking for declarator
 method_decl ::= method_header:e1 method_body:e2 {:checkInvalidMethodBody(e1, e2);RESULT = new MethodDecl(list(e1,e2), "");:}; //TODO: replace null with e3
-method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
+method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:checkModifiers(e1); if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
                 else RESULT = new MethodHeader(list(e1,e2, e3), "");:}
-                |  modifiers:e1 VOID:e2 method_declarator:e3 {:if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
+                |  modifiers:e1 VOID:e2 method_declarator:e3 {:checkModifiers(e1); if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
                 else RESULT = new MethodHeader(list(e1,e2, e3), "");:};
 
 method_body ::= block:e  {:RESULT = new MethodBody(list(e), "");:} //TODO: replace null with e
@@ -946,7 +942,7 @@ parameter_list ::=  paramater:e {:RESULT = new ParameterList(list(e), "");:}
 paramater ::= type:e1 var_declarator_id:e2 {:RESULT = new Parameter(list(e1, e2), "");:};
 
 
-abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 {:if (NotAbstractMethodModifier(e1)) throw new Exception("Syntax Error");
+abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 {:checkModifiers(e1); if (NotAbstractMethodModifier(e1)) throw new Exception("Syntax Error");
                     else RESULT = new AbstractMethodDecl(list(e1, e2, e3), "");:};
 
 
