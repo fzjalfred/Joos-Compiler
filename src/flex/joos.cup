@@ -350,6 +350,22 @@ private boolean IncorrectCastExpr(ASTNode node){
         }
     }
 
+    private void checkInvalidMethodBody(ASTNode header, ASTNode body) throws Exception {
+        // check if it is an abstract method
+        ASTNode modifiers = header.children.get(0);
+        boolean isAbstract = false;
+        for (ASTNode modifier : modifiers.children) {
+            if (modifier.value == "abstract") {
+                isAbstract = true;
+            }
+        }
+        if (isAbstract) {
+            if (body.children.get(0) != null) {
+                throw new Exception("Abstract method should have empty body");
+            }
+        }
+    }
+
 :};
 
 /** Terminals */
@@ -878,7 +894,7 @@ field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:if (NotField
 
 // adding in 8.4
 // is this delcaration or declarator cuz abstract_method_decl asking for declarator
-method_decl ::= method_header:e1 method_body:e2 {:RESULT = new MethodDecl(list(e1,e2), "");:}; //TODO: replace null with e3
+method_decl ::= method_header:e1 method_body:e2 {:checkInvalidMethodBody(e1, e2);RESULT = new MethodDecl(list(e1,e2), "");:}; //TODO: replace null with e3
 method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
                 else RESULT = new MethodHeader(list(e1,e2, e3), "");:}
                 |  modifiers:e1 VOID:e2 method_declarator:e3 {:if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
