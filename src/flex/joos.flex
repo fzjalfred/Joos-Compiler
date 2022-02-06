@@ -123,6 +123,29 @@ COMMENTS = (\/\/.*)|\/\*([^\*\/]|\*[^\/]|[^\*]\/|\*)*\*\/
     "||"               { return symbol(sym.BINARYOR, "||"); }
     "&&"               { return symbol(sym.BINARYAND, "&&"); }
     "instanceof"      { return symbol(sym.INSTANCEOF, "instanceof"); }
+
+    "private"          { return symbol(sym.PRIVATE, "private"); }
+    "assert"          { return symbol(sym.ASSERT, "assert"); }
+    "break"          { return symbol(sym.BREAK, "break"); }
+    "case"          { return symbol(sym.CASE, "case"); }
+    "catch"          { return symbol(sym.CATCH, "catch"); }
+    "continue"          { return symbol(sym.CONTINUE, "continue"); }
+    "default"          { return symbol(sym.DEFAULT, "default"); }
+    "const"          { return symbol(sym.CONST, "const"); }
+    "do"          { return symbol(sym.DO, "do"); }
+    "double"          { return symbol(sym.DOUBLE, "double"); }
+    "enum"          { return symbol(sym.ENUM, "enum"); }
+    "finally"          { return symbol(sym.FINALLY, "finally"); }
+    "long"          { return symbol(sym.LONG, "long"); }
+    "strictfp"          { return symbol(sym.STRICTFP, "strictfp"); }
+    "synchronized"          { return symbol(sym.SYNCHRONIZED, "synchronized"); }
+    "throw"          { return symbol(sym.THROW, "throw"); }
+    "transient"          { return symbol(sym.TRANSIENT, "transient"); }
+    "try"          { return symbol(sym.TRY, "try"); }
+    "throws"          { return symbol(sym.THROWS, "throws"); }
+    "switch"          { return symbol(sym.SWITCH, "switch"); }
+    "volatile"          { return symbol(sym.VOLATILE, "volatile"); }
+    "date"          { return symbol(sym.DATE, "date"); }
    
     {NUM}      { return symbol(sym.INTGERLITERAL, new String(yytext())); }
     {IDENT}       { return symbol(sym.ID, new String(yytext()));}

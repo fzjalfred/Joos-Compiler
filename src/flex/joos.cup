@@ -458,9 +458,9 @@ terminal    Token/* FalseLiteral */          FALSELITERAL;
 // Type
 terminal Token                  VOID, BOOL, INT, CHAR, BYTE, SHORT; // how to represent Array?
 //// reserved keywords
-//terminal                            PRIVATE, ASSERT, BREAK, CASE, CATCH, CONTINUE,
-//                                    DEFAULT, CONST, DO, DOUBLE, ENUM, FINALLY, LONG, STRICTFP, SYNCHONIZED, THROW,
-//                                    TRANSIENT, TRY, THROWS, SWITCH, VOLATILE, DATE;
+terminal                            PRIVATE, ASSERT, BREAK, CASE, CATCH, CONTINUE,
+                                    DEFAULT, CONST, DO, DOUBLE, ENUM, FINALLY, LONG, STRICTFP, SYNCHRONIZED, THROW,
+                                    TRANSIENT, TRY, THROWS, SWITCH, VOLATILE, DATE;
 // OP
 terminal Token                  PLUS, MINUS, DIVIDES, MOD, STAR; //Arithmatic OP
 terminal Token                  BINARYAND, BINARYOR, NOT; // logic OP
