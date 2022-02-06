@@ -307,6 +307,33 @@ private boolean IncorrectCastExpr(ASTNode node){
         return false;
     }
 
+    // check only one public class
+    public String publicFileName = "";
+    public List<String> classList = new ArrayList<String>();
+
+    private boolean ifContainModifier(ASTNode modifiers, String name){
+        if (modifiers == null) return false;
+        for (ASTNode n : modifiers.children){
+            if (n.value == name) return true;
+        }
+        return false;
+    }
+    // only one and only one public class can exist; public class name should match filename.
+    private void checkInvalidFileName(ASTNode modifiers, Token id) throws Exception{
+        classList.add(id.value);
+        if (ifContainModifier(modifiers, "public")){
+            if (publicFileName == ""){
+                publicFileName = id.value;
+            }   else {
+                throw new Exception("public name has already been initialized");
+            }
+        }   else {
+            if (publicFileName != ""){
+                throw new Exception("public name has already been initialized");
+            }
+        }
+    }
+
 :};
 
 /** Terminals */
@@ -339,6 +366,9 @@ terminal Token                  COMMA, DOT, SEMICOLUMN; // ,.
 // Keywords
 terminal Token                  FOR, WHILE, IF, ELSE, RETURN, NATIVE, PACKAGE, IMPORT; //program keywords
 terminal Token                  CLASS, INTERFACE, ABSTRACT, PUBLIC, PROTECTED, STATIC, EXTENDS, IMPLEMENTS, SUPER, FINAL; // class keywords
+
+// Invalid Terminals
+
 
 /** Non-terminals **/
 non terminal  CompilationUnit                   compilation_unit;   // the goal of joos
@@ -750,36 +780,36 @@ modifiers ::= modifier:e {:RESULT = new Modifiers(list(e), "");:}
 
 // class
 // class modifier: public protected  abstract static final
-class_decl ::= CLASS ID:e2 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, null, null, e5), "");:}// identifier not found
+class_decl ::= CLASS ID:e2 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, null, null, e5), "");:}// identifier not found
                |
-               modifiers:e1 CLASS ID:e2 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, null, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
                |
-               CLASS ID:e2 Super:e3 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, e3, null, e5), "");:}
+               CLASS ID:e2 Super:e3 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, e3, null, e5), "");:}
                |
-               CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, e3, e4, e5), "");:}
+               CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, e3, e4, e5), "");:}
                |
-               CLASS ID:e2 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, null, e4, e5), "");:}
+               CLASS ID:e2 interfaces:e4 class_body:e5 {:checkInvalidFileName(null, e2); RESULT = new ClassDecl(list(null, e2, null, e4, e5), "");:}
                ;
 
 
-interface_decl ::= INTERFACE ID:e2 interface_body:e4 {:RESULT = new InterfaceDecl(list(null, e2, null, e4), "");:}
+interface_decl ::= INTERFACE ID:e2 interface_body:e4 {:checkInvalidFileName(null, e2); RESULT = new InterfaceDecl(list(null, e2, null, e4), "");:}
                    |
-                   modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+                   modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
                    else RESULT = new InterfaceDecl(list(e1, e2, null, e4), "");:}
                    |
-                   INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:RESULT = new InterfaceDecl(list(null, e2, e3, e4), "");:}
+                   INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkInvalidFileName(null, e2); RESULT = new InterfaceDecl(list(null, e2, e3, e4), "");:}
                    |
-                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
                    else RESULT = new InterfaceDecl(list(e1, e2, e3, e4), "");:}
                    ;
 
