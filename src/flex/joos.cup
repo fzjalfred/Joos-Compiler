@@ -179,21 +179,21 @@ parser code {:
          return false;
      }
 
-     private boolean HasDoubleParentheses(ASTNode node){
-        List<ASTNode> children = node.children;
-        if (children.size() < 1) {
-            return false;
-            }
-
-        if (!(node instanceof Token)){
-            if (children.get(0).value == "("){
-                return true;
-                } else {
-                return HasDoubleParentheses((ASTNode)children.get(0));
-                }
-            }
-        return false;
-        }
+private boolean IncorrectCastExpr(ASTNode node){
+             if (node instanceof PostFixExpr){
+                 System.out.println("postfix");
+                 List<ASTNode> postFixChildren = node.children;
+                 if (postFixChildren.size() < 1) {
+                     return true;
+                 }
+                 System.out.println(postFixChildren.get(0));
+                 if (postFixChildren.get(0) instanceof Name) {
+                     return false;
+                 }
+             }
+             System.out.println("not postfix");
+             return true;
+    }
 
      private boolean IsOctalNumber(char [] chars) {
             System.out.println(chars);
@@ -268,6 +268,44 @@ parser code {:
             return false;
         }
 
+    private boolean IsInvalidID(Token token){
+        String value = token.value;
+
+
+        if (value.equals("abstract") || value.equals("private") || value.equals("assert") || value.equals("boolean") || value.equals("break") ||
+         value.equals("byte") || value.equals("case") || value.equals("catch") || value.equals("char") || value.equals("class") || value.equals("const") ||
+         value.equals("continue") || value.equals("default") || value.equals("do") || value.equals("double") || value.equals("else") || value.equals("enum") ||
+         value.equals("extends") || value.equals("final") || value.equals("finally") || value.equals("float") || value.equals("for") || value.equals("goto") ||
+         value.equals("if") || value.equals("implements") || value.equals("import") || value.equals("interface") || value.equals("instanceof") ||
+         value.equals("int") || value.equals("long") || value.equals("native") || value.equals("protected") || value.equals("public") || value.equals("static") ||
+         value.equals("strictfp") || value.equals("super") || value.equals("short") || value.equals("return") || value.equals("synchronized") || value.equals("throw") ||
+         value.equals("this") || value.equals("transient") || value.equals("try") || value.equals("throws") || value.equals("Package") || value.equals("private") ||
+         value.equals("switch") || value.equals("void") || value.equals("volatile") || value.equals("Date") || value.equals("while")) {
+         return true;
+         }
+
+         return false;
+    }
+
+    private boolean InvalidIntRange(Token token){
+        char [] value = token.value.toCharArray();
+        if (value.length > 10){
+            return true;
+        }
+
+        char [] chars = new char[] {'2','1','4','7','4','8','3','6','4','7' };
+        if (value.length == 10 ) {
+            for (int i = 0; i < 10; i++) {
+                if (value[i] < chars[i]) {
+                    break;
+                } else if (value[i] > chars[i]) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
+    }
 
 :};
 
@@ -584,7 +622,8 @@ primary_no_new_array ::= literal:e {:RESULT = e;:}
                          | array_access:e {:RESULT = e;:};
 
 
-literal ::= INTGERLITERAL:e {:RESULT = new Literal(list(e), "");:}
+literal ::= INTGERLITERAL:e {:if (InvalidIntRange(e)) throw new Exception("Syntax Error");
+            else RESULT = new Literal(list(e), "");:}
             | TRUELITERAL:e {:RESULT = new Literal(list(e), "");:}
             | FALSELITERAL:e {:RESULT = new Literal(list(e), "");:}
             | CHARLITERAL:e {:if (NotCorrectEscapeChar(e)) throw new Exception("Syntax Error");
@@ -620,14 +659,11 @@ unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNot
                             |   cast_expr:e {:RESULT = e;:}
                             | post_fix_expr:e {:RESULT = e;:};
 
-cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
+cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
+                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (IncorrectCastExpr(e1)) throw new Exception("Syntax Error");
                 else RESULT = new CastExpr(list(e1, null, e3), "");:}
-                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
-                else RESULT = new CastExpr(list(e1, null, e3), "");:}
-                | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
-                else RESULT = new CastExpr(list(e1, e2, e3), "");:}
-                | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
-                else RESULT = new CastExpr(list(e1, e2, e3), "");:};
+                | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:}
+                | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:};
 
 multiplicative_expr ::= unary_expr:e {:RESULT = e;:}
                     |   multiplicative_expr:e1 STAR:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
