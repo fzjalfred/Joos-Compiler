@@ -118,9 +118,10 @@ parser code {:
 
      private boolean NotMethodModifier(Modifiers modifiers) {
          List <String> methodModifierList = new ArrayList<String>() {{add("public"); add("protected");add("abstract");
-         add("static"); add("final");}};
+         add("static"); add("final"); add("native");}};
 
          boolean isAbstract = false;
+         boolean isStatic = false;
          List<ASTNode> children = modifiers.children;
          for (ASTNode node : children) {
              if (!methodModifierList.contains(node.value)){
@@ -129,13 +130,20 @@ parser code {:
              if (node.value == "abstract"){
                 isAbstract = true;
                 }
+
+             if (node.value == "static"){
+                isStatic = true;
+             }
          }
 
-         if (isAbstract){
+         if (isAbstract || isStatic){
             for (ASTNode node : children){
-                 if (node.value == "final" || node.value == "static"){
+                 if (isAbstract && (node.value == "final" || node.value == "static")){
                     return true;
-                    }
+                 }
+                 if (isStatic && node.value == "final"){
+                     return true;
+                 }
             }
          }
          return false;
@@ -143,9 +151,6 @@ parser code {:
 
      private boolean IncorrectClassName(Token token){
         char []  name = token.value.toCharArray();
-        System.out.println();
-        System.out.println(name);
-        System.out.println();
         int length = name.length;
         if (length == 0){
             return true;
@@ -181,22 +186,25 @@ parser code {:
 
 private boolean IncorrectCastExpr(ASTNode node){
              if (node instanceof PostFixExpr){
-                 System.out.println("postfix");
+                 // System.out.println(node);
                  List<ASTNode> postFixChildren = node.children;
-                 if (postFixChildren.size() < 1) {
+                 if (postFixChildren.size() != 1) {
                      return true;
                  }
-                 System.out.println(postFixChildren.get(0));
+
                  if (postFixChildren.get(0) instanceof Name) {
-                     return false;
+                    List<ASTNode> nameChilren = postFixChildren.get(0).children;
+                    if (nameChilren.size() == 1) {
+                        return false;
+                    }
                  }
              }
-             System.out.println("not postfix");
+
              return true;
     }
 
      private boolean IsOctalNumber(char [] chars) {
-            System.out.println(chars);
+
             if (48 <= chars[0] && chars[0] <= 50 && 48 <= chars[1] && chars[1] <= 57 && 48 <= chars[2] && chars[2] <= 57) {
                 return true;
             }
@@ -214,7 +222,7 @@ private boolean IncorrectCastExpr(ASTNode node){
         char [] chars = token.value.toCharArray();
 //        ArrayList <char> charLiteralList = new ArrayList<char>() {{add('\b'); add('\t'); add('\n'); add('\f'); add('\r');
 //        add('\"'); add('\''); add('\\');}};
-        System.out.println(chars);
+
         int size = chars.length;
         if (size == 3 && 0 <= chars[1] && chars[1] <= 127) {
 
@@ -354,15 +362,37 @@ private boolean IncorrectCastExpr(ASTNode node){
         // check if it is an abstract method
         ASTNode modifiers = header.children.get(0);
         boolean isAbstract = false;
+        boolean isNative = false;
         for (ASTNode modifier : modifiers.children) {
             if (modifier.value == "abstract") {
                 isAbstract = true;
             }
-        }
-        if (isAbstract) {
-            if (body.children.get(0) != null) {
-                throw new Exception("Abstract method should have empty body");
+            if (modifier.value == "native") {
+                isNative = true;
             }
+        }
+        if (isAbstract || isNative) {
+            if (body.children.get(0) != null) {
+                throw new Exception("Abstract or native method should have empty body");
+            }
+        } else {
+            if (body.children.get(0) == null) {
+                throw new Exception("Non-abstract and non-native method must have a body");
+            }
+        }
+    }
+
+    private void checkConstructorDecl(ASTNode classBodyDecls) throws Exception {
+        List <ASTNode> children = classBodyDecls.children;
+        boolean hasConstructor = false;
+        for (ASTNode node : children){
+            if (node instanceof ConstructorDecl){
+                hasConstructor = true;
+            }
+        }
+
+        if (!hasConstructor){
+            throw new Exception("A class must have a constructor");
         }
     }
 
@@ -383,7 +413,10 @@ terminal    Token/* FalseLiteral */          FALSELITERAL;
 
 // Type
 terminal Token                  VOID, BOOL, INT, CHAR, BYTE, SHORT; // how to represent Array?
-
+//// reserved keywords
+//terminal                            PRIVATE, ASSERT, BREAK, CASE, CATCH, CONTINUE,
+//                                    DEFAULT, CONST, DO, DOUBLE, ENUM, FINALLY, LONG, STRICTFP, SYNCHONIZED, THROW,
+//                                    TRANSIENT, TRY, THROWS, SWITCH, VOLATILE, DATE;
 // OP
 terminal Token                  PLUS, MINUS, DIVIDES, MOD, STAR; //Arithmatic OP
 terminal Token                  BINARYAND, BINARYOR, NOT; // logic OP
@@ -860,7 +893,7 @@ interface_typelist ::= interface_type:e {:RESULT = new InterfaceTypeList(list(e)
                        ;
 
 
-class_body ::= LEFTCURLY class_body_decls:e RIGHTCURLY {:RESULT = new ClassBody(list(e), "");:}
+class_body ::= LEFTCURLY class_body_decls:e RIGHTCURLY {:checkConstructorDecl(e); RESULT = new ClassBody(list(e), "");:}
                |
                LEFTCURLY RIGHTCURLY {:RESULT = new ClassBody(list(null), "");:}
                ;
