@@ -289,11 +289,12 @@ private boolean IncorrectCastExpr(ASTNode node){
 
     private boolean InvalidIntRange(Token token){
         char [] value = token.value.toCharArray();
+
         if (value.length > 10){
             return true;
         }
 
-        char [] chars = new char[] {'2','1','4','7','4','8','3','6','4','7' };
+        char [] chars = new char[] {'2','1','4','7','4','8','3','6','4','8' };
         if (value.length == 10 ) {
             for (int i = 0; i < 10; i++) {
                 if (value[i] < chars[i]) {
@@ -304,6 +305,33 @@ private boolean IncorrectCastExpr(ASTNode node){
 
             }
         }
+        return false;
+    }
+
+    private boolean InvalidShrinkingPositiveInt(ASTNode node) throws Exception{
+        if (!(node instanceof Literal)) {
+            return false;
+        }
+
+        String value = node.children.get(0).value;
+
+        System.out.println(value);
+        if (value.equals("2147483648")){
+            throw new Exception("Syntax Error");
+            }
+
+
+//        char [] chars = new char[] {'2','1','4','7','4','8','3','6','4','8' };
+//        if (value.length == 10 ) {
+//            for (int i = 0; i < 10; i++) {
+//                if (value[i] < chars[i]) {
+//                    break;
+//                } else if (value[i] > chars[i]) {
+//                    return true;
+//                }
+//
+//            }
+//        }
         return false;
     }
 
@@ -331,6 +359,14 @@ private boolean IncorrectCastExpr(ASTNode node){
             if (publicFileName != ""){
                 throw new Exception("public name has already been initialized");
             }
+        }
+    }
+
+    private void checkInvalidMethodName(ASTNode name) throws Exception {
+        String methodName = name.children.get(0).value;
+        //System.out.println(methodName);
+        if (methodName.equals("super") || methodName.equals("this")) {
+            throw new Exception("Invalid method name super or this");
         }
     }
 
@@ -674,15 +710,15 @@ array_access ::= name:e1 dim_expr:e2 {:RESULT = new ArrayAccess(list(e1, e2), ""
 
 field_access ::= primary:e1 DOT ID:e2 {:RESULT = new FieldAccess(list(e1, e2), "");:};
 
-method_invocation ::= name:e1 LEFTPARN argument_list:e3 RIGHTPARN {:RESULT = new MethodInvocation(list(e1, null, e3), "");:}
-                    | name:e1 LEFTPARN  RIGHTPARN {:RESULT = new MethodInvocation(list(e1, null, null), "");:}
+method_invocation ::= name:e1 LEFTPARN argument_list:e3 RIGHTPARN {:checkInvalidMethodName(e1); RESULT = new MethodInvocation(list(e1, null, e3), "");:}
+                    | name:e1 LEFTPARN  RIGHTPARN {:checkInvalidMethodName(e1); RESULT = new MethodInvocation(list(e1, null, null), "");:}
                     | primary:e1 DOT ID:e2 LEFTPARN argument_list:e3 RIGHTPARN {:RESULT = new MethodInvocation(list(e1, e2, e3), "");:}
                     | primary:e1 DOT ID:e2 LEFTPARN  RIGHTPARN {:RESULT = new MethodInvocation(list(e1, e2, null), "");:};
 // Not sure for the 3 below
 post_fix_expr ::= primary:e {:RESULT = e;:}
                   | name:e {:RESULT = new PostFixExpr(list(e), "");:};
 
-unary_expr  ::=  unary_expr_not_plus_minus:e {:RESULT = e;:}
+unary_expr  ::=  unary_expr_not_plus_minus:e {: RESULT = e;:}
                 | MINUS:e1 unary_expr:e2 {:RESULT = new UnaryExpr(list(e1, e2), "");:};
 
 unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNotPlusMinus(list(e1, e2), "");:}
