@@ -52,6 +52,223 @@ parser code {:
         System.out.println("Done current node is " + e1 + " add node " + e2);
         return children;
     }
+
+    private boolean NotClassModifier(Modifiers modifiers){
+            List <String> classModifierList = new ArrayList<String>() {{add("public"); add("protected"); add("abstract");
+            add("static"); add("final");}};
+
+            boolean isAbstract = false;
+
+            List<ASTNode> children = modifiers.children;
+            for (ASTNode node : children) {
+                if (!classModifierList.contains(node.value)){
+                    return true;
+                }
+                if (node.value == "abstract"){
+                    isAbstract = true;
+                }
+            }
+            // check for abstract class
+            if (isAbstract){
+                for (ASTNode node : children){
+                    if (node.value == "final"){
+                        return true;
+                    }
+                }
+            }
+            return false;
+    }
+
+    private boolean NotInterfaceModifier(Modifiers modifiers) {
+        List <String> interfaceModifierList = new ArrayList<String>() {{add("public"); add("protected"); add("abstract");
+            add("static"); add("final");}};
+
+        List<ASTNode> children = modifiers.children;
+        for (ASTNode node : children) {
+            if (!interfaceModifierList.contains(node.value)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean NotConstructorModifier(Modifiers modifiers) {
+        List <String> constructorModifierList = new ArrayList<String>() {{add("public"); add("protected");}};
+
+        List<ASTNode> children = modifiers.children;
+        for (ASTNode node : children) {
+            if (!constructorModifierList.contains(node.value)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+     private boolean NotFieldModifier(Modifiers modifiers) {
+         List <String> fieldModifierList = new ArrayList<String>() {{add("public"); add("protected");add("static");}};
+
+         List<ASTNode> children = modifiers.children;
+         for (ASTNode node : children) {
+             if (!fieldModifierList.contains(node.value)){
+                 return true;
+             }
+         }
+         return false;
+     }
+
+     private boolean NotMethodModifier(Modifiers modifiers) {
+         List <String> methodModifierList = new ArrayList<String>() {{add("public"); add("protected");add("abstract");
+         add("static"); add("final");}};
+
+         boolean isAbstract = false;
+         List<ASTNode> children = modifiers.children;
+         for (ASTNode node : children) {
+             if (!methodModifierList.contains(node.value)){
+                 return true;
+             }
+             if (node.value == "abstract"){
+                isAbstract = true;
+                }
+         }
+
+         if (isAbstract){
+            for (ASTNode node : children){
+                 if (node.value == "final" || node.value == "static"){
+                    return true;
+                    }
+            }
+         }
+         return false;
+     }
+
+     private boolean IncorrectClassName(Token token){
+        char []  name = token.value.toCharArray();
+        System.out.println();
+        System.out.println(name);
+        System.out.println();
+        int length = name.length;
+        if (length == 0){
+            return true;
+            }
+
+        if (name[0] < 65 || name[0] > 90){
+            return true;
+            }
+
+        for (int i = 1; i < length; i++){
+            if (!((65 <= name[i] && name[i] <= 90) || (97 <= name[i] && name[i] <= 122))){
+                return true;
+                }
+            }
+        return false;
+        }
+
+
+     private boolean NotAbstractMethodModifier(Modifiers modifiers) {
+         List <String> abstractMethodModifierList = new ArrayList<String>() {{add("public"); add("abstract");}};
+
+
+         List<ASTNode> children = modifiers.children;
+         for (ASTNode node : children) {
+             if (!abstractMethodModifierList.contains(node.value)){
+                 return true;
+             }
+
+         }
+
+         return false;
+     }
+
+     private boolean HasDoubleParentheses(ASTNode node){
+        List<ASTNode> children = node.children;
+        if (children.size() < 1) {
+            return false;
+            }
+
+        if (!(node instanceof Token)){
+            if (children.get(0).value == "("){
+                return true;
+                } else {
+                return HasDoubleParentheses((ASTNode)children.get(0));
+                }
+            }
+        return false;
+        }
+
+     private boolean IsOctalNumber(char [] chars) {
+            System.out.println(chars);
+            if (48 <= chars[0] && chars[0] <= 50 && 48 <= chars[1] && chars[1] <= 57 && 48 <= chars[2] && chars[2] <= 57) {
+                return true;
+            }
+            if (chars[0] == 51 && 48 <= chars[1] && chars[1] <= 54 && 48 <= chars[2] && chars[2] <= 57) {
+                return true;
+            }
+            if (chars[0] == 51 && chars[1] <= 55 && 48 <= chars[2] && chars[2] <= 55) {
+                return true;
+            }
+            return false;
+     }
+
+
+     private boolean NotCorrectEscapeChar(Token token){
+        char [] chars = token.value.toCharArray();
+//        ArrayList <char> charLiteralList = new ArrayList<char>() {{add('\b'); add('\t'); add('\n'); add('\f'); add('\r');
+//        add('\"'); add('\''); add('\\');}};
+        System.out.println(chars);
+        int size = chars.length;
+        if (size == 3 && 0 <= chars[1] && chars[1] <= 127) {
+
+            return false;
+        }
+        if (chars[1] == '\\') {
+            if (size == 4 && (chars[2] == 'b' || chars[2] == 't' || chars[2] == 'r' ||chars[2] == 'n' || chars[2] == 'f' || chars[2] == '\"' ||
+            chars[2] == '\'' || chars[2] == '\\')) {
+                //System.out.println(chars[1]);
+                //System.out.println(chars[2]);
+                return false;
+            }
+            if (size == 6 && 48 <= chars[2] && chars[2] <= 51 && 48 <= chars[3] && chars[3] <= 55 && 48 <= chars[4] && chars[4] <= 55) {
+                //System.out.println(size);
+                return false;
+                }
+
+            // unicode cases not needed
+
+        }
+        return true;
+        }
+        private boolean NotCorrectEscapeString(Token token) {
+            char [] chars = token.value.toCharArray();
+            int size = chars.length;
+            boolean checkNext = false;
+            for (int i = 1; i < size-1; i++) {
+            //System.out.println(chars[i]);
+                if (!checkNext && chars[i] == '\\') {
+                    checkNext = true;
+                } else if (checkNext) {
+                    if (chars[i] == 'b' || chars[i] == 't' || chars[i] == 'r' || chars[i] == 'n' || chars[i] == 'f' || chars[i] == '\"' || chars[i] == '\'' ||
+                    chars[i] == '\\') {
+                        checkNext = false;
+                        continue;
+                    }
+                    if (i + 2 < size - 1){
+                        boolean result = IsOctalNumber(Arrays.copyOfRange(chars, i, i+3));
+                        if (result == true){
+                            checkNext = false;
+                            continue;
+                        }
+                    }
+                    return true;
+                }
+
+            }
+            if (checkNext) {
+                return true;
+            }
+            return false;
+        }
+
+
 :};
 
 /** Terminals */
@@ -267,9 +484,12 @@ block_statement ::= local_var_decl_statement:e {:RESULT = e;:}
 local_var_decl_statement  ::= local_var_decl:e SEMICOLUMN {:RESULT = e;:};
 
 local_var_decl  ::= type:e1 var_declarators:e2 {:RESULT = new LocalVarDecl(list(e1, e2), "");:};
-
-var_declarators ::= var_declarator:e  {:RESULT = new VarDeclarators(list(e), "");:}
-                    | var_declarators:e1 COMMA var_declarator:e2 {:RESULT = new VarDeclarators(addList(e1, e2), "");:};
+/**
+ * Parser/weeder:
+ * - Multiple variable in same declaration not allowed.
+ */
+var_declarators ::= var_declarator:e  {:RESULT = new VarDeclarators(list(e), "");:};
+                    //| var_declarators:e1 COMMA var_declarator:e2 {:RESULT = new VarDeclarators(addList(e1, e2), "");:};
 
 var_declarator ::= var_declarator_id:e {:RESULT = new VarDeclarator(list(e, null), "");:}
                     | var_declarator_id:e1 ASSIGN expr:e2 {:RESULT = new VarDeclarator(list(e1, e2), "");:};
@@ -367,8 +587,10 @@ primary_no_new_array ::= literal:e {:RESULT = e;:}
 literal ::= INTGERLITERAL:e {:RESULT = new Literal(list(e), "");:}
             | TRUELITERAL:e {:RESULT = new Literal(list(e), "");:}
             | FALSELITERAL:e {:RESULT = new Literal(list(e), "");:}
-            | CHARLITERAL:e {:RESULT = new Literal(list(e), "");:}
-            | STRINGLITERAL:e {:RESULT = new Literal(list(e), "");:}
+            | CHARLITERAL:e {:if (NotCorrectEscapeChar(e)) throw new Exception("Syntax Error");
+            else RESULT = new Literal(list(e), "");:}
+            | STRINGLITERAL:e {: if (NotCorrectEscapeString(e)) throw new Exception("Syntax Error");
+            else RESULT = new Literal(list(e), "");:}
             | NULLLITERAL:e {:RESULT = new Literal(list(e), "");:};
 
 class_instance_creation_expression ::= NEW class_or_interface_type:e1 LEFTPARN argument_list:e2 RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, e2), "");:}
@@ -398,10 +620,14 @@ unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNot
                             |   cast_expr:e {:RESULT = e;:}
                             | post_fix_expr:e {:RESULT = e;:};
 
-cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
-                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
-                | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:}
-                | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:};
+cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
+                else RESULT = new CastExpr(list(e1, null, e3), "");:}
+                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
+                else RESULT = new CastExpr(list(e1, null, e3), "");:}
+                | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
+                else RESULT = new CastExpr(list(e1, e2, e3), "");:}
+                | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (HasDoubleParentheses(e1)) throw new Exception("Syntax Error");
+                else RESULT = new CastExpr(list(e1, e2, e3), "");:};
 
 multiplicative_expr ::= unary_expr:e {:RESULT = e;:}
                     |   multiplicative_expr:e1 STAR:e2 unary_expr:e3 {:RESULT = new MultiplicativeExpr(list(e1, e2, e3), "");:}
@@ -487,15 +713,20 @@ modifiers ::= modifier:e {:RESULT = new Modifiers(list(e), "");:}
            | modifiers:e1 modifier:e2 {:RESULT = new Modifiers(addList(e1,e2), "");:};
 
 // class
+// class modifier: public protected  abstract static final
 class_decl ::= CLASS ID:e2 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, null, null, e5), "");:}// identifier not found
                |
-               modifiers:e1 CLASS ID:e2 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, null, null, e5), "");:}
+               modifiers:e1 CLASS ID:e2 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               else RESULT = new ClassDecl(list(e1, e2, null, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
+               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               else RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
+               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               else RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
+               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               else RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
                |
                CLASS ID:e2 Super:e3 class_body:e5 {:RESULT = new ClassDecl(list(null, e2, e3, null, e5), "");:}
                |
@@ -507,11 +738,13 @@ class_decl ::= CLASS ID:e2 class_body:e5 {:RESULT = new ClassDecl(list(null, e2,
 
 interface_decl ::= INTERFACE ID:e2 interface_body:e4 {:RESULT = new InterfaceDecl(list(null, e2, null, e4), "");:}
                    |
-                   modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:RESULT = new InterfaceDecl(list(e1, e2, null, e4), "");:}
+                   modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+                   else RESULT = new InterfaceDecl(list(e1, e2, null, e4), "");:}
                    |
                    INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:RESULT = new InterfaceDecl(list(null, e2, e3, e4), "");:}
                    |
-                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:RESULT = new InterfaceDecl(list(e1, e2, e3, e4), "");:}
+                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+                   else RESULT = new InterfaceDecl(list(e1, e2, e3, e4), "");:}
                    ;
 
 extends_interfaces ::= EXTENDS interface_type:e {:RESULT = new ExtendsInterfaces(list(e), "");:}
@@ -547,12 +780,14 @@ class_member_decl ::= field_decl:e {:RESULT = e;:}
                       method_decl:e {:RESULT = e;:}
                       ;
 
-constructor_decl ::= modifiers:e1 constructor_declarator:e2 constructor_body:e3 {:RESULT = new ConstructorDecl(list(e1,e2,e3),"");:}
+constructor_decl ::= modifiers:e1 constructor_declarator:e2 constructor_body:e3 {: if (NotConstructorModifier(e1)) throw new Exception("Syntax Error");
+                    else RESULT = new ConstructorDecl(list(e1,e2,e3),"");:}
                      |
                      constructor_declarator:e2 constructor_body:e3 {:RESULT = new ConstructorDecl(list(null,e2,e3),"");:}
                      ;
 
-field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:RESULT = new FieldDecl(list(e1,e2,e3), "");:} //TODO: replace null with e3
+field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:if (NotFieldModifier(e1)) throw new Exception("Syntax Error");
+                else RESULT = new FieldDecl(list(e1,e2,e3), "");:}
                |
                type:e1 var_declarators:e2 SEMICOLUMN {:RESULT = new FieldDecl(list(e1, e2, null), "");:}
                ;
@@ -560,8 +795,10 @@ field_decl ::= modifiers:e1 type:e2 var_declarators:e3 SEMICOLUMN {:RESULT = new
 // adding in 8.4
 // is this delcaration or declarator cuz abstract_method_decl asking for declarator
 method_decl ::= method_header:e1 method_body:e2 {:RESULT = new MethodDecl(list(e1,e2), "");:}; //TODO: replace null with e3
-method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, e3), "");:}
-                |  modifiers:e1 VOID:e2 method_declarator:e3 {:RESULT = new MethodHeader(list(e1,e2, e3), "");:};
+method_header ::=  modifiers:e1 type:e2 method_declarator:e3 {:if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
+                else RESULT = new MethodHeader(list(e1,e2, e3), "");:}
+                |  modifiers:e1 VOID:e2 method_declarator:e3 {:if (NotMethodModifier(e1)) throw new Exception("Syntax Error");
+                else RESULT = new MethodHeader(list(e1,e2, e3), "");:};
 
 method_body ::= block:e  {:RESULT = new MethodBody(list(e), "");:} //TODO: replace null with e
                 | SEMICOLUMN {:RESULT = new MethodBody(list(null), "");:};
@@ -576,7 +813,8 @@ parameter_list ::=  paramater:e {:RESULT = new ParameterList(list(e), "");:}
 paramater ::= type:e1 var_declarator_id:e2 {:RESULT = new Parameter(list(e1, e2), "");:};
 
 
-abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 {:RESULT = new AbstractMethodDecl(list(e1, e2, e3), "");:};
+abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 {:if (NotAbstractMethodModifier(e1)) throw new Exception("Syntax Error");
+                    else RESULT = new AbstractMethodDecl(list(e1, e2, e3), "");:};
 
 
 interface_body ::= LEFTCURLY interface_member_decls:e RIGHTCURLY {:RESULT = new InterfaceBody(list(e), "");:}
