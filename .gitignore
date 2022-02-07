@@ -8,3 +8,7 @@ project/project/
 project/target/
 target/
 test/assignment_testcases/
+lib/lexer.jar
+src/lexer/Lexer.java
+src/lexer/Lexer.java~
+src/lexer/parser.java

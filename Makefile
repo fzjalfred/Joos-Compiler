@@ -26,4 +26,13 @@ clean:
 	rm -f joos
 	rm -f lexer
 	rm -rf build/*
+	rm -f src/lexer/Lexer.java
+	rm -f src/lexer/Lexer.java~
+	rm -f src/lexer/parser.java
+	rm -f src/lexer/sym.java
 
+submitzip:
+	make clean
+	git log > a1.log
+	zip -r a1.zip * -x "*/.*"
+	rm a1.log
