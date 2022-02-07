@@ -120,6 +120,7 @@ parser code {:
 
          boolean isAbstract = false;
          boolean isStatic = false;
+         boolean isNative = false;
          List<ASTNode> children = modifiers.children;
          for (ASTNode node : children) {
              if (!methodModifierList.contains(node.value)){
@@ -132,15 +133,21 @@ parser code {:
              if (node.value == "static"){
                 isStatic = true;
              }
+             if (node.value == "native") {
+                isNative = true;
+             }
          }
 
-         if (isAbstract || isStatic){
+         if (isAbstract || isStatic || isNative){
             for (ASTNode node : children){
                  if (isAbstract && (node.value == "final" || node.value == "static")){
                     return true;
                  }
                  if (isStatic && node.value == "final"){
                      return true;
+                 }
+                 if (isNative && !isStatic) {
+                    return true;
                  }
             }
          }
