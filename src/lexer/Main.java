@@ -24,13 +24,11 @@ public class Main {
 		try {
 			String fileName = argv[0];
 			parser p = new parser(new Lexer(new FileReader(fileName)));
-			Symbol result = p.debug_parse();
+			Symbol result = p.parse();
 			checkFileName(fileName,p.publicFileName, p.classList);
-			System.out.println(result.value);
-			System.out.println("success");
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.exit(1);
+			System.exit(42);
 		}
 	}
 

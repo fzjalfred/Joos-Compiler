@@ -8,7 +8,7 @@ function usage() {
 }
 
 function print_result() {
-    echo "for file: $1, our parser gives a $2"
+    echo "$1: $2"
 }
 
 # check number of arguments correct or not
@@ -27,14 +27,16 @@ echo "Assignment number ${ASSIGNMENT}"
 
 for f in "${TESTCASES[@]}"
 do
-    echo "processing file ${f}"
-    ./${EXE} "${PREF}/${ASSIGNMENT}/${f}" 1
-    if [ $? -eq 0 ]; then
-      print_result $f "SUCCESS"
-    else
-      print_result $f "FAILED"
+    ./${EXE} "${PREF}/${ASSIGNMENT}/${f}"
+    if [[ $f == J1* ]]; then
+      if [[ $? -ne 0 ]]; then
+        print_result $f "FAILED! Should return 0."
+      fi
+    elif [[ $f == Je* ]]; then
+      if [[ $? -ne 42 ]]; then
+        print_result $f "FAILED! Should return 42. "
+      fi
     fi
-    echo "   "
 done
 
 

@@ -3,9 +3,6 @@ LIBS=lib/*.jar
 FLEXS=src/flex/* src/lexer/*
 JAVA_OPT=-Xss10m
 
-# Compiler used
-SBT ?= sbt
-
 #src dir
 SRC_DIRS ?= ./src
 
@@ -22,11 +19,11 @@ main: $(SRCS) $(FLEXS)
 	javac -d ./build -cp ./lib/java_cup.jar  $(SRCS);
 	cd build && jar cvf ../lib/lexer.jar ./ast/*.class ./lexer/*.class;
 	@echo "#!/bin/sh\n\
-    java -cp ./lib/lexer.jar:./lib/java_cup.jar lexer.Main \$$@" > main
-	chmod +x main
+    java -cp ./lib/lexer.jar:./lib/java_cup.jar lexer.Main \$$@" > joos
+	chmod +x joos
 
 clean:
-	rm -f main
+	rm -f joos
 	rm -f lexer
 	rm -rf build/*
 

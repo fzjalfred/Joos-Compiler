@@ -22,7 +22,7 @@ parser code {:
 
     public void report_fatal_error(String message, Object info) {
         report_error(message, info);
-        System.exit(1);
+        System.exit(42);
     }
     private List<ASTNode> list(){
             return new ArrayList<ASTNode>();
@@ -46,10 +46,8 @@ parser code {:
             return new ArrayList<ASTNode>(){{add(e1); add(e2); add(e3); add(e4); add(e5);}};
     }
     private List<ASTNode> addList(ASTNode e1, ASTNode e2){  // add e2 to e1's children, then return e1's children
-        System.out.println("Begin current node is " + e1 + " add node " + e2);
         List<ASTNode> children = e1.children;
         children.add(e2);
-        System.out.println("Done current node is " + e1 + " add node " + e2);
         return children;
     }
 
