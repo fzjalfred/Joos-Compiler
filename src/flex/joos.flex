@@ -146,6 +146,8 @@ COMMENTS = (\/\/.*)|\/\*([^\*\/]|\*[^\/]|[^\*]\/|\*)*\*\/
     "switch"          { return symbol(sym.SWITCH, "switch"); }
     "volatile"          { return symbol(sym.VOLATILE, "volatile"); }
     "date"          { return symbol(sym.DATE, "date"); }
+    "float"          { return symbol(sym.FLOAT, "date"); }
+    "goto"          { return symbol(sym.GOTO, "date"); }
    
     {NUM}      { return symbol(sym.INTGERLITERAL, new String(yytext())); }
     {IDENT}       { return symbol(sym.ID, new String(yytext()));}

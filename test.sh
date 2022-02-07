@@ -27,12 +27,13 @@ echo "Assignment number ${ASSIGNMENT}"
 
 for f in "${TESTCASES[@]}"
 do
-    ./${EXE} "${PREF}/${ASSIGNMENT}/${f}"
     if [[ $f == J1* ]]; then
+      ./${EXE} "${PREF}/${ASSIGNMENT}/${f}"
       if [[ $? -ne 0 ]]; then
         print_result $f "FAILED! Should return 0."
       fi
     elif [[ $f == Je* ]]; then
+      ./${EXE} "${PREF}/${ASSIGNMENT}/${f}"
       if [[ $? -ne 42 ]]; then
         print_result $f "FAILED! Should return 42. "
       fi

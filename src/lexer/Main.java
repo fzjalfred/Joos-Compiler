@@ -6,18 +6,12 @@ import java_cup.runtime.*;
 
 public class Main {
 
-	static private void checkFileName(String thisFileName,String publicFilename, List<String> classList) throws Exception{
+	static private void checkFileName(String thisFileName,String publicFilename) throws Exception{
 		String baseName = thisFileName.split(".+?/(?=[^/]+$)")[1].split("\\.(?=[^\\.]+$)")[0];
 		// check public file name matches thisFileName or not
 		if (!publicFilename.equals(baseName) && publicFilename != ""){
 			throw new Exception(  "class: " + publicFilename + " does not match " + baseName);
 		}
-		for (String o : classList){
-			if (baseName.equals(o)) {
-				return;
-			}
-		}
-		throw new Exception(  "no class name match " + baseName);
 	}
 
 	static public void main(String argv[]) {
@@ -25,8 +19,11 @@ public class Main {
 			String fileName = argv[0];
 			parser p = new parser(new Lexer(new FileReader(fileName)));
 			Symbol result = p.parse();
-			checkFileName(fileName,p.publicFileName, p.classList);
+			checkFileName(fileName,p.publicFileName);
 		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(42);
+		} catch (Error e){
 			e.printStackTrace();
 			System.exit(42);
 		}

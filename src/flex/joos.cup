@@ -305,49 +305,8 @@ private boolean IncorrectCastExpr(ASTNode node){
             return false;
         }
 
-    private boolean IsInvalidID(Token token){
-        String value = token.value;
-
-
-        if (value.equals("abstract") || value.equals("private") || value.equals("assert") || value.equals("boolean") || value.equals("break") ||
-         value.equals("byte") || value.equals("case") || value.equals("catch") || value.equals("char") || value.equals("class") || value.equals("const") ||
-         value.equals("continue") || value.equals("default") || value.equals("do") || value.equals("double") || value.equals("else") || value.equals("enum") ||
-         value.equals("extends") || value.equals("final") || value.equals("finally") || value.equals("float") || value.equals("for") || value.equals("goto") ||
-         value.equals("if") || value.equals("implements") || value.equals("import") || value.equals("interface") || value.equals("instanceof") ||
-         value.equals("int") || value.equals("long") || value.equals("native") || value.equals("protected") || value.equals("public") || value.equals("static") ||
-         value.equals("strictfp") || value.equals("super") || value.equals("short") || value.equals("return") || value.equals("synchronized") || value.equals("throw") ||
-         value.equals("this") || value.equals("transient") || value.equals("try") || value.equals("throws") || value.equals("Package") || value.equals("private") ||
-         value.equals("switch") || value.equals("void") || value.equals("volatile") || value.equals("Date") || value.equals("while")) {
-         return true;
-         }
-
-         return false;
-    }
-
-    private boolean InvalidIntRange(Token token){
-        char [] value = token.value.toCharArray();
-
-        if (value.length > 10){
-            return true;
-        }
-
-        char [] chars = new char[] {'2','1','4','7','4','8','3','6','4','8' };
-        if (value.length == 10 ) {
-            for (int i = 0; i < 10; i++) {
-                if (value[i] < chars[i]) {
-                    break;
-                } else if (value[i] > chars[i]) {
-                    return true;
-                }
-
-            }
-        }
-        return false;
-    }
-
     // check only one public class
     public String publicFileName = "";
-    public List<String> classList = new ArrayList<String>();
 
     private boolean ifContainModifier(ASTNode modifiers, String name){
         if (modifiers == null) return false;
@@ -357,8 +316,31 @@ private boolean IncorrectCastExpr(ASTNode node){
         return false;
     }
     private void checkModifiers(ASTNode modifiers) throws Exception {
-        if (!(ifContainModifier(modifiers, "public") || ifContainModifier(modifiers, "protected"))) {
-            throw new Exception("Contains no access modifiers");
+        boolean containPublic = ifContainModifier(modifiers, "public");
+        boolean containProtected = ifContainModifier(modifiers, "protected");
+        if (containPublic && containProtected) {
+            throw new Exception("Duplicated access modifiers");
+        }
+        if (!(containProtected || containPublic)) {
+            throw new Exception("No access modifiers");
+        }
+        int length = modifiers.children.size();
+        for (int i = 0; i < length; i++) {
+            for (int j = i+1; j < length; j++) {
+                if (modifiers.children.get(i).value == modifiers.children.get(j).value) {
+                    throw new Exception("Duplicated Modifier name");
+                }
+            }
+        }
+    }
+    private void checkPublicModifier(ASTNode modifiers) throws Exception {
+        boolean containPublic = ifContainModifier(modifiers, "public");
+        boolean containProtected = ifContainModifier(modifiers, "protected");
+        if (!containPublic) {
+            throw new Exception("No access modifiers");
+        }
+        if (containProtected) {
+            throw new Exception("Incorrect modifiers");
         }
         int length = modifiers.children.size();
         for (int i = 0; i < length; i++) {
@@ -371,7 +353,6 @@ private boolean IncorrectCastExpr(ASTNode node){
     }
     // only one and only one public class can exist; public class name should match filename.
     private void checkInvalidFileName(ASTNode modifiers, Token id) throws Exception{
-        classList.add(id.value);
         if (ifContainModifier(modifiers, "public")){
             if (publicFileName == ""){
                 publicFileName = id.value;
@@ -458,7 +439,7 @@ terminal Token                  VOID, BOOL, INT, CHAR, BYTE, SHORT; // how to re
 //// reserved keywords
 terminal                            PRIVATE, ASSERT, BREAK, CASE, CATCH, CONTINUE,
                                     DEFAULT, CONST, DO, DOUBLE, ENUM, FINALLY, LONG, STRICTFP, SYNCHRONIZED, THROW,
-                                    TRANSIENT, TRY, THROWS, SWITCH, VOLATILE, DATE;
+                                    TRANSIENT, TRY, THROWS, SWITCH, VOLATILE, DATE, GOTO, FLOAT;
 // OP
 terminal Token                  PLUS, MINUS, DIVIDES, MOD, STAR; //Arithmatic OP
 terminal Token                  BINARYAND, BINARYOR, NOT; // logic OP
@@ -889,24 +870,24 @@ modifiers ::= modifier:e {:RESULT = new Modifiers(list(e), "");:}
 
 // class
 // class modifier: public protected  abstract static final
-class_decl ::= modifiers:e1 CLASS ID:e2 class_body:e5 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+class_decl ::= modifiers:e1 CLASS ID:e2 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, null, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
+               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Syntax Error");
                else RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
                ;
 
 
-interface_decl ::= modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+interface_decl ::= modifiers:e1 INTERFACE ID:e2 interface_body:e4 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
                    else RESULT = new InterfaceDecl(list(e1, e2, null, e4), "");:}
                    |
-                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkModifiers(e1); checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
+                   modifiers:e1 INTERFACE ID:e2 extends_interfaces:e3 interface_body:e4 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotInterfaceModifier(e1)) throw new Exception("Syntax Error");
                    else RESULT = new InterfaceDecl(list(e1, e2, e3, e4), "");:}
                    ;
 
