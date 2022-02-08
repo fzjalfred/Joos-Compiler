@@ -277,6 +277,9 @@ private boolean IncorrectCastExpr(ASTNode node){
             boolean checkNext = false;
             int i = 1;
             while ( i < size-1) {
+                if (!(0 <= chars[i] && chars[i] <= 127)) {
+                    return true;
+                }
                 if (!checkNext && chars[i] == '\\') {
                     checkNext = true;
                     i++;
