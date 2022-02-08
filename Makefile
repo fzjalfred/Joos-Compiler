@@ -19,20 +19,21 @@ main: $(SRCS) $(FLEXS)
 	javac -d ./build -cp ./lib/java_cup.jar  $(SRCS);
 	cd build && jar cvf ../lib/lexer.jar ./ast/*.class ./lexer/*.class;
 	@echo "#!/bin/sh\n\
-    java -cp ./lib/lexer.jar:./lib/java_cup.jar lexer.Main \$$@" > joos
-	chmod +x joos
+    java -cp ./lib/lexer.jar:./lib/java_cup.jar lexer.Main \$$@" > joosc
+	chmod +x joosc
 
 clean:
-	rm -f joos
-	rm -f lexer
+	rm -f joosc
 	rm -rf build/*
 	rm -f src/lexer/Lexer.java
 	rm -f src/lexer/Lexer.java~
 	rm -f src/lexer/parser.java
 	rm -f src/lexer/sym.java
+	rm -f a1.zip
 
 submitzip:
-	make clean
+	rm -rf build/*
+	rm -f a1.zip
 	git log > a1.log
-	zip -r a1.zip * -x "*/.*"
+	zip -r a1.zip build/ lib/ src/ Makefile test/self_testcases/ a1.log
 	rm a1.log
