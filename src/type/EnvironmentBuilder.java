@@ -143,7 +143,8 @@ public class EnvironmentBuilder {
     }
 
     public static void checkDupDecl(ScopeEnvironment env, Token simpleName) throws SemanticError{
-        if (env.lookup(simpleName) != null)  throw new SemanticError("Duplicated local variable " + simpleName.value);
+        Referenceable decl = env.lookup(simpleName);
+        if ( decl != null && (decl instanceof LocalVarDecl || decl instanceof Parameter))  throw new SemanticError("Duplicated local variable " + simpleName.value);
 
     }
 
@@ -152,17 +153,36 @@ public class EnvironmentBuilder {
         for (ASTNode node : blockStmts.children){
             assert node instanceof BlockStmt;
             BlockStmt blockStmt = (BlockStmt)node;
-            if (blockStmt instanceof LocalVarDecl){ // local var decl
-                LocalVarDecl localVarDecl = (LocalVarDecl)blockStmt;
-                List<String> names = localVarDecl.getName();
-                for (String name : names){
-                    Token simpleName = tools.simpleNameConstructor(name);
-                    checkDupDecl(env, simpleName);  // check dup local var decl, may throw semantic error
-                    env.localDecls.put(name, localVarDecl);
-                }
-            }   else if (blockStmt instanceof Block){   // block
-                processBlock(env, (Block)blockStmt);
+            processBlockStmt(env, blockStmt);
+        }
+    }
+
+    public static void processBlockStmt(ScopeEnvironment env, BlockStmt blockStmt) throws SemanticError{
+        assert blockStmt != null;
+        if (blockStmt instanceof LocalVarDecl){ // local var decl
+            LocalVarDecl localVarDecl = (LocalVarDecl)blockStmt;
+            List<String> names = localVarDecl.getName();
+            for (String name : names){
+                Token simpleName = tools.simpleNameConstructor(name);
+                checkDupDecl(env, simpleName);  // check dup local var decl, may throw semantic error
+                env.localDecls.put(name, localVarDecl);
             }
+        }   else if (blockStmt instanceof Block){   // block
+            processBlock(env, (Block)blockStmt);
+        }   else if (blockStmt instanceof ForStmt){
+            processForStmt(env, (ForStmt)blockStmt);
+        }   else if (blockStmt instanceof IfThenStmt){
+            processIfThenStmt(env, (IfThenStmt)blockStmt);
+        }   else if (blockStmt instanceof IfThenElseStmt){
+            processIfThenEsleStmt(env, (IfThenElseStmt)blockStmt);
+        }   else if (blockStmt instanceof WhileStmt){
+            processWhileStmt(env, (WhileStmt)blockStmt);
+        }   else if (blockStmt instanceof IfThenElseStmtNotIf){
+            processIfThenElseStmtNotIf(env, (IfThenElseStmtNotIf)blockStmt);
+        }   else if (blockStmt instanceof WhileStmtNotIf){
+            processWhileStmtNotIf(env, (WhileStmtNotIf)blockStmt);
+        }   else if (blockStmt instanceof ForStmtNotIf){
+            processForStmtNotIf(env, (ForStmtNotIf)blockStmt);
         }
     }
 
@@ -172,6 +192,63 @@ public class EnvironmentBuilder {
         BlockStmts blockStmts = block.getBlockStmts();
         processBlockStmts(env.childScopes.get(block), blockStmts);
     }
+
+    public static void processWhileStmt(ScopeEnvironment env, WhileStmt whileStmt) throws SemanticError{
+        BlockStmt stmt = whileStmt.getStmt();
+        processBlockStmt(env, stmt);
+    }
+
+    public static void processWhileStmtNotIf(ScopeEnvironment env, WhileStmtNotIf whileStmtNotIf) throws SemanticError{
+        BlockStmt stmt = whileStmtNotIf.getStmt();
+        processBlockStmt(env, stmt);
+    }
+
+    public static void processIfThenStmt(ScopeEnvironment env, IfThenStmt ifThenStmt) throws SemanticError{
+        BlockStmt stmt = ifThenStmt.getThenStmt();
+        processBlockStmt(env, stmt);
+    }
+
+    public static void processIfThenEsleStmt(ScopeEnvironment env, IfThenElseStmt ifThenElseStmt) throws SemanticError{
+        BlockStmt stmt1 = ifThenElseStmt.getThenStmt();
+        BlockStmt stmt2 = ifThenElseStmt.getElseStmt();
+        processBlockStmt(env, stmt1);
+        processBlockStmt(env, stmt2);
+    }
+
+    public static void processIfThenElseStmtNotIf(ScopeEnvironment env, IfThenElseStmtNotIf ifThenElseStmt) throws SemanticError{
+        BlockStmt stmt1 = ifThenElseStmt.getThenStmt();
+        BlockStmt stmt2 = ifThenElseStmt.getElseStmt();
+        processBlockStmt(env, stmt1);
+        processBlockStmt(env, stmt2);
+    }
+
+    public static void processForStmt(ScopeEnvironment env, ForStmt forStmt) throws SemanticError{
+        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, ""));
+        ScopeEnvironment newScope = env.childScopes.get(forStmt);
+        ForInit forInit = forStmt.getForInit();
+        VarDeclarator varDeclarator = forInit.getVarDeclarator();
+        if (varDeclarator != null){
+            String name = varDeclarator.getName();
+            checkDupDecl(newScope, tools.simpleNameConstructor(name));
+            newScope.localDecls.put(name, forInit);
+        }
+        processBlockStmt(newScope, forStmt.getBlockStmt());
+    }
+
+    public static void processForStmtNotIf(ScopeEnvironment env, ForStmtNotIf forStmt) throws SemanticError{
+        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, ""));
+        ScopeEnvironment newScope = env.childScopes.get(forStmt);
+        ForInit forInit = forStmt.getForInit();
+        VarDeclarator varDeclarator = forInit.getVarDeclarator();
+        if (varDeclarator != null){
+            String name = varDeclarator.getName();
+            checkDupDecl(newScope, tools.simpleNameConstructor(name));
+            newScope.localDecls.put(name, forInit);
+        }
+        processBlockStmt(newScope, forStmt.getBlockStmt());
+    }
+
+
 
 
 
