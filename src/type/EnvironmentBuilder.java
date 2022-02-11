@@ -1,0 +1,178 @@
+package type;
+import ast.*;
+import java.util.List;
+import exception.SemanticError;
+import utils.*;
+import lexer.*;
+
+public class EnvironmentBuilder {
+    public static RootEnvironment buildRoot(String [] fileNames) throws Exception, Error, SemanticError{
+        RootEnvironment env = new RootEnvironment();
+        List<ASTNode> nodes = env.uploadFiles(fileNames);
+        createScopes(env, nodes);
+        return env;
+    }
+
+    public static void createScopes(RootEnvironment env, List<ASTNode> nodes) throws SemanticError{
+        for (ASTNode node : nodes){
+            assert node instanceof CompilationUnit;
+            processCompilationUnit(env, (CompilationUnit) node);  // each node must be a compilation Unit
+        }
+    }
+
+    public static void processCompilationUnit(RootEnvironment env, CompilationUnit c) throws SemanticError{
+        PackageDecl p = c.getPackageDecl();
+        String packageName = "";
+        if (p != null){
+            packageName = p.getName().getValue();
+        }
+        if (!env.packageScopes.containsKey(packageName)){
+            env.packageScopes.put(packageName, new ScopeEnvironment(env, env, packageName));
+        }
+        TypeDecls typeDecls = c.getTypeDecls();
+        if (typeDecls != null){
+            processTypeDecls(env.packageScopes.get(packageName), typeDecls);
+        }
+    }
+
+    public static void processTypeDecls(ScopeEnvironment env, TypeDecls typeDecls) throws SemanticError{
+        for (ASTNode node : typeDecls.children){
+            assert node instanceof TypeDecl;
+            processTypeDecl(env, (TypeDecl)node);
+        }
+    }
+
+    public static void processTypeDecl(ScopeEnvironment env, TypeDecl typeDecl) throws SemanticError{
+        if (typeDecl == null) return;
+        if (typeDecl instanceof ClassDecl){
+            ClassDecl classDecl = (ClassDecl)typeDecl;
+            String qualifiedClassName = env.prefix + '.' + classDecl.getName();
+            if (env.localDecls.containsKey(qualifiedClassName)){    // duplicate defined
+                throw new SemanticError(qualifiedClassName + " has already been defined");
+            }
+            env.localDecls.put(qualifiedClassName, classDecl);
+            // add scope
+            env.childScopes.put(classDecl, new ScopeEnvironment(env, env.root, qualifiedClassName));
+            processClassMemberDecls(env.childScopes.get(classDecl), classDecl.getClassBodyDecls());
+        }   else if (typeDecl instanceof InterfaceDecl){
+            InterfaceDecl interfaceDecl = (InterfaceDecl)typeDecl;
+            String qualifiedInterfaceName = env.prefix +'.'+ interfaceDecl.getName();
+            if (env.localDecls.containsKey(qualifiedInterfaceName)){
+                throw new SemanticError(qualifiedInterfaceName + " has already been defined");
+            }
+            env.localDecls.put(qualifiedInterfaceName, interfaceDecl);
+            env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName));
+            //TODO: add processInterfaceMemberDecl
+            InterfaceMemberDecls interfaceMemberDecls= interfaceDecl.getInterfaceBody().getInterfaceMemberDecls();
+            processInterfaceMemberDecls(env.childScopes.get(interfaceDecl), interfaceMemberDecls);
+        }
+
+    }
+
+    public static void processInterfaceMemberDecls(ScopeEnvironment env, InterfaceMemberDecls interfaceMemberDecls){
+        if (interfaceMemberDecls == null) return;;
+        for (ASTNode node : interfaceMemberDecls.children){
+            assert node instanceof AbstractMethodDecl;
+            processAbstractMethodDecl(env, (AbstractMethodDecl)node);
+        }
+    }
+
+    public static void processAbstractMethodDecl(ScopeEnvironment env, AbstractMethodDecl abstractMethodDecl) throws SemanticError{
+        MethodDeclarator methodDeclarator = abstractMethodDecl.getMethodDeclarator();
+        String methodName = methodDeclarator.getName();
+        if (env.localDecls.containsKey(methodName)) throw new SemanticError("Duplicate abstract method name");
+        env.localDecls.put(methodName,abstractMethodDecl);
+        env.childScopes.put(abstractMethodDecl, new ScopeEnvironment(env, env.root, ""));
+        processParameters(env.childScopes.get(abstractMethodDecl),methodDeclarator.getParameterList());
+    }
+
+
+    public static void processClassMemberDecls(ScopeEnvironment env, ClassBodyDecls classBodyDecls) throws SemanticError{
+        if (classBodyDecls == null) return;
+        for (ASTNode node : classBodyDecls.children){
+            assert node instanceof ClassBodyDecl;
+            if (node != null)
+            processClassMemberDecl(env, (ClassBodyDecl)node);
+        }
+    }
+
+    public static void processClassMemberDecl(ScopeEnvironment env, ClassBodyDecl classBodyDecl) throws SemanticError{
+        if (classBodyDecl instanceof ConstructorDecl){
+            ConstructorDecl cd = (ConstructorDecl)classBodyDecl;
+            String constructorName = env.prefix +'.'+ cd.getName();
+            env.localDecls.put(constructorName, cd);
+        }   else if (classBodyDecl instanceof FieldDecl){   // field decl
+            FieldDecl fd = (FieldDecl)classBodyDecl;
+            List<String> names = fd.getName();
+            for (String name : names){
+                String qualifiedName = env.prefix + '.' + name;
+                if (env.localDecls.containsKey(qualifiedName)) throw new SemanticError("Duplicated field name " + qualifiedName);
+                env.localDecls.put(qualifiedName, fd);
+            }
+        }   else if (classBodyDecl instanceof MethodDecl){  // method decl
+            MethodDecl md = (MethodDecl)classBodyDecl;
+            String qualifiedMethodName = env.prefix  + '.' + md.getName();
+            if (env.localDecls.containsKey(qualifiedMethodName)) throw new SemanticError("Duplicated method name " + qualifiedMethodName);
+            env.localDecls.put(qualifiedMethodName, md);
+            env.childScopes.put(md, new ScopeEnvironment(env, env.root, ""));
+            processMethodHeader(env.childScopes.get(md), md.getMethodHeader());
+            processMethodBody(env.childScopes.get(md), md.getMethodBody());
+        }
+    }
+
+    public static void processMethodHeader(ScopeEnvironment env, MethodHeader methodHeader) throws SemanticError{
+        ParameterList parameterList = methodHeader.getMethodDeclarator().getParameterList();
+        processParameters(env, parameterList);
+    }
+
+    public static void processParameters(ScopeEnvironment env,ParameterList parameterList) throws SemanticError{
+        for (ASTNode node : parameterList.children){    // update parameters
+            assert node instanceof Parameter;
+            Parameter parameter = (Parameter)node;
+            String name = parameter.getVarDeclaratorID().getName();
+            if (env.localDecls.containsKey(name)) throw new SemanticError("Duplicated parameter name " + name);
+            env.localDecls.put(name, parameter);
+        }
+    }
+
+    public static void processMethodBody(ScopeEnvironment env, MethodBody methodBody) throws SemanticError{
+        Block block = methodBody.getBlock();
+        if (block == null) return;
+        BlockStmts blockStmts = block.getBlockStmts();
+        processBlockStmts(env, blockStmts);
+    }
+
+    public static void checkDupDecl(ScopeEnvironment env, Token simpleName) throws SemanticError{
+        if (env.lookup(simpleName) != null)  throw new SemanticError("Duplicated local variable " + simpleName.value);
+
+    }
+
+    public static void processBlockStmts(ScopeEnvironment env, BlockStmts blockStmts) throws SemanticError{
+        if (blockStmts == null) return;
+        for (ASTNode node : blockStmts.children){
+            assert node instanceof BlockStmt;
+            BlockStmt blockStmt = (BlockStmt)node;
+            if (blockStmt instanceof LocalVarDecl){ // local var decl
+                LocalVarDecl localVarDecl = (LocalVarDecl)blockStmt;
+                List<String> names = localVarDecl.getName();
+                for (String name : names){
+                    Token simpleName = tools.simpleNameConstructor(name);
+                    checkDupDecl(env, simpleName);  // check dup local var decl, may throw semantic error
+                    env.localDecls.put(name, localVarDecl);
+                }
+            }   else if (blockStmt instanceof Block){   // block
+                processBlock(env, (Block)blockStmt);
+            }
+        }
+    }
+
+    public static void processBlock(ScopeEnvironment env, Block block) throws SemanticError{
+        env.childScopes.put(block, new ScopeEnvironment(env, env.root, ""));
+        if (block == null) return;
+        BlockStmts blockStmts = block.getBlockStmts();
+        processBlockStmts(env.childScopes.get(block), blockStmts);
+    }
+
+
+
+}

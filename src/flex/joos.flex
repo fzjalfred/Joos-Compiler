@@ -7,7 +7,7 @@ import java_cup.runtime.*;
 %%
 
 %class Lexer
-
+%public
 %line
 %column
 

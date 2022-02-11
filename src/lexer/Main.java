@@ -1,25 +1,20 @@
 package lexer;
 import java.io.*;
 import java.util.*;
-import java_cup.runtime.*;
 
+import ast.Name;
+import java_cup.runtime.*;
+import type.*;
+import utils.*;
 
 public class Main {
 
-	static private void checkFileName(String thisFileName,String publicFilename) throws Exception{
-		String baseName = thisFileName.split(".+?/(?=[^/]+$)")[1].split("\\.(?=[^\\.]+$)")[0];
-		// check public file name matches thisFileName or not
-		if (!publicFilename.equals(baseName) && publicFilename != ""){
-			throw new Exception(  "class: " + publicFilename + " does not match " + baseName);
-		}
-	}
-
 	static public void main(String argv[]) {
 		try {
-			String fileName = argv[0];
-			parser p = new parser(new Lexer(new FileReader(fileName)));
-			Symbol result = p.parse();
-			checkFileName(fileName,p.publicFileName);
+			RootEnvironment env = EnvironmentBuilder.buildRoot(argv);
+			System.out.println(env);
+			Name name1 = tools.nameConstructor("B.class1");
+			System.out.println(env.lookup(name1));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(42);
