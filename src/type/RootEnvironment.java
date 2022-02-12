@@ -33,10 +33,11 @@ public class RootEnvironment extends Environment{
     public RootEnvironment(){
         parent = null;
         packageScopes = new HashMap<String, ScopeEnvironment>();
+        ASTNodeToScopes = new HashMap<ASTNode, ScopeEnvironment>();
     }
 
     public Map<String, ScopeEnvironment> packageScopes;    //map a prefix of Name to a scope
-
+    public Map<ASTNode, ScopeEnvironment> ASTNodeToScopes;
 
     public Referenceable lookup(Name name){
         List<String> names = name.getFullName();

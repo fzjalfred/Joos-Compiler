@@ -7,17 +7,19 @@ import utils.tools;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ScopeEnvironment extends Environment{
     public RootEnvironment root;    // root of all environment
 
     public Referenceable lookup(Name name){
+        if (prefix.equals("")) return null;
         Referenceable res = search(name);
         if (res != null){
             return res;
         }
         for (ASTNode node : childScopes.keySet()){
-            res = childScopes.get(node).search(name);
+            res = childScopes.get(node).lookup(name);
             if (res != null) return res;
         }
         return null;
@@ -51,6 +53,7 @@ public class ScopeEnvironment extends Environment{
 
     public Map<String,Referenceable> localDecls; // map prefix of Name to a decl
     public Map<ASTNode, ScopeEnvironment> childScopes;
+    public Set<String> simpleNameSet; // set of all simple names; used for checking dup
     public String prefix;
 
 

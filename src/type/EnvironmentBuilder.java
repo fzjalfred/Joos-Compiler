@@ -1,6 +1,6 @@
 package type;
 import ast.*;
-import java.util.List;
+import java.util.*;
 import exception.SemanticError;
 import utils.*;
 import lexer.*;
@@ -9,7 +9,8 @@ public class EnvironmentBuilder {
     public static RootEnvironment buildRoot(String [] fileNames) throws Exception, Error, SemanticError{
         RootEnvironment env = new RootEnvironment();
         List<ASTNode> nodes = env.uploadFiles(fileNames);
-        createScopes(env, nodes);
+        createScopes(env, nodes);   // create all subscope for root environment
+        generateMapping(env, nodes); // generate ASTNode->Scope mapping for each ASTNode
         return env;
     }
 
@@ -29,10 +30,19 @@ public class EnvironmentBuilder {
         if (!env.packageScopes.containsKey(packageName)){
             env.packageScopes.put(packageName, new ScopeEnvironment(env, env, packageName));
         }
+        ScopeEnvironment packageScope = env.packageScopes.get(packageName);
+        ScopeEnvironment compliationScope = new ScopeEnvironment(packageScope, env, packageName);
+        packageScope.localDecls.put(packageName+".CompliationUnit"+c.hashCode(), c);
+        packageScope.childScopes.put(c, compliationScope);
+        processImportDecls(compliationScope, c.getImportDecls());
         TypeDecls typeDecls = c.getTypeDecls();
         if (typeDecls != null){
-            processTypeDecls(env.packageScopes.get(packageName), typeDecls);
+            processTypeDecls(compliationScope, typeDecls);
         }
+    }
+
+    public static void processImportDecls(ScopeEnvironment compilationScope, ImportDecls importDecls){
+
     }
 
     public static void processTypeDecls(ScopeEnvironment env, TypeDecls typeDecls) throws SemanticError{
@@ -246,6 +256,37 @@ public class EnvironmentBuilder {
             newScope.localDecls.put(name, forInit);
         }
         processBlockStmt(newScope, forStmt.getBlockStmt());
+    }
+
+    public static void generateMapping(RootEnvironment env, List<ASTNode> nodes){
+        Map<ASTNode, ScopeEnvironment> scopeMappings = new HashMap<ASTNode, ScopeEnvironment>(); //extract all mappings from root
+        for (ScopeEnvironment e : env.packageScopes.values()){
+            addMapping(e, scopeMappings);
+        }
+        for (ASTNode node : nodes){
+            completeMapping(scopeMappings, node, null);
+        }
+        env.ASTNodeToScopes = scopeMappings;
+    }
+
+    public static void addMapping(ScopeEnvironment e, Map<ASTNode, ScopeEnvironment> scopeMappings){
+        for (ScopeEnvironment sube : e.childScopes.values()){
+            addMapping(sube, scopeMappings);
+        }
+        scopeMappings.putAll(e.childScopes);
+    }
+
+    public static void completeMapping(Map<ASTNode, ScopeEnvironment> mapping, ASTNode node, ScopeEnvironment prevScope){
+        assert node != null;
+        ScopeEnvironment nextScope = prevScope;
+        if (mapping.containsKey(node)){
+            nextScope = mapping.get(node);
+        }   else {
+            mapping.put(node, prevScope);
+        }
+        for (ASTNode child : node.children){
+            if (child != null) completeMapping(mapping, child, nextScope);
+        }
     }
 
 
