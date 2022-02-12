@@ -8,4 +8,5 @@ public class ReferenceType extends Type {
         super(children, value);
         typeDecl = null;
     }
+
 }

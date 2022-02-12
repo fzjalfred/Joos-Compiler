@@ -40,6 +40,25 @@ public class ScopeEnvironment extends Environment{
         return null;
     }
 
+    public Referenceable lookupTypeDecl(Token simpleName){
+        assert simpleName.type == sym.ID;
+        Referenceable res = search(simpleName);
+        if (res == null && parent != root){
+            return parent.lookup(simpleName);
+        }
+        return res;
+    }
+
+    public Referenceable searchTypeDecl(Token simpleName){
+        String name = simpleName.value;
+        for (String key : localDecls.keySet()){
+            String simpleKey = tools.getSimpleName(key);
+            Referenceable res = localDecls.get(key);
+            if (simpleKey.equals(name) && res instanceof TypeDecl) return res;
+        }
+        return null;
+    }
+
     protected Referenceable rootLookupHelper(Name name){
         if (prefix.equals("")) return null;
         Referenceable res = search(name);
