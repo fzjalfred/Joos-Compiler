@@ -22,4 +22,9 @@ public class tools {
         return names[names.length-1];
     }
 
+    public static String getSimpleName(Name qualifiedName){
+        String qualifiedNameStr = qualifiedName.getValue();
+        return getSimpleName(qualifiedNameStr);
+    }
+
 }

@@ -9,4 +9,5 @@ public abstract class Environment {
     public abstract Referenceable search(Name name);    // search for the name in current environment
     public abstract Referenceable lookup(Token simpleName);    // loop up the name in all related environments
     public abstract Referenceable search(Token simpleName);
+    protected abstract Referenceable rootLookupHelper(Name name);
 }

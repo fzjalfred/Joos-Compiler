@@ -1,6 +1,6 @@
 package B;
-;
-public class class1{
+import A.*;
+public class class1 {
     public class1(){}
     public int field1;
 

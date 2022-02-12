@@ -11,6 +11,7 @@ public class EnvironmentBuilder {
         List<ASTNode> nodes = env.uploadFiles(fileNames);
         createScopes(env, nodes);   // create all subscope for root environment
         generateMapping(env, nodes); // generate ASTNode->Scope mapping for each ASTNode
+        TypeLinker.linkAll(env, nodes);
         return env;
     }
 
@@ -34,16 +35,12 @@ public class EnvironmentBuilder {
         ScopeEnvironment compliationScope = new ScopeEnvironment(packageScope, env, packageName);
         packageScope.localDecls.put(packageName+".CompliationUnit"+c.hashCode(), c);
         packageScope.childScopes.put(c, compliationScope);
-        processImportDecls(compliationScope, c.getImportDecls());
         TypeDecls typeDecls = c.getTypeDecls();
         if (typeDecls != null){
             processTypeDecls(compliationScope, typeDecls);
         }
     }
 
-    public static void processImportDecls(ScopeEnvironment compilationScope, ImportDecls importDecls){
-
-    }
 
     public static void processTypeDecls(ScopeEnvironment env, TypeDecls typeDecls) throws SemanticError{
         for (ASTNode node : typeDecls.children){
@@ -61,6 +58,7 @@ public class EnvironmentBuilder {
                 throw new SemanticError(qualifiedClassName + " has already been defined");
             }
             env.localDecls.put(qualifiedClassName, classDecl);
+            env.simpleNameSet.add(classDecl.getName()); // add simple name to check dup
             // add scope
             env.childScopes.put(classDecl, new ScopeEnvironment(env, env.root, qualifiedClassName));
             processClassMemberDecls(env.childScopes.get(classDecl), classDecl.getClassBodyDecls());
@@ -72,7 +70,7 @@ public class EnvironmentBuilder {
             }
             env.localDecls.put(qualifiedInterfaceName, interfaceDecl);
             env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName));
-            //TODO: add processInterfaceMemberDecl
+            env.simpleNameSet.add(interfaceDecl.getName());
             InterfaceMemberDecls interfaceMemberDecls= interfaceDecl.getInterfaceBody().getInterfaceMemberDecls();
             processInterfaceMemberDecls(env.childScopes.get(interfaceDecl), interfaceMemberDecls);
         }

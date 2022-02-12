@@ -46,7 +46,7 @@ public class RootEnvironment extends Environment{
         for (String s : names){
             nameStr = nameStr + s;
             if (packageScopes.containsKey(nameStr)){
-                res =  packageScopes.get(nameStr).lookup(name);
+                res =  packageScopes.get(nameStr).rootLookupHelper(name);
                 if (res != null) return res;
             }
             nameStr = nameStr + '.';
@@ -62,9 +62,9 @@ public class RootEnvironment extends Environment{
         return null;
     }
 
-    public Referenceable search(Token simpleName){
-        return null;
-    }
+    public Referenceable search(Token name) {return null;}
+
+    protected Referenceable rootLookupHelper(Name name){return null;}
 
     @Override
     public String toString() {
