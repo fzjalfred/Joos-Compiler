@@ -39,7 +39,6 @@ public class TypeLinker {
         for (ScopeEnvironment compScope : packageScope.childScopes.values()){
             for (String qualifiedName : compScope.localDecls.keySet()){
                 if (qualifiedName.startsWith(packageScope.prefix)){
-                    checkClash(targetScope, qualifiedName);
                     targetScope.localDecls.put(qualifiedName, compScope.localDecls.get(qualifiedName));
                 }
             }
@@ -51,7 +50,11 @@ public class TypeLinker {
         String packageNameStr = typeImportOndemandDecl.getName().getValue();
         if (!env.packageScopes.containsKey(packageNameStr)) throw new SemanticError("Cannot find package: " + packageNameStr);
         ScopeEnvironment packageScope = env.packageScopes.get(packageNameStr);
-        addAllSelfTypeDecls(scope, packageScope);   // add all self class or interface decls from package scope to import scope
+        if (!scope.childScopes.containsKey(typeImportOndemandDecl)){
+            scope.childScopes.put(typeImportOndemandDecl, new ScopeEnvironment(scope, env, scope.prefix));
+        }
+        ScopeEnvironment targetScope = scope.childScopes.get(typeImportOndemandDecl);
+        addAllSelfTypeDecls(targetScope, packageScope);   // add all self class or interface decls from package scope to import scope
     }
 
     /** If prefix of the name is a type, then throw semantic error */
@@ -74,6 +77,10 @@ public class TypeLinker {
     static void processPackageDecl(RootEnvironment env, PackageDecl packageDecl) throws SemanticError{
         List<String> names = packageDecl.getName().getFullName();
         checkPrefixNotType(env, names, false);
+        ScopeEnvironment scope = env.ASTNodeToScopes.get(packageDecl);
+        scope.childScopes.put(packageDecl, new ScopeEnvironment(scope, env, scope.prefix)); // create a new scope for package classes
+        ScopeEnvironment packageScope = env.packageScopes.get(packageDecl.getName().getValue());
+        addAllSelfTypeDecls(scope.childScopes.get(packageDecl), packageScope);
     }
 
     static void resolveTypename(ScopeEnvironment env, ClassOrInterfaceType type) throws SemanticError{
@@ -102,9 +109,10 @@ public class TypeLinker {
         }   else if (node instanceof PackageDecl){
             PackageDecl packageDecl = (PackageDecl)node;
             processPackageDecl(env, packageDecl);
-        }   else if (node instanceof ClassOrInterfaceType){
+        }   else if (node instanceof ClassOrInterfaceType){ // Above condition will all be checked before processing here
             ClassOrInterfaceType type = (ClassOrInterfaceType)node;
             resolveTypename(env.ASTNodeToScopes.get(node), type);
+            //System.out.println(type.getName().getValue() + " is linked to " + type.typeDecl);
         }
         linkAll(env, node.children);
     }

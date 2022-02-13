@@ -1,6 +1,6 @@
 package B;
 import A.*;
-public class class1 {
+public class class1 extends class2{
     public class1(){}
     public int field1;
 

@@ -26,11 +26,53 @@ public class ScopeEnvironment extends Environment{
         return null;
     }
 
-    public Referenceable lookup(Token simpleName){
+    /** lookup should first lookup 1.enclosing class/interface
+     *                             2.single-type import
+     *                             3.names declared in enclosing package
+     *                             4.import on demand                   */
+
+    public Referenceable lookupEnclosingAndSingleImport(Token simpleName){
         assert simpleName.type == sym.ID;
         Referenceable res = search(simpleName);
         if (res == null && parent != root){
-            return parent.lookup(simpleName);
+            return parent.lookupEnclosingAndSingleImport(simpleName);
+        }
+        return res;
+    }
+
+    public Referenceable lookupEnclosingPackage(Token simpleName){
+        assert simpleName.type == sym.ID;
+        if (!isCompliationUnit()){
+            return parent.lookupEnclosingPackage(simpleName);
+        }
+        for (ASTNode node : childScopes.keySet()){
+            if (node instanceof PackageDecl){
+                return childScopes.get(node).search(simpleName);
+            }
+        }
+        return null; // should not come here
+    }
+
+    public Referenceable lookupImportOnDemand(Token simpleName){
+        assert simpleName.type == sym.ID;
+        if (!isCompliationUnit()){
+            return parent.lookupImportOnDemand(simpleName);
+        }
+        for (ASTNode node : childScopes.keySet()){
+            if (node instanceof TypeImportOndemandDecl){
+                return childScopes.get(node).search(simpleName);
+            }
+        }
+        return null; // should not come here
+    }
+
+    public Referenceable lookup(Token simpleName){
+        Referenceable res = lookupEnclosingAndSingleImport(simpleName);
+        if (res == null) {
+            res =lookupEnclosingPackage(simpleName);
+            if (res == null){
+                res = lookupImportOnDemand(simpleName);
+            }
         }
         return res;
     }
@@ -44,11 +86,19 @@ public class ScopeEnvironment extends Environment{
         return null;
     }
 
+
+    /** lookup a simpleName which is a typeDecl */
     public Referenceable lookupTypeDecl(Token simpleName){
         assert simpleName.type == sym.ID;
-        Referenceable res = search(simpleName);
+        Referenceable res = searchTypeDecl(simpleName);
         if (res == null && parent != root){
-            return parent.lookup(simpleName);
+            res = parent.lookupTypeDecl(simpleName);
+        }
+        if (res == null){
+            res = lookupEnclosingPackage(simpleName);
+            if (res == null){
+                res = lookupImportOnDemand(simpleName);
+            }
         }
         return res;
     }
@@ -122,5 +172,12 @@ public class ScopeEnvironment extends Environment{
                 "localDecls=" + localDecls + System.lineSeparator() +
                 "subScope=" + childScopes + System.lineSeparator() +
                 '}';
+    }
+
+    boolean isCompliationUnit(){
+        if (parent != null){
+            return (parent.parent == root);
+        }
+        return false;
     }
 }

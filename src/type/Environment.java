@@ -14,4 +14,9 @@ public abstract class Environment {
     public abstract Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Name name);
     protected abstract Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name);
     public abstract ScopeEnvironment lookupEnv(ASTNode node);
+
+    public Referenceable lookupEnclosingAndSingleImport(Token simpleName){return null;}
+    public Referenceable lookupEnclosingPackage(Token simpleName){return null;}
+    public Referenceable lookupImportOnDemand(Token simpleName){return null;}
+    public Referenceable lookupTypeDecl(Token simpleName){return null;}
 }
