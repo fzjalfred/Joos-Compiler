@@ -914,10 +914,7 @@ interface_typelist ::= interface_type:e {:RESULT = new InterfaceTypeList(list(e)
                        ;
 
 
-class_body ::= LEFTCURLY class_body_decls:e RIGHTCURLY {:checkConstructorDecl(e); RESULT = new ClassBody(list(e), "");:}
-               |
-               LEFTCURLY RIGHTCURLY {:RESULT = new ClassBody(list(null), "");:}
-               ;
+class_body ::= LEFTCURLY class_body_decls:e RIGHTCURLY {:checkConstructorDecl(e); RESULT = new ClassBody(list(e), "");:};
 
 class_body_decls ::= class_body_decl:e {:RESULT = new ClassBodyDecls(list(e), "");:}
                      |

@@ -75,11 +75,14 @@ public class RootEnvironment extends Environment{
     public Referenceable lookup(Token simpleName){
         return null;
     }
+    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Token simpleName) {
+        return new Pair<Referenceable, ScopeEnvironment>(null, null);
+    }
 
     public Referenceable search(Token name) {return null;}
-    public ScopeEnvironment lookupEnv(ASTNode node) {return null;};
 
     protected Referenceable rootLookupHelper(Name name){return null;}
+
     protected Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name){return new Pair<Referenceable, ScopeEnvironment>(null, null);}
 
     @Override
