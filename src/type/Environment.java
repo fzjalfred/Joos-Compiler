@@ -13,10 +13,14 @@ public abstract class Environment {
     protected abstract Referenceable rootLookupHelper(Name name);
     public abstract Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Name name);
     protected abstract Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name);
-    public abstract ScopeEnvironment lookupEnv(ASTNode node);
+    public abstract Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Token simpleName);
 
     public Referenceable lookupEnclosingAndSingleImport(Token simpleName){return null;}
     public Referenceable lookupEnclosingPackage(Token simpleName){return null;}
     public Referenceable lookupImportOnDemand(Token simpleName){return null;}
     public Referenceable lookupTypeDecl(Token simpleName){return null;}
+
+    public Pair<Referenceable, ScopeEnvironment> lookupEnclosingAndSingleImportAndEnv(Token simpleName){return null;}
+    public Pair<Referenceable, ScopeEnvironment> lookupEnclosingPackageAndEnv(Token simpleName){return null;}
+    public Pair<Referenceable, ScopeEnvironment> lookupImportOnDemandAndEnv(Token simpleName){return null;}
 }

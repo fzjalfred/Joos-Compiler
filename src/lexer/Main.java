@@ -6,6 +6,7 @@ import ast.Name;
 import java_cup.runtime.*;
 import type.*;
 import utils.*;
+import hierarchy.HierarchyChecking;
 
 public class Main {
 
@@ -14,6 +15,7 @@ public class Main {
 			RootEnvironment env = EnvironmentBuilder.buildRoot(argv);
 			System.out.println(env);
 			Name name1 = tools.nameConstructor("B.class1");
+			HierarchyChecking.checkRootEnvironment(env);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(42);

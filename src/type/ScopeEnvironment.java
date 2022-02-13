@@ -30,7 +30,6 @@ public class ScopeEnvironment extends Environment{
      *                             2.single-type import
      *                             3.names declared in enclosing package
      *                             4.import on demand                   */
-
     public Referenceable lookupEnclosingAndSingleImport(Token simpleName){
         assert simpleName.type == sym.ID;
         Referenceable res = search(simpleName);
@@ -38,6 +37,15 @@ public class ScopeEnvironment extends Environment{
             return parent.lookupEnclosingAndSingleImport(simpleName);
         }
         return res;
+    }
+
+    public Pair<Referenceable, ScopeEnvironment> lookupEnclosingAndSingleImportAndEnv(Token simpleName){
+        assert simpleName.type == sym.ID;
+        Referenceable res = search(simpleName);
+        if (res == null && parent != root){
+            return parent.lookupEnclosingAndSingleImportAndEnv(simpleName);
+        }
+        return new Pair<Referenceable, ScopeEnvironment>(res, this);
     }
 
     public Referenceable lookupEnclosingPackage(Token simpleName){
@@ -53,6 +61,19 @@ public class ScopeEnvironment extends Environment{
         return null; // should not come here
     }
 
+    public Pair<Referenceable, ScopeEnvironment> lookupEnclosingPackageAndEnv(Token simpleName){
+        assert simpleName.type == sym.ID;
+        if (!isCompliationUnit()){
+            return parent.lookupEnclosingPackageAndEnv(simpleName);
+        }
+        for (ASTNode node : childScopes.keySet()){
+            if (node instanceof PackageDecl){
+                return new Pair<Referenceable, ScopeEnvironment>(childScopes.get(node).search(simpleName), childScopes.get(node));
+            }
+        }
+        return new Pair<Referenceable, ScopeEnvironment>(null, null); // should not come here
+    }
+
     public Referenceable lookupImportOnDemand(Token simpleName){
         assert simpleName.type == sym.ID;
         if (!isCompliationUnit()){
@@ -66,6 +87,19 @@ public class ScopeEnvironment extends Environment{
         return null; // should not come here
     }
 
+    public Pair<Referenceable, ScopeEnvironment> lookupImportOnDemandAndEnv(Token simpleName){
+        assert simpleName.type == sym.ID;
+        if (!isCompliationUnit()){
+            return parent.lookupImportOnDemandAndEnv(simpleName);
+        }
+        for (ASTNode node : childScopes.keySet()){
+            if (node instanceof TypeImportOndemandDecl){
+                return new Pair<Referenceable, ScopeEnvironment> (childScopes.get(node).search(simpleName), childScopes.get(node));
+            }
+        }
+        return new Pair<Referenceable, ScopeEnvironment>(null, null); // should not come here
+    }
+
     public Referenceable lookup(Token simpleName){
         Referenceable res = lookupEnclosingAndSingleImport(simpleName);
         if (res == null) {
@@ -75,6 +109,17 @@ public class ScopeEnvironment extends Environment{
             }
         }
         return res;
+    }
+
+    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Token simpleName) {
+        Pair<Referenceable, ScopeEnvironment> result = lookupEnclosingAndSingleImportAndEnv(simpleName);
+        if (result == null || result.first == null) {
+            result = lookupEnclosingPackageAndEnv(simpleName);
+            if (result == null ||result.first == null) {
+                result = lookupImportOnDemandAndEnv(simpleName);
+            }
+        }
+        return result;
     }
 
     public Referenceable search(Token simpleName){
@@ -142,20 +187,6 @@ public class ScopeEnvironment extends Environment{
     public Map<ASTNode, ScopeEnvironment> childScopes;
     public Set<String> simpleNameSet; // set of all simple names; used for checking dup
     public String prefix;
-
-    public ScopeEnvironment lookupEnv(ASTNode node){
-        if (node == null) {
-            return null;
-        }
-        if (childScopes.containsKey(node)) {
-            return this;
-        }
-        if (parent != null) {
-            return parent.lookupEnv(node);
-        }
-        return null;
-    }
-
 
     public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix){
         this.parent = parent;
