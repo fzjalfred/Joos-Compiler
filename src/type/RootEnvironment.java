@@ -6,7 +6,7 @@ import lexer.*;
 import java.io.FileReader;
 import java.lang.ref.Reference;
 import java.util.*;
-import utils.tools;
+import utils.*;
 
 public class RootEnvironment extends Environment{
 
@@ -53,6 +53,20 @@ public class RootEnvironment extends Environment{
         }
         return null;
     }
+    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Name name) {
+        List<String> names = name.getFullName();
+        String nameStr = "";
+        Pair<Referenceable, ScopeEnvironment> res = new Pair<Referenceable, ScopeEnvironment>(null, null);
+        for (String s : names){
+            nameStr = nameStr + s;
+            if (packageScopes.containsKey(nameStr)){
+                res =  packageScopes.get(nameStr).rootLookupNameAndEnvHelper(name);
+                if (res.first() != null) return res;
+            }
+            nameStr = nameStr + '.';
+        }
+        return new Pair<Referenceable, ScopeEnvironment>(null, null);
+    }
 
     public Referenceable search(Name name){
         return null;
@@ -63,8 +77,10 @@ public class RootEnvironment extends Environment{
     }
 
     public Referenceable search(Token name) {return null;}
+    public ScopeEnvironment lookupEnv(ASTNode node) {return null;};
 
     protected Referenceable rootLookupHelper(Name name){return null;}
+    protected Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name){return new Pair<Referenceable, ScopeEnvironment>(null, null);}
 
     @Override
     public String toString() {

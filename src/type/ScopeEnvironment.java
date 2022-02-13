@@ -3,7 +3,7 @@ package type;
 import ast.Name;
 import ast.*;
 import lexer.*;
-import utils.tools;
+import utils.*;
 
 import java.util.*;
 
@@ -12,6 +12,10 @@ public class ScopeEnvironment extends Environment{
 
     public Referenceable lookup(Name name){
         return root.lookup(name);
+    }
+
+    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Name name) {
+        return root.lookupNameAndEnv(name);
     }
 
     public Referenceable search(Name name){
@@ -71,12 +75,36 @@ public class ScopeEnvironment extends Environment{
         }
         return null;
     }
+    protected Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name) {
+        if (prefix.equals("")) return new Pair<Referenceable, ScopeEnvironment> (null, null);
+        Referenceable res = search(name);
+        if (res != null){
+            return new Pair<Referenceable, ScopeEnvironment> (res, this);
+        }
+        for (ASTNode node : childScopes.keySet()){
+            Pair<Referenceable, ScopeEnvironment> result = childScopes.get(node).rootLookupNameAndEnvHelper(name);
+            if (result.first() != null) return result;
+        }
+        return new Pair<Referenceable, ScopeEnvironment> (null, null);
+    }
 
     public Map<String,Referenceable> localDecls; // map prefix of Name to a decl
     public Map<ASTNode, ScopeEnvironment> childScopes;
     public Set<String> simpleNameSet; // set of all simple names; used for checking dup
     public String prefix;
 
+    public ScopeEnvironment lookupEnv(ASTNode node){
+        if (node == null) {
+            return null;
+        }
+        if (childScopes.containsKey(node)) {
+            return this;
+        }
+        if (parent != null) {
+            return parent.lookupEnv(node);
+        }
+        return null;
+    }
 
 
     public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix){
