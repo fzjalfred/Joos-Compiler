@@ -29,14 +29,14 @@ public class HierarchyChecking {
         for (ASTNode node : nonImported) {
             if (node instanceof ClassDecl) {
                 ClassDecl classDecl = (ClassDecl) node;
-                List <Referenceable> extendNodes = checkExtendNode(classDecl, classDecl, env);
+                List<Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(classDecl, classDecl, env);
                 checkImplementNode(classDecl, env);
 
                 checkExtendDecl(classDecl, extendNodes);
             } else if (node instanceof InterfaceDecl) {
                 InterfaceDecl interfaceDecl = (InterfaceDecl) node;
 
-                List <Referenceable> extendNodes = checkExtendNode(interfaceDecl, interfaceDecl, env);
+                List<Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(interfaceDecl, interfaceDecl, env);
                 checkExtendDecl(interfaceDecl, extendNodes);
             }
 
@@ -51,13 +51,13 @@ public class HierarchyChecking {
         return false;
     }
 
-    public static void checkExtendDecl(ClassDecl classDecl, List<Referenceable> parents) throws Exception {
+    public static void checkExtendDecl(ClassDecl classDecl, List<Pair<Referenceable, ScopeEnvironment>> parents) throws Exception {
 
         ASTNode myModifiers = classDecl.children.get(0);
         ASTNode myName = classDecl.children.get(1);
-        for (Referenceable node : parents) {
-            if (node instanceof ClassDecl) {
-                ClassDecl parent = (ClassDecl) node;
+        for (Pair<Referenceable, ScopeEnvironment> node : parents) {
+            if (node.first instanceof ClassDecl) {
+                ClassDecl parent = (ClassDecl) node.first;
                 ASTNode modifiers = parent.children.get(0);
                 ASTNode name = parent.children.get(1);
                 if (myName.value == name.value) {
@@ -73,11 +73,11 @@ public class HierarchyChecking {
         }
     }
 
-    public static void checkExtendDecl(InterfaceDecl interfaceDecl, List<Referenceable> parents) throws Exception {
+    public static void checkExtendDecl(InterfaceDecl interfaceDecl, List<Pair<Referenceable, ScopeEnvironment>> parents) throws Exception {
         ASTNode myName = interfaceDecl.children.get(1);
-        for (Referenceable node : parents) {
-            if (node instanceof InterfaceDecl) {
-                InterfaceDecl parent = (InterfaceDecl) node;
+        for (Pair<Referenceable, ScopeEnvironment> node : parents) {
+            if (node.first instanceof InterfaceDecl) {
+                InterfaceDecl parent = (InterfaceDecl) node.first;
                 ASTNode name = parent.children.get(1);
 
                 if (myName.value == name.value) {
@@ -90,7 +90,7 @@ public class HierarchyChecking {
     }
 
 
-    public static List<Referenceable> checkExtendNode(ClassDecl original, ClassDecl classDecl, ScopeEnvironment underEnv) throws Exception{
+    public static List<Pair<Referenceable, ScopeEnvironment>> checkExtendNode(ClassDecl original, ClassDecl classDecl, ScopeEnvironment underEnv) throws Exception{
         List<ASTNode> children = classDecl.children;
         Super superNode = null;
         for (ASTNode node : children){
@@ -101,11 +101,11 @@ public class HierarchyChecking {
         }
 
         if (superNode == null) {
-            return new ArrayList <Referenceable>(){};
+            return new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
         }
 
         Name extendName = (Name) superNode.children.get(0).children.get(0);
-        List <Referenceable> extendNodes = new ArrayList <Referenceable>(){};
+        List <Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
         Pair<Referenceable, ScopeEnvironment> found;
 
         int size = extendName.children.size();
@@ -129,12 +129,12 @@ public class HierarchyChecking {
 
         ClassDecl classNode = (ClassDecl)found.first;
 
-        extendNodes.add(classNode);
+        extendNodes.add(found);
         extendNodes.addAll(checkExtendNode(original, classNode, found.second));
         return extendNodes;
     }
 
-    public static List<Referenceable> checkExtendNode(InterfaceDecl original, InterfaceDecl interfaceDecl, ScopeEnvironment underEnv) throws Exception {
+    public static List<Pair<Referenceable, ScopeEnvironment>> checkExtendNode(InterfaceDecl original, InterfaceDecl interfaceDecl, ScopeEnvironment underEnv) throws Exception {
         List <ASTNode> children = interfaceDecl.children;
         ExtendsInterfaces extendsInterfaces = null;
         for (ASTNode node : children) {
@@ -144,10 +144,10 @@ public class HierarchyChecking {
             }
         }
         if (extendsInterfaces == null) {
-            return new ArrayList<Referenceable>(){};
+            return new ArrayList<Pair<Referenceable, ScopeEnvironment>>(){};
         }
 
-        List <Referenceable> extendNodes = new ArrayList <Referenceable>(){};
+        List <Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
         List <InterfaceDecl> sameClauseNode = new ArrayList <InterfaceDecl>(){};
         for (ASTNode node : extendsInterfaces.children) {
             Pair<Referenceable, ScopeEnvironment> found;
@@ -173,7 +173,7 @@ public class HierarchyChecking {
             }
 
             InterfaceDecl parentInterface = (InterfaceDecl) found.first;
-            extendNodes.add(found.first);
+            extendNodes.add(found);
             sameClauseNode.add(parentInterface);
             extendNodes.addAll(checkExtendNode(original, parentInterface, found.second));
         }
@@ -189,7 +189,7 @@ public class HierarchyChecking {
         return extendNodes;
     }
 
-    public static void checkImplementNode(ClassDecl classDecl, ScopeEnvironment underEnv) throws Exception{
+    public static List<Pair<Referenceable, ScopeEnvironment>> checkImplementNode(ClassDecl classDecl, ScopeEnvironment underEnv) throws Exception{
         List<ASTNode> children = classDecl.children;
         Interfaces interfacesNode = null;
         for (ASTNode node : children){
@@ -200,11 +200,12 @@ public class HierarchyChecking {
         }
 
         if (interfacesNode == null) {
-            return;
+            return new ArrayList<Pair<Referenceable, ScopeEnvironment>>(){};
         }
 
         InterfaceTypeList typeList = (InterfaceTypeList) interfacesNode.children.get(0);
-        List <InterfaceDecl> extendNodes = new ArrayList <InterfaceDecl>(){};
+        List <Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
+        List <InterfaceDecl> sameClauseNode = new ArrayList <InterfaceDecl>(){};
         for (ASTNode node : typeList.children) {
             Pair<Referenceable, ScopeEnvironment> found;
             Name extendName = (Name) node.children.get(0).children.get(0);
@@ -224,20 +225,59 @@ public class HierarchyChecking {
             }
 
               InterfaceDecl interfaceNode = (InterfaceDecl) found.first;
-              extendNodes.add(interfaceNode);
-//            extendNodes.addAll(checkExtendNode(interfaceNode, newEnv));
+              sameClauseNode.add(interfaceNode);
+              extendNodes.add(found);
+              extendNodes.addAll(checkExtendNode(interfaceNode, interfaceNode, found.second));
         }
 
-        int listSize = extendNodes.size();
+        int listSize = sameClauseNode.size();
         for (int i = 0; i < listSize; i++){
             for (int j = i + 1; j < listSize; j++) {
-                if (extendNodes.get(i) == extendNodes.get(j)) {
+                if (sameClauseNode.get(i) == sameClauseNode.get(j)) {
                     throw new Exception("Interface repeats in an implement clause of an interface.");
                 }
             }
         }
 
-        return;
+        return extendNodes;
     }
+
+    public List <Referenceable> declare(ClassDecl classDecl, ScopeEnvironment underEnv) {
+        List <Referenceable> result = new ArrayList <Referenceable>(){};
+        for (String key : underEnv.localDecls.keySet()){
+            if (!(underEnv.localDecls.get(key) instanceof ConstructorList)) {
+                result.add(underEnv.localDecls.get(key));
+            }
+
+        }
+        return result;
+    }
+
+//    public List <Referenceable> declare(InterfaceDecl interfaceDecl, ScopeEnvironment underEnv) {
+//        List <Referenceable> result = new ArrayList <Referenceable>(){};
+//
+//    }
+
+    public List <Referenceable> inherit (ClassDecl classDecl, ScopeEnvironment underEnv) throws Exception {
+        List <Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(classDecl, classDecl, underEnv);
+
+        List <Referenceable> result = new ArrayList <Referenceable>(){};
+        for (Pair<Referenceable, ScopeEnvironment> pair : extendNodes) {
+            if (pair.first instanceof ClassDecl) {
+                ClassDecl classPair = (ClassDecl) pair.first;
+                result.addAll(declare(classPair, pair.second));
+            } else if (pair.first instanceof InterfaceDecl) {
+                // class should extends all class
+            }
+        }
+
+        extendNodes = checkImplementNode(classDecl, underEnv);
+
+        //for (Pair(Referenceable ))
+
+        return result;
+    }
+
+
 
 }
