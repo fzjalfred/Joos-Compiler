@@ -2,9 +2,10 @@ package B;
 import A.*;
 public class class1 extends class2{
     public class1(){}
+    public class1(int a){}
     public int field1;
 
-    public int foo(class2[] v1){
+    public int foo(int v1){
         int v2;
         {
             int v3;
@@ -23,6 +24,11 @@ public class class1 extends class2{
         }
     }
 
-    public int foo(class2 v1){}
+    public int foo(char v1){}
+
+    public void foo(class1 v){}
+
+    public void foo(){}
+
 }
 ;

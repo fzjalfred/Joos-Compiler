@@ -9,4 +9,12 @@ public class ConstructorDeclarator extends ASTNode {
     public String getName(){
         return children.get(0).value;
     }
+    public ParameterList getParameterList(){
+        assert children.get(1) instanceof ParameterList;
+        return (ParameterList)children.get(1);
+    }
+    public int numParams(){
+        if (getParameterList() == null) return 0;
+        return getParameterList().paramNum();
+    }
 }

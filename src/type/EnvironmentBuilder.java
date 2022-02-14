@@ -114,50 +114,24 @@ public class EnvironmentBuilder {
         return types;
     }
 
-    /** check whether two methods are ambiguous or not
-     *  1. first check num of params:
-     *  2. check each type of params*/
-    public static void checkMethodDecl(MethodDecl method1, MethodDecl method2) throws SemanticError{
-        int method1Params = method1.getMethodHeader().getMethodDeclarator().numParams();
-        int method2Params = method2.getMethodHeader().getMethodDeclarator().numParams();
-        if (method1Params != method2Params) return; // if num of param not equal, then they are different methods
-        List<Parameter> method1ParamList = method1.getMethodHeader().getMethodDeclarator().getParameterList().getParams();
-        List<Parameter> method2ParamList = method2.getMethodHeader().getMethodDeclarator().getParameterList().getParams();
-        List<Type> method1Types = getTypesFromParams(method1ParamList);
-        List<Type> method2Types = getTypesFromParams(method2ParamList);
-        //System.out.println("comparing " + method1Types + " to " + method2Types + " first " + method1Types.get(0));
-        for (int i = 0; i < method1Types.size(); i++){
-            if (method1Types.get(i) instanceof PrimitiveType && method2Types.get(i) instanceof PrimitiveType){
-                PrimitiveType type1 = (PrimitiveType)method1Types.get(i);
-                PrimitiveType type2 = (PrimitiveType)method2Types.get(i);
-                if (!type1.equals(type2)) {
-                    return;
-                }
-            }   else if (method1Types.get(i) instanceof ClassOrInterfaceType && method2Types.get(i) instanceof ClassOrInterfaceType){
-                ClassOrInterfaceType type1 = (ClassOrInterfaceType)method1Types.get(i);
-                ClassOrInterfaceType type2 = (ClassOrInterfaceType)method2Types.get(i);
-                if (!type1.equals(type2)) {
-                    return;
-                }
-            }   else if (method1Types.get(i) instanceof ArrayType && method2Types.get(i) instanceof ArrayType) {
-                ArrayType type1 = (ArrayType) method1Types.get(i);
-                ArrayType type2 = (ArrayType) method2Types.get(i);
-                if (!type1.equals(type2)) {
-                    return;
-                }
-            }   else{
-                return;
-            }
-        }
-        throw new SemanticError("Ambiguous method name " + method1.getName());
-    }
+
 
     public static void processClassMemberDecl(ScopeEnvironment env, ClassBodyDecl classBodyDecl) throws SemanticError{
         if (classBodyDecl instanceof ConstructorDecl){
             ConstructorDecl cd = (ConstructorDecl)classBodyDecl;
             String constructorName = env.prefix +'.'+ cd.getName();
-            //TODO: process constructor and check constructorName ambiguity
-            env.localDecls.put(constructorName, cd);
+            if (env.localDecls.containsKey(constructorName) && env.localDecls.get(constructorName) instanceof ConstructorList){  // check overload or ambiguous
+                ConstructorList sameNameMethods = (ConstructorList) env.localDecls.get(constructorName);
+                sameNameMethods.checkAmbiguousMethodDecl(cd);
+                sameNameMethods.add(cd);
+            }   else {  // if it's new method, create methodList for this name
+                ConstructorList methods = new ConstructorList(constructorName);
+                methods.add(cd);
+                env.localDecls.put(constructorName, methods);
+            }
+            env.childScopes.put(cd, new ScopeEnvironment(env, env.root, ""));
+            processParameters(env.childScopes.get(cd), cd.getConstructorDeclarator().getParameterList());   // resolve param names
+            processBlockStmts(env.childScopes.get(cd), cd.getConstructorBody().getBlockStmts());    // resolve local decls
         }   else if (classBodyDecl instanceof FieldDecl){   // field decl
             FieldDecl fd = (FieldDecl)classBodyDecl;
             List<String> names = fd.getName();
@@ -169,12 +143,15 @@ public class EnvironmentBuilder {
         }   else if (classBodyDecl instanceof MethodDecl){  // method decl
             MethodDecl md = (MethodDecl)classBodyDecl;
             String qualifiedMethodName = env.prefix  + '.' + md.getName();
-            if (env.localDecls.containsKey(qualifiedMethodName) && env.localDecls.get(qualifiedMethodName) instanceof MethodDecl){  // check overload or ambiguous
-                MethodDecl sameNameMethod = (MethodDecl)env.localDecls.get(qualifiedMethodName);
-                System.out.println(qualifiedMethodName + " in " + env);
-                checkMethodDecl(md, sameNameMethod);
+            if (env.localDecls.containsKey(qualifiedMethodName) && env.localDecls.get(qualifiedMethodName) instanceof MethodList){  // check overload or ambiguous
+                MethodList sameNameMethods = (MethodList) env.localDecls.get(qualifiedMethodName);
+                sameNameMethods.checkAmbiguousMethodDecl(md);
+                sameNameMethods.add(md);
+            }   else {  // if it's new method, create methodList for this name
+                MethodList methods = new MethodList(qualifiedMethodName);
+                methods.add(md);
+                env.localDecls.put(qualifiedMethodName, methods);
             }
-            env.localDecls.put(qualifiedMethodName, md);
             env.childScopes.put(md, new ScopeEnvironment(env, env.root, ""));
             processMethodHeader(env.childScopes.get(md), md.getMethodHeader());
             processMethodBody(env.childScopes.get(md), md.getMethodBody());

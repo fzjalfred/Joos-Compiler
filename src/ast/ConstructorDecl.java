@@ -15,4 +15,9 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable{
         return (ConstructorDeclarator)children.get(1);
     }
 
+    public ConstructorBody getConstructorBody(){
+        assert children.get(2) instanceof ConstructorBody;
+        return (ConstructorBody)children.get(2);
+    }
+
 }
