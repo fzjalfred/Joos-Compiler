@@ -23,4 +23,11 @@ public class Name extends ASTNode{
         return String.join(".",names);
     }
 
+    public boolean equals(Name name) {
+        if (name.children.size() != children.size()) return false;
+        for (int i = 0; i < name.children.size(); i++){
+            if (!children.get(i).value.equals(name.children.get(i).value)) return false;
+        }
+        return true;
+    }
 }

@@ -22,4 +22,5 @@ public class MethodDecl extends ClassMemberDecl {
         MethodHeader mh = getMethodHeader();
         return mh.getName();
     }
+
 }

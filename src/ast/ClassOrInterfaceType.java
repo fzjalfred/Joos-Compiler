@@ -10,4 +10,10 @@ public class ClassOrInterfaceType extends ReferenceType {
         assert children.get(0) instanceof Name;
         return (Name)children.get(0);
     }
+
+    public boolean equals(ClassOrInterfaceType classOrInterfaceType) {
+        Name myName = getName();
+        Name hisName = classOrInterfaceType.getName();
+        return myName.equals(hisName);
+    }
 }

@@ -45,8 +45,8 @@ public class TypeLinker {
         }
     }
 
-    static void processTypeImportOndemandDecl(RootEnvironment env, TypeImportOndemandDecl typeImportOndemandDecl) throws SemanticError{
-        ScopeEnvironment scope = env.ASTNodeToScopes.get(typeImportOndemandDecl);
+    static void processTypeImportOndemandDecl(ScopeEnvironment scope, TypeImportOndemandDecl typeImportOndemandDecl) throws SemanticError{
+        RootEnvironment env = scope.root;
         String packageNameStr = typeImportOndemandDecl.getName().getValue();
         if (!env.packageScopes.containsKey(packageNameStr)) throw new SemanticError("Cannot find package: " + packageNameStr);
         ScopeEnvironment packageScope = env.packageScopes.get(packageNameStr);
@@ -56,6 +56,12 @@ public class TypeLinker {
         ScopeEnvironment targetScope = scope.childScopes.get(typeImportOndemandDecl);
         addAllSelfTypeDecls(targetScope, packageScope);   // add all self class or interface decls from package scope to import scope
     }
+
+    static void autoImportJavaLang(ScopeEnvironment scope) throws SemanticError{
+        TypeImportOndemandDecl javaLangDecl = new TypeImportOndemandDecl(new ArrayList<ASTNode>(){{add(tools.nameConstructor("java.lang"));}}, "");
+        processTypeImportOndemandDecl(scope, javaLangDecl);
+    }
+
 
     /** If prefix of the name is a type, then throw semantic error */
     static void checkPrefixNotType(RootEnvironment env, List<String> names, boolean strictOrNot) throws SemanticError{
@@ -105,10 +111,11 @@ public class TypeLinker {
             processSingleTypeImportDecl(env, singleTypeImportDecl);
         }   else if (node instanceof TypeImportOndemandDecl){
             TypeImportOndemandDecl typeImportOndemandDecl = (TypeImportOndemandDecl)node;
-            processTypeImportOndemandDecl(env, typeImportOndemandDecl);
+            processTypeImportOndemandDecl(env.ASTNodeToScopes.get(typeImportOndemandDecl), typeImportOndemandDecl);
         }   else if (node instanceof PackageDecl){
             PackageDecl packageDecl = (PackageDecl)node;
             processPackageDecl(env, packageDecl);
+            autoImportJavaLang(env.ASTNodeToScopes.get(packageDecl));
         }   else if (node instanceof ClassOrInterfaceType){ // Above condition will all be checked before processing here
             ClassOrInterfaceType type = (ClassOrInterfaceType)node;
             resolveTypename(env.ASTNodeToScopes.get(node), type);
