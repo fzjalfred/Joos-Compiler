@@ -11,6 +11,80 @@ public class HierarchyChecking {
     public List <Referenceable> generalBaseMethodClass;
     public List <Referenceable> generalBaseMethodInterface;
     public Map<ASTNode, List<Referenceable>> declareMap;
+    public Map<Referenceable, List<String>> sigMap;
+    public Map<ASTNode, List<Referenceable>> containMap;
+
+
+    public void checkNoDuplicateMethod() throws Exception {
+        for (ASTNode T: declareMap.keySet()) {
+            for (int i = 0; i<declareMap.get(T).size(); i++) {
+                for (int j = i; j<declareMap.get(T).size(); j++) {
+                    if (sigMap.get(declareMap.get(T).get(i)) == sigMap.get(declareMap.get(T).get(j))){
+                        throw new Exception("A class or interface must not declare two methods with the same signature (name and parameter types). (JLS 8.4, 9.4)");
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkContainSameSigDiffReturn() throws Exception {
+        for (ASTNode T: containMap.keySet()) {
+            for (int i = 0; i<containMap.get(T).size(); i++) {
+                for (int j = i; j<containMap.get(T).size(); j++) {
+                    if (sigMap.get(containMap.get(T).get(i)) == sigMap.get(containMap.get(T).get(j))){
+                        // check types
+                        MethodHeader mh1 = (MethodHeader) containMap.get(T).get(i);
+                        MethodHeader mh2 = (MethodHeader) containMap.get(T).get(j);
+                        if (mh1.children.get(1).value == mh2.children.get(1).value) {
+                            throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkAbstrictMethod() throws Exception {
+        for (ASTNode T: containMap.keySet()) {
+            for (int i = 0; i<containMap.get(T).size(); i++) {
+                for (int j = i; j<containMap.get(T).size(); j++) {
+                    if (sigMap.get(containMap.get(T).get(i)) == sigMap.get(containMap.get(T).get(j))){
+                        // check types
+                        MethodHeader mh1 = (MethodHeader) containMap.get(T).get(i);
+                        MethodHeader mh2 = (MethodHeader) containMap.get(T).get(j);
+                        if (mh1.children.get(1).value == mh2.children.get(1).value) {
+                            throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
+                        }
+                    }
+                }
+                List<String> method_mods;
+                MethodHeader mh1 = (MethodHeader) containMap.get(T).get(i);
+                method_mods = get_mods(mh1.children.get(0));
+                List<String> T_mods = new ArrayList<String>();
+                if (T instanceof ClassDecl || T instanceof InterfaceDecl ||
+                T instanceof ConstructorDecl || T instanceof AbstractMethodDecl) {
+                    T_mods = get_mods(T.children.get(0));
+                }
+                if (method_mods.contains("abstract") ^ T_mods.contains("abstract")) {
+                    throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+                }
+            }
+        }
+    }
+
+    public List<String> get_mods(ASTNode modifiers){
+        assert (modifiers instanceof Modifiers);
+        List<String> res = new ArrayList<String>();
+        if (modifiers.children.size() == 1) {
+            res.add(modifiers.children.get(0).value);
+            return res;
+        } else {
+            res = get_mods(modifiers.children.get(0));
+            res.add(modifiers.children.get(1).value);
+            return res;
+        }
+    }
+
 
     public HierarchyChecking() {
         this.generalBaseMethodClass = new ArrayList <Referenceable>(){};
