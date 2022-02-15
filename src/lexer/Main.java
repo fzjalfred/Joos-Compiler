@@ -13,7 +13,7 @@ public class Main {
 	static public void main(String argv[]) {
 		try {
 			RootEnvironment env = EnvironmentBuilder.buildRoot(argv);
-			System.out.println(env);
+			//System.out.println(env);
 			Name name1 = tools.nameConstructor("B.class1");
 			HierarchyChecking checker = new HierarchyChecking();
 			checker.checkRootEnvironment(env);

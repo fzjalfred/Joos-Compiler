@@ -11,9 +11,8 @@ public class HierarchyChecking {
     public List <Referenceable> generalBaseObjectClass;
     // public List <Referenceable> generalBaseMethodInterface;
     public Map<ASTNode, List<Referenceable>> declareMap;
+    // <ClassDecl, MethodList|ConstructorList|fieldDecl|AbstractMethodList>
     public Map<ASTNode, List<Referenceable>> parentMap;
-    public Map<Referenceable, List<String>> sigMap;
-    public Map<ASTNode, List<Referenceable>> containMap;
     public Map<ASTNode, List<Referenceable>> inheritMap;
 
     public HierarchyChecking() {
@@ -39,28 +38,104 @@ public class HierarchyChecking {
         }
     }
 
+    public void checkClassHierary() throws Exception {
+        checkContainSameSigDiffReturn();
+        checkAbstrictMethod();
+    }
+
+    public List<String> get_mods(ASTNode modifiers){
+        assert (modifiers instanceof Modifiers);
+        List<String> res = new ArrayList<String>();
+        
+        for(ASTNode modifier: modifiers.children) {
+            res.add(modifier.value);
+        }
+        return res;
+    }
+
+    // private List<String> sig(ParameterList paras) {
+    //     List<String> res = new ArrayList<String>();
+    //     if (paras.children.size() == 1) {
+    //         res.add(paras.children.get(0).children.get(0).children.get(0).toString());
+    //     } else {
+    //         //System.out.println((ASTNode)paras);
+            
+    //         // System.out.println(paras.children.get(0).toString());
+    //         // System.out.println(paras.children.get(0).children.get(0).toString());
+    //         // System.out.println(paras.children.get(1));
+    //         res = sig((ParameterList)paras.children.get(0));
+    //         res.add(paras.children.get(1).value);
+    //     }
+    //     return res;
+    // }
+    public List<String> get_sig(ASTNode method_decl){
+        
+        assert (method_decl instanceof MethodDecl);
+        List<String> res = new ArrayList<String>();
+        if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
+            return res;
+        }
+        // ->method_header->method_declarator->parameter_list
+        ParameterList parameter_list = (ParameterList)method_decl.children.get(0).children.get(2).children.get(1);
+        List<Parameter> paras = parameter_list.getParams();
+        for (Parameter i: paras) {
+            res.add(i.children.get(0).toString());
+        }
+        return res;
+    }
+
     public void checkNoDuplicateMethod() throws Exception {
+        // T: class_decl
         for (ASTNode T: declareMap.keySet()) {
-            for (int i = 0; i<declareMap.get(T).size(); i++) {
-                for (int j = i; j<declareMap.get(T).size(); j++) {
-                    if (sigMap.get(declareMap.get(T).get(i)) == sigMap.get(declareMap.get(T).get(j))){
-                        throw new Exception("A class or interface must not declare two methods with the same signature (name and parameter types). (JLS 8.4, 9.4)");
-                    }
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (declareMap.get(T).get(l) instanceof MethodList) {
+                    MethodList method_list = (MethodList) declareMap.get(T).get(l);
+                    method_list.checkAmbiguousMethodDecl(method_list.methods.get(0));
                 }
             }
         }
     }
 
     public void checkContainSameSigDiffReturn() throws Exception {
-        for (ASTNode T: containMap.keySet()) {
-            for (int i = 0; i<containMap.get(T).size(); i++) {
-                for (int j = i; j<containMap.get(T).size(); j++) {
-                    if (sigMap.get(containMap.get(T).get(i)) == sigMap.get(containMap.get(T).get(j))){
-                        // check types
-                        MethodHeader mh1 = (MethodHeader) containMap.get(T).get(i);
-                        MethodHeader mh2 = (MethodHeader) containMap.get(T).get(j);
-                        if (mh1.children.get(1).value == mh2.children.get(1).value) {
-                            throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
+        // T: class_decl
+        // declare + inherit = contains
+        for (ASTNode T: declareMap.keySet()) {
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (declareMap.get(T).get(l) instanceof MethodList) {
+                    MethodList method_list = (MethodList) declareMap.get(T).get(l);
+                    for (int i = 0; i<method_list.methods.size(); i++) {
+                        for (int j = i; j<method_list.methods.size(); j++) {
+                            // check types
+                            MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
+                            MethodDecl mh2 = (MethodDecl) method_list.methods.get(j);
+                            if (get_sig(mh1) == get_sig(mh1)){
+                                if (mh1.children.get(0).children.get(1).children.get(0).toString() != mh2.children.get(0).children.get(1).children.get(0).toString()) {
+                                    throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (ASTNode T: inheritMap.keySet()) {
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (declareMap.get(T).get(l) instanceof MethodList) {
+                    MethodList method_list = (MethodList) declareMap.get(T).get(l);
+                    for (int i = 0; i<method_list.methods.size(); i++) {
+                        for (int j = i; j<method_list.methods.size(); j++) {
+                            // check types
+                            MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
+                            MethodDecl mh2 = (MethodDecl) method_list.methods.get(j);
+                            if (get_sig(mh1) == get_sig(mh1)){
+                                // method_decl -> method_header -> type -> numeric_type
+                                if (mh1.children.get(0).children.get(1).children.get(0).toString() != mh2.children.get(0).children.get(1).children.get(0).toString()) {
+                                    throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
+                                }
+                            }
                         }
                     }
                 }
@@ -69,43 +144,66 @@ public class HierarchyChecking {
     }
 
     public void checkAbstrictMethod() throws Exception {
-        for (ASTNode T: containMap.keySet()) {
-            for (int i = 0; i<containMap.get(T).size(); i++) {
-                for (int j = i; j<containMap.get(T).size(); j++) {
-                    if (sigMap.get(containMap.get(T).get(i)) == sigMap.get(containMap.get(T).get(j))){
-                        // check types
-                        MethodHeader mh1 = (MethodHeader) containMap.get(T).get(i);
-                        MethodHeader mh2 = (MethodHeader) containMap.get(T).get(j);
-                        if (mh1.children.get(1).value == mh2.children.get(1).value) {
-                            throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
+        // declareMap + inheritMap = contains
+        for (ASTNode T: declareMap.keySet()) {
+            List<String> T_mods = get_mods(T.children.get(0));
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (declareMap.get(T).get(l) instanceof MethodList) {
+                    List<MethodDecl> method_decl = ((MethodList)declareMap.get(T).get(l)).methods;
+                    for (MethodDecl i: method_decl) {
+                        // method_decl -> method_header -> modifiers
+                        List<String> m = get_mods(i.children.get(0).children.get(0));
+                        if (m.contains("abstract")) {
+                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+                            }
                         }
                     }
                 }
-                List<String> method_mods;
-                MethodHeader mh1 = (MethodHeader) containMap.get(T).get(i);
-                method_mods = get_mods(mh1.children.get(0));
-                List<String> T_mods = new ArrayList<String>();
-                if (T instanceof ClassDecl || T instanceof InterfaceDecl ||
-                T instanceof ConstructorDecl || T instanceof AbstractMethodDecl) {
-                    T_mods = get_mods(T.children.get(0));
-                }
-                if (method_mods.contains("abstract") ^ T_mods.contains("abstract")) {
-                    throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+                if (declareMap.get(T).get(l) instanceof ConstructorList) {
+                    List<ConstructorDecl> method_decl = ((ConstructorList)declareMap.get(T).get(l)).cons;
+                    for (ConstructorDecl i: method_decl) {
+                        // method_decl -> method_header -> modifiers
+                        List<String> m = get_mods(i.children.get(0).children.get(0));
+                        if (m.contains("abstract")) {
+                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-
-    public List<String> get_mods(ASTNode modifiers){
-        assert (modifiers instanceof Modifiers);
-        List<String> res = new ArrayList<String>();
-        if (modifiers.children.size() == 1) {
-            res.add(modifiers.children.get(0).value);
-            return res;
-        } else {
-            res = get_mods(modifiers.children.get(0));
-            res.add(modifiers.children.get(1).value);
-            return res;
+        for (ASTNode T: inheritMap.keySet()) {
+            List<String> T_mods = get_mods(T.children.get(0));
+            for (int l = 0; l<inheritMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (inheritMap.get(T).get(l) instanceof MethodList) {
+                    List<MethodDecl> method_decl = ((MethodList)inheritMap.get(T).get(l)).methods;
+                    for (MethodDecl i: method_decl) {
+                        // method_decl -> method_header -> modifiers
+                        List<String> m = get_mods(i.children.get(0).children.get(0));
+                        if (m.contains("abstract")) {
+                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+                            }
+                        }
+                    }
+                }
+                if (inheritMap.get(T).get(l) instanceof ConstructorList) {
+                    List<ConstructorDecl> method_decl = ((ConstructorList)inheritMap.get(T).get(l)).cons;
+                    for (ConstructorDecl i: method_decl) {
+                        // method_decl -> method_header -> modifiers
+                        List<String> m = get_mods(i.children.get(0).children.get(0));
+                        if (m.contains("abstract")) {
+                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -117,6 +215,7 @@ public class HierarchyChecking {
             }
         }
         createInheritanceMap();
+        checkClassHierary();
     }
 
     public void checkCompilationUnitScope(ScopeEnvironment env) throws Exception{

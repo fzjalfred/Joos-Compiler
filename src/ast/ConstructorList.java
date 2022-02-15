@@ -6,8 +6,8 @@ import type.EnvironmentBuilder;
 import java.util.*;
 
 public class ConstructorList implements Referenceable{
-    List<ConstructorDecl> cons;
-    String qualifiedName;
+    public List<ConstructorDecl> cons;
+    public String qualifiedName;
 
     public ConstructorList(String qualifiedName){
         cons = new ArrayList<ConstructorDecl>();

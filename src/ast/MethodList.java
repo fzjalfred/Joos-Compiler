@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MethodList implements Referenceable{
-    List<MethodDecl> methods;
-    String qualifiedName;
+    public List<MethodDecl> methods;
+    public String qualifiedName;
 
     public MethodList(String qualifiedName){
         methods = new ArrayList<MethodDecl>();

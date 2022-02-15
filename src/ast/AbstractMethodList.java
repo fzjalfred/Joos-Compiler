@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractMethodList implements Referenceable{
-    List<AbstractMethodDecl> methods;
-    String qualifiedName;
+    public List<AbstractMethodDecl> methods;
+    public String qualifiedName;
 
     public AbstractMethodList(String qualifiedName){
         methods = new ArrayList<AbstractMethodDecl>();
