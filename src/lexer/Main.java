@@ -15,7 +15,8 @@ public class Main {
 			RootEnvironment env = EnvironmentBuilder.buildRoot(argv);
 			System.out.println(env);
 			Name name1 = tools.nameConstructor("B.class1");
-			HierarchyChecking.checkRootEnvironment(env);
+			HierarchyChecking checker = new HierarchyChecking();
+			checker.checkRootEnvironment(env);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(42);
