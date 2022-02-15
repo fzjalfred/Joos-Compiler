@@ -11,9 +11,16 @@ public class HierarchyChecking {
     public List <Referenceable> generalBaseMethodClass;
     public List <Referenceable> generalBaseMethodInterface;
     public Map<ASTNode, List<Referenceable>> declareMap;
+    public Map<ASTNode, List<Referenceable>> parentMap;
     public Map<Referenceable, List<String>> sigMap;
     public Map<ASTNode, List<Referenceable>> containMap;
 
+    public HierarchyChecking() {
+        this.generalBaseMethodClass = new ArrayList <Referenceable>(){};
+        this.generalBaseMethodInterface = new ArrayList <Referenceable>(){};
+        this.declareMap =  new HashMap<ASTNode, List<Referenceable>>();
+        this.parentMap = new HashMap<ASTNode, List<Referenceable>>();
+    }
 
     public void checkNoDuplicateMethod() throws Exception {
         for (ASTNode T: declareMap.keySet()) {
@@ -86,11 +93,7 @@ public class HierarchyChecking {
     }
 
 
-    public HierarchyChecking() {
-        this.generalBaseMethodClass = new ArrayList <Referenceable>(){};
-        this.generalBaseMethodInterface = new ArrayList <Referenceable>(){};
-        this.declareMap =  new HashMap<ASTNode, List<Referenceable>>();
-    }
+
     public void checkRootEnvironment(RootEnvironment env) throws Exception{
         for (String packKey : env.packageScopes.keySet()) {
             ScopeEnvironment packScope = (ScopeEnvironment) env.packageScopes.get(packKey);
@@ -122,24 +125,51 @@ public class HierarchyChecking {
                 }
                 continue; // No need to check base class correctness(?
             }
-;
+//            System.out.println("");
+//            System.out.println(node.first);
             if (node.second instanceof ClassDecl) {
                 ClassDecl classDecl = (ClassDecl) node.second;
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(classDecl, classDecl, env);
                 checkImplementNode(classDecl, env);
 
                 checkExtendDecl(classDecl, extendNodes);
+                generateParentMap(node.second, extendNodes);
 
             } else if (node.second instanceof InterfaceDecl) {
                 InterfaceDecl interfaceDecl = (InterfaceDecl) node.second;
 
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(interfaceDecl, interfaceDecl, env);
                 checkExtendDecl(interfaceDecl, extendNodes);
+                generateParentMap(node.second, extendNodes);
             }
             Referenceable ref = (Referenceable) node.second;
             declareMap.put(node.second, declare(ref, env));
         }
     }
+
+    public void generateParentMap(ASTNode node, List<Pair<Referenceable, ScopeEnvironment>> parents) {
+        if (parentMap.containsKey(node)) {
+            return;
+        }
+        // System.out.println("parent");
+        List <Referenceable> extendNodes = new ArrayList <Referenceable>(){};
+        int size = parents.size();
+        for (int i = 0; i < size; i++) {
+            boolean dup = false;
+            for (int j = i + 1; j < size; j++) {
+                if (parents.get(i).first == parents.get(j).first) {
+                    dup = true;
+                }
+            }
+            if (!dup) {
+                // System.out.println(parents.get(i).first.toString());
+                extendNodes.add(parents.get(i).first);
+            }
+        }
+        parentMap.put(node, extendNodes);
+        //System.out.println("");
+    }
+
 
     private boolean ifContainModifier(ASTNode modifiers, String name){
         if (modifiers == null) return false;
@@ -348,74 +378,12 @@ public class HierarchyChecking {
 //        System.out.println(node.toString());
         for (String key : env.localDecls.keySet()){
             if (!(env.localDecls.get(key) instanceof ConstructorList)) {
-                System.out.println(key);
+                // System.out.println(key);
                 result.add(env.localDecls.get(key));
             }
 
         }
         return result;
     }
-
-
-    public List <Referenceable> inherit (ClassDecl classDecl, ScopeEnvironment underEnv) throws Exception {
-        List <Pair<Referenceable, ScopeEnvironment>> extend = checkExtendNode(classDecl, classDecl, underEnv);
-        System.out.println(extend);
-        List <Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
-        int size = extend.size();
-        for (int i = 0; i < size; i++) {
-            boolean dup = false;
-            for (int j = i + 1; j < size; j++) {
-                if (extend.get(i).first == extend.get(j).first) {
-                    dup = true;
-                }
-            }
-            if (!dup) {
-                System.out.println(extend.get(i).first.toString());
-                System.out.println(extend.get(i).second.toString());
-                extendNodes.add(extend.get(i));
-            }
-        }
-
-        List <Referenceable> result = new ArrayList <Referenceable>(){};
-        for (Pair<Referenceable, ScopeEnvironment> pair : extendNodes) {
-            if (pair.first instanceof ClassDecl) {
-                result.addAll(declare(pair.first, pair.second));
-            } else if (pair.first instanceof InterfaceDecl) {
-                // class should extends all class
-            }
-        }
-
-        return result;
-    }
-
-    public List <Referenceable> inherit(InterfaceDecl interfaceDecl, ScopeEnvironment underEnv) throws Exception {
-        List <Pair<Referenceable, ScopeEnvironment>> extend = checkExtendNode(interfaceDecl, interfaceDecl, underEnv);
-        List <Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
-        int size = extend.size();
-        for (int i = 0; i < size; i++) {
-            boolean dup = false;
-            for (int j = i + 1; j < size; j++) {
-                if (extend.get(i).first == extend.get(j).first) {
-                    dup = true;
-                }
-            }
-            if (!dup) {
-                extendNodes.add(extend.get(i));
-            }
-        }
-
-        List <Referenceable> result = new ArrayList <Referenceable>(){};
-        for (Pair<Referenceable, ScopeEnvironment> pair : extendNodes) {
-            if (pair.first instanceof ClassDecl) {
-                // interface should extends all interfacce
-            } else if (pair.first instanceof InterfaceDecl) {
-                result.addAll(declare(pair.first, pair.second));
-            }
-        }
-
-        return result;
-    }
-
-
 
 }
