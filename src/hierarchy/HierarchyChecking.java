@@ -8,18 +8,35 @@ import utils.*;
 import lexer.*;
 
 public class HierarchyChecking {
-    public List <Referenceable> generalBaseMethodClass;
-    public List <Referenceable> generalBaseMethodInterface;
+    public List <Referenceable> generalBaseObjectClass;
+    // public List <Referenceable> generalBaseMethodInterface;
     public Map<ASTNode, List<Referenceable>> declareMap;
     public Map<ASTNode, List<Referenceable>> parentMap;
     public Map<Referenceable, List<String>> sigMap;
     public Map<ASTNode, List<Referenceable>> containMap;
+    public Map<ASTNode, List<Referenceable>> inheritMap;
 
     public HierarchyChecking() {
-        this.generalBaseMethodClass = new ArrayList <Referenceable>(){};
-        this.generalBaseMethodInterface = new ArrayList <Referenceable>(){};
+        this.generalBaseObjectClass = new ArrayList <Referenceable>(){};
+        // this.generalBaseMethodInterface = new ArrayList <Referenceable>(){};
         this.declareMap =  new HashMap<ASTNode, List<Referenceable>>();
         this.parentMap = new HashMap<ASTNode, List<Referenceable>>();
+        this.inheritMap = new HashMap<ASTNode, List<Referenceable>>();
+    }
+
+    public void createInheritanceMap(){
+        for (ASTNode node : parentMap.keySet()){
+            // System.out.println("");
+            List <Referenceable> inherited = new ArrayList <Referenceable>(){};
+            inherited.addAll(generalBaseObjectClass);
+            for (Referenceable parentNode: parentMap.get(node)) {
+                inherited.addAll(declareMap.get((ASTNode)parentNode));
+            }
+//            for (Referenceable ref : inherited){
+//                System.out.println(ref.toString());
+//            }
+            inheritMap.put(node, inherited);
+        }
     }
 
     public void checkNoDuplicateMethod() throws Exception {
@@ -92,8 +109,6 @@ public class HierarchyChecking {
         }
     }
 
-
-
     public void checkRootEnvironment(RootEnvironment env) throws Exception{
         for (String packKey : env.packageScopes.keySet()) {
             ScopeEnvironment packScope = (ScopeEnvironment) env.packageScopes.get(packKey);
@@ -101,6 +116,7 @@ public class HierarchyChecking {
                 checkCompilationUnitScope(packScope.childScopes.get(compileKey));
             }
         }
+        createInheritanceMap();
     }
 
     public void checkCompilationUnitScope(ScopeEnvironment env) throws Exception{
@@ -115,18 +131,15 @@ public class HierarchyChecking {
         }
 
         for (Pair<String, ASTNode> node : nonImported) {
-            if (node.first.contains("java.lang.")) { // general base class
-                if (node.second instanceof ClassDecl) {
-                    ClassDecl classDecl = (ClassDecl) node.second;
-                    generalBaseMethodClass.addAll(declare(classDecl, env));
-                } else if (node.second instanceof InterfaceDecl) {
-                    InterfaceDecl interfaceDecl = (InterfaceDecl) node.second;
-                    generalBaseMethodInterface.addAll(declare(interfaceDecl, env));
-                }
-                continue; // No need to check base class correctness(?
-            }
 //            System.out.println("");
 //            System.out.println(node.first);
+            if (node.first.contains("java.lang.Object")) { // general base class
+                ClassDecl classDecl = (ClassDecl) node.second;
+                generalBaseObjectClass.addAll(declare(classDecl, env));
+                continue; // No need to check base class correctness(?
+            } else if (node.first.contains("java.lang") || node.first.contains("java.io")) {
+                continue;
+            }
             if (node.second instanceof ClassDecl) {
                 ClassDecl classDecl = (ClassDecl) node.second;
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(classDecl, classDecl, env);
@@ -167,7 +180,7 @@ public class HierarchyChecking {
             }
         }
         parentMap.put(node, extendNodes);
-        //System.out.println("");
+        // System.out.println("");
     }
 
 
@@ -377,10 +390,10 @@ public class HierarchyChecking {
 //        System.out.println("");
 //        System.out.println(node.toString());
         for (String key : env.localDecls.keySet()){
-            if (!(env.localDecls.get(key) instanceof ConstructorList)) {
-                // System.out.println(key);
+            //if (!(env.localDecls.get(key) instanceof ConstructorList)) {
+            //     System.out.println(key);
                 result.add(env.localDecls.get(key));
-            }
+            //}
 
         }
         return result;
