@@ -21,7 +21,7 @@ public class ConstructorList implements Referenceable{
     /** check whether two methods are ambiguous or not
      *  1. first check num of params:
      *  2. check each type of params*/
-    public void checkMethodDecl(ConstructorDecl ctor1, ConstructorDecl ctor2) throws SemanticError {
+    private void checkMethodDecl(ConstructorDecl ctor1, ConstructorDecl ctor2) throws SemanticError {
         int method1Params = ctor1.getConstructorDeclarator().numParams();
         int method2Params = ctor2.getConstructorDeclarator().numParams();
         if (method1Params != method2Params) return; // if num of param not equal, then they are different methods

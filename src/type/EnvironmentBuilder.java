@@ -90,8 +90,15 @@ public class EnvironmentBuilder {
     public static void processAbstractMethodDecl(ScopeEnvironment env, AbstractMethodDecl abstractMethodDecl) throws SemanticError{
         MethodDeclarator methodDeclarator = abstractMethodDecl.getMethodDeclarator();
         String methodName = methodDeclarator.getName();
-        if (env.localDecls.containsKey(methodName)) throw new SemanticError("Duplicate abstract method name");
-        env.localDecls.put(methodName,abstractMethodDecl);
+        if (env.localDecls.containsKey(methodName) && env.localDecls.get(methodName) instanceof AbstractMethodList){
+            AbstractMethodList abstractMethodList = (AbstractMethodList)env.localDecls.get(methodName);
+            abstractMethodList.checkAmbiguousMethodDecl(abstractMethodDecl);
+            abstractMethodList.add(abstractMethodDecl);
+        }   else {
+            AbstractMethodList abstractMethodList = new AbstractMethodList(methodName);
+            abstractMethodList.add(abstractMethodDecl);
+            env.localDecls.put(methodName, abstractMethodList);
+        }
         env.childScopes.put(abstractMethodDecl, new ScopeEnvironment(env, env.root, ""));
         processParameters(env.childScopes.get(abstractMethodDecl),methodDeclarator.getParameterList());
     }

@@ -1,34 +1,35 @@
 package ast;
 
+
 import exception.SemanticError;
 import type.EnvironmentBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodList implements Referenceable{
-    List<MethodDecl> methods;
+public class AbstractMethodList implements Referenceable{
+    List<AbstractMethodDecl> methods;
     String qualifiedName;
 
-    public MethodList(String qualifiedName){
-        methods = new ArrayList<MethodDecl>();
+    public AbstractMethodList(String qualifiedName){
+        methods = new ArrayList<AbstractMethodDecl>();
         this.qualifiedName = qualifiedName;
     }
 
-    public void add(MethodDecl method){
+    public void add(AbstractMethodDecl method){
         methods.add(method);
     }
 
     /** check whether two methods are ambiguous or not
      *  1. first check num of params:
      *  2. check each type of params*/
-    private void checkMethodDecl(MethodDecl method1, MethodDecl method2) throws SemanticError {
-        int method1Params = method1.getMethodHeader().getMethodDeclarator().numParams();
-        int method2Params = method2.getMethodHeader().getMethodDeclarator().numParams();
+    private void checkMethodDecl(AbstractMethodDecl method1, AbstractMethodDecl method2) throws SemanticError {
+        int method1Params = method1.getMethodDeclarator().numParams();
+        int method2Params = method2.getMethodDeclarator().numParams();
         if (method1Params != method2Params) return; // if num of param not equal, then they are different methods
         if (method1Params == 0) throw new SemanticError("Ambiguous method name " + method1.getName());
-        List<Parameter> method1ParamList = method1.getMethodHeader().getMethodDeclarator().getParameterList().getParams();
-        List<Parameter> method2ParamList = method2.getMethodHeader().getMethodDeclarator().getParameterList().getParams();
+        List<Parameter> method1ParamList = method1.getMethodDeclarator().getParameterList().getParams();
+        List<Parameter> method2ParamList = method2.getMethodDeclarator().getParameterList().getParams();
         List<Type> method1Types = EnvironmentBuilder.getTypesFromParams(method1ParamList);
         List<Type> method2Types = EnvironmentBuilder.getTypesFromParams(method2ParamList);
         for (int i = 0; i < method1Types.size(); i++){
@@ -37,16 +38,16 @@ public class MethodList implements Referenceable{
         throw new SemanticError("Ambiguous method name " + method1.getName());
     }
 
-    public void checkAmbiguousMethodDecl(MethodDecl method) throws SemanticError{
-        for (MethodDecl m : methods){
-            assert m.getName().equals(method.getName());
-            checkMethodDecl(m, method);
+    public void checkAmbiguousMethodDecl(AbstractMethodDecl abstractMethodDecl) throws SemanticError{
+        for (AbstractMethodDecl m : methods){
+            assert m.getName().equals(abstractMethodDecl.getName());
+            checkMethodDecl(m, abstractMethodDecl);
         }
     }
 
     @Override
     public String toString() {
-        return "MethodList{" +
+        return "AbstractMethodList{" +
                 "methods=" + methods +
                 '}';
     }

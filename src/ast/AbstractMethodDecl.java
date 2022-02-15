@@ -10,4 +10,7 @@ public class AbstractMethodDecl extends InterfaceMemberDecl{
         assert children.get(2) instanceof MethodDeclarator;
         return (MethodDeclarator)children.get(2);
     }
+    public String getName(){
+        return getMethodDeclarator().getName();
+    }
 }
