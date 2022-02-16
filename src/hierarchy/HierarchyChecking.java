@@ -42,6 +42,9 @@ public class HierarchyChecking {
         checkContainSameSigDiffReturn();
         checkAbstrictMethod();
         checkStaticMethod();
+        checkReplaceType();
+        checkPublicMethod();
+        checkFinalMethod();
     }
 
     private Map<ASTNode, ASTNode> get_replace(ASTNode T) {
@@ -55,7 +58,7 @@ public class HierarchyChecking {
             if (inheritMap.get(T).get(l) instanceof MethodList) {
                 List<MethodDecl> method_list = ((MethodList) inheritMap.get(T).get(l)).methods;
                 for (MethodDecl i: method_list) {
-                    List<String> signature = get_full_sig(i);
+                    List<String> signature = get_sig(i);
                     match_buff.put(signature, i);
                 }
             }
@@ -64,7 +67,7 @@ public class HierarchyChecking {
             if (declareMap.get(T).get(l) instanceof MethodList) {
                 List<MethodDecl> method_list = ((MethodList) declareMap.get(T).get(l)).methods;
                 for (MethodDecl i: method_list) {
-                    List<String> signature = get_full_sig(i);
+                    List<String> signature = get_sig(i);
                     //System.out.println(signature);
                     if (match_buff.containsKey(signature)) {
                         res.put(i, match_buff.get(signature));
@@ -73,6 +76,57 @@ public class HierarchyChecking {
             }
         }
         return res;
+    }
+
+    private String get_type(MethodDecl method_decl) {
+        // method_decl ->method_header -> type -> primitive_type|... -> 
+        return method_decl.children.get(0).children.get(1).value;
+    }
+
+    private void checkReplaceType() throws Exception {
+        for (ASTNode T: declareMap.keySet()) {
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                Map<ASTNode, ASTNode> replace_set = get_replace(T);
+                for (ASTNode m: replace_set.keySet()) {
+                    ASTNode m_base = replace_set.get(m);
+                    if (get_type((MethodDecl)m) != get_type((MethodDecl)m_base)) {
+                        throw new Exception("A method must not replace a method with a different return type.");
+                    }
+                }
+            }
+            
+        }
+    }
+
+    public void checkPublicMethod() throws Exception {
+        for (ASTNode T: declareMap.keySet()) {
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                Map<ASTNode, ASTNode> replace_set = get_replace(T);
+                for (ASTNode m: replace_set.keySet()) {
+                    ASTNode m_base = replace_set.get(m);
+                    if (get_mods(m_base.children.get(0).children.get(0)).contains("public") && !(get_mods(m.children.get(0).children.get(0)).contains("public"))) {
+                        throw new Exception("A protected method must not replace a public method.");
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkFinalMethod() throws Exception {
+        for (ASTNode T: declareMap.keySet()) {
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                Map<ASTNode, ASTNode> replace_set = get_replace(T);
+                for (ASTNode m: replace_set.keySet()) {
+                    ASTNode m_base = replace_set.get(m);
+                    if (!get_mods(m_base.children.get(0).children.get(0)).contains("final") ) {
+                        throw new Exception("A method must not replace a final method.");
+                    }
+                }
+            }
+        }
     }
 
     public void checkStaticMethod() throws Exception {
@@ -93,9 +147,7 @@ public class HierarchyChecking {
                     }
                 }
             }
-            
         }
-        
     }
 
     public List<String> get_mods(ASTNode modifiers){
@@ -112,6 +164,8 @@ public class HierarchyChecking {
         
         assert (method_decl instanceof MethodDecl);
         List<String> res = new ArrayList<String>();
+        // MethodDecl ->MethodHeader->method_declarator->ID->value
+        res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
         if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
             return res;
         }
@@ -129,8 +183,8 @@ public class HierarchyChecking {
         
         assert (method_decl instanceof MethodDecl);
         List<String> res = new ArrayList<String>();
-        // MethodDecl ->MethodHeader->type->type->value
-        res.add(method_decl.children.get(0).children.get(0).children.get(0).value);
+        // MethodDecl ->MethodHeader->type->value
+        res.add(method_decl.children.get(0).children.get(1).value);
         // MethodDecl ->MethodHeader->method_declarator->ID->value
         res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
         if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
