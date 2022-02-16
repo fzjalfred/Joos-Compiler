@@ -351,9 +351,10 @@ public class HierarchyChecking {
                 ClassDecl classDecl = (ClassDecl) node.second;
                 generalBaseObjectClass.addAll(declare(classDecl, env));
                 continue; // No need to check base class correctness(?
-            } else if (node.first.contains("java.lang") || node.first.contains("java.io")) {
-                continue;
             }
+//            } else if (node.first.contains("java.lang") || node.first.contains("java.io")) {
+//                continue;
+//            }
             if (node.second instanceof ClassDecl) {
                 ClassDecl classDecl = (ClassDecl) node.second;
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = checkExtendNode(classDecl, classDecl, env);
@@ -459,7 +460,7 @@ public class HierarchyChecking {
             return new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
         }
 
-        Name extendName = (Name) superNode.children.get(0).children.get(0);
+        Name extendName = (Name) ((ClassOrInterfaceType)superNode.children.get(0)).getName();
         List <Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
         Pair<Referenceable, ScopeEnvironment> found;
 
@@ -507,7 +508,8 @@ public class HierarchyChecking {
         List <InterfaceDecl> sameClauseNode = new ArrayList <InterfaceDecl>(){};
         for (ASTNode node : extendsInterfaces.children) {
             Pair<Referenceable, ScopeEnvironment> found;
-            Name extendName = (Name) node.children.get(0).children.get(0);
+            ClassOrInterfaceType interfaceType = (ClassOrInterfaceType) node;
+            Name extendName = (Name) interfaceType.getName();
 
             int size = extendName.children.size();
             if (size == 1) { // simple name
@@ -564,7 +566,8 @@ public class HierarchyChecking {
         List <InterfaceDecl> sameClauseNode = new ArrayList <InterfaceDecl>(){};
         for (ASTNode node : typeList.children) {
             Pair<Referenceable, ScopeEnvironment> found;
-            Name extendName = (Name) node.children.get(0).children.get(0);
+            ClassOrInterfaceType interfaceType = (ClassOrInterfaceType) node;
+            Name extendName = (Name) interfaceType.getName();
 
             int size = extendName.children.size();
             if (size == 1) { // simple name
