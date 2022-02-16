@@ -41,6 +41,61 @@ public class HierarchyChecking {
     public void checkClassHierary() throws Exception {
         checkContainSameSigDiffReturn();
         checkAbstrictMethod();
+        checkStaticMethod();
+    }
+
+    private Map<ASTNode, ASTNode> get_replace(ASTNode T) {
+        Map<ASTNode, ASTNode> res = new HashMap<ASTNode, ASTNode> ();
+        List<Referenceable> base_all_method_list = inheritMap.get(T);
+        if (base_all_method_list == null) {
+            return new HashMap<ASTNode, ASTNode> ();
+        }
+        Map<List<String>, MethodDecl> match_buff = new HashMap<List<String>, MethodDecl>();
+        for (int l = 0; l<inheritMap.get(T).size(); l++) {
+            if (inheritMap.get(T).get(l) instanceof MethodList) {
+                List<MethodDecl> method_list = ((MethodList) inheritMap.get(T).get(l)).methods;
+                for (MethodDecl i: method_list) {
+                    List<String> signature = get_full_sig(i);
+                    match_buff.put(signature, i);
+                }
+            }
+        }
+        for (int l = 0; l<declareMap.get(T).size(); l++) {
+            if (declareMap.get(T).get(l) instanceof MethodList) {
+                List<MethodDecl> method_list = ((MethodList) declareMap.get(T).get(l)).methods;
+                for (MethodDecl i: method_list) {
+                    List<String> signature = get_full_sig(i);
+                    //System.out.println(signature);
+                    if (match_buff.containsKey(signature)) {
+                        res.put(i, match_buff.get(signature));
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    public void checkStaticMethod() throws Exception {
+        for (ASTNode T: declareMap.keySet()) {
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                Map<ASTNode, ASTNode> replace_set = get_replace(T);
+                for (ASTNode m: replace_set.keySet()) {
+                    ASTNode m_base = replace_set.get(m);
+                    // System.out.println(m.children.get(0).children.get(2).children.get(0));
+                    // System.out.println(m_base.children.get(0).children.get(2).children.get(0));
+                    // System.out.println(get_mods(m.children.get(0).children.get(0)).contains("static"));
+                    // System.out.println("-----------");
+                    // System.out.println(get_mods(m_base.children.get(0).children.get(0)));
+                    // MethodDecl -> headr -> modifiers
+                    if (get_mods(m_base.children.get(0).children.get(0)).contains("static") && !(get_mods(m.children.get(0).children.get(0)).contains("static"))) {
+                        throw new Exception("A nonstatic method must not replace a static method");
+                    }
+                }
+            }
+            
+        }
+        
     }
 
     public List<String> get_mods(ASTNode modifiers){
@@ -52,26 +107,32 @@ public class HierarchyChecking {
         }
         return res;
     }
-
-    // private List<String> sig(ParameterList paras) {
-    //     List<String> res = new ArrayList<String>();
-    //     if (paras.children.size() == 1) {
-    //         res.add(paras.children.get(0).children.get(0).children.get(0).toString());
-    //     } else {
-    //         //System.out.println((ASTNode)paras);
-            
-    //         // System.out.println(paras.children.get(0).toString());
-    //         // System.out.println(paras.children.get(0).children.get(0).toString());
-    //         // System.out.println(paras.children.get(1));
-    //         res = sig((ParameterList)paras.children.get(0));
-    //         res.add(paras.children.get(1).value);
-    //     }
-    //     return res;
-    // }
+    
     public List<String> get_sig(ASTNode method_decl){
         
         assert (method_decl instanceof MethodDecl);
         List<String> res = new ArrayList<String>();
+        if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
+            return res;
+        }
+        // ->method_header->method_declarator->parameter_list
+        ParameterList parameter_list = (ParameterList)method_decl.children.get(0).children.get(2).children.get(1);
+        List<Parameter> paras = parameter_list.getParams();
+        for (Parameter i: paras) {
+            res.add(i.children.get(0).toString());
+        }
+        return res;
+    }
+
+    // first two string will be return type and ID.
+    public List<String> get_full_sig(ASTNode method_decl){
+        
+        assert (method_decl instanceof MethodDecl);
+        List<String> res = new ArrayList<String>();
+        // MethodDecl ->MethodHeader->type->type->value
+        res.add(method_decl.children.get(0).children.get(0).children.get(0).value);
+        // MethodDecl ->MethodHeader->method_declarator->ID->value
+        res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
         if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
             return res;
         }
