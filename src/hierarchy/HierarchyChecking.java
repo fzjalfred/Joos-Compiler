@@ -121,7 +121,7 @@ public class HierarchyChecking {
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
-                    if (!get_mods(m_base.children.get(0).children.get(0)).contains("final") ) {
+                    if (get_mods(m_base.children.get(0).children.get(0)).contains("final") ) {
                         throw new Exception("A method must not replace a final method.");
                     }
                 }
@@ -269,8 +269,13 @@ public class HierarchyChecking {
                     for (MethodDecl i: method_decl) {
                         // method_decl -> method_header -> modifiers
                         List<String> m = get_mods(i.children.get(0).children.get(0));
+                        // System.out.println("===========");
+                        // System.out.println(m);
+                        // System.out.println(get_full_sig(i));
                         if (m.contains("abstract")) {
                             if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+                                System.out.println(m);
+                                System.out.println(T_mods);
                                 throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
                             }
                         }
@@ -290,36 +295,36 @@ public class HierarchyChecking {
                 }
             }
         }
-        for (ASTNode T: inheritMap.keySet()) {
-            List<String> T_mods = get_mods(T.children.get(0));
-            for (int l = 0; l<inheritMap.get(T).size(); l++) {
-                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
-                if (inheritMap.get(T).get(l) instanceof MethodList) {
-                    List<MethodDecl> method_decl = ((MethodList)inheritMap.get(T).get(l)).methods;
-                    for (MethodDecl i: method_decl) {
-                        // method_decl -> method_header -> modifiers
-                        List<String> m = get_mods(i.children.get(0).children.get(0));
-                        if (m.contains("abstract")) {
-                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
-                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
-                            }
-                        }
-                    }
-                }
-                if (inheritMap.get(T).get(l) instanceof ConstructorList) {
-                    List<ConstructorDecl> method_decl = ((ConstructorList)inheritMap.get(T).get(l)).cons;
-                    for (ConstructorDecl i: method_decl) {
-                        // method_decl -> method_header -> modifiers
-                        List<String> m = get_mods(i.children.get(0).children.get(0));
-                        if (m.contains("abstract")) {
-                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
-                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // for (ASTNode T: inheritMap.keySet()) {
+        //     List<String> T_mods = get_mods(T.children.get(0));
+        //     for (int l = 0; l<inheritMap.get(T).size(); l++) {
+        //         // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+        //         if (inheritMap.get(T).get(l) instanceof MethodList) {
+        //             List<MethodDecl> method_decl = ((MethodList)inheritMap.get(T).get(l)).methods;
+        //             for (MethodDecl i: method_decl) {
+        //                 // method_decl -> method_header -> modifiers
+        //                 List<String> m = get_mods(i.children.get(0).children.get(0));
+        //                 if (m.contains("abstract")) {
+        //                     if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+        //                         throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //         if (inheritMap.get(T).get(l) instanceof ConstructorList) {
+        //             List<ConstructorDecl> method_decl = ((ConstructorList)inheritMap.get(T).get(l)).cons;
+        //             for (ConstructorDecl i: method_decl) {
+        //                 // method_decl -> method_header -> modifiers
+        //                 List<String> m = get_mods(i.children.get(0).children.get(0));
+        //                 if (m.contains("abstract")) {
+        //                     if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
+        //                         throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     public void checkRootEnvironment(RootEnvironment env) throws Exception{
