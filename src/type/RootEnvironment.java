@@ -39,30 +39,50 @@ public class RootEnvironment extends Environment{
     public Map<String, ScopeEnvironment> packageScopes;    //map a prefix of Name to a scope
     public Map<ASTNode, ScopeEnvironment> ASTNodeToScopes;
 
+    /** look up a qualified name under some package str if exists */
+    private Referenceable lookupStr(String str, Name qualifiedName){
+        if (packageScopes.containsKey(str)){
+            Referenceable res =  packageScopes.get(str).rootLookupHelper(qualifiedName);
+            if (res != null) return res;
+        }
+        return null;
+    }
+
+    /** look up a qualified name in root*/
     public Referenceable lookup(Name name){
         List<String> names = name.getFullName();
         String nameStr = "";
         Referenceable res = null;
+        res = lookupStr("", name); // lookup empty package
+        if (res != null) return res;
         for (String s : names){
             nameStr = nameStr + s;
-            if (packageScopes.containsKey(nameStr)){
-                res =  packageScopes.get(nameStr).rootLookupHelper(name);
-                if (res != null) return res;
-            }
+            res = lookupStr(nameStr, name);
+            if (res != null) return res;
             nameStr = nameStr + '.';
         }
         return null;
     }
+
+    /** look up a qualified name under some package str if exists */
+    private Pair<Referenceable, ScopeEnvironment> lookupStrEnv(String str, Name qualifiedName){
+        if (packageScopes.containsKey(str)){
+            Pair<Referenceable, ScopeEnvironment> res =  packageScopes.get(str).rootLookupNameAndEnvHelper(qualifiedName);
+            if (res != null) return res;
+        }
+        return new Pair<Referenceable, ScopeEnvironment>(null, null);
+    }
+
+    /** look up a qualified name&its enclosing scope in root*/
     public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Name name) {
         List<String> names = name.getFullName();
         String nameStr = "";
-        Pair<Referenceable, ScopeEnvironment> res = new Pair<Referenceable, ScopeEnvironment>(null, null);
+        Pair<Referenceable, ScopeEnvironment> res = lookupStrEnv("", name); // lookup empty package
+        if (res.first() != null) return res;
         for (String s : names){
             nameStr = nameStr + s;
-            if (packageScopes.containsKey(nameStr)){
-                res =  packageScopes.get(nameStr).rootLookupNameAndEnvHelper(name);
-                if (res.first() != null) return res;
-            }
+            res = lookupStrEnv(nameStr,name);
+            if (res.first() != null) return res;
             nameStr = nameStr + '.';
         }
         return new Pair<Referenceable, ScopeEnvironment>(null, null);
@@ -71,19 +91,6 @@ public class RootEnvironment extends Environment{
     public Referenceable search(Name name){
         return null;
     }
-
-    public Referenceable lookup(Token simpleName){
-        return null;
-    }
-    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Token simpleName) {
-        return new Pair<Referenceable, ScopeEnvironment>(null, null);
-    }
-
-    public Referenceable search(Token name) {return null;}
-
-    protected Referenceable rootLookupHelper(Name name){return null;}
-
-    protected Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name){return new Pair<Referenceable, ScopeEnvironment>(null, null);}
 
     @Override
     public String toString() {

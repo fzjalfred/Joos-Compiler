@@ -50,12 +50,16 @@ public class EnvironmentBuilder {
         }
     }
 
+    public static String appendQualifiedName(String base, String appendix){
+        if (base.equals("")) return appendix;
+        return base + '.' + appendix;
+    }
 
     public static void processTypeDecl(ScopeEnvironment env, TypeDecl typeDecl) throws SemanticError{
         if (typeDecl == null) return;
         if (typeDecl instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)typeDecl;
-            String qualifiedClassName = env.prefix + '.' + classDecl.getName();
+            String qualifiedClassName = appendQualifiedName(env.prefix, classDecl.getName());
             if (env.localDecls.containsKey(qualifiedClassName)){    // duplicate defined1
                 throw new SemanticError(qualifiedClassName + " has already been defined");
             }
@@ -66,7 +70,7 @@ public class EnvironmentBuilder {
             processClassMemberDecls(env.childScopes.get(classDecl), classDecl.getClassBodyDecls());
         }   else if (typeDecl instanceof InterfaceDecl){
             InterfaceDecl interfaceDecl = (InterfaceDecl)typeDecl;
-            String qualifiedInterfaceName = env.prefix +'.'+ interfaceDecl.getName();
+            String qualifiedInterfaceName = appendQualifiedName(env.prefix, interfaceDecl.getName());
             if (env.localDecls.containsKey(qualifiedInterfaceName)){
                 throw new SemanticError(qualifiedInterfaceName + " has already been defined");
             }

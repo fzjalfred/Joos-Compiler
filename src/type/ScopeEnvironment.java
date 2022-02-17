@@ -159,7 +159,6 @@ public class ScopeEnvironment extends Environment{
     }
 
     protected Referenceable rootLookupHelper(Name name){
-        if (prefix.equals("")) return null;
         Referenceable res = search(name);
         if (res != null){
             return res;
