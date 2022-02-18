@@ -892,10 +892,10 @@ class_decl ::= modifiers:e1 CLASS ID:e2 class_body:e5 {:checkPublicModifier(e1);
                modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
                else RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); abstractAndInterface(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
+               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkPublicModifier(e1);checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
                else RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); abstractAndInterface(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
+               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
                else RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
                ;
 
