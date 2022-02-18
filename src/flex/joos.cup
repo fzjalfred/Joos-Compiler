@@ -198,8 +198,8 @@ private boolean IncorrectCastExpr(ASTNode node){
                  }
 
                  if (postFixChildren.get(0) instanceof Name) {
-                    List<ASTNode> nameChilren = postFixChildren.get(0).children;
-                    if (nameChilren.size() == 1) {
+                    ASTNode childrend = postFixChildren.get(0);
+                    if (childrend instanceof Name) {
                         return false;
                     }
                  }
@@ -325,6 +325,12 @@ private boolean IncorrectCastExpr(ASTNode node){
         }
         return false;
     }
+    private void abstractAndInterface(ASTNode modifiers) throws Exception{
+        if (ifContainModifier(modifiers, "abstract")) {
+            throw new Exception("Abstract class cannot implement an interface");
+        }
+    }
+
     private void checkModifiers(ASTNode modifiers) throws Exception {
         boolean containPublic = ifContainModifier(modifiers, "public");
         boolean containProtected = ifContainModifier(modifiers, "protected");
@@ -790,7 +796,7 @@ unary_expr_not_plus_minus   ::= NOT:e1 unary_expr:e2 {:RESULT = new UnaryExprNot
                             | post_fix_expr:e {:RESULT = e;:};
 
 cast_expr   ::= LEFTPARN primitive_type:e1 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, null, e3), "");:}
-                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (IncorrectCastExpr(e1)) throw new Exception("Cast Expr has double parentheses");
+                | LEFTPARN expr:e1 RIGHTPARN unary_expr_not_plus_minus:e3 {:if (IncorrectCastExpr(e1)) throw new Exception("Cast Expr has double parentheses: " + e1.toString());
                 else RESULT = new CastExpr(list(e1, null, e3), "");:}
                 | LEFTPARN primitive_type:e1 dims:e2 RIGHTPARN unary_expr:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:}
                 | LEFTPARN name:e1 dims:e2 RIGHTPARN unary_expr_not_plus_minus:e3 {:RESULT = new CastExpr(list(e1, e2, e3), "");:};
@@ -886,10 +892,10 @@ class_decl ::= modifiers:e1 CLASS ID:e2 class_body:e5 {:checkPublicModifier(e1);
                modifiers:e1 CLASS ID:e2 Super:e3 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
                else RESULT = new ClassDecl(list(e1, e2, e3, null, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
+               modifiers:e1 CLASS ID:e2 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); abstractAndInterface(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
                else RESULT = new ClassDecl(list(e1, e2, null, e4, e5), "");:}
                |
-               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
+               modifiers:e1 CLASS ID:e2 Super:e3 interfaces:e4 class_body:e5 {:checkPublicModifier(e1); abstractAndInterface(e1); checkInvalidFileName(e1, e2); if (NotClassModifier(e1)) throw new Exception("Incorrect Modifiers");
                else RESULT = new ClassDecl(list(e1, e2, e3, e4, e5), "");:}
                ;
 
