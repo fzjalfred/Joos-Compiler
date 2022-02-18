@@ -80,7 +80,36 @@ public class HierarchyChecking {
 
     private String get_type(MethodDecl method_decl) {
         // method_decl ->method_header -> type -> primitive_type|... -> 
-        return method_decl.children.get(0).children.get(1).value;
+        // if (method_decl.children.get(0).children.get(1).children.isEmpty()) {
+        //     return method_decl.children.get(0).children.get(1).value;
+        // }
+        ASTNode tmp = method_decl.children.get(0).children.get(1);
+        while (!tmp.children.isEmpty()) {
+            tmp = tmp.children.get(0);
+        }
+        return tmp.value;
+    }
+    private String get_type(AbstractMethodDecl method_decl) {
+        // method_decl -> type -> primitive_type|... -> 
+        // if (method_decl.children.get(0).children.get(1).children.isEmpty()) {
+        //     return method_decl.children.get(0).children.get(1).value;
+        // }
+        ASTNode tmp = method_decl.children.get(1);
+        if (tmp == null) {
+            return "void";
+        }
+        while (!tmp.children.isEmpty()) {
+            tmp = tmp.children.get(0);
+        }
+        return tmp.value;
+    }
+    private String get_type(ASTNode method_decl) {
+        if (method_decl instanceof MethodDecl) {
+            return get_type((MethodDecl)method_decl);
+        }
+        else {
+            return get_type((AbstractMethodDecl)method_decl);
+        }
     }
 
     private void checkReplaceType() throws Exception {
@@ -90,7 +119,7 @@ public class HierarchyChecking {
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
-                    if (get_type((MethodDecl)m) != get_type((MethodDecl)m_base)) {
+                    if (!get_type((MethodDecl)m).equals(get_type((MethodDecl)m_base))) {
                         throw new Exception("A method must not replace a method with a different return type.");
                     }
                 }
@@ -160,7 +189,7 @@ public class HierarchyChecking {
         return res;
     }
     
-    public List<String> get_sig(ASTNode method_decl){
+    public List<String> get_sig(MethodDecl method_decl){
         
         assert (method_decl instanceof MethodDecl);
         List<String> res = new ArrayList<String>();
@@ -177,6 +206,23 @@ public class HierarchyChecking {
         }
         return res;
     }
+    public List<String> get_sig(AbstractMethodDecl method_decl){
+        
+        assert (method_decl instanceof AbstractMethodDecl);
+        List<String> res = new ArrayList<String>();
+        // MethodDecl->method_declarator->ID->value
+        res.add(method_decl.children.get(2).children.get(0).value);
+        if (method_decl.children.get(2).children.get(1) == null) {
+            return res;
+        }
+        //->method_declarator->parameter_list
+        ParameterList parameter_list = (ParameterList)method_decl.children.get(2).children.get(1);
+        List<Parameter> paras = parameter_list.getParams();
+        for (Parameter i: paras) {
+            res.add(i.children.get(0).toString());
+        }
+        return res;
+    }
 
     // first two string will be return type and ID.
     public List<String> get_full_sig(ASTNode method_decl){
@@ -184,7 +230,7 @@ public class HierarchyChecking {
         assert (method_decl instanceof MethodDecl);
         List<String> res = new ArrayList<String>();
         // MethodDecl ->MethodHeader->type->value
-        res.add(method_decl.children.get(0).children.get(1).value);
+        res.add(get_type((MethodDecl)method_decl));
         // MethodDecl ->MethodHeader->method_declarator->ID->value
         res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
         if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
@@ -215,42 +261,72 @@ public class HierarchyChecking {
     public void checkContainSameSigDiffReturn() throws Exception {
         // T: class_decl
         // declare + inherit = contains
+        Map<List<String>, ASTNode> checkbuff = new HashMap<List<String>, ASTNode>();
         for (ASTNode T: declareMap.keySet()) {
             for (int l = 0; l<declareMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
                 if (declareMap.get(T).get(l) instanceof MethodList) {
                     MethodList method_list = (MethodList) declareMap.get(T).get(l);
                     for (int i = 0; i<method_list.methods.size(); i++) {
-                        for (int j = i; j<method_list.methods.size(); j++) {
-                            // check types
-                            MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
-                            MethodDecl mh2 = (MethodDecl) method_list.methods.get(j);
-                            if (get_sig(mh1) == get_sig(mh1)){
-                                if (mh1.children.get(0).children.get(1).children.get(0).toString() != mh2.children.get(0).children.get(1).children.get(0).toString()) {
-                                    throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
-                                }
+                        MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
+                        List<String> signature = get_sig(mh1);
+                        if (checkbuff.containsKey(signature)) {
+                            ASTNode mh2 = (ASTNode)checkbuff.get(signature);
+                            if (!get_type(mh1).equals(get_type(mh2))) {
+                                throw new Exception("A class or interface \'"+ get_sig(mh1).get(0) +"\' must not contain (declare or inherit) two methods with the same signature but different return types");
                             }
+                        } else {
+                            checkbuff.put(signature, mh1);
+                        }
+                    }
+                }
+                if (declareMap.get(T).get(l) instanceof AbstractMethodList) {
+                    AbstractMethodList method_list = (AbstractMethodList) declareMap.get(T).get(l);
+                    for (int i = 0; i<method_list.methods.size(); i++) {
+                        AbstractMethodDecl mh1 = (AbstractMethodDecl) method_list.methods.get(i);
+                        List<String> signature = get_sig(mh1);
+                        if (checkbuff.containsKey(signature)) {
+                            ASTNode mh2 = (ASTNode) checkbuff.get(signature);
+                            if (!get_type(mh1).equals(get_type(mh2))) {
+                                throw new Exception("A class or interface \'"+ get_sig(mh1).get(0) +"\' must not contain (declare or inherit) two methods with the same signature but different return types");
+                            }
+                        } else {
+                            checkbuff.put(signature, mh1);
                         }
                     }
                 }
             }
         }
         for (ASTNode T: inheritMap.keySet()) {
-            for (int l = 0; l<declareMap.get(T).size(); l++) {
+            for (int l = 0; l<inheritMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
-                if (declareMap.get(T).get(l) instanceof MethodList) {
-                    MethodList method_list = (MethodList) declareMap.get(T).get(l);
+                if (inheritMap.get(T).get(l) instanceof MethodList) {
+                    MethodList method_list = (MethodList) inheritMap.get(T).get(l);
                     for (int i = 0; i<method_list.methods.size(); i++) {
-                        for (int j = i; j<method_list.methods.size(); j++) {
-                            // check types
-                            MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
-                            MethodDecl mh2 = (MethodDecl) method_list.methods.get(j);
-                            if (get_sig(mh1) == get_sig(mh1)){
-                                // method_decl -> method_header -> type -> numeric_type
-                                if (mh1.children.get(0).children.get(1).children.get(0).toString() != mh2.children.get(0).children.get(1).children.get(0).toString()) {
-                                    throw new Exception("A class or interface must not contain (declare or inherit) two methods with the same signature but different return types");
-                                }
+                        MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
+                        List<String> signature = get_sig(mh1);
+                        if (checkbuff.containsKey(signature)) {
+                            ASTNode mh2 = (ASTNode)checkbuff.get(signature);
+                            if (!get_type(mh1).equals(get_type(mh2))) {
+                                throw new Exception("A class or interface \'"+ get_sig(mh1).get(0) +"\' must not contain (declare or inherit) two methods with the same signature but different return types");
                             }
+                        } else {
+                            checkbuff.put(signature, mh1);
+                        }
+                    }
+                }
+                if (inheritMap.get(T).get(l) instanceof AbstractMethodList) {
+                    AbstractMethodList method_list = (AbstractMethodList) inheritMap.get(T).get(l);
+                    for (int i = 0; i<method_list.methods.size(); i++) {
+                        AbstractMethodDecl mh1 = (AbstractMethodDecl) method_list.methods.get(i);
+                        List<String> signature = get_sig(mh1);
+                        if (checkbuff.containsKey(signature)) {
+                            ASTNode mh2 = (ASTNode)checkbuff.get(signature);
+                            if (!get_type(mh1).equals(get_type(mh2))) {
+                                throw new Exception("A class or interface \'"+ get_sig(mh1).get(0) +"\' must not contain (declare or inherit) two methods with the same signature but different return types");
+                            }
+                        } else {
+                            checkbuff.put(signature, mh1);
                         }
                     }
                 }
