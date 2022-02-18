@@ -746,7 +746,7 @@ public class HierarchyChecking {
     public void createInheritanceMap(){
         for (ASTNode node : parentMap.keySet()){
             List <Referenceable> inherited = new ArrayList <Referenceable>(){};
-            inherited.addAll(generalBaseObjectClass);
+            // inherited.addAll(generalBaseObjectClass);
 //            System.out.println("");
 //            if (node instanceof ClassDecl) {
 //                System.out.println(((ClassDecl)node).getName());
@@ -765,6 +765,9 @@ public class HierarchyChecking {
                 }
 
             }
+            if (node instanceof InterfaceDecl && parentMap.get(node).size() == 0) {
+                inherited.addAll(generalBaseObjectClass);
+            }
 //            System.out.println("after");
 //            for (Referenceable ref : inherited){
 //                System.out.println(ref.toString());
@@ -772,5 +775,6 @@ public class HierarchyChecking {
             inheritMap.put(node, inherited);
         }
     }
+
 
 }
