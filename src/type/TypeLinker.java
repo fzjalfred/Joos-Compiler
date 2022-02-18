@@ -11,6 +11,7 @@ public class TypeLinker {
         String simpleName = tools.getSimpleName(importName);
         //System.out.println(scope.simpleNameSet + "env is " + scope);
         if (scope.simpleNameSet.contains(simpleName) && !scope.localDecls.containsKey(importName)) throw new SemanticError("Import name "+ importName + " clash with type decl " + simpleName);
+        scope.simpleNameSet.add(tools.getSimpleName(importName));
     }
 
     static void checkClashTypeOnDemandImport(ScopeEnvironment scope, String importName) throws SemanticError{
@@ -102,7 +103,7 @@ public class TypeLinker {
         assert scope.isCompliationUnit();
         RootEnvironment env = scope.root;
         String packageNameStr = typeImportOndemandDecl.getName().getValue();
-        checkPrefixNotType(scope.root, typeImportOndemandDecl.getName().getFullName(), false);
+        checkPrefixNotType(scope.root, typeImportOndemandDecl.getName().getFullName(), false, scope);
         List<String> relatedPackages = findPackages(env, packageNameStr);
         for (String packageName : relatedPackages){
             ScopeEnvironment packageScope = env.packageScopes.get(packageName);
@@ -133,7 +134,7 @@ public class TypeLinker {
     }
 
     /** If prefix of the name is a type, then throw semantic error */
-    static void checkPrefixNotType(RootEnvironment env, List<String> names, boolean strictOrNot) throws SemanticError{
+    static void checkPrefixNotType(RootEnvironment env, List<String> names, boolean strictOrNot, ScopeEnvironment scope) throws SemanticError{
         String nameStr = "";
         Referenceable res = null;
         int nameLen = names.size();
@@ -141,6 +142,10 @@ public class TypeLinker {
         for (int i = 0; i < nameLen; i++){
             String s = names.get(i);
             nameStr = nameStr + s;
+            if (i == 0 && strictOrNot){
+                Referenceable simpleRes = scope.lookupTypeDecl(tools.simpleNameConstructor(nameStr));
+                if (simpleRes != null && !emptyPackageCase(res, env)) throw new SemanticError("Prefix: " + nameStr + " cannot be resolved to type in ");
+            }
             res = env.lookup(tools.nameConstructor(nameStr));
             //System.out.println("name is " + nameStr + " res is " + res + " empty? " + emptyPackageCase(res, env));
             if (res != null && !emptyPackageCase(res, env)) throw new SemanticError("Prefix: " + nameStr + " cannot be resolved to type in ");
@@ -160,8 +165,9 @@ public class TypeLinker {
      * that are used may resolve to types, except for types in the default, unnamed package.*/
     static void processPackageDecl(RootEnvironment env, PackageDecl packageDecl) throws SemanticError{
         List<String> names = packageDecl.getName().getFullName();
-        checkPrefixNotType(env, names, false);
         ScopeEnvironment scope = env.ASTNodeToScopes.get(packageDecl);
+        checkPrefixNotType(env, names, false, scope);
+
         scope.childScopes.put(packageDecl, new ScopeEnvironment(scope, env, scope.prefix)); // create a new scope for package classes
         ScopeEnvironment packageScope = env.packageScopes.get(packageDecl.getName().getValue());
         addAllSelfTypeDecls(scope.childScopes.get(packageDecl), packageScope, scope.localDecls);
@@ -177,7 +183,7 @@ public class TypeLinker {
         }   else {
             Referenceable res = env.lookup(typeName);
             if (res == null) throw new SemanticError("Cannot find symbol " + typeName.getValue() + " res " + res);
-            checkPrefixNotType(env.root, typeName.getFullName(), true);
+            checkPrefixNotType(env.root, typeName.getFullName(), true, env);
             type.typeDecl = res;
         }
     }
@@ -200,7 +206,25 @@ public class TypeLinker {
         }   else if (node instanceof PackageDecl){
             PackageDecl packageDecl = (PackageDecl)node;
             processPackageDecl(env, packageDecl);
-        }   else if (node instanceof MethodDecl){ // Above condition will all be checked before processing here
+        }   else if (node instanceof Super){
+            Super superNode = (Super)node;
+            ScopeEnvironment localScope = env.ASTNodeToScopes.get(superNode);
+            Type type = superNode.getType();
+            processType(localScope,type);
+        }   else if (node instanceof ExtendsInterfaces){
+            ExtendsInterfaces extendsInterfaces = (ExtendsInterfaces)node;
+            ScopeEnvironment localScope = env.ASTNodeToScopes.get(extendsInterfaces);
+            List<ClassOrInterfaceType> interfaceTypes = extendsInterfaces.getInterfaceTypeList();
+            for (ClassOrInterfaceType i : interfaceTypes){
+                processType(localScope, i);
+            }
+        } else if (node instanceof ClassInstanceCreateExpr ){
+            ClassInstanceCreateExpr classInstanceCreateExpr = (ClassInstanceCreateExpr)node;
+            ScopeEnvironment localScope = env.ASTNodeToScopes.get(classInstanceCreateExpr);
+            Type type = classInstanceCreateExpr.getType();
+            processType(localScope,type);
+
+        } else if (node instanceof MethodDecl){ // Above condition will all be checked before processing here
             MethodDecl methodDecl = (MethodDecl)node;
             ScopeEnvironment methodScope = env.ASTNodeToScopes.get(methodDecl);
             Type returnType = methodDecl.getMethodHeader().getType();
