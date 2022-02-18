@@ -187,7 +187,7 @@ public class ScopeEnvironment extends Environment{
         }
         for (ASTNode node : childScopes.keySet()){
             Pair<Referenceable, ScopeEnvironment> result = childScopes.get(node).rootLookupNameAndEnvHelper(name);
-            if (result.first() != null) return result;
+            if (result != null && result.first() != null) return result;
         }
         return new Pair<Referenceable, ScopeEnvironment> (null, null);
     }
