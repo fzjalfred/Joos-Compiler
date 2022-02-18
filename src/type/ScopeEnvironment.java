@@ -20,7 +20,7 @@ public class ScopeEnvironment extends Environment{
 
     public Referenceable search(Name name){
         String nameStr = name.getValue();
-        if (localDecls.containsKey(nameStr)) {
+        if (localDecls.containsKey(nameStr) && !(localDecls.get(nameStr) instanceof CompilationUnit)) {
             return localDecls.get(nameStr);
         }
         return null;
@@ -159,6 +159,7 @@ public class ScopeEnvironment extends Environment{
     }
 
     protected Referenceable rootLookupHelper(Name name){
+        if (isLocalDecl) return null;
         Referenceable res = search(name);
         if (res != null){
             return res;
@@ -170,6 +171,7 @@ public class ScopeEnvironment extends Environment{
         return null;
     }
     protected Pair<Referenceable, ScopeEnvironment> rootLookupNameAndEnvHelper(Name name) {
+        if (isLocalDecl) return null;
         if (prefix.equals("")) return new Pair<Referenceable, ScopeEnvironment> (null, null);
         Referenceable res = search(name);
         if (res != null){
@@ -186,6 +188,7 @@ public class ScopeEnvironment extends Environment{
     public Map<ASTNode, ScopeEnvironment> childScopes;
     public Set<String> simpleNameSet; // set of all simple names; used for checking dup
     public String prefix;
+    public boolean isLocalDecl;
 
     public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix){
         this.parent = parent;
@@ -194,6 +197,7 @@ public class ScopeEnvironment extends Environment{
         this.childScopes = new HashMap<ASTNode, ScopeEnvironment>();
         this.simpleNameSet = new HashSet<String>();
         this.prefix = prefix;
+        this.isLocalDecl = false;
     }
 
     @Override
@@ -201,6 +205,7 @@ public class ScopeEnvironment extends Environment{
         return "ScopeEnvironment{" + System.lineSeparator() +
                 "localDecls=" + localDecls + System.lineSeparator() +
                 "subScope=" + childScopes + System.lineSeparator() +
+                "prefix=" + prefix +
                 '}';
     }
 

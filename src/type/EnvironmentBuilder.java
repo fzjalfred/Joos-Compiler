@@ -175,6 +175,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processParameters(ScopeEnvironment env,ParameterList parameterList) throws SemanticError{
+        env.isLocalDecl = true;
         if (parameterList == null) return;
         for (ASTNode node : parameterList.children){    // update parameters
             assert node instanceof Parameter;

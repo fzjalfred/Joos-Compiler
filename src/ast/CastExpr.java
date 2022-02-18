@@ -1,9 +1,24 @@
 package ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CastExpr extends UnaryExprNotPlusMinus {
     public CastExpr(List<ASTNode> children, String value){
         super(children, value);
+    }
+
+    public void changePrefixExprToType(){
+        if (children.get(0) instanceof PostFixExpr){
+            PostFixExpr postFixExpr = (PostFixExpr)children.get(0);
+            assert postFixExpr.getName() != null;
+            Name name = postFixExpr.getName();
+            children.set(0,new ClassOrInterfaceType(new ArrayList<ASTNode>(){{add(name);}}, ""));
+        }
+    }
+
+    public Type getType(){
+        assert children.get(0) instanceof Type;
+        return (Type)children.get(0);
     }
 }

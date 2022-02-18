@@ -23,4 +23,6 @@ public abstract class Environment {
     public Pair<Referenceable, ScopeEnvironment> lookupEnclosingAndSingleImportAndEnv(Token simpleName){return null;}
     public Pair<Referenceable, ScopeEnvironment> lookupEnclosingPackageAndEnv(Token simpleName){return null;}
     public Pair<Referenceable, ScopeEnvironment> lookupImportOnDemandAndEnv(Token simpleName){return null;}
+
+    String prefix = "";
 }

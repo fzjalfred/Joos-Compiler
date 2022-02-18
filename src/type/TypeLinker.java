@@ -63,6 +63,14 @@ public class TypeLinker {
     }
 
 
+    static boolean emptyPackageCase(Referenceable res, RootEnvironment env){
+        ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(res);
+        if (scopeEnvironment.parent.prefix.equals("")){
+            return true;
+        }
+        return false;
+    }
+
     /** If prefix of the name is a type, then throw semantic error */
     static void checkPrefixNotType(RootEnvironment env, List<String> names, boolean strictOrNot) throws SemanticError{
         String nameStr = "";
@@ -73,9 +81,15 @@ public class TypeLinker {
             String s = names.get(i);
             nameStr = nameStr + s;
             res = env.lookup(tools.nameConstructor(nameStr));
-            if (res != null) throw new SemanticError("Prefix: " + nameStr + " cannot be resolved to type");
+            if (res != null && !emptyPackageCase(res, env)) throw new SemanticError("Prefix: " + nameStr + " cannot be resolved to type in " + env );
             nameStr = nameStr + '.';
         }
+    }
+
+    static void processEmptyPackage(RootEnvironment env, ScopeEnvironment scopeEnvironment) {
+        assert env.packageScopes.containsKey("");
+        ScopeEnvironment packageScope = env.packageScopes.get("");
+        addAllSelfTypeDecls(scopeEnvironment, packageScope);
     }
 
     /** No package names—including their prefixes—of declared packages, single-type-import declarations or import-on-demand declarations
@@ -94,13 +108,20 @@ public class TypeLinker {
         if (typeName.isSimpleName()){
             Token simpleName = tools.simpleNameConstructor(tools.getSimpleName(typeName));
             Referenceable res = env.lookupTypeDecl(simpleName);
-            if (res == null) throw new SemanticError("Cannot find symbol " + simpleName.value);
+            if (res == null) throw new SemanticError("Cannot find symbol " + simpleName.value + "current scope is " + env.root);
             type.typeDecl = res;
         }   else {
             Referenceable res = env.lookup(typeName);
-            if (res == null) throw new SemanticError("Cannot find symbol " + typeName.getValue());
+            if (res == null) throw new SemanticError("Cannot find symbol " + typeName.getValue() + "current scope is " + env.root);
             checkPrefixNotType(env.root, typeName.getFullName(), true);
             type.typeDecl = res;
+        }
+    }
+
+    static void processType(ScopeEnvironment scope, Type type){
+        if (type == null) return;
+        if (type instanceof ClassOrInterfaceType){
+            resolveTypename(scope, (ClassOrInterfaceType)type);
         }
     }
 
@@ -115,17 +136,61 @@ public class TypeLinker {
         }   else if (node instanceof PackageDecl){
             PackageDecl packageDecl = (PackageDecl)node;
             processPackageDecl(env, packageDecl);
-            autoImportJavaLang(env.ASTNodeToScopes.get(packageDecl));
-        }   else if (node instanceof ClassOrInterfaceType){ // Above condition will all be checked before processing here
-            ClassOrInterfaceType type = (ClassOrInterfaceType)node;
-            resolveTypename(env.ASTNodeToScopes.get(node), type);
-            //System.out.println(type.getName().getValue() + " is linked to " + type.typeDecl);
+        }   else if (node instanceof MethodDecl){ // Above condition will all be checked before processing here
+            MethodDecl methodDecl = (MethodDecl)node;
+            ScopeEnvironment methodScope = env.ASTNodeToScopes.get(methodDecl);
+            Type returnType = methodDecl.getMethodHeader().getType();
+            processType(methodScope, returnType);
+            if (methodDecl.getMethodHeader().getMethodDeclarator().getParameterList() != null){
+                for (Parameter p : methodDecl.getMethodHeader().getMethodDeclarator().getParameterList().getParams()){
+                    Type type = p.getType();
+                    processType(methodScope, type);
+                }
+            }
+        }   else if (node instanceof ConstructorDecl){
+            ConstructorDecl constructorDecl = (ConstructorDecl)node;
+            ScopeEnvironment methodScope = env.ASTNodeToScopes.get(constructorDecl);
+            if (constructorDecl.getConstructorDeclarator().getParameterList() != null){
+                for (Parameter p : constructorDecl.getConstructorDeclarator().getParameterList().getParams()){
+                    Type type = p.getType();
+                    processType(methodScope, type);
+                }
+            }
+        }   else if (node instanceof LocalVarDecl){
+            LocalVarDecl localVarDecl = (LocalVarDecl)node;
+            ScopeEnvironment varScope = env.ASTNodeToScopes.get(localVarDecl);
+            Type type = localVarDecl.getType();
+            processType(varScope, type);
+        }   else if (node instanceof ArrayCreationExpr){
+            ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr)node;
+            ScopeEnvironment localScope = env.ASTNodeToScopes.get(arrayCreationExpr);
+            Type type = arrayCreationExpr.getType();
+            processType(localScope, type);
+        }   else if (node instanceof CastExpr){
+            CastExpr castExpr = (CastExpr)node;
+            ScopeEnvironment localScope = env.ASTNodeToScopes.get(castExpr);
+            castExpr.changePrefixExprToType();
+            Type type = castExpr.getType();
+            processType(localScope, type);
+        }   else if (node instanceof RelationExpr){
+            RelationExpr relationExpr = (RelationExpr)node;
+            if (relationExpr.isInstanceOf()){
+                Type type = relationExpr.getType();
+                ScopeEnvironment localScope = env.ASTNodeToScopes.get(relationExpr);
+                processType(localScope, type);
+            }
         }
         linkAll(env, node.children);
     }
 
     static void linkAll(RootEnvironment env, List<ASTNode> nodes) throws SemanticError{
         for (ASTNode node : nodes){
+            if (node instanceof CompilationUnit){
+                autoImportJavaLang(env.ASTNodeToScopes.get(node));
+                if (env.ASTNodeToScopes.get(node).prefix.equals("")){
+                    processEmptyPackage(env, env.ASTNodeToScopes.get(node));
+                }
+            }
             link(env, node);
         }
     }
