@@ -53,11 +53,22 @@ public class HierarchyChecking {
         if (base_all_method_list == null) {
             return new HashMap<ASTNode, ASTNode> ();
         }
-        Map<List<String>, MethodDecl> match_buff = new HashMap<List<String>, MethodDecl>();
+        // <List<String>, MethodDecl|AbstractMethodDecl>
+        Map<List<String>, ASTNode> match_buff = new HashMap<List<String>, ASTNode>();
         for (int l = 0; l<inheritMap.get(T).size(); l++) {
             if (inheritMap.get(T).get(l) instanceof MethodList) {
                 List<MethodDecl> method_list = ((MethodList) inheritMap.get(T).get(l)).methods;
                 for (MethodDecl i: method_list) {
+                    List<String> signature = get_sig(i);
+                    match_buff.put(signature, i);
+                        // System.out.println(T.children.get(1).value);
+                        // System.out.println("has method: ");
+                        // System.out.println(signature);
+                }
+            }
+            if (inheritMap.get(T).get(l) instanceof AbstractMethodList) {
+                List<AbstractMethodDecl> method_list = ((AbstractMethodList) inheritMap.get(T).get(l)).methods;
+                for (AbstractMethodDecl i: method_list) {
                     List<String> signature = get_sig(i);
                     match_buff.put(signature, i);
                 }
@@ -67,8 +78,16 @@ public class HierarchyChecking {
             if (declareMap.get(T).get(l) instanceof MethodList) {
                 List<MethodDecl> method_list = ((MethodList) declareMap.get(T).get(l)).methods;
                 for (MethodDecl i: method_list) {
+                    List<String> signature = get_sig(i);                
+                    if (match_buff.containsKey(signature)) {
+                        res.put(i, match_buff.get(signature));
+                    }
+                }
+            }
+            if (declareMap.get(T).get(l) instanceof AbstractMethodList) {
+                List<AbstractMethodDecl> method_list = ((AbstractMethodList) declareMap.get(T).get(l)).methods;
+                for (AbstractMethodDecl i: method_list) {
                     List<String> signature = get_sig(i);
-                    //System.out.println(signature);
                     if (match_buff.containsKey(signature)) {
                         res.put(i, match_buff.get(signature));
                     }
@@ -119,7 +138,9 @@ public class HierarchyChecking {
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
-                    if (!get_type((MethodDecl)m).equals(get_type((MethodDecl)m_base))) {
+                    // System.out.println(get_full_sig(m));
+                    // System.out.println(get_full_sig(m_base));
+                    if (!get_type(m).equals(get_type(m_base))) {
                         throw new Exception("A method must not replace a method with a different return type.");
                     }
                 }
@@ -135,8 +156,11 @@ public class HierarchyChecking {
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
-                    if (get_mods(m_base.children.get(0).children.get(0)).contains("public") && !(get_mods(m.children.get(0).children.get(0)).contains("public"))) {
-                        throw new Exception("A protected method must not replace a public method.");
+                    if (get_mods(m_base.children.get(0).children.get(0)).contains("public") && (get_mods(m.children.get(0).children.get(0)).contains("protected"))) {
+                        throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
+                    }
+                    if (get_mods(m_base.children.get(0).children.get(0)).contains("protected") && (get_mods(m.children.get(0).children.get(0)).contains("public"))) {
+                        throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
                     }
                 }
             }
@@ -172,7 +196,10 @@ public class HierarchyChecking {
                     // System.out.println(get_mods(m_base.children.get(0).children.get(0)));
                     // MethodDecl -> headr -> modifiers
                     if (get_mods(m_base.children.get(0).children.get(0)).contains("static") && !(get_mods(m.children.get(0).children.get(0)).contains("static"))) {
-                        throw new Exception("A nonstatic method must not replace a static method");
+                        throw new Exception("A nonstatic method \'"+ get_sig(m_base).get(0) + "\' must not replace a static method");
+                    }
+                    if (!(get_mods(m_base.children.get(0).children.get(0)).contains("static")) && (get_mods(m.children.get(0).children.get(0)).contains("static"))) {
+                        throw new Exception(" A static method \'"+ get_sig(m_base).get(0) + "\' must not replace an instance method * ");
                     }
                 }
             }
@@ -190,8 +217,6 @@ public class HierarchyChecking {
     }
     
     public List<String> get_sig(MethodDecl method_decl){
-        
-        assert (method_decl instanceof MethodDecl);
         List<String> res = new ArrayList<String>();
         // MethodDecl ->MethodHeader->method_declarator->ID->value
         res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
@@ -207,8 +232,6 @@ public class HierarchyChecking {
         return res;
     }
     public List<String> get_sig(AbstractMethodDecl method_decl){
-        
-        assert (method_decl instanceof AbstractMethodDecl);
         List<String> res = new ArrayList<String>();
         // MethodDecl->method_declarator->ID->value
         res.add(method_decl.children.get(2).children.get(0).value);
@@ -223,14 +246,18 @@ public class HierarchyChecking {
         }
         return res;
     }
-
-    // first two string will be return type and ID.
-    public List<String> get_full_sig(ASTNode method_decl){
-        
-        assert (method_decl instanceof MethodDecl);
+    public List<String> get_sig(ASTNode method_decl){
+        if (method_decl instanceof MethodDecl) {
+            return get_sig((MethodDecl)method_decl);
+        } else {
+            return get_sig((AbstractMethodDecl)method_decl);
+        }
+    }
+    
+    public List<String> get_full_sig(MethodDecl method_decl){
         List<String> res = new ArrayList<String>();
         // MethodDecl ->MethodHeader->type->value
-        res.add(get_type((MethodDecl)method_decl));
+        res.add(get_type(method_decl));
         // MethodDecl ->MethodHeader->method_declarator->ID->value
         res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
         if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
@@ -244,6 +271,35 @@ public class HierarchyChecking {
         }
         return res;
     }
+    public List<String> get_full_sig(AbstractMethodDecl method_decl){
+        List<String> res = new ArrayList<String>();
+        // MethodDecl ->MethodHeader->type->value
+        res.add(get_type(method_decl));
+        // MethodDecl->method_declarator->ID->value
+        res.add(method_decl.children.get(2).children.get(0).value);
+        if (get_type(method_decl).equals("")) {
+            System.out.println("AbstractMethodDecl");
+            System.out.println(res.get(1));
+        }
+        if (method_decl.children.get(2).children.get(1) == null) {
+            return res;
+        }
+        //->method_declarator->parameter_list
+        ParameterList parameter_list = (ParameterList)method_decl.children.get(2).children.get(1);
+        List<Parameter> paras = parameter_list.getParams();
+        for (Parameter i: paras) {
+            res.add(i.children.get(0).toString());
+        }
+        return res;
+    }
+    public List<String> get_full_sig(ASTNode method_decl){
+        if (method_decl instanceof MethodDecl) {
+            return get_full_sig((MethodDecl)method_decl);
+        } else {
+            return get_full_sig((AbstractMethodDecl)method_decl);
+        }
+    }
+    
 
     public void checkNoDuplicateMethod() throws Exception {
         // T: class_decl
@@ -350,8 +406,6 @@ public class HierarchyChecking {
                         // System.out.println(get_full_sig(i));
                         if (m.contains("abstract")) {
                             if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
-                                System.out.println(m);
-                                System.out.println(T_mods);
                                 throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
                             }
                         }
