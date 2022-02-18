@@ -4,7 +4,7 @@ import ast.Name;
 import ast.*;
 import lexer.*;
 import utils.*;
-
+import exception.SemanticError;
 import java.util.*;
 
 public class ScopeEnvironment extends Environment{
@@ -74,34 +74,39 @@ public class ScopeEnvironment extends Environment{
         return new Pair<Referenceable, ScopeEnvironment>(null, null); // should not come here
     }
 
-    public Referenceable lookupImportOnDemand(Token simpleName){
+    public Referenceable lookupImportOnDemand(Token simpleName) throws SemanticError{
         assert simpleName.type == sym.ID;
         if (!isCompliationUnit()){
             return parent.lookupImportOnDemand(simpleName);
         }
+        Referenceable res = null;
         for (ASTNode node : childScopes.keySet()){
             if (node instanceof TypeImportOndemandDecl){
-                if(childScopes.get(node).search(simpleName) != null) return childScopes.get(node).search(simpleName);
+                Referenceable newRes = childScopes.get(node).search(simpleName);
+                if (res != null && newRes != null) throw new SemanticError("ambiguous name " + simpleName.value);
+                if (newRes != null) res = newRes;
             }
         }
-        return null; // should not come here
+        return res; // should not come here
     }
 
-    public Pair<Referenceable, ScopeEnvironment> lookupImportOnDemandAndEnv(Token simpleName){
+    public Pair<Referenceable, ScopeEnvironment> lookupImportOnDemandAndEnv(Token simpleName) throws SemanticError{
         assert simpleName.type == sym.ID;
         if (!isCompliationUnit()){
             return parent.lookupImportOnDemandAndEnv(simpleName);
         }
+        Pair<Referenceable, ScopeEnvironment> res = new Pair<Referenceable, ScopeEnvironment> (null,null);
         for (ASTNode node : childScopes.keySet()){
             if (node instanceof TypeImportOndemandDecl){
-                Pair<Referenceable, ScopeEnvironment> res = new Pair<Referenceable, ScopeEnvironment> (childScopes.get(node).search(simpleName), childScopes.get(node));
-                if (res.first != null) return res;
+                Pair<Referenceable, ScopeEnvironment> newRes = new Pair<Referenceable, ScopeEnvironment> (childScopes.get(node).search(simpleName), childScopes.get(node));
+                if (res.first != null && newRes.first != null) throw new SemanticError("ambiguous name " + simpleName.value);
+                if (newRes.first != null) res = newRes;
             }
         }
-        return new Pair<Referenceable, ScopeEnvironment>(null, null); // should not come here
+        return res;
     }
 
-    public Referenceable lookup(Token simpleName){
+    public Referenceable lookup(Token simpleName) throws SemanticError{
         Referenceable res = lookupEnclosingAndSingleImport(simpleName);
         if (res == null) {
             res =lookupEnclosingPackage(simpleName);
@@ -113,7 +118,7 @@ public class ScopeEnvironment extends Environment{
         return res;
     }
 
-    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Token simpleName) {
+    public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Token simpleName) throws SemanticError {
         Pair<Referenceable, ScopeEnvironment> result = lookupEnclosingAndSingleImportAndEnv(simpleName);
         if (result == null || result.first == null) {
             result = lookupEnclosingPackageAndEnv(simpleName);

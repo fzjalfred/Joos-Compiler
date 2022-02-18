@@ -60,8 +60,9 @@ public class EnvironmentBuilder {
         if (typeDecl instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)typeDecl;
             String qualifiedClassName = appendQualifiedName(env.prefix, classDecl.getName());
-            if (env.localDecls.containsKey(qualifiedClassName)){    // duplicate defined1
-                throw new SemanticError(qualifiedClassName + " has already been defined");
+            Referenceable duplicateDecl = env.lookup(tools.nameConstructor(qualifiedClassName));
+            if (duplicateDecl != null && duplicateDecl instanceof TypeDecl ){    // duplicate defined1
+                throw new SemanticError("Class " + qualifiedClassName + " has already been defined");
             }
             env.localDecls.put(qualifiedClassName, classDecl);
             env.simpleNameSet.add(classDecl.getName()); // add simple name to check dup
@@ -71,8 +72,9 @@ public class EnvironmentBuilder {
         }   else if (typeDecl instanceof InterfaceDecl){
             InterfaceDecl interfaceDecl = (InterfaceDecl)typeDecl;
             String qualifiedInterfaceName = appendQualifiedName(env.prefix, interfaceDecl.getName());
-            if (env.localDecls.containsKey(qualifiedInterfaceName)){
-                throw new SemanticError(qualifiedInterfaceName + " has already been defined");
+            Referenceable duplicateDecl = env.lookup(tools.nameConstructor(qualifiedInterfaceName));
+            if (duplicateDecl != null && duplicateDecl instanceof TypeDecl ){    // duplicate defined1
+                throw new SemanticError("Interface " + qualifiedInterfaceName + " has already been defined");
             }
             env.localDecls.put(qualifiedInterfaceName, interfaceDecl);
             env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName));

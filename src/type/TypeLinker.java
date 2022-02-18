@@ -9,7 +9,17 @@ public class TypeLinker {
     /** check whether the import name clash with class defined in scope*/
     static void checkClash(ScopeEnvironment scope, String importName) throws SemanticError{
         String simpleName = tools.getSimpleName(importName);
+        //System.out.println(scope.simpleNameSet + "env is " + scope);
         if (scope.simpleNameSet.contains(simpleName) && !scope.localDecls.containsKey(importName)) throw new SemanticError("Import name "+ importName + " clash with type decl " + simpleName);
+    }
+
+    static void checkClashTypeOnDemandImport(ScopeEnvironment scope, String importName) throws SemanticError{
+        for (ASTNode node : scope.childScopes.keySet()){
+            if (node instanceof TypeImportOndemandDecl){
+               // System.out.println("check " + importName + " in " + scope);
+                checkClash(scope.childScopes.get(node), importName);
+            }
+        }
     }
 
     /** check whether the import class exist or not*/
@@ -35,26 +45,74 @@ public class TypeLinker {
         addImportRefer(scope, importName);
     }
 
-    static void addAllSelfTypeDecls(ScopeEnvironment targetScope, ScopeEnvironment packageScope){
+    static boolean qualifiedNameStartsWith(String s1, String s2){
+
+        String[] s1List = s1.split("\\.");
+
+        String str = "";
+        if (str.equals(s2)) return true;
+        for (String s1Str : s1List){
+            str += s1Str;
+            //System.out.println("base is " + str + " prefix is " + s2 + " res is " + str.equals(s2));
+            if (str.equals(s2)) return true;
+            str += '.';
+        }
+        return false;
+    }
+
+    static void addAllSelfTypeDecls(ScopeEnvironment targetScope, ScopeEnvironment packageScope, Map<String, Referenceable>localDecl){
+        if (targetScope == null) return;
         for (ScopeEnvironment compScope : packageScope.childScopes.values()){
             for (String qualifiedName : compScope.localDecls.keySet()){
                 if (qualifiedName.startsWith(packageScope.prefix)){
-                    targetScope.localDecls.put(qualifiedName, compScope.localDecls.get(qualifiedName));
+                    String simpleName = tools.getSimpleName(qualifiedName);
+                    if (!localDecl.containsKey(qualifiedName)){
+                        assert targetScope.parent instanceof ScopeEnvironment;
+                        ScopeEnvironment targetParent = (ScopeEnvironment)targetScope.parent;
+                        //checkClashTypeOnDemandImport(targetParent, qualifiedName);
+                        //System.out.println("local decl is " + localDecl + " qualified name is " + qualifiedName);
+                        targetScope.localDecls.put(qualifiedName, compScope.localDecls.get(qualifiedName));
+                        targetScope.simpleNameSet.add(simpleName);
+                    }
                 }
             }
         }
     }
 
+    static List<String> findPackages(RootEnvironment env,String packageNameStr) throws SemanticError{
+        List<String> res = new ArrayList<String>();
+        for (String s : env.packageScopes.keySet()){
+            if (qualifiedNameStartsWith(s, packageNameStr)) res.add(s);
+        }
+        if (res.isEmpty()) throw new SemanticError("Cannot find package " + packageNameStr);
+        return res;
+    }
+
+    static boolean existTypeOnDemand(ScopeEnvironment env, String name){
+        for (ASTNode node : env.childScopes.keySet()){
+            if (node instanceof TypeImportOndemandDecl){
+                TypeImportOndemandDecl typeImportOndemandDecl = (TypeImportOndemandDecl)node;
+                if (name.equals(typeImportOndemandDecl.getName().getValue())) return true;
+            }
+        }
+        return false;
+    }
+
     static void processTypeImportOndemandDecl(ScopeEnvironment scope, TypeImportOndemandDecl typeImportOndemandDecl) throws SemanticError{
+        assert scope.isCompliationUnit();
         RootEnvironment env = scope.root;
         String packageNameStr = typeImportOndemandDecl.getName().getValue();
-        if (!env.packageScopes.containsKey(packageNameStr)) throw new SemanticError("Cannot find package: " + packageNameStr);
-        ScopeEnvironment packageScope = env.packageScopes.get(packageNameStr);
-        if (!scope.childScopes.containsKey(typeImportOndemandDecl)){
-            scope.childScopes.put(typeImportOndemandDecl, new ScopeEnvironment(scope, env, scope.prefix));
+        checkPrefixNotType(scope.root, typeImportOndemandDecl.getName().getFullName(), false);
+        List<String> relatedPackages = findPackages(env, packageNameStr);
+        for (String packageName : relatedPackages){
+            ScopeEnvironment packageScope = env.packageScopes.get(packageName);
+            if (!existTypeOnDemand(scope, packageNameStr)){
+                scope.childScopes.put(typeImportOndemandDecl, new ScopeEnvironment(scope, env, scope.prefix));
+            }
+            ScopeEnvironment targetScope = scope.childScopes.get(typeImportOndemandDecl);
+            addAllSelfTypeDecls(targetScope, packageScope, scope.localDecls);   // add all self class or interface decls from package scope to import scope
         }
-        ScopeEnvironment targetScope = scope.childScopes.get(typeImportOndemandDecl);
-        addAllSelfTypeDecls(targetScope, packageScope);   // add all self class or interface decls from package scope to import scope
+
     }
 
     static void autoImportJavaLang(ScopeEnvironment scope) throws SemanticError{
@@ -64,8 +122,11 @@ public class TypeLinker {
 
 
     static boolean emptyPackageCase(Referenceable res, RootEnvironment env){
-        ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(res);
-        if (scopeEnvironment.parent.prefix.equals("")){
+        if (res == null)return false;
+        assert env.ASTNodeToScopes.get(res).parent instanceof ScopeEnvironment;
+        ScopeEnvironment scopeEnvironment = (ScopeEnvironment)env.ASTNodeToScopes.get(res).parent;
+        //System.out.println(scopeEnvironment.prefix);
+        if (scopeEnvironment.prefix.equals("")){
             return true;
         }
         return false;
@@ -81,7 +142,8 @@ public class TypeLinker {
             String s = names.get(i);
             nameStr = nameStr + s;
             res = env.lookup(tools.nameConstructor(nameStr));
-            if (res != null && !emptyPackageCase(res, env)) throw new SemanticError("Prefix: " + nameStr + " cannot be resolved to type in " + env );
+            //System.out.println("name is " + nameStr + " res is " + res + " empty? " + emptyPackageCase(res, env));
+            if (res != null && !emptyPackageCase(res, env)) throw new SemanticError("Prefix: " + nameStr + " cannot be resolved to type in ");
             nameStr = nameStr + '.';
         }
     }
@@ -89,7 +151,9 @@ public class TypeLinker {
     static void processEmptyPackage(RootEnvironment env, ScopeEnvironment scopeEnvironment) {
         assert env.packageScopes.containsKey("");
         ScopeEnvironment packageScope = env.packageScopes.get("");
-        addAllSelfTypeDecls(scopeEnvironment, packageScope);
+        ScopeEnvironment targetScope = new ScopeEnvironment(packageScope, env, packageScope.prefix);
+        scopeEnvironment.childScopes.put(new PackageDecl(new ArrayList<>(), ""), targetScope);
+        addAllSelfTypeDecls(targetScope, packageScope, scopeEnvironment.localDecls);
     }
 
     /** No package names—including their prefixes—of declared packages, single-type-import declarations or import-on-demand declarations
@@ -100,7 +164,7 @@ public class TypeLinker {
         ScopeEnvironment scope = env.ASTNodeToScopes.get(packageDecl);
         scope.childScopes.put(packageDecl, new ScopeEnvironment(scope, env, scope.prefix)); // create a new scope for package classes
         ScopeEnvironment packageScope = env.packageScopes.get(packageDecl.getName().getValue());
-        addAllSelfTypeDecls(scope.childScopes.get(packageDecl), packageScope);
+        addAllSelfTypeDecls(scope.childScopes.get(packageDecl), packageScope, scope.localDecls);
     }
 
     static void resolveTypename(ScopeEnvironment env, ClassOrInterfaceType type) throws SemanticError{
@@ -108,7 +172,7 @@ public class TypeLinker {
         if (typeName.isSimpleName()){
             Token simpleName = tools.simpleNameConstructor(tools.getSimpleName(typeName));
             Referenceable res = env.lookupTypeDecl(simpleName);
-            if (res == null) throw new SemanticError("Cannot find symbol " + simpleName+  " scope " + env.root);
+            if (res == null) throw new SemanticError("Cannot find symbol " + simpleName+  " scope " );
             type.typeDecl = res;
         }   else {
             Referenceable res = env.lookup(typeName);
