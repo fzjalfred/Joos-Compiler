@@ -14,7 +14,7 @@ public class HierarchyChecking {
     // <ClassDecl, MethodList|ConstructorList|fieldDecl|AbstractMethodList>
     public Map<ASTNode, List<Referenceable>> parentMap;
     public Map<ASTNode, List<Referenceable>> inheritMap;
-
+    RootEnvironment env;
     public HierarchyChecking() {
         this.generalBaseObjectClass = new ArrayList <Referenceable>(){};
         // this.generalBaseMethodInterface = new ArrayList <Referenceable>(){};
@@ -38,13 +38,19 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkClassHierary() throws Exception {
-        checkContainSameSigDiffReturn();
-        checkAbstrictMethod();
-        checkStaticMethod();
-        checkReplaceType();
-        checkPublicMethod();
-        checkFinalMethod();
+    public void checkClassHierary(RootEnvironment env) throws Exception {
+        this.env = env;
+        checkContainSameSigDiffReturn(env);
+        checkAbstrictMethod(env);
+        checkStaticMethod(env);
+        checkReplaceType(env);
+        checkProtectedMethod(env);
+        checkFinalMethod(env);
+    }
+
+    public String get_class_qualifed_name(ASTNode class_decl, RootEnvironment env) {
+        ScopeEnvironment underenv = env.ASTNodeToScopes.get(class_decl);
+        return underenv.prefix+"."+class_decl.children.get(1).value;
     }
 
     private Map<ASTNode, ASTNode> get_replace(ASTNode T) {
@@ -61,9 +67,6 @@ public class HierarchyChecking {
                 for (MethodDecl i: method_list) {
                     List<String> signature = get_sig(i);
                     match_buff.put(signature, i);
-                        // System.out.println(T.children.get(1).value);
-                        // System.out.println("has method: ");
-                        // System.out.println(signature);
                 }
             }
             if (inheritMap.get(T).get(l) instanceof AbstractMethodList) {
@@ -78,7 +81,8 @@ public class HierarchyChecking {
             if (declareMap.get(T).get(l) instanceof MethodList) {
                 List<MethodDecl> method_list = ((MethodList) declareMap.get(T).get(l)).methods;
                 for (MethodDecl i: method_list) {
-                    List<String> signature = get_sig(i);                
+                    List<String> signature = get_sig(i);
+                    //System.out.println(get_class_qualifed_name(T,env)+" declare: "+ signature);                
                     if (match_buff.containsKey(signature)) {
                         res.put(i, match_buff.get(signature));
                     }
@@ -131,7 +135,7 @@ public class HierarchyChecking {
         }
     }
 
-    private void checkReplaceType() throws Exception {
+    private void checkReplaceType(RootEnvironment env) throws Exception {
         for (ASTNode T: declareMap.keySet()) {
             for (int l = 0; l<declareMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
@@ -149,17 +153,19 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkPublicMethod() throws Exception {
+    public void checkProtectedMethod(RootEnvironment env) throws Exception {
         for (ASTNode T: declareMap.keySet()) {
             for (int l = 0; l<declareMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
-                    if (get_mods(m_base.children.get(0).children.get(0)).contains("public") && (get_mods(m.children.get(0).children.get(0)).contains("protected"))) {
+                    // System.out.println(get_class_qualifed_name(T,env) + get_full_sig(m)+ get_mods(m));
+                    // System.out.println(get_class_qualifed_name(T,env) + get_full_sig(m_base)+ get_mods(m_base));
+                    if (get_mods(m_base).contains("public") && (get_mods(m).contains("protected"))) {
                         throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
                     }
-                    if (get_mods(m_base.children.get(0).children.get(0)).contains("protected") && (get_mods(m.children.get(0).children.get(0)).contains("public"))) {
+                    if (get_mods(m_base).contains("protected") && (get_mods(m).contains("public"))) {
                         throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
                     }
                 }
@@ -167,14 +173,14 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkFinalMethod() throws Exception {
+    public void checkFinalMethod(RootEnvironment env) throws Exception {
         for (ASTNode T: declareMap.keySet()) {
             for (int l = 0; l<declareMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
-                    if (get_mods(m_base.children.get(0).children.get(0)).contains("final") ) {
+                    if (get_mods(m_base).contains("final") ) {
                         throw new Exception("A method must not replace a final method.");
                     }
                 }
@@ -182,7 +188,7 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkStaticMethod() throws Exception {
+    public void checkStaticMethod(RootEnvironment env) throws Exception {
         for (ASTNode T: declareMap.keySet()) {
             for (int l = 0; l<declareMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
@@ -195,10 +201,10 @@ public class HierarchyChecking {
                     // System.out.println("-----------");
                     // System.out.println(get_mods(m_base.children.get(0).children.get(0)));
                     // MethodDecl -> headr -> modifiers
-                    if (get_mods(m_base.children.get(0).children.get(0)).contains("static") && !(get_mods(m.children.get(0).children.get(0)).contains("static"))) {
+                    if (get_mods(m_base).contains("static") && !(get_mods(m).contains("static"))) {
                         throw new Exception("A nonstatic method \'"+ get_sig(m_base).get(0) + "\' must not replace a static method");
                     }
-                    if (!(get_mods(m_base.children.get(0).children.get(0)).contains("static")) && (get_mods(m.children.get(0).children.get(0)).contains("static"))) {
+                    if (!(get_mods(m_base).contains("static")) && (get_mods(m).contains("static"))) {
                         throw new Exception(" A static method \'"+ get_sig(m_base).get(0) + "\' must not replace an instance method * ");
                     }
                 }
@@ -206,14 +212,26 @@ public class HierarchyChecking {
         }
     }
 
-    public List<String> get_mods(ASTNode modifiers){
-        assert (modifiers instanceof Modifiers);
+    public List<String> get_mods(Modifiers modifiers){
         List<String> res = new ArrayList<String>();
         
         for(ASTNode modifier: modifiers.children) {
             res.add(modifier.value);
         }
         return res;
+    }
+    public List<String> get_mods(MethodDecl modifiers){
+        return get_mods(modifiers.children.get(0).children.get(0));
+    }
+    public List<String> get_mods(AbstractMethodDecl modifiers){
+        return get_mods(modifiers.children.get(0));
+    }
+    public List<String> get_mods(ASTNode modifiers){
+        if (modifiers instanceof MethodDecl) {
+            return get_mods((Modifiers)modifiers.children.get(0).children.get(0));
+        } else {
+            return get_mods((Modifiers)modifiers.children.get(0));
+        }
     }
     
     public List<String> get_sig(MethodDecl method_decl){
@@ -301,7 +319,7 @@ public class HierarchyChecking {
     }
     
 
-    public void checkNoDuplicateMethod() throws Exception {
+    public void checkNoDuplicateMethod(RootEnvironment env) throws Exception {
         // T: class_decl
         for (ASTNode T: declareMap.keySet()) {
             for (int l = 0; l<declareMap.get(T).size(); l++) {
@@ -314,7 +332,7 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkContainSameSigDiffReturn() throws Exception {
+    public void checkContainSameSigDiffReturn(RootEnvironment env) throws Exception {
         // T: class_decl
         // declare + inherit = contains
         Map<List<String>, ASTNode> checkbuff = new HashMap<List<String>, ASTNode>();
@@ -326,6 +344,7 @@ public class HierarchyChecking {
                     for (int i = 0; i<method_list.methods.size(); i++) {
                         MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
                         List<String> signature = get_sig(mh1);
+                        signature.add(get_class_qualifed_name(T, env));
                         if (checkbuff.containsKey(signature)) {
                             ASTNode mh2 = (ASTNode)checkbuff.get(signature);
                             if (!get_type(mh1).equals(get_type(mh2))) {
@@ -341,6 +360,7 @@ public class HierarchyChecking {
                     for (int i = 0; i<method_list.methods.size(); i++) {
                         AbstractMethodDecl mh1 = (AbstractMethodDecl) method_list.methods.get(i);
                         List<String> signature = get_sig(mh1);
+                        signature.add(get_class_qualifed_name(T, env));
                         if (checkbuff.containsKey(signature)) {
                             ASTNode mh2 = (ASTNode) checkbuff.get(signature);
                             if (!get_type(mh1).equals(get_type(mh2))) {
@@ -361,6 +381,7 @@ public class HierarchyChecking {
                     for (int i = 0; i<method_list.methods.size(); i++) {
                         MethodDecl mh1 = (MethodDecl) method_list.methods.get(i);
                         List<String> signature = get_sig(mh1);
+                        signature.add(get_class_qualifed_name(T, env));
                         if (checkbuff.containsKey(signature)) {
                             ASTNode mh2 = (ASTNode)checkbuff.get(signature);
                             if (!get_type(mh1).equals(get_type(mh2))) {
@@ -376,6 +397,7 @@ public class HierarchyChecking {
                     for (int i = 0; i<method_list.methods.size(); i++) {
                         AbstractMethodDecl mh1 = (AbstractMethodDecl) method_list.methods.get(i);
                         List<String> signature = get_sig(mh1);
+                        signature.add(get_class_qualifed_name(T, env));
                         if (checkbuff.containsKey(signature)) {
                             ASTNode mh2 = (ASTNode)checkbuff.get(signature);
                             if (!get_type(mh1).equals(get_type(mh2))) {
@@ -390,17 +412,17 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkAbstrictMethod() throws Exception {
+    public void checkAbstrictMethod(RootEnvironment env) throws Exception {
         // declareMap + inheritMap = contains
         for (ASTNode T: declareMap.keySet()) {
-            List<String> T_mods = get_mods(T.children.get(0));
+            List<String> T_mods = get_mods((Modifiers)T.children.get(0));
             for (int l = 0; l<declareMap.get(T).size(); l++) {
                 // MethodList|ConstructorList|fieldDecl|AbstractMethodList
                 if (declareMap.get(T).get(l) instanceof MethodList) {
                     List<MethodDecl> method_decl = ((MethodList)declareMap.get(T).get(l)).methods;
                     for (MethodDecl i: method_decl) {
                         // method_decl -> method_header -> modifiers
-                        List<String> m = get_mods(i.children.get(0).children.get(0));
+                        List<String> m = get_mods((Modifiers)i.children.get(0).children.get(0));
                         // System.out.println("===========");
                         // System.out.println(m);
                         // System.out.println(get_full_sig(i));
@@ -411,50 +433,8 @@ public class HierarchyChecking {
                         }
                     }
                 }
-                if (declareMap.get(T).get(l) instanceof ConstructorList) {
-                    List<ConstructorDecl> method_decl = ((ConstructorList)declareMap.get(T).get(l)).cons;
-                    for (ConstructorDecl i: method_decl) {
-                        // method_decl -> method_header -> modifiers
-                        List<String> m = get_mods(i.children.get(0).children.get(0));
-                        if (m.contains("abstract")) {
-                            if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
-                                throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
-                            }
-                        }
-                    }
-                }
             }
         }
-        // for (ASTNode T: inheritMap.keySet()) {
-        //     List<String> T_mods = get_mods(T.children.get(0));
-        //     for (int l = 0; l<inheritMap.get(T).size(); l++) {
-        //         // MethodList|ConstructorList|fieldDecl|AbstractMethodList
-        //         if (inheritMap.get(T).get(l) instanceof MethodList) {
-        //             List<MethodDecl> method_decl = ((MethodList)inheritMap.get(T).get(l)).methods;
-        //             for (MethodDecl i: method_decl) {
-        //                 // method_decl -> method_header -> modifiers
-        //                 List<String> m = get_mods(i.children.get(0).children.get(0));
-        //                 if (m.contains("abstract")) {
-        //                     if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
-        //                         throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //         if (inheritMap.get(T).get(l) instanceof ConstructorList) {
-        //             List<ConstructorDecl> method_decl = ((ConstructorList)inheritMap.get(T).get(l)).cons;
-        //             for (ConstructorDecl i: method_decl) {
-        //                 // method_decl -> method_header -> modifiers
-        //                 List<String> m = get_mods(i.children.get(0).children.get(0));
-        //                 if (m.contains("abstract")) {
-        //                     if (!T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
-        //                         throw new Exception("A class that contains (declares or inherits) any abstract methods must be abstract.");
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
     }
 
     public void checkRootEnvironment(RootEnvironment env) throws Exception{
@@ -465,7 +445,7 @@ public class HierarchyChecking {
             }
         }
         createInheritanceMap();
-        checkClassHierary();
+        checkClassHierary(env);
     }
 
     public void checkCompilationUnitScope(ScopeEnvironment env) throws Exception{
