@@ -81,7 +81,7 @@ public class ScopeEnvironment extends Environment{
         }
         for (ASTNode node : childScopes.keySet()){
             if (node instanceof TypeImportOndemandDecl){
-                return childScopes.get(node).search(simpleName);
+                if(childScopes.get(node).search(simpleName) != null) return childScopes.get(node).search(simpleName);
             }
         }
         return null; // should not come here
@@ -94,7 +94,8 @@ public class ScopeEnvironment extends Environment{
         }
         for (ASTNode node : childScopes.keySet()){
             if (node instanceof TypeImportOndemandDecl){
-                return new Pair<Referenceable, ScopeEnvironment> (childScopes.get(node).search(simpleName), childScopes.get(node));
+                Pair<Referenceable, ScopeEnvironment> res = new Pair<Referenceable, ScopeEnvironment> (childScopes.get(node).search(simpleName), childScopes.get(node));
+                if (res.first != null) return res;
             }
         }
         return new Pair<Referenceable, ScopeEnvironment>(null, null); // should not come here
@@ -106,6 +107,7 @@ public class ScopeEnvironment extends Environment{
             res =lookupEnclosingPackage(simpleName);
             if (res == null){
                 res = lookupImportOnDemand(simpleName);
+
             }
         }
         return res;
@@ -136,13 +138,14 @@ public class ScopeEnvironment extends Environment{
     public Referenceable lookupTypeDecl(Token simpleName){
         assert simpleName.type == sym.ID;
         Referenceable res = searchTypeDecl(simpleName);
-        if (res == null && parent != root){
+        if (res == null && parent.parent!= root){
             res = parent.lookupTypeDecl(simpleName);
         }
         if (res == null){
             res = lookupEnclosingPackage(simpleName);
             if (res == null){
                 res = lookupImportOnDemand(simpleName);
+
             }
         }
         return res;

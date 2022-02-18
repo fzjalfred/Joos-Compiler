@@ -9,7 +9,7 @@ public class TypeLinker {
     /** check whether the import name clash with class defined in scope*/
     static void checkClash(ScopeEnvironment scope, String importName) throws SemanticError{
         String simpleName = tools.getSimpleName(importName);
-        if (scope.simpleNameSet.contains(simpleName)) throw new SemanticError("Import name "+ importName + " clash with type decl " + simpleName);
+        if (scope.simpleNameSet.contains(simpleName) && !scope.localDecls.containsKey(importName)) throw new SemanticError("Import name "+ importName + " clash with type decl " + simpleName);
     }
 
     /** check whether the import class exist or not*/
@@ -108,11 +108,11 @@ public class TypeLinker {
         if (typeName.isSimpleName()){
             Token simpleName = tools.simpleNameConstructor(tools.getSimpleName(typeName));
             Referenceable res = env.lookupTypeDecl(simpleName);
-            if (res == null) throw new SemanticError("Cannot find symbol " + simpleName.value + "current scope is " + env.root);
+            if (res == null) throw new SemanticError("Cannot find symbol " + simpleName+  " scope " + env.root);
             type.typeDecl = res;
         }   else {
             Referenceable res = env.lookup(typeName);
-            if (res == null) throw new SemanticError("Cannot find symbol " + typeName.getValue() + "current scope is " + env.root);
+            if (res == null) throw new SemanticError("Cannot find symbol " + typeName.getValue() + " res " + res);
             checkPrefixNotType(env.root, typeName.getFullName(), true);
             type.typeDecl = res;
         }
