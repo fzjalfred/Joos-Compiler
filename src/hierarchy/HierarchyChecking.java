@@ -982,6 +982,9 @@ public class HierarchyChecking {
                         if (abstractMethod.isPublic() && method.isProtected()) {
                             throw new Exception("Public method is replaced by public because of abstract "+ abstractMethod.getName() + " " + method.getName());
                         }
+                        if (!get_type(abstractMethod).equals(get_type(method)) ) {
+                            throw new Exception("Same sig diff return being overriden");
+                        }
                         change = true;
                         removeList.add(abstractMethod);
                     }
