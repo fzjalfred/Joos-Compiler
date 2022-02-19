@@ -1,0 +1,1361 @@
+JOOS is joosc
+for test J1_1_Cast_NamedTypeAsVariable.java our compiler returns: 0
+for test J1_2_Fields_Case.java our compiler returns: 0
+for test J1_2_Locals_Overlapping_AfterBlock.java our compiler returns: 0
+for test J1_3_ImportOnDemand_DefaultImportInPresenceOfOtherImport our compiler returns: 0
+for test J1_3_ImportOnDemand_ProgramDefinedPackage our compiler returns: 0
+for test J1_3_InfixResolvesToType our compiler returns: 0
+for test J1_3_OnDemandImport_NonAmbiguous_Default our compiler returns: 0
+for test J1_3_OnDemandImport_NonAmbiguous_SamePackage our compiler returns: 0
+for test J1_3_PackageClashWithType_Linked_Mutated our compiler returns: 0
+for test J1_3_PackageDecl_MultipleFilesInSamePackage our compiler returns: 0
+for test J1_3_PackageDecl_SamePackageAndClassName our compiler returns: 0
+for test J1_3_PackageExists_AsPrefix_External our compiler returns: 0
+for test J1_3_PackageExists_AsPrefix_Internal our compiler returns: 0
+for test J1_3_Resolve_LinkToCorrectPackage our compiler returns: 0
+for test J1_3_Resolve_PackagePrefixMatchClassName our compiler returns: 0
+for test J1_3_Resolve_SamePackage_External our compiler returns: 0
+for test J1_3_SingleTypeImport_ClashWithOnDemand our compiler returns: 0
+for test J1_3_SingleTypeImport_ClashWithPackageName our compiler returns: 0
+for test J1_3_SingleTypeImport_ImportProgramClass our compiler returns: 0
+for test J1_3_SingleTypeImport_ImportSelf our compiler returns: 0
+for test J1_3_SingleTypeImport_MultipleFromSamePackage our compiler returns: 0
+for test J1_3_SingleTypeImport_MultipleImportsOfSameType our compiler returns: 0
+for test J1_3_SingleTypeImport_NoClash our compiler returns: 0
+for test J1_4_AbstractMethod_InheritAbstractFromObject our compiler returns: 0
+for test J1_4_AbstractMethod_InheritedFromInterface our compiler returns: 0
+for test J1_4_ClassExtendsClass_SameName our compiler returns: 0
+for test J1_4_ClassImplementsInterface_MultipleTimes our compiler returns: 0
+for test J1_4_Constructor_DuplicateArrayTypes.java our compiler returns: 0
+for test J1_4_Constructor_MatchAsSets.java our compiler returns: 0
+for test J1_4_DuplicateMethodDeclare_MethodNameEqualsConstructorName.java our compiler returns: 0
+for test J1_4_InheritedFields_SameField_TwoWays our compiler returns: 0
+for test J1_4_InterfaceMethod_FromObject our compiler returns: 0
+for test J1_4_MethodDeclare_DuplicateArrayTypes.java our compiler returns: 0
+for test J1_4_Override_FinalOverrideNonFinal.java our compiler returns: 0
+java.lang.Exception: A protected method 'clone' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:155)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test J1_4_Override_PublicOverridesProtected.java our compiler returns: 42
+for test J1_4_PackageClashWithType_Loaded our compiler returns: 0
+for test J1_4_PackageClashWithType_NotLoaded our compiler returns: 0
+for test J1_4_PackageClashWithType_SingleTypeImport_DefaultPackage our compiler returns: 0
+for test J1_4_PackageNameIsClassName_DefaultPackage our compiler returns: 0
+for test J1_4_Resolve_NotDefaultPackage our compiler returns: 0
+for test J1_4_SingleTypeImport_OnDemandsClash our compiler returns: 0
+for test J1_6_ProtectedAccess_StaticMethod_This our compiler returns: 0
+for test J1_InterfaceObject our compiler returns: 0
+for test J1_SubType1 our compiler returns: 0
+for test J1_SubType2 our compiler returns: 0
+for test J1_abstract our compiler returns: 0
+java.lang.Exception: A protected method 'clone' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:155)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test J1_access_override2.java our compiler returns: 42
+for test J1_arbitrarylocaldeclaration.java our compiler returns: 0
+for test J1_assign_Object_to_Object.java our compiler returns: 0
+for test J1_cast_to_same_type.java our compiler returns: 0
+for test J1_classextendsobject1.java our compiler returns: 0
+for test J1_classextendsobject2.java our compiler returns: 0
+for test J1_classimplementsserializable1 our compiler returns: 0
+for test J1_classimplementsserializable2 our compiler returns: 0
+for test J1_classimport our compiler returns: 0
+for test J1_constructorWithSameNameAsMethod.java our compiler returns: 0
+for test J1_fields our compiler returns: 0
+for test J1_final_method_override1 our compiler returns: 0
+for test J1_formal_with_same_name_as_field.java our compiler returns: 0
+for test J1_formalindex.java our compiler returns: 0
+for test J1_hierachyCheck14 our compiler returns: 0
+for test J1_hierachyCheck28 our compiler returns: 0
+for test J1_hierachyCheck29 our compiler returns: 0
+for test J1_hierachyCheck31 our compiler returns: 0
+for test J1_implicitsuper our compiler returns: 0
+for test J1_importName10.java our compiler returns: 0
+for test J1_importName11.java our compiler returns: 0
+for test J1_importName9.java our compiler returns: 0
+for test J1_importNameLookup1 our compiler returns: 0
+for test J1_importNameLookup2 our compiler returns: 0
+for test J1_importNameLookup3 our compiler returns: 0
+for test J1_importNameLookup4 our compiler returns: 0
+for test J1_importNameLookup5 our compiler returns: 0
+for test J1_importNameLookup6 our compiler returns: 0
+for test J1_importNameLookup7 our compiler returns: 0
+for test J1_inherited_hashcode.java our compiler returns: 0
+for test J1_instance_method_hide1 our compiler returns: 0
+for test J1_interfaceassignable our compiler returns: 0
+for test J1_local_duplicate.java our compiler returns: 0
+for test J1_localvariablescope.java our compiler returns: 0
+for test J1_name our compiler returns: 0
+for test J1_noduplicatefield.java our compiler returns: 0
+for test J1_on_demand_imports_clash our compiler returns: 0
+for test J1_package our compiler returns: 0
+for test J1_packageimport our compiler returns: 0
+for test J1_public_method_protected_override1 our compiler returns: 0
+for test J1_resolvetype2 our compiler returns: 0
+for test J1_resolvetype3 our compiler returns: 0
+for test J1_resolvetype4 our compiler returns: 0
+for test J1_resolvetype6 our compiler returns: 0
+for test J1_samePackage our compiler returns: 0
+for test J1_singleTypeImport our compiler returns: 0
+for test J1_singleTypeImportSameTypeMultipleTimes our compiler returns: 0
+for test J1_static_method_override1 our compiler returns: 0
+java.lang.Exception: A class 'CompB' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test J1_supermethod_override1 our compiler returns: 42
+java.lang.Exception: A class 'CompB' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test J1_supermethod_override2 our compiler returns: 42
+java.lang.Exception: A class 'CompB' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test J1_supermethod_override3 our compiler returns: 42
+for test J1_supermethod_override4 our compiler returns: 0
+for test J1_supermethod_override5 our compiler returns: 0
+for test J1_supermethod_override6 our compiler returns: 0
+for test J1_typecheck_assignment our compiler returns: 0
+for test J2_3_SingleTypeImport_ImportSelf_Interface our compiler returns: 0
+for test J2_4_ImplementsInterface_TwiceByName our compiler returns: 0
+for test J2_4_InterfaceExtends_MultipleWays our compiler returns: 0
+for test J2_Ifaceimplicitabstract our compiler returns: 0
+for test J2_Interface1 our compiler returns: 0
+for test J2_Interface10 our compiler returns: 0
+for test J2_Interface11 our compiler returns: 0
+for test J2_Interface2 our compiler returns: 0
+for test J2_Interface3 our compiler returns: 0
+for test J2_Interface6 our compiler returns: 0
+for test J2_Interface7 our compiler returns: 0
+for test J2_Interface8 our compiler returns: 0
+for test J2_Interface9 our compiler returns: 0
+for test J2_hierachyCheck22 our compiler returns: 0
+for test J2_hierachyCheck23 our compiler returns: 0
+for test J2_hierachyCheck24 our compiler returns: 0
+for test J2_hierachyCheck25 our compiler returns: 0
+for test J2_interface_omitted_abstract our compiler returns: 0
+exception.SemanticError: Semantic Error: Duplicated field name Je_12_Fields_StaticNonStatic.a
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:153)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_12_Fields_StaticNonStatic.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Import cannot find type decl ast.Name
+	at type.TypeLinker.checkExist(TypeLinker.java:29)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:44)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_13_Interface_SingleImport_ClashWithClass our compiler returns: 42
+java.lang.Exception: A class or interface 'toString' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:374)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_14_Interface_DeclaresToString_DifferentReturnType our compiler returns: 42
+java.lang.Exception: A class or interface 'toString' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:374)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_14_Interface_DeclaresToString_ThrowsConflict our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name foo
+	at ast.AbstractMethodList.checkMethodDecl(AbstractMethodList.java:30)
+	at ast.AbstractMethodList.checkAmbiguousMethodDecl(AbstractMethodList.java:44)
+	at type.EnvironmentBuilder.processAbstractMethodDecl(EnvironmentBuilder.java:101)
+	at type.EnvironmentBuilder.processInterfaceMemberDecls(EnvironmentBuilder.java:92)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:83)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_14_Interface_DuplicateMethodDeclare.java our compiler returns: 42
+java.lang.Exception: A protected method 'bleh' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:152)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_14_Interface_ImplicitPublicMethod_ProtectedOverride our compiler returns: 42
+java.lang.Exception: repeated name under the same environment, might be self dependency: Foo
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:710)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:747)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:535)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_14_Interface_SelfDependency_CyclicExtend our compiler returns: 42
+java.lang.Exception: repeated name under the same environment, might be self dependency: Je_14_Interface_SelfDependency_ExtendsItself
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:710)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:535)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_14_Interface_SelfDependency_ExtendsItself.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated parameter name f
+	at type.EnvironmentBuilder.processParameters(EnvironmentBuilder.java:186)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:146)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_ConstructorParameter_Duplicate.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable o
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:147)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_ConstructorParameter_Overlapping.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Class foo.Bar has already been defined
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:65)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_DuplicateType our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated field name Je_2_Fields_DifferentAccess.o
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:153)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Fields_DifferentAccess.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated field name Je_2_Fields_DifferentTypes.foo
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:153)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Fields_DifferentTypes.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated field name Je_2_Fields_MultipleFields.foo
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:153)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Fields_MultipleFields.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable a
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_DeeplyNested.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processForStmt(EnvironmentBuilder.java:285)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:226)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_ForInitializer.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processIfThenEsleStmt(EnvironmentBuilder.java:268)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:230)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_InConditionalElse.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_InConditionalThen.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_InsideDoubleBlock.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processWhileStmt(EnvironmentBuilder.java:251)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:232)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_InsideLoop.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_InsideNewBlock.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable r
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_SameLevel.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable b
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Locals_Overlapping_SameLine.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated parameter name x
+	at type.EnvironmentBuilder.processParameters(EnvironmentBuilder.java:186)
+	at type.EnvironmentBuilder.processMethodHeader(EnvironmentBuilder.java:176)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:169)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_AbstractDeclaredTwice.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable o
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_OverlappingWithLocal.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable o
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processIfThenStmt(EnvironmentBuilder.java:261)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:228)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_OverlappingWithLocalInConditional.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable o
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processWhileStmt(EnvironmentBuilder.java:251)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:232)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_OverlappingWithLocalInLoop.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable o
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processBlock(EnvironmentBuilder.java:246)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:224)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_OverlappingWithLocalInsideNewBlock.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated local variable o
+	at type.EnvironmentBuilder.checkDupDecl(EnvironmentBuilder.java:200)
+	at type.EnvironmentBuilder.processBlockStmt(EnvironmentBuilder.java:220)
+	at type.EnvironmentBuilder.processBlockStmts(EnvironmentBuilder.java:209)
+	at type.EnvironmentBuilder.processMethodBody(EnvironmentBuilder.java:195)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:170)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_OverlappingWithLocalNotFirst.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Duplicated parameter name o
+	at type.EnvironmentBuilder.processParameters(EnvironmentBuilder.java:186)
+	at type.EnvironmentBuilder.processMethodHeader(EnvironmentBuilder.java:176)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:169)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_2_Parameter_OverlappingWithParameter.java our compiler returns: 42
+exception.SemanticError: Semantic Error: ambiguous name Integer
+	at type.ScopeEnvironment.lookupImportOnDemand(ScopeEnvironment.java:86)
+	at type.ScopeEnvironment.lookupTypeDecl(ScopeEnvironment.java:152)
+	at type.ScopeEnvironment.lookupTypeDecl(ScopeEnvironment.java:147)
+	at type.ScopeEnvironment.lookupTypeDecl(ScopeEnvironment.java:147)
+	at type.TypeLinker.resolveTypename(TypeLinker.java:180)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:232)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_ImportOnDemand_ClashWithImplicitImport our compiler returns: 42
+exception.SemanticError: Semantic Error: ambiguous name Date
+	at type.ScopeEnvironment.lookupImportOnDemand(ScopeEnvironment.java:86)
+	at type.ScopeEnvironment.lookupTypeDecl(ScopeEnvironment.java:152)
+	at type.ScopeEnvironment.lookupTypeDecl(ScopeEnvironment.java:147)
+	at type.ScopeEnvironment.lookupTypeDecl(ScopeEnvironment.java:147)
+	at type.TypeLinker.resolveTypename(TypeLinker.java:180)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:258)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_ImportOnDemand_ClassInMultiplePackages our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find package Main
+	at type.TypeLinker.findPackages(TypeLinker.java:88)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:107)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_ImportOnDemand_ClassNameAsPackage our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find package java.Util
+	at type.TypeLinker.findPackages(TypeLinker.java:88)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:107)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_ImportOnDemand_NonExisting.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find package Test
+	at type.TypeLinker.findPackages(TypeLinker.java:88)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:107)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_ImportOnDemand_NonExistingPackage_FromPreviousTestcase.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find package java.util.foo
+	at type.TypeLinker.findPackages(TypeLinker.java:88)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:107)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_ImportOnDemand_PackagePrefixExists our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: javax.swing.tree cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:151)
+	at type.TypeLinker.resolveTypename(TypeLinker.java:186)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:258)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageClashWithType_Explicit our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: javax.swing.tree cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:151)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:106)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageClashWithType_Linked our compiler returns: 42
+exception.SemanticError: Semantic Error: Import cannot find type decl ast.Name
+	at type.TypeLinker.checkExist(TypeLinker.java:29)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:44)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageClashWithType_SingleTypeImport our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find package jav
+	at type.TypeLinker.findPackages(TypeLinker.java:88)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:107)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageExists_AlmostPrefix_External our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find package fo
+	at type.TypeLinker.findPackages(TypeLinker.java:88)
+	at type.TypeLinker.processTypeImportOndemandDecl(TypeLinker.java:107)
+	at type.TypeLinker.link(TypeLinker.java:205)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageExists_AlmostPrefix_Internal our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: foo.bar cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:151)
+	at type.TypeLinker.processPackageDecl(TypeLinker.java:169)
+	at type.TypeLinker.link(TypeLinker.java:208)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageNameIsClassName our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: java.util.ArrayList cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:151)
+	at type.TypeLinker.processPackageDecl(TypeLinker.java:169)
+	at type.TypeLinker.link(TypeLinker.java:208)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageNameIsClassName_External our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: java.util.ArrayList cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:151)
+	at type.TypeLinker.processPackageDecl(TypeLinker.java:169)
+	at type.TypeLinker.link(TypeLinker.java:208)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageNameIsClassName_ExternalPrefix our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: foo.bar cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:151)
+	at type.TypeLinker.processPackageDecl(TypeLinker.java:169)
+	at type.TypeLinker.link(TypeLinker.java:208)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_PackageNameIsClassName_Prefix our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find symbol Token(type: ID value: Serializable) scope 
+	at type.TypeLinker.resolveTypename(TypeLinker.java:181)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:226)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_Resolve_ImplicitJavaIO our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find symbol Token(type: ID value: List) scope 
+	at type.TypeLinker.resolveTypename(TypeLinker.java:181)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:258)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_Resolve_ImportDifferentFromSamePackage our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find symbol Token(type: ID value: Zoo) scope 
+	at type.TypeLinker.resolveTypename(TypeLinker.java:181)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:213)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_Resolve_LinkToCorrectPackage our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find symbol Token(type: ID value: List) scope 
+	at type.TypeLinker.resolveTypename(TypeLinker.java:181)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:258)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_Resolve_MissingImport our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find symbol Token(type: ID value: foo) scope 
+	at type.TypeLinker.resolveTypename(TypeLinker.java:181)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:213)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_Resolve_NonExistingSuperclass.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: Je_3_Resolve_SamePackageAndClassName cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:147)
+	at type.TypeLinker.resolveTypename(TypeLinker.java:186)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:232)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_Resolve_SamePackageAndClassName.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Import name java.util.List clash with type decl List
+	at type.TypeLinker.checkClash(TypeLinker.java:13)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:45)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_ClashWithClass our compiler returns: 42
+exception.SemanticError: Semantic Error: Import name java.util.List clash with type decl List
+	at type.TypeLinker.checkClash(TypeLinker.java:13)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:45)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_ClashWithClass_InPackage our compiler returns: 42
+exception.SemanticError: Semantic Error: Import name java.awt.List clash with type decl List
+	at type.TypeLinker.checkClash(TypeLinker.java:13)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:45)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_ClashWithEachOther our compiler returns: 42
+exception.SemanticError: Semantic Error: Import name java.awt.List clash with type decl List
+	at type.TypeLinker.checkClash(TypeLinker.java:13)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:45)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_ClashWithEachOther_MultipleImports our compiler returns: 42
+exception.SemanticError: Semantic Error: Import name java.util.List clash with type decl List
+	at type.TypeLinker.checkClash(TypeLinker.java:13)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:45)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_ClashWithInterface our compiler returns: 42
+exception.SemanticError: Semantic Error: Import cannot find type decl ast.Name
+	at type.TypeLinker.checkExist(TypeLinker.java:29)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:44)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_NonExistingPackage our compiler returns: 42
+exception.SemanticError: Semantic Error: Import cannot find type decl ast.Name
+	at type.TypeLinker.checkExist(TypeLinker.java:29)
+	at type.TypeLinker.processSingleTypeImportDecl(TypeLinker.java:44)
+	at type.TypeLinker.link(TypeLinker.java:202)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_SingleTypeImport_NonExistingType our compiler returns: 42
+exception.SemanticError: Semantic Error: Cannot find symbol Token(type: ID value: Main) scope 
+	at type.TypeLinker.resolveTypename(TypeLinker.java:181)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:213)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_3_UndefinedType_DefaultPackageNotVisible our compiler returns: 42
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:456)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_AbstractObjectMethods our compiler returns: 42
+java.lang.Exception: A class 'Je_4_AbstractMethod_Declared' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:419)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_Declared.java our compiler returns: 42
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_InheritFromInterface_1 our compiler returns: 42
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_InheritFromInterface_2 our compiler returns: 42
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_InheritFromSuperInterface our compiler returns: 42
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:456)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_InheritFromSuperclass our compiler returns: 42
+for test Je_4_AbstractMethod_InheritFromSuperclassInterface our compiler returns: 0
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_AbstractMethod_NotAllImplemented our compiler returns: 42
+java.lang.Exception: Acylic Extends in class for: B B
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:668)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ClassExtendsCyclicClass our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name Je_4_DuplicateConstructor_Args
+	at ast.ConstructorList.checkMethodDecl(ConstructorList.java:37)
+	at ast.ConstructorList.checkAmbiguousMethodDecl(ConstructorList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:138)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateConstructor_Args.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name Je_4_DuplicateConstructor_ArrayArgs
+	at ast.ConstructorList.checkMethodDecl(ConstructorList.java:37)
+	at ast.ConstructorList.checkAmbiguousMethodDecl(ConstructorList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:138)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateConstructor_ArrayArgs.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name Je_4_DuplicateConstructor_NoArgs
+	at ast.ConstructorList.checkMethodDecl(ConstructorList.java:28)
+	at ast.ConstructorList.checkAmbiguousMethodDecl(ConstructorList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:138)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateConstructor_NoArgs.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name foo
+	at ast.MethodList.checkMethodDecl(MethodList.java:37)
+	at ast.MethodList.checkAmbiguousMethodDecl(MethodList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:161)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateMethodDeclare_Args.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name method
+	at ast.MethodList.checkMethodDecl(MethodList.java:37)
+	at ast.MethodList.checkAmbiguousMethodDecl(MethodList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:161)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateMethodDeclare_ArrayArgs.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name foo
+	at ast.MethodList.checkMethodDecl(MethodList.java:37)
+	at ast.MethodList.checkAmbiguousMethodDecl(MethodList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:161)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateMethodDeclare_DifferentReturnTypes.java our compiler returns: 42
+exception.SemanticError: Semantic Error: Ambiguous method name foo
+	at ast.MethodList.checkMethodDecl(MethodList.java:29)
+	at ast.MethodList.checkAmbiguousMethodDecl(MethodList.java:43)
+	at type.EnvironmentBuilder.processClassMemberDecl(EnvironmentBuilder.java:161)
+	at type.EnvironmentBuilder.processClassMemberDecls(EnvironmentBuilder.java:118)
+	at type.EnvironmentBuilder.processTypeDecl(EnvironmentBuilder.java:71)
+	at type.EnvironmentBuilder.processTypeDecls(EnvironmentBuilder.java:49)
+	at type.EnvironmentBuilder.processCompilationUnit(EnvironmentBuilder.java:41)
+	at type.EnvironmentBuilder.createScopes(EnvironmentBuilder.java:21)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:12)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_DuplicateMethodDeclare_NoArgs.java our compiler returns: 42
+java.lang.Exception: Cannot Extend a final classJe_4_ExtendFinal Integer
+	at hierarchy.HierarchyChecking.checkExtendDecl(HierarchyChecking.java:589)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:518)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ExtendFinal.java our compiler returns: 42
+java.lang.Exception: Class can only extends a classMain
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:654)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ExtendNonClass our compiler returns: 42
+java.lang.Exception: A method must not replace a final method.
+	at hierarchy.HierarchyChecking.checkFinalMethod(HierarchyChecking.java:170)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:34)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_FinalHide our compiler returns: 42
+java.lang.Exception: A class or interface 'getClass' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:374)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_FinalOverride_DifferentReturnTypes.java our compiler returns: 42
+java.lang.Exception: A method must not replace a final method.
+	at hierarchy.HierarchyChecking.checkFinalMethod(HierarchyChecking.java:170)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:34)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_FinalOverride_SameSignature.java our compiler returns: 42
+java.lang.Exception: A class or interface 'test' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:374)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_Hide_DifferentReturnTypes our compiler returns: 42
+java.lang.Exception: class can only implements an interface
+	at hierarchy.HierarchyChecking.checkImplementNode(HierarchyChecking.java:802)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:627)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ImplementNonInterface_Class.java our compiler returns: 42
+java.lang.Exception: class can only implements an interface
+	at hierarchy.HierarchyChecking.checkImplementNode(HierarchyChecking.java:802)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:627)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ImplementNonInterface_InterfaceAndClass our compiler returns: 42
+java.lang.Exception: Interface repeats in an implement clause of an interface.
+	at hierarchy.HierarchyChecking.checkImplementNode(HierarchyChecking.java:825)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:627)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ImplementTwice_QualifiedName our compiler returns: 42
+java.lang.Exception: Interface repeats in an implement clause of an interface.
+	at hierarchy.HierarchyChecking.checkImplementNode(HierarchyChecking.java:825)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:627)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ImplementTwice_SimpleName our compiler returns: 42
+java.lang.Exception: A class 'C' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:456)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_InheritShadowsNonabstract our compiler returns: 42
+java.lang.Exception: repeated name under the same environment, might be self dependency: B
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:710)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:747)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:535)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_InterfaceExtendsCyclicInterface our compiler returns: 42
+for test Je_4_Interface_FinalMethodFromObject our compiler returns: 0
+java.lang.Exception: A class or interface 'compareTo' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:390)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_Override_DifferentReturnTypesFromInterface our compiler returns: 42
+java.lang.Exception: A class or interface 'compareTo' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:390)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_Override_DifferentReturnTypes_AbstractFromSuperclassAndInterface our compiler returns: 42
+java.lang.Exception: A class or interface 'run' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:390)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_Override_DifferentReturnTypes_FromSuperclassAndInterface our compiler returns: 42
+java.lang.Exception: A class or interface 'compareTo' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:390)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_Override_DifferentReturnTypes_FromSuperclassAndInterface_NonVoid our compiler returns: 42
+java.lang.Exception: A class or interface 'foo' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:390)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_Override_DifferentReturnTypes_TwoInterfaces our compiler returns: 42
+java.lang.Exception: A protected method 'method' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:152)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ProtectedHide_FromSuperclass our compiler returns: 42
+java.lang.Exception: A protected method 'method' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:152)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ProtectedOverride_Abstract our compiler returns: 42
+Error in line 4, column 23 : Syntax error
+instead expected token classes are [LEFTCURLY, SEMICOLUMN]
+Error in line 4, column 23 : Couldn't repair and continue parse
+for test Je_4_ProtectedOverride_DifferentThrows our compiler returns: 42
+java.lang.Exception: A protected method 'clone' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:155)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ProtectedOverride_Exception_Clone our compiler returns: 42
+java.lang.Exception: A protected method 'compareTo' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:152)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ProtectedOverride_FromInterface our compiler returns: 42
+java.lang.Exception: A protected method 'interrupt' must not replace a public method.
+	at hierarchy.HierarchyChecking.checkProtectedMethod(HierarchyChecking.java:152)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:33)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ProtectedOverride_FromSuperclass our compiler returns: 42
+for test Je_4_ProtectedOverride_FromSuperclassAndInterface our compiler returns: 0
+java.lang.Exception: A class 'Main' that contains (declares or inherits) any abstract methods must be abstract.
+	at hierarchy.HierarchyChecking.checkAbstrictMethod(HierarchyChecking.java:472)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:30)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ProtectedOverride_TwoVersionsFromSuperclass our compiler returns: 42
+java.lang.Exception:  A static method 'equals' must not replace an instance method * 
+	at hierarchy.HierarchyChecking.checkStaticMethod(HierarchyChecking.java:194)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:31)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ReplaceInstance_FromSuperclass.java our compiler returns: 42
+java.lang.Exception: A nonstatic method 'activeCount' must not replace a static method
+	at hierarchy.HierarchyChecking.checkStaticMethod(HierarchyChecking.java:191)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:31)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ReplaceStatic_FromSuperclass our compiler returns: 42
+java.lang.Exception: A class or interface 'activeCount' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:374)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_ReplaceStatic_FromSuperclass_DifferentReturnTypes our compiler returns: 42
+exception.SemanticError: Semantic Error: Prefix: foo cannot be resolved to type in 
+	at type.TypeLinker.checkPrefixNotType(TypeLinker.java:147)
+	at type.TypeLinker.resolveTypename(TypeLinker.java:186)
+	at type.TypeLinker.processType(TypeLinker.java:194)
+	at type.TypeLinker.link(TypeLinker.java:258)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.TypeLinker.link(TypeLinker.java:278)
+	at type.TypeLinker.linkAll(TypeLinker.java:289)
+	at type.EnvironmentBuilder.buildRoot(EnvironmentBuilder.java:14)
+	at lexer.Main.main(Main.java:15)
+for test Je_4_Resolve_DefaultPackage our compiler returns: 42
+java.lang.Exception: repeated name under the same environment, might be self dependency: Main
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:643)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_SelfDependency_CircularExtends_1 our compiler returns: 42
+java.lang.Exception: repeated name under the same environment, might be self dependency: boz
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:643)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:677)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_SelfDependency_CircularExtends_2 our compiler returns: 42
+java.lang.Exception: repeated name under the same environment, might be self dependency: Je_4_SelfDependency_ExtendsItself
+	at hierarchy.HierarchyChecking.checkExtendNode(HierarchyChecking.java:643)
+	at hierarchy.HierarchyChecking.checkCompilationUnitScope(HierarchyChecking.java:517)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:485)
+	at lexer.Main.main(Main.java:20)
+for test Je_4_SelfDependency_ExtendsItself.java our compiler returns: 42
+java.lang.Exception: A class or interface 'toString' must not contain (declare or inherit) two methods with the same signature but different return types
+	at hierarchy.HierarchyChecking.checkContainSameSigDiffReturn(HierarchyChecking.java:374)
+	at hierarchy.HierarchyChecking.checkClassHierary(HierarchyChecking.java:29)
+	at hierarchy.HierarchyChecking.checkRootEnvironment(HierarchyChecking.java:489)
+	at lexer.Main.main(Main.java:20)
+for test Je_5_Interface_ImplicitReplace_DifferentReturnType.java our compiler returns: 42
