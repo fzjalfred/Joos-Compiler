@@ -807,13 +807,13 @@ public class HierarchyChecking {
                 List<Referenceable> adding = declareMap.get((ASTNode)parentNode);
                 if (adding != null) {
 //                    for (Referenceable ref : adding) {
-//                        System.out.println("adding" + ref.toString());
+//                        System.out.println("adding " + ref.toString());
 //                    }
                     inherited.addAll(declareMap.get((ASTNode)parentNode));
                 }
 
             }
-            if (node instanceof InterfaceDecl && parentMap.get(node).size() == 0) {
+            if (parentMap.get(node).size() == 0) {
                 inherited.addAll(generalBaseObjectClass);
             }
 //            System.out.println("after");
