@@ -151,7 +151,7 @@ public class HierarchyChecking {
                     if (get_mods(m_base).contains("public") && (get_mods(m).contains("protected"))) {
                         throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
                     }
-                    if (get_mods(m_base).contains("protected") && (get_mods(m).contains("public"))) {
+                    if (get_mods(m_base).contains("protected") && (get_mods(m).contains("public") && m instanceof AbstractMethodDecl)) {
                         throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
                     }
                 }
@@ -167,7 +167,7 @@ public class HierarchyChecking {
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
                     if (get_mods(m_base).contains("final") ) {
-                        throw new Exception("A method must not replace a final method.");
+                        throw new Exception("A method \'"+ get_sig(m).get(0) + "\' must not replace a final method.");
                     }
                 }
             }
@@ -468,8 +468,12 @@ public class HierarchyChecking {
                         signature.add(get_class_qualifed_name(T, env));
                         if (m.contains("abstract")) {
                             Boolean isAbstractImplement = checkbuff.containsKey(signature) && (checkbuff.get(signature) == T);
+                            // System.out.println("class name:");
+                            // System.out.println(T.children.get(1).value);
+                            // System.out.println("method signature:");
                             // System.out.println(signature);
                             // System.out.println(checkbuff.containsKey(signature));
+                            // System.out.println(!T_mods.contains("abstract"));
                             // System.out.println(isAbstractImplement);
                             if (!isAbstractImplement && !T_mods.contains("abstract") && !(T instanceof InterfaceDecl)) {
                                 throw new Exception("A class \'" + T.children.get(1).value +"\' that contains (declares or inherits) any abstract methods must be abstract.");
