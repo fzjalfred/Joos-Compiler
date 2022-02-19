@@ -6,6 +6,7 @@ import type.EnvironmentBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class AbstractMethodList implements Referenceable{
     public List<AbstractMethodDecl> methods;
@@ -14,6 +15,14 @@ public class AbstractMethodList implements Referenceable{
     public AbstractMethodList(String qualifiedName){
         methods = new ArrayList<AbstractMethodDecl>();
         this.qualifiedName = qualifiedName;
+    }
+
+    public String getSimpleName(){
+        String [] arr = qualifiedName.split(Pattern.quote("."));
+        if (arr.length == 0) {
+            return qualifiedName;
+        }
+        return arr[arr.length - 1];
     }
 
     public void add(AbstractMethodDecl method){
@@ -47,7 +56,7 @@ public class AbstractMethodList implements Referenceable{
 
     @Override
     public String toString() {
-        return "AbstractMethodList{" +
+        return "AbstractMethodList{" + qualifiedName + " " +
                 "methods=" + methods +
                 '}';
     }

@@ -515,7 +515,7 @@ public class HierarchyChecking {
                 generalBaseObjectClass.addAll(declare(classDecl, env));
                 continue; // No need to check base class correctness(?
             }
-//            } else if (node.first.contains("java.lang") || node.first.contains("java.io")) {
+//            if (node.first.contains("java.") && !node.first.contains("java.lang.Runnable")) {
 //                continue;
 //            }
             if (node.second instanceof ClassDecl) {
@@ -630,8 +630,10 @@ public class HierarchyChecking {
 //        System.out.println("enter: " + original.getName());
         if (superNode == null) {
 //            System.out.println("quit");
-//            System.out.println("");
+//            System.out.println(classDecl.getName());
+
             extendNodes.addAll(checkImplementNode(classDecl, underEnv));
+//            System.out.println("");
             return extendNodes;
         }
 
@@ -862,28 +864,111 @@ public class HierarchyChecking {
 //            } else {
 //                System.out.println(((InterfaceDecl)node).getName());
 //            }
-//
 //            System.out.println("children");
             for (Referenceable parentNode: parentMap.get(node)) {
-//                System.out.println("super" + parentNode.toString());
+//                System.out.println("super " + parentNode.toString());
                 List<Referenceable> adding = declareMap.get((ASTNode)parentNode);
                 if (adding != null) {
-//                    for (Referenceable ref : adding) {
+                    List <Pair <Referenceable, Referenceable>> addingReplaceList = new ArrayList <Pair <Referenceable, Referenceable>> () {};
+                    List <Pair <Referenceable, Referenceable>> inheritReplaceList = new ArrayList <Pair <Referenceable, Referenceable>> () {};
+                    for (Referenceable ref : adding) {
 //                        System.out.println("adding " + ref.toString());
-//                    }
-                    inherited.addAll(declareMap.get((ASTNode)parentNode));
+                        if (ref instanceof MethodList || ref instanceof AbstractMethodList) { //check if there exists an abstract method
+                            for (Referenceable inNode : inherited) {
+                                if (inNode instanceof MethodList && ref instanceof  AbstractMethodList) {
+                                    MethodList methodList = (MethodList) inNode;
+                                    AbstractMethodList abstractMethodList = (AbstractMethodList) ref;
+//                                    System.out.println("name: " + methodList.getSimpleName() + " " + abstractMethodList.getSimpleName());
+                                    if (methodList.getSimpleName().equals(abstractMethodList.getSimpleName())) {
+                                        AbstractMethodList newAbs = popAbstract(methodList, abstractMethodList);
+                                        if (newAbs != null){
+                                            Referenceable replace = null;
+                                            if (newAbs.methods.size() != 0) {
+                                                replace = (Referenceable)newAbs;
+                                            }
+                                            addingReplaceList.add(new Pair <Referenceable, Referenceable> (ref, replace));
+                                        }
+                                    }
+
+                                } else if (inNode instanceof AbstractMethodList && ref instanceof MethodList) {
+                                    MethodList methodList = (MethodList) ref;
+                                    AbstractMethodList abstractMethodList = (AbstractMethodList) inNode;
+//                                    System.out.println("name: " + methodList.getSimpleName() + " " + abstractMethodList.getSimpleName());
+                                    if (methodList.getSimpleName().equals(abstractMethodList.getSimpleName())) {
+                                        AbstractMethodList newAbs = popAbstract(methodList, abstractMethodList);
+                                        if (newAbs != null){
+                                            Referenceable replace = null;
+                                            if (newAbs.methods.size() != 0) {
+                                                replace = (Referenceable)newAbs;
+                                            }
+                                            inheritReplaceList.add(new Pair <Referenceable, Referenceable> (ref, replace));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    for (Pair <Referenceable, Referenceable> pair : inheritReplaceList) {
+                        inherited.remove(pair.first);
+                        if (pair.second != null) {
+                            inherited.add(pair.second);
+                        }
+
+                    }
+                    for (Pair <Referenceable, Referenceable> pair : addingReplaceList) {
+                        adding.remove(pair.first);
+                        if (pair.second != null) {
+                            adding.add(pair.second);
+                        }
+                    }
+
+                    inherited.addAll(adding);
                 }
 
             }
-            if (parentMap.get(node).size() == 0) {
-                inherited.addAll(generalBaseObjectClass);
-            }
+
+            inherited.addAll(generalBaseObjectClass);
+
 //            System.out.println("after");
 //            for (Referenceable ref : inherited){
 //                System.out.println(ref.toString());
 //            }
             inheritMap.put(node, inherited);
         }
+    }
+
+    AbstractMethodList popAbstract(MethodList methodList, AbstractMethodList abstractMethodList) {
+        boolean change = false;
+        List <AbstractMethodDecl> removeList = new ArrayList<AbstractMethodDecl>(){};
+        for (MethodDecl method : methodList.methods){
+            for (AbstractMethodDecl abstractMethod : abstractMethodList.methods) {
+                List <String> abSig = get_sig(abstractMethod);
+                List <String> meSig = get_sig(method);
+
+                if (abSig.size() == meSig.size()) {
+                    boolean equal = true;
+                    for (int i = 0; i < abSig.size(); i++) {
+                        if (!(abSig.get(i).equals(meSig.get(i)))) {
+                            equal = false;
+                            break;
+                        }
+                    }
+                    if (equal) {
+                        change = true;
+                        removeList.add(abstractMethod);
+                    }
+                }
+            }
+        }
+        for (AbstractMethodDecl abstractMethod : removeList) {
+            abstractMethodList.methods.remove(abstractMethod);
+        }
+
+        if (!change) {
+            return null;
+        }
+        return abstractMethodList;
     }
 
 
