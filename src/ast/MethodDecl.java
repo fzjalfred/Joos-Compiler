@@ -23,4 +23,15 @@ public class MethodDecl extends ClassMemberDecl {
         return mh.getName();
     }
 
+    private boolean ifContainModifier(ASTNode modifiers, String name){
+        if (modifiers == null) return false;
+        for (ASTNode n : modifiers.children){
+            if (n.value == name) return true;
+        }
+        return false;
+    }
+    public boolean isProtected() {
+        return ifContainModifier(children.get(0).children.get(0), "protected");
+    }
+
 }

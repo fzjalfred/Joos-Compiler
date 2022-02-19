@@ -584,9 +584,11 @@ public class HierarchyChecking {
 
         ASTNode myModifiers = classDecl.children.get(0);
         ASTNode myName = classDecl.children.get(1);
+//        System.out.println("parent for: "+classDecl.getName());
         for (Pair<Referenceable, ScopeEnvironment> node : parents) {
             if (node.first instanceof ClassDecl) {
                 ClassDecl parent = (ClassDecl) node.first;
+//                System.out.println(parent.getName());
                 ASTNode modifiers = parent.children.get(0);
                 ASTNode name = parent.children.get(1);
                 if (myName.value == name.value) {
@@ -595,9 +597,12 @@ public class HierarchyChecking {
                 if (ifContainModifier(modifiers, "final")) {
                     throw new Exception("Cannot Extend a final class"+ myName.value+ " "+ name.value );
                 }
+            } if (node.first instanceof InterfaceDecl) {
+//                System.out.println(((InterfaceDecl)node.first).getName());
             }
 
         }
+//        System.out.println("");
     }
 
     public void checkExtendDecl(InterfaceDecl interfaceDecl, List<Pair<Referenceable, ScopeEnvironment>> parents) throws Exception {
@@ -638,9 +643,6 @@ public class HierarchyChecking {
         }
 
         Name extendName = (Name) ((ClassOrInterfaceType)superNode.children.get(0)).getName();
-//        if (extendNodes == null) {
-//            extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
-//        }
 
         Pair<Referenceable, ScopeEnvironment> found;
 
@@ -652,11 +654,15 @@ public class HierarchyChecking {
                 throw new Exception("repeated name under the same environment, might be self dependency: " + original.getName());
             }
             found = underEnv.lookupNameAndEnv(id);
+//            extendName = tools.nameConstructor(((ClassDecl)found.first).getName());
+//            found = underEnv.lookupNameAndEnv(extendName);
+//            System.out.println(id + " " + found.second);
         } else { // qualified name
             found = underEnv.lookupNameAndEnv(extendName);
         }
 
         if (found == null || found.first == null || found.second == null) {
+            extendNodes.addAll(checkImplementNode(classDecl, underEnv));
             return extendNodes;
         }
         if (!(found.first instanceof ClassDecl)) {
@@ -855,7 +861,7 @@ public class HierarchyChecking {
         return result;
     }
 
-    public void createInheritanceMap(){
+    public void createInheritanceMap() throws Exception{
         for (ASTNode node : parentMap.keySet()){
             List <Referenceable> inherited = new ArrayList <Referenceable>(){};
 //            System.out.println("");
@@ -865,7 +871,10 @@ public class HierarchyChecking {
 //                System.out.println(((InterfaceDecl)node).getName());
 //            }
 //            System.out.println("children");
-            for (Referenceable parentNode: parentMap.get(node)) {
+
+            List <Referenceable> superClassesOrInterface = parentMap.get(node);
+
+            for (Referenceable parentNode: superClassesOrInterface) {
 //                System.out.println("super " + parentNode.toString());
                 List<Referenceable> adding = declareMap.get((ASTNode)parentNode);
                 if (adding != null) {
@@ -938,7 +947,7 @@ public class HierarchyChecking {
         }
     }
 
-    AbstractMethodList popAbstract(MethodList methodList, AbstractMethodList abstractMethodList) {
+    AbstractMethodList popAbstract(MethodList methodList, AbstractMethodList abstractMethodList) throws Exception{
         boolean change = false;
         List <AbstractMethodDecl> removeList = new ArrayList<AbstractMethodDecl>(){};
         for (MethodDecl method : methodList.methods){
@@ -955,6 +964,9 @@ public class HierarchyChecking {
                         }
                     }
                     if (equal) {
+                        if (abstractMethod.isPublic() && method.isProtected()) {
+                            throw new Exception("Public method is replaced by public because of abstract "+ abstractMethod.getName() + " " + method.getName());
+                        }
                         change = true;
                         removeList.add(abstractMethod);
                     }
