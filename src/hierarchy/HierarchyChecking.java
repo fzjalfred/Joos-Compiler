@@ -873,6 +873,21 @@ public class HierarchyChecking {
 //            System.out.println("children");
 
             List <Referenceable> superClassesOrInterface = parentMap.get(node);
+            List <Referenceable> temp = new ArrayList <Referenceable>(){};
+            for (Referenceable parentNode: superClassesOrInterface ) {
+                List <Referenceable> parentParent = parentMap.get(parentNode);
+                if (parentParent != null) {
+                    for (Referenceable p : parentParent) {
+                        if (!superClassesOrInterface.contains(p)) {
+                            temp.add(p);
+                        }
+                    }
+                }
+
+            }
+            for (Referenceable p : temp){
+                superClassesOrInterface.add(p);
+            }
 
             for (Referenceable parentNode: superClassesOrInterface) {
 //                System.out.println("super " + parentNode.toString());
