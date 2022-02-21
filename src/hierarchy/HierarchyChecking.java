@@ -13,6 +13,7 @@ public class HierarchyChecking {
     public Map<ASTNode, List<Referenceable>> declareMap;
     // <ClassDecl, MethodList|ConstructorList|fieldDecl|AbstractMethodList>
     public Map<ASTNode, List<Referenceable>> parentMap;
+    public Map<ASTNode, List<Referenceable>> directParentMap;
     public Map<ASTNode, List<Referenceable>> inheritMap;
     RootEnvironment env;
     public HierarchyChecking() {
@@ -20,6 +21,7 @@ public class HierarchyChecking {
         // this.generalBaseMethodInterface = new ArrayList <Referenceable>(){};
         this.declareMap =  new HashMap<ASTNode, List<Referenceable>>();
         this.parentMap = new HashMap<ASTNode, List<Referenceable>>();
+        this.directParentMap = new HashMap<ASTNode, List<Referenceable>>();
         this.inheritMap = new HashMap<ASTNode, List<Referenceable>>();
     }
 
@@ -492,6 +494,11 @@ public class HierarchyChecking {
                 checkCompilationUnitScope(packScope.childScopes.get(compileKey));
             }
         }
+//        System.out.println("-----------------------------------------");
+//        printDirectParent();
+//        System.out.println("-----------------------------------------");
+        createParentMap();
+//        printParent();
         createInheritanceMap();
         checkClassHierary(env);
     }
@@ -515,16 +522,15 @@ public class HierarchyChecking {
                 generalBaseObjectClass.addAll(declare(classDecl, env));
                 continue; // No need to check base class correctness(?
             }
-//            if (node.first.contains("java.") && !node.first.contains("java.lang.Runnable")) {
-//                continue;
-//            }
+
+            directParentMap.put(node.second, new ArrayList <Referenceable>());
             if (node.second instanceof ClassDecl) {
                 ClassDecl classDecl = (ClassDecl) node.second;
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
                 extendNodes = checkExtendNode(classDecl, classDecl, env, extendNodes);
                 checkExtendDecl(classDecl, extendNodes);
 
-                // extendNodes.addAll(checkImplementNode(classDecl, env));
+                extendNodes.addAll(checkImplementNode(classDecl, env));
 //                System.out.println("class and parent: " + classDecl.getName());
 //                for (Pair<Referenceable, ScopeEnvironment> pair : extendNodes) {
 //                    if (pair.first instanceof ClassDecl) {
@@ -533,7 +539,6 @@ public class HierarchyChecking {
 //                        System.out.println(((InterfaceDecl)pair.first).getName());
 //                    }
 //                }
-                generateParentMap(node.second, extendNodes);
 
             } else if (node.second instanceof InterfaceDecl) {
                 InterfaceDecl interfaceDecl = (InterfaceDecl) node.second;
@@ -541,36 +546,11 @@ public class HierarchyChecking {
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
                 extendNodes = checkExtendNode(interfaceDecl, interfaceDecl, env, extendNodes);
                 checkExtendDecl(interfaceDecl, extendNodes);
-                generateParentMap(node.second, extendNodes);
             }
             Referenceable ref = (Referenceable) node.second;
             declareMap.put(node.second, declare(ref, env));
         }
     }
-
-    public void generateParentMap(ASTNode node, List<Pair<Referenceable, ScopeEnvironment>> parents) {
-        if (parentMap.containsKey(node)) {
-            return;
-        }
-        // System.out.println("parent");
-        List <Referenceable> extendNodes = new ArrayList <Referenceable>(){};
-        int size = parents.size();
-        for (int i = 0; i < size; i++) {
-            boolean dup = false;
-            for (int j = i + 1; j < size; j++) {
-                if (parents.get(i).first == parents.get(j).first) {
-                    dup = true;
-                }
-            }
-            if (!dup) {
-                // System.out.println(parents.get(i).first.toString());
-                extendNodes.add(parents.get(i).first);
-            }
-        }
-        parentMap.put(node, extendNodes);
-        // System.out.println("");
-    }
-
 
     private boolean ifContainModifier(ASTNode modifiers, String name){
         if (modifiers == null) return false;
@@ -637,7 +617,7 @@ public class HierarchyChecking {
 //            System.out.println("quit");
 //            System.out.println(classDecl.getName());
 
-            extendNodes.addAll(checkImplementNode(classDecl, underEnv));
+            // extendNodes.addAll(checkImplementNode(classDecl, underEnv));
 //            System.out.println("");
             return extendNodes;
         }
@@ -654,15 +634,13 @@ public class HierarchyChecking {
                 throw new Exception("repeated name under the same environment, might be self dependency: " + original.getName());
             }
             found = underEnv.lookupNameAndEnv(id);
-//            extendName = tools.nameConstructor(((ClassDecl)found.first).getName());
-//            found = underEnv.lookupNameAndEnv(extendName);
 //            System.out.println(id + " " + found.second);
         } else { // qualified name
             found = underEnv.lookupNameAndEnv(extendName);
         }
 
         if (found == null || found.first == null || found.second == null) {
-            extendNodes.addAll(checkImplementNode(classDecl, underEnv));
+            // extendNodes.addAll(checkImplementNode(classDecl, underEnv));
             return extendNodes;
         }
         if (!(found.first instanceof ClassDecl)) {
@@ -688,11 +666,16 @@ public class HierarchyChecking {
         ClassDecl classNode = (ClassDecl)found.first;
 
         extendNodes.add(found);
-
         extendNodes.addAll(checkExtendNode(original, classNode, found.second, extendNodes));
 
-        // check implement nodes
-        extendNodes.addAll(checkImplementNode(classDecl, underEnv));
+        // adding notes to direct parent map
+        if (directParentMap.containsKey(classDecl) && !directParentMap.get(classDecl).contains(classNode)){
+            directParentMap.get(classDecl).add(classNode);
+        } else if (!directParentMap.containsKey(classDecl)) {
+            directParentMap.put(classDecl, new ArrayList <Referenceable>());
+            directParentMap.get(classDecl).add(classNode);
+        }
+
         return extendNodes;
     }
 
@@ -768,6 +751,8 @@ public class HierarchyChecking {
             extendNodes.addAll(branch);
         }
 
+
+
         int listSize = sameClauseNode.size();
         for (int i = 0; i < listSize; i++){
             for (int j = i + 1; j < listSize; j++) {
@@ -775,6 +760,13 @@ public class HierarchyChecking {
                     throw new Exception("Interface repeats in an extend clause of an interface.");
                 }
             }
+        }
+        if (listSize > 0){
+            // adding nodes to direct parent map
+            if (!directParentMap.containsKey(interfaceDecl)) {
+                directParentMap.put(interfaceDecl, new ArrayList <Referenceable>());
+            }
+            directParentMap.get(interfaceDecl).addAll(sameClauseNode);
         }
 
         return extendNodes;
@@ -841,6 +833,13 @@ public class HierarchyChecking {
                 }
             }
         }
+        if (listSize > 0) {
+            if (!(directParentMap.containsKey(classDecl))) {
+                directParentMap.put(classDecl, new ArrayList<Referenceable>());
+            }
+            directParentMap.get(classDecl).addAll(sameClauseNode);
+        }
+
         return extendNodes;
     }
 
@@ -861,6 +860,90 @@ public class HierarchyChecking {
         return result;
     }
 
+    private List <Referenceable> createParentListHelper(ASTNode node) {
+        if (parentMap.containsKey(node)) {
+            return parentMap.get(node);
+        } else if (directParentMap.containsKey(node)){
+            parentMap.put(node, new ArrayList <Referenceable>());
+            parentMap.get(node).addAll(directParentMap.get(node));
+            for (Referenceable parent : directParentMap.get(node)) {
+                ASTNode parentNode = (ASTNode) parent;
+                List <Referenceable> parentList = createParentListHelper(parentNode);
+                for (Referenceable singleParent : parentList) {
+                    if (!(parentMap.get(node).contains(singleParent))) {
+                        parentMap.get(node).add(singleParent);
+                    }
+                }
+            }
+            return parentMap.get(node);
+        }
+        return new ArrayList <Referenceable>(){};
+    }
+
+    public void createParentMap() {
+        for (ASTNode node : directParentMap.keySet()) {
+            if (!(parentMap.containsKey(node)) && directParentMap.containsKey(node)) {
+                parentMap.put(node, new ArrayList <Referenceable> ());
+                parentMap.get(node).addAll(directParentMap.get(node));
+                for (Referenceable parent : directParentMap.get(node)) {
+                    ASTNode parentNode = (ASTNode) parent;
+                    List <Referenceable> parentList = createParentListHelper(parentNode);
+                    for (Referenceable singleParent : parentList) {
+                        if (!(parentMap.get(node).contains(singleParent))) {
+                            parentMap.get(node).add(singleParent);
+                        }
+                    }
+                }
+
+            } else if (!(parentMap.containsKey(node))) {
+                parentMap.put(node, new ArrayList <Referenceable> ());
+            }
+        }
+    }
+    public void printDirectParent() {
+        for (ASTNode node : directParentMap.keySet()) {
+            if (node instanceof ClassDecl) {
+                ClassDecl pdecl = (ClassDecl) node;
+                System.out.println(pdecl.getName());
+            } else {
+                InterfaceDecl pdecl = (InterfaceDecl) node;
+                System.out.println(pdecl.getName());
+            }
+            for (Referenceable ref : directParentMap.get(node)) {
+                if (ref instanceof ClassDecl) {
+                    ClassDecl decl = (ClassDecl) ref;
+                    System.out.println(decl.getName());
+                } else {
+                    InterfaceDecl decl = (InterfaceDecl) ref;
+                    System.out.println(decl.getName());
+                }
+            }
+            System.out.println("");
+        }
+    }
+
+    public void printParent() {
+        for (ASTNode node : parentMap.keySet()) {
+            if (node instanceof ClassDecl) {
+                ClassDecl pdecl = (ClassDecl) node;
+                System.out.println(pdecl.getName());
+            } else {
+                InterfaceDecl pdecl = (InterfaceDecl) node;
+                System.out.println(pdecl.getName());
+            }
+            for (Referenceable ref : parentMap.get(node)) {
+                if (ref instanceof ClassDecl) {
+                    ClassDecl decl = (ClassDecl) ref;
+                    System.out.println(decl.getName());
+                } else {
+                    InterfaceDecl decl = (InterfaceDecl) ref;
+                    System.out.println(decl.getName());
+                }
+            }
+            System.out.println("");
+        }
+    }
+
     public void createInheritanceMap() throws Exception{
         for (ASTNode node : parentMap.keySet()){
             List <Referenceable> inherited = new ArrayList <Referenceable>(){};
@@ -872,24 +955,9 @@ public class HierarchyChecking {
 //            }
 //            System.out.println("children");
 
-            List <Referenceable> superClassesOrInterface = parentMap.get(node);
-            List <Referenceable> temp = new ArrayList <Referenceable>(){};
-            for (Referenceable parentNode: superClassesOrInterface ) {
-                List <Referenceable> parentParent = parentMap.get(parentNode);
-                if (parentParent != null) {
-                    for (Referenceable p : parentParent) {
-                        if (!superClassesOrInterface.contains(p)) {
-                            temp.add(p);
-                        }
-                    }
-                }
+//            List <Referenceable> superClassesOrInterface = parentMap.get(node);
 
-            }
-            for (Referenceable p : temp){
-                superClassesOrInterface.add(p);
-            }
-
-            for (Referenceable parentNode: superClassesOrInterface) {
+            for (Referenceable parentNode: parentMap.get(node)) {
 //                System.out.println("super " + parentNode.toString());
                 List<Referenceable> adding = declareMap.get((ASTNode)parentNode);
                 if (adding != null) {
