@@ -10,6 +10,7 @@ public class ClassDecl extends TypeDecl{
     public String getName(){
         return children.get(1).value;
     }
+    public ASTNode getModifiers() { return children.get(0);}
     public ClassBodyDecls getClassBodyDecls(){
         if (children.get(4) == null) return null;
         assert children.get(4).children.get(0) instanceof ClassBodyDecls;
