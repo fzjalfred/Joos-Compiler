@@ -18,13 +18,21 @@ public class RootEnvironment extends Environment{
         }
     }
 
+    private void embedFileName(ASTNode compliationUnit, String fileName){
+        assert compliationUnit instanceof CompilationUnit;
+        CompilationUnit comp = (CompilationUnit)compliationUnit;
+        comp.fileName = fileName;
+    }
+
     public List<ASTNode> uploadFiles(String[] fileNames) throws Exception,Error{
         List<ASTNode> res = new ArrayList<ASTNode>();
         for (String f : fileNames){
             parser p = new parser(new Lexer(new FileReader(f)));
             Symbol result = p.parse();
             checkFileName(f,p.publicFileName);
-            res.add((ASTNode)result.value);
+            ASTNode compilationUnit = (ASTNode)result.value;
+            embedFileName(compilationUnit, f);
+            res.add(compilationUnit);
         }
         return res;
     }
@@ -92,10 +100,25 @@ public class RootEnvironment extends Environment{
         return null;
     }
 
+
+    private String packageScopeToString(Map<String, ScopeEnvironment> packageScopes){
+        String res = "";
+        Set<String> igPackages = new HashSet<String>();
+        igPackages.add("java.io");
+        igPackages.add("java.lang");
+        igPackages.add("java.util");
+        for (String key: packageScopes.keySet()){
+            if (key.equals("")){
+                res += "empty";
+            }
+            if (!igPackages.contains(key)) res += key + " -> " + packageScopes.get(key) + "\n";
+        }
+        return res;
+    }
     @Override
     public String toString() {
         return "RootEnvironment{" + System.lineSeparator() +
-                "packageScopes=" + packageScopes + System.lineSeparator() +
+                "packageScopes:"+ "\n" + packageScopeToString(packageScopes) + System.lineSeparator() +
                 '}';
     }
 }

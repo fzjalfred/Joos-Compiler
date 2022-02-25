@@ -23,4 +23,6 @@ public class CompilationUnit extends ASTNode implements Referenceable{
         assert children.get(2) instanceof TypeDecls;
         return (TypeDecls) children.get(2);
     }
+
+    public String fileName = "";
 }

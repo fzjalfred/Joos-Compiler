@@ -24,6 +24,7 @@ public class EnvironmentBuilder {
 
 
     public static void processCompilationUnit(RootEnvironment env, CompilationUnit c) throws SemanticError{
+        SemanticError.currFile = c.fileName; //set semantic error file name
         PackageDecl p = c.getPackageDecl();
         String packageName = "";
         if (p != null){

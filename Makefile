@@ -29,11 +29,11 @@ clean:
 	rm -f src/lexer/Lexer.java~
 	rm -f src/lexer/parser.java
 	rm -f src/lexer/sym.java
-	rm -f a1.zip
+	rm -f a2.zip
 
 submitzip:
 	rm -rf build/*
 	rm -f a1.zip
-	git log > a1.log
-	zip -r a1.zip build/ lib/ src/ Makefile test/self_testcases/ a1.log
-	rm a1.log
+	git log > a2.log
+	zip -r a2.zip build/ lib/ src/ Makefile test/self_testcases/ a2.log
+	rm a2.log

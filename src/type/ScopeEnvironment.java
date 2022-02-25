@@ -213,7 +213,6 @@ public class ScopeEnvironment extends Environment{
         return "ScopeEnvironment{" + System.lineSeparator() +
                 "localDecls=" + localDecls + System.lineSeparator() +
                 "subScope=" + childScopes + System.lineSeparator() +
-                "prefix=" + prefix +
                 '}';
     }
 
