@@ -280,11 +280,15 @@ public class TypeLinker {
 
     static void linkAll(RootEnvironment env, List<ASTNode> nodes) throws SemanticError{
         for (ASTNode node : nodes){
-            if (node instanceof CompilationUnit){
-                autoImportJavaLang(env.ASTNodeToScopes.get(node));
-                if (env.ASTNodeToScopes.get(node).prefix.equals("")){
-                    processEmptyPackage(env, env.ASTNodeToScopes.get(node));
-                }
+            link(env, node);
+        }
+    }
+
+    static void linkAllCompilationUnit(RootEnvironment env, List<CompilationUnit> nodes) throws SemanticError{
+        for (CompilationUnit node : nodes){
+            autoImportJavaLang(env.ASTNodeToScopes.get(node));
+            if (env.ASTNodeToScopes.get(node).prefix.equals("")){
+                processEmptyPackage(env, env.ASTNodeToScopes.get(node));
             }
             link(env, node);
         }

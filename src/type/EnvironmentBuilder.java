@@ -8,17 +8,17 @@ import lexer.*;
 public class EnvironmentBuilder {
     public static RootEnvironment buildRoot(String [] fileNames) throws Exception, Error, SemanticError{
         RootEnvironment env = new RootEnvironment();
-        List<ASTNode> nodes = env.uploadFiles(fileNames);
+        env.uploadFiles(fileNames);
+        List<CompilationUnit> nodes = env.compilationUnits;
         createScopes(env, nodes);   // create all subscope for root environment
         generateMapping(env, nodes); // generate ASTNode->Scope mapping for each ASTNode
-        TypeLinker.linkAll(env, nodes);
+        TypeLinker.linkAllCompilationUnit(env, nodes);
         return env;
     }
 
-    public static void createScopes(RootEnvironment env, List<ASTNode> nodes) throws SemanticError{
-        for (ASTNode node : nodes){
-            assert node instanceof CompilationUnit;
-            processCompilationUnit(env, (CompilationUnit) node);  // each node must be a compilation Unit
+    public static void createScopes(RootEnvironment env, List<CompilationUnit> nodes) throws SemanticError{
+        for (CompilationUnit node : nodes){
+            processCompilationUnit(env,node);  // each node must be a compilation Unit
         }
     }
 
@@ -302,7 +302,7 @@ public class EnvironmentBuilder {
         processBlockStmt(newScope, forStmt.getBlockStmt());
     }
 
-    public static void generateMapping(RootEnvironment env, List<ASTNode> nodes){
+    public static void generateMapping(RootEnvironment env, List<CompilationUnit> nodes){
         Map<ASTNode, ScopeEnvironment> scopeMappings = new HashMap<ASTNode, ScopeEnvironment>(); //extract all mappings from root
         for (ScopeEnvironment e : env.packageScopes.values()){
             addMapping(e, scopeMappings);

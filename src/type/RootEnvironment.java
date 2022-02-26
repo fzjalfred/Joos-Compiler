@@ -24,17 +24,15 @@ public class RootEnvironment extends Environment{
         comp.fileName = fileName;
     }
 
-    public List<ASTNode> uploadFiles(String[] fileNames) throws Exception,Error{
-        List<ASTNode> res = new ArrayList<ASTNode>();
+    public void uploadFiles(String[] fileNames) throws Exception,Error{
         for (String f : fileNames){
             parser p = new parser(new Lexer(new FileReader(f)));
             Symbol result = p.parse();
             checkFileName(f,p.publicFileName);
-            ASTNode compilationUnit = (ASTNode)result.value;
+            CompilationUnit compilationUnit = (CompilationUnit)result.value;
             embedFileName(compilationUnit, f);
-            res.add(compilationUnit);
+            compilationUnits.add(compilationUnit);
         }
-        return res;
     }
 
 
@@ -42,10 +40,12 @@ public class RootEnvironment extends Environment{
         parent = null;
         packageScopes = new HashMap<String, ScopeEnvironment>();
         ASTNodeToScopes = new HashMap<ASTNode, ScopeEnvironment>();
+        compilationUnits = new ArrayList<CompilationUnit>();
     }
 
     public Map<String, ScopeEnvironment> packageScopes;    //map a prefix of Name to a scope
     public Map<ASTNode, ScopeEnvironment> ASTNodeToScopes;
+    public List<CompilationUnit> compilationUnits;
 
     /** look up a qualified name under some package str if exists */
     private Referenceable lookupStr(String str, Name qualifiedName){
