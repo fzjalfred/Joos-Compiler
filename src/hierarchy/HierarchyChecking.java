@@ -89,29 +89,18 @@ public class HierarchyChecking {
     }
 
     private String get_type(MethodDecl method_decl) {
-        // method_decl ->method_header -> type -> primitive_type|... -> 
-        // if (method_decl.children.get(0).children.get(1).children.isEmpty()) {
-        //     return method_decl.children.get(0).children.get(1).value;
-        // }
-        ASTNode tmp = method_decl.children.get(0).children.get(1);
-        while (!tmp.children.isEmpty()) {
-            tmp = tmp.children.get(0);
-        }
-        return tmp.value;
-    }
-    private String get_type(AbstractMethodDecl method_decl) {
-        // method_decl -> type -> primitive_type|... -> 
-        // if (method_decl.children.get(0).children.get(1).children.isEmpty()) {
-        //     return method_decl.children.get(0).children.get(1).value;
-        // }
-        ASTNode tmp = method_decl.children.get(1);
-        if (tmp == null) {
+        Type type = method_decl.getMethodHeader().getType();
+        if (type == null) {
             return "void";
         }
-        while (!tmp.children.isEmpty()) {
-            tmp = tmp.children.get(0);
+        return type.getNameString();
+    }
+    private String get_type(AbstractMethodDecl method_decl) {
+        Type type = method_decl.getType();
+        if (type == null) {
+            return "void";
         }
-        return tmp.value;
+        return type.getNameString();
     }
     private String get_type(ASTNode method_decl) {
         if (method_decl instanceof MethodDecl) {

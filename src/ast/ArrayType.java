@@ -8,6 +8,11 @@ public class ArrayType extends ReferenceType{
     }
 
 
+    public Type getType(){
+        assert children.get(0) instanceof Type;
+        return (Type)children.get(0);
+    }
+
     public boolean equals(ArrayType arrayType) {
         if (children.get(0) instanceof PrimitiveType && arrayType.children.get(0) instanceof PrimitiveType){
             PrimitiveType type1 = (PrimitiveType)children.get(0);
@@ -19,5 +24,10 @@ public class ArrayType extends ReferenceType{
             return type1.equals(type2);
         }
         return false;
+    }
+
+    @Override
+    public String getNameString() {
+        return getType().getNameString() + "[]";
     }
 }

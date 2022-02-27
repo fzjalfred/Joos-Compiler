@@ -16,4 +16,9 @@ public class ClassOrInterfaceType extends ReferenceType {
         Name hisName = classOrInterfaceType.getName();
         return myName.equals(hisName);
     }
+
+    @Override
+    public String getNameString() {
+        return getName().getValue();
+    }
 }

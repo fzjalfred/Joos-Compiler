@@ -23,4 +23,11 @@ public class AbstractMethodDecl extends InterfaceMemberDecl{
     public String getName(){
         return getMethodDeclarator().getName();
     }
+
+    public Type getType(){
+        if(children.get(1) instanceof Type){
+            return (Type)children.get(1);
+        }
+        return null;
+    }
 }

@@ -857,9 +857,9 @@ primitive_type ::= numeric_type:e {:RESULT = e;:}
                  | BOOL:e {:RESULT = new PrimitiveType(list(), e.value);:};
 
 numeric_type ::= BYTE:e {:RESULT = new NumericType(list(e), e.value);:}
-                | SHORT:e {:RESULT = new NumericType(list(), e.value);:}
-                | INT:e {:RESULT = new NumericType(list(), e.value);:}
-                | CHAR:e {:RESULT = new NumericType(list(), e.value);:};
+                | SHORT:e {:RESULT = new NumericType(list(e), e.value);:}
+                | INT:e {:RESULT = new NumericType(list(e), e.value);:}
+                | CHAR:e {:RESULT = new NumericType(list(e), e.value);:};
 
 reference_type ::= class_or_interface_type:e {:RESULT = e;:}
                 |  array_type:e {:RESULT = e;:};
@@ -967,8 +967,8 @@ paramater ::= type:e1 var_declarator_id:e2 {:RESULT = new Parameter(list(e1, e2)
 
 abstract_method_decl ::= modifiers:e1 type:e2 method_declarator:e3 SEMICOLUMN {:checkModifiers(e1); if (NotAbstractMethodModifier(e1)) throw new Exception("Abstract Method Incorrect Modifier");
                     else RESULT = new AbstractMethodDecl(list(e1, e2, e3), "");:}
-                    | modifiers:e1 VOID method_declarator:e3 SEMICOLUMN {:checkModifiers(e1); if (NotAbstractMethodModifier(e1)) throw new Exception("Abstract Method Incorrect ModifieAbstract");
-                                          else RESULT = new AbstractMethodDecl(list(e1, null, e3), "");:};
+                    | modifiers:e1 VOID:e2 method_declarator:e3 SEMICOLUMN {:checkModifiers(e1); if (NotAbstractMethodModifier(e1)) throw new Exception("Abstract Method Incorrect ModifieAbstract");
+                                          else RESULT = new AbstractMethodDecl(list(e1, e2, e3), "");:};
 
 
 interface_body ::= LEFTCURLY interface_member_decls:e RIGHTCURLY {:RESULT = new InterfaceBody(list(e), "");:}

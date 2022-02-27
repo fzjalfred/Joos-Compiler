@@ -18,4 +18,8 @@ public class Type extends ASTNode {
         }
         return false;
     }
+
+    public String getNameString(){
+        return "";
+    }
 }

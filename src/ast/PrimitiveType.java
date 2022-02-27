@@ -11,4 +11,9 @@ public class PrimitiveType extends Type {
     public boolean equals(PrimitiveType type) {
         return value.equals(type.value);
     }
+
+    @Override
+    public String getNameString() {
+        return value;
+    }
 }
