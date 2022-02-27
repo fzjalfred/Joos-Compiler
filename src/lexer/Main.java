@@ -16,11 +16,9 @@ public class Main {
 		try {
 			RootEnvironment env = EnvironmentBuilder.buildRoot(argv);
 			HierarchyChecking checker = new HierarchyChecking();
-			TypeCheckVisitor visitor = new TypeCheckVisitor(env);
-			for (CompilationUnit c : env.compilationUnits){
-				c.accept(visitor);
-			}
 			checker.checkRootEnvironment(env);
+			TypeChecker typeChecker = new TypeChecker(env);
+			typeChecker.check();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(42);

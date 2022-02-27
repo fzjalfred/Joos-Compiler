@@ -1,6 +1,6 @@
 package ast;
 
-import visitors.Visitor;
+import visitors.*;
 
 import java.util.List;
 
@@ -13,11 +13,22 @@ public class Block extends StmtWithoutSubstmt {
         return (BlockStmts)children.get(0);
     }
 
-    @Override
-    public void accept(Visitor v){
+    private void acceptMain(Visitor v){
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }
         v.visit(this);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        if (v instanceof TypeCheckVisitor){
+            TypeCheckVisitor visitor = (TypeCheckVisitor)v;
+            visitor.context.entry();
+            acceptMain(v);
+            visitor.context.pop();
+        }   else{
+            acceptMain(v);
+        }
     }
 }

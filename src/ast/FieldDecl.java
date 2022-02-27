@@ -13,9 +13,18 @@ public class FieldDecl extends ClassMemberDecl {
         return varDeclarators.getName();
     }
 
+    public String getFirstVarName(){
+        return getName().get(0);
+    }
+
     public VarDeclarators getVarDeclarators(){
         assert children.get(2) instanceof VarDeclarators;
         return (VarDeclarators)children.get(2);
+    }
+
+    public Type getType(){
+        assert children.get(1) instanceof Type;
+        return (Type)children.get(1);
     }
 
     @Override

@@ -4,8 +4,8 @@ import type.*;
 import utils.tools;
 
 public class TypeCheckVisitor extends Visitor{
-    Context context;
-    RootEnvironment env;
+    public Context context;
+    public RootEnvironment env;
 
 
     public TypeCheckVisitor(RootEnvironment env){
@@ -16,6 +16,11 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(NumericLiteral node) {
         node.type = new PrimitiveType(tools.empty(), "int");
-        //System.out.println("populated type " + node.type + " in literal " + node);
+    }
+
+    @Override
+    public void visit(FieldDecl node) {
+        String var = node.getFirstVarName();
+        context.put(var, node.getType());
     }
 }
