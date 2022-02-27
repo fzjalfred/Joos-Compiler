@@ -15,5 +15,14 @@ public class ArrayAccess extends PrimaryNoArray {
             if (node != null) node.accept(v);
         }
         v.visit(this);
+
+    public boolean hasName() {
+        return (children.get(0) instanceof Name);
+    }
+
+    public Name getName() {
+        assert children.get(0) instanceof Name;
+        return (Name)children.get(0);
+
     }
 }

@@ -1,6 +1,5 @@
 package B;
-import A.*;
-public class class1 extends class2{
+public class class1{
     public class1(){}
     public class1(int a){}
     public int field1;
@@ -18,17 +17,19 @@ public class class1 extends class2{
         }
         while(v2){
             int d;
+            v7 = a + b;
             while(v3){
                 int f;
+                v5 = v5 + v6;
             }
         }
     }
-
-    public int foo(char v1){}
-
-    public void foo(class1 v){}
-
-    public void foo(){}
+//
+//    public int foo(char v1){}
+//
+//    public void foo(class1 v){}
+//
+//    public void foo(){}
 
 }
 ;
