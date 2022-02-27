@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class MethodDeclarator extends ASTNode {
@@ -19,5 +21,12 @@ public class MethodDeclarator extends ASTNode {
         return getParameterList().paramNum();
     }
 
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
+    }
 
 }

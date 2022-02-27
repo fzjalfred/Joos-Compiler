@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ClassOrInterfaceType extends ReferenceType {
@@ -20,5 +22,13 @@ public class ClassOrInterfaceType extends ReferenceType {
     @Override
     public String getNameString() {
         return getName().getValue();
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

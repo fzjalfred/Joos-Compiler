@@ -4,8 +4,8 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class Assignment extends AssignmentExpr {
-    public Assignment(List<ASTNode> children, String value){
+public class ThisLiteral extends Literal {
+    public ThisLiteral(List<ASTNode> children, String value){
         super(children, value);
     }
 

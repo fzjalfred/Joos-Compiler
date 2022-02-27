@@ -239,7 +239,7 @@ private boolean IncorrectCastExpr(ASTNode node){
      }
 
 
-     private boolean NotCorrectEscapeChar(Token token){
+     private boolean NotCorrectEscapeChar(ASTNode token){
         char [] chars = token.value.toCharArray();
 //        ArrayList <char> charLiteralList = new ArrayList<char>() {{add('\b'); add('\t'); add('\n'); add('\f'); add('\r');
 //        add('\"'); add('\''); add('\\');}};
@@ -270,7 +270,7 @@ private boolean IncorrectCastExpr(ASTNode node){
         }
         return true;
         }
-        private boolean NotCorrectEscapeString(Token token) {
+        private boolean NotCorrectEscapeString(ASTNode token) {
             char [] chars = token.value.toCharArray();
             int size = chars.length;
 
@@ -488,8 +488,14 @@ non terminal  TypeImportOndemandDecl                  type_import_ondemand_decl;
 // modifiers
 nonterminal  Modifiers             modifiers;
 nonterminal  Token                 modifier;
-nonterminal NumericLiteral         numeric_literal;
 
+// literals
+nonterminal NumericLiteral         numeric_literal;
+nonterminal BoolLiteral            bool_literal;
+nonterminal CharLiteral            char_literal;
+nonterminal StringLiteral          string_literal;
+nonterminal NullLiteral            null_literal;
+nonterminal ThisLiteral            this_literal;
 
 
 // class
@@ -749,7 +755,7 @@ array_creation_expr ::= NEW primitive_type:e1 dim_expr:e2 {:RESULT = new ArrayCr
 
 
 primary_no_new_array ::= literal:e {:RESULT = e;:}
-                         | THISLITERAL:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | this_literal:e {:RESULT = new PrimaryNoArray(list(e), "");:}
                          | LEFTPARN expr:e RIGHTPARN {:RESULT = new PrimaryNoArray(list(e), "");:}
                          | class_instance_creation_expression:e {:RESULT = e;:}
                          | field_access:e {:RESULT = e;:}
@@ -757,16 +763,22 @@ primary_no_new_array ::= literal:e {:RESULT = e;:}
                          | array_access:e {:RESULT = e;:};
 
 
-numeric_literal ::= INTGERLITERAL:e {:RESULT = new NumericLiteral(list(e), "");:};
+numeric_literal ::= INTGERLITERAL:e {:RESULT = new NumericLiteral(list(), e.value);:};
+bool_literal    ::= TRUELITERAL:e {:RESULT = new BoolLiteral(list(), e.value);:}
+                 | FALSELITERAL:e {:RESULT = new BoolLiteral(list(), e.value);:};
+string_literal ::= STRINGLITERAL:e {:RESULT = new StringLiteral(list(), e.value);:};
+char_literal ::= CHARLITERAL:e {:RESULT = new CharLiteral(list(), e.value);:};
+null_literal ::= NULLLITERAL:e {:RESULT = new NullLiteral(list(), e.value);:};
+this_literal ::= THISLITERAL:e {:RESULT = new ThisLiteral(list(), e.value);:};
+
 
 literal ::= numeric_literal:e {:RESULT = e;:}
-            | TRUELITERAL:e {:RESULT = new Literal(list(e), "");:}
-            | FALSELITERAL:e {:RESULT = new Literal(list(e), "");:}
-            | CHARLITERAL:e {:if (NotCorrectEscapeChar(e)) throw new Exception("Incorrect Escape Char");
-            else RESULT = new Literal(list(e), "");:}
-            | STRINGLITERAL:e {: if (NotCorrectEscapeString(e)) throw new Exception("Incorrect Escape String");
-            else RESULT = new Literal(list(e), "");:}
-            | NULLLITERAL:e {:RESULT = new Literal(list(e), "");:};
+            | bool_literal:e {:RESULT = e;:}
+            | char_literal:e {:if (NotCorrectEscapeChar(e)) throw new Exception("Incorrect Escape Char");
+            else RESULT = e;:}
+            | string_literal:e {: if (NotCorrectEscapeString(e)) throw new Exception("Incorrect Escape String");
+            else RESULT = e;:}
+            | null_literal:e {:RESULT = e;:};
 
 class_instance_creation_expression ::= NEW class_or_interface_type:e1 LEFTPARN argument_list:e2 RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, e2), "");:}
                                     |  NEW class_or_interface_type:e1 LEFTPARN RIGHTPARN {:RESULT = new ClassInstanceCreateExpr(list(e1, null), "");:};

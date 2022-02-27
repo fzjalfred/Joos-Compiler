@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,5 +22,13 @@ public class CastExpr extends UnaryExprNotPlusMinus {
     public Type getType(){
         assert children.get(0) instanceof Type;
         return (Type)children.get(0);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

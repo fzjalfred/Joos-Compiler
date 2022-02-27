@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class CompilationUnit extends ASTNode implements Referenceable{
@@ -25,4 +27,12 @@ public class CompilationUnit extends ASTNode implements Referenceable{
     }
 
     public String fileName = "";
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
+    }
 }

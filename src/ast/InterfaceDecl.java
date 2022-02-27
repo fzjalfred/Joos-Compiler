@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class InterfaceDecl extends TypeDecl {
@@ -12,5 +14,13 @@ public class InterfaceDecl extends TypeDecl {
     public InterfaceBody getInterfaceBody(){
         assert children.get(3) instanceof InterfaceBody;
         return (InterfaceBody)children.get(3);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

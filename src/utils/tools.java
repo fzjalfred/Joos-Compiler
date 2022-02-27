@@ -27,4 +27,8 @@ public class tools {
         return getSimpleName(qualifiedNameStr);
     }
 
+    public static List<ASTNode> empty(){
+        return new ArrayList<ASTNode>();
+    }
+
 }

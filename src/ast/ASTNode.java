@@ -1,4 +1,6 @@
 package ast;
+import visitors.Visitor;
+
 import java.util.List;
 
 abstract public class ASTNode {
@@ -32,6 +34,11 @@ abstract public class ASTNode {
         return this.children.isEmpty();
     }
 
-
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
+    }
 }
 

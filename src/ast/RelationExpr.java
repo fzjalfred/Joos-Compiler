@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class RelationExpr extends EqualityExpr {
@@ -19,5 +21,13 @@ public class RelationExpr extends EqualityExpr {
             return children.get(1).value.equals("instanceof");
         }
         return false;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

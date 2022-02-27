@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class MethodHeader extends ASTNode {
@@ -22,4 +24,11 @@ public class MethodHeader extends ASTNode {
         return null;
     }
 
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
+    }
 }

@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,5 +19,13 @@ public class ParameterList extends ASTNode {
             params.add((Parameter)node);
         }
         return params;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

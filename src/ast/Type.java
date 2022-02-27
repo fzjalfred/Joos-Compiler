@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class Type extends ASTNode {
@@ -21,5 +23,13 @@ public class Type extends ASTNode {
 
     public String getNameString(){
         return "";
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

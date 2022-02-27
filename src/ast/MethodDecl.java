@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class MethodDecl extends ClassMemberDecl {
@@ -34,4 +36,12 @@ public class MethodDecl extends ClassMemberDecl {
         return ifContainModifier(children.get(0).children.get(0), "protected");
     }
 
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
+    }
 }

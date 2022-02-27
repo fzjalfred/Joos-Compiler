@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ClassDecl extends TypeDecl{
@@ -15,6 +17,14 @@ public class ClassDecl extends TypeDecl{
         if (children.get(4) == null) return null;
         assert children.get(4).children.get(0) instanceof ClassBodyDecls;
         return (ClassBodyDecls)children.get(4).children.get(0);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 
 }

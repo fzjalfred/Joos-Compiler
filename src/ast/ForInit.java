@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ForInit extends ASTNode implements Referenceable{
@@ -15,5 +17,13 @@ public class ForInit extends ASTNode implements Referenceable{
             return (VarDeclarator)children.get(1);
         }
         return null;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

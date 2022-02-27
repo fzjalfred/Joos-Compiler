@@ -3,6 +3,7 @@ package visitors;
 import ast.*;
 
 public abstract class Visitor {
+    public void visit(ASTNode node){}
     public void visit(AbstractMethodDecl node){}
     public void visit(AdditiveExpr node){}
     public void visit(AndExpr node){}
@@ -99,6 +100,9 @@ public abstract class Visitor {
     public void visit(FieldDecl node){}
     public void visit(Block node){}
     public void visit(BlockStmt node){}
-
+    public void visit(CharLiteral node){}
+    public void visit(NullLiteral node){}
+    public void visit(StringLiteral node){}
+    public void visit(ThisLiteral node){}
 
 }

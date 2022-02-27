@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class IfThenElseStmt extends Stmt {
@@ -17,5 +19,13 @@ public class IfThenElseStmt extends Stmt {
     public BlockStmt getElseStmt(){
         assert children.get(2) instanceof BlockStmt;
         return (BlockStmt)children.get(2);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

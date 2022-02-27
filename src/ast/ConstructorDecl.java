@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ConstructorDecl extends ClassBodyDecl implements Referenceable{
@@ -20,4 +22,11 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable{
         return (ConstructorBody)children.get(2);
     }
 
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
+    }
 }

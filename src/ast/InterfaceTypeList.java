@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,5 +17,13 @@ public class InterfaceTypeList extends ASTNode {
             res.add((ClassOrInterfaceType)node);
         }
         return res;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

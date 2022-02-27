@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ForStmtNotIf extends StmtNotIf {
@@ -21,5 +23,13 @@ public class ForStmtNotIf extends StmtNotIf {
     public BlockStmt getBlockStmt(){
         assert children.get(3) instanceof BlockStmt;
         return (BlockStmt)children.get(3);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

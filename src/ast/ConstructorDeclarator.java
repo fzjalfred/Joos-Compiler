@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ConstructorDeclarator extends ASTNode {
@@ -16,5 +18,13 @@ public class ConstructorDeclarator extends ASTNode {
     public int numParams(){
         if (getParameterList() == null) return 0;
         return getParameterList().paramNum();
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

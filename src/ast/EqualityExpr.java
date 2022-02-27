@@ -1,9 +1,24 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class EqualityExpr extends AndExpr {
     public EqualityExpr(List<ASTNode> children, String value){
         super(children, value);
+    }
+
+    @Override
+    public ASTNode getRight() {
+        return children.get(2);
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

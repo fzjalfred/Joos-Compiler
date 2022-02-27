@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,5 +31,13 @@ public class Name extends ASTNode{
             if (!children.get(i).value.equals(name.children.get(i).value)) return false;
         }
         return true;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

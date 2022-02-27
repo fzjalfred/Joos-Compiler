@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.*;
 
 public class VarDeclarators extends ASTNode{
@@ -14,5 +16,13 @@ public class VarDeclarators extends ASTNode{
             res.add(vd.getName());
         }
         return res;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

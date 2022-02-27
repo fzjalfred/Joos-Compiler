@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 
 public class ArrayType extends ReferenceType{
@@ -29,5 +31,13 @@ public class ArrayType extends ReferenceType{
     @Override
     public String getNameString() {
         return getType().getNameString() + "[]";
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }

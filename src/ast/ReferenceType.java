@@ -1,5 +1,7 @@
 package ast;
 
+import visitors.Visitor;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -21,5 +23,13 @@ public class ReferenceType extends Type {
             return thisType.equals(thatType);
         }
         return false;
+    }
+
+    @Override
+    public void accept(Visitor v){
+        for (ASTNode node: children){
+            if (node != null) node.accept(v);
+        }
+        v.visit(this);
     }
 }
