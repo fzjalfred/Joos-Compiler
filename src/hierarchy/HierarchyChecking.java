@@ -2,8 +2,6 @@ package hierarchy;
 
 import java.util.*;
 
-import javax.naming.Referenceable;
-
 import java.io.*;
 import ast.*;
 import type.*;
@@ -30,6 +28,7 @@ public class HierarchyChecking {
     }
 
     public void createContainMap() {
+        containMap = new HashMap<ASTNode, Map <String, Referenceable>>();
         for (ASTNode T: declareMap.keySet()) {
             if (!containMap.containsKey(T)) {
                 containMap.put(T, new HashMap<String, Referenceable>());
@@ -527,7 +526,7 @@ public class HierarchyChecking {
         for (Pair<String, ASTNode> node : nonImported) {
             if (node.first.contains("java.lang.Object")) { // general base class
                 ClassDecl classDecl = (ClassDecl) node.second;
-                generalBaseObjectClass.addAll(declare(classDecl, env));
+                generalBaseObjectClass.addAll(declare((Referenceable)classDecl, env));
                 continue; // No need to check base class correctness(?
             }
 
