@@ -1,6 +1,9 @@
 package hierarchy;
 
 import java.util.*;
+
+import javax.naming.Referenceable;
+
 import java.io.*;
 import ast.*;
 import type.*;
@@ -15,6 +18,7 @@ public class HierarchyChecking {
     public Map<ASTNode, List<Referenceable>> parentMap;
     public Map<ASTNode, List<Referenceable>> directParentMap;
     public Map<ASTNode, List<Referenceable>> inheritMap;
+    public Map<ASTNode, Map<String, Referenceable>> containMap;
     RootEnvironment env;
     public HierarchyChecking() {
         this.generalBaseObjectClass = new ArrayList <Referenceable>(){};
@@ -23,6 +27,49 @@ public class HierarchyChecking {
         this.parentMap = new HashMap<ASTNode, List<Referenceable>>();
         this.directParentMap = new HashMap<ASTNode, List<Referenceable>>();
         this.inheritMap = new HashMap<ASTNode, List<Referenceable>>();
+    }
+
+    public void createContainMap() {
+        for (ASTNode T: declareMap.keySet()) {
+            if (!containMap.containsKey(T)) {
+                containMap.put(T, new HashMap<String, Referenceable>());
+            }
+            for (int l = 0; l<declareMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (declareMap.get(T).get(l) instanceof MethodList) {
+                    MethodList method_list = (MethodList) declareMap.get(T).get(l);
+                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
+                }
+                if (declareMap.get(T).get(l) instanceof AbstractMethodList) {
+                    AbstractMethodList method_list = (AbstractMethodList) declareMap.get(T).get(l);
+                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
+                }
+                if (declareMap.get(T).get(l) instanceof FieldDecl) {
+                    FieldDecl method_list = (FieldDecl) declareMap.get(T).get(l);
+                    containMap.get(T).put(method_list.getFirstVarName(), (Referenceable)method_list);
+                }
+            }
+        }
+        for (ASTNode T: inheritMap.keySet()) {
+            if (!containMap.containsKey(T)) {
+                containMap.put(T, new HashMap<String, Referenceable>());
+            }
+            for (int l = 0; l<inheritMap.get(T).size(); l++) {
+                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
+                if (inheritMap.get(T).get(l) instanceof MethodList) {
+                    MethodList method_list = (MethodList) inheritMap.get(T).get(l);
+                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
+                }
+                if (inheritMap.get(T).get(l) instanceof AbstractMethodList) {
+                    AbstractMethodList method_list = (AbstractMethodList) inheritMap.get(T).get(l);
+                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
+                }
+                if (inheritMap.get(T).get(l) instanceof FieldDecl) {
+                    FieldDecl method_list = (FieldDecl) inheritMap.get(T).get(l);
+                    containMap.get(T).put(method_list.getFirstVarName(), (Referenceable)method_list);
+                }
+            }
+        }
     }
 
 
@@ -464,6 +511,7 @@ public class HierarchyChecking {
         }
         createParentMap();
         createInheritanceMap();
+        createContainMap();
         checkClassHierary(env);
     }
 
