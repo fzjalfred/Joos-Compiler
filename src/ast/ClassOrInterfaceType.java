@@ -31,4 +31,9 @@ public class ClassOrInterfaceType extends ReferenceType {
         }
         v.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return getName().getValue();
+    }
 }

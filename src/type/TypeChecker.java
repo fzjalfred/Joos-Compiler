@@ -1,6 +1,7 @@
 package type;
 
 import ast.CompilationUnit;
+import exception.SemanticError;
 import visitors.TypeCheckVisitor;
 
 public class TypeChecker {
@@ -22,13 +23,14 @@ public class TypeChecker {
      * Check that no objects of abstract classes are created.
      * Check that no bitwise operations occur.
      * Check that the implicit this variable is not accessed in a static method or in the initializer of a static field.*/
-    public void check(){
+    public void check() throws SemanticError{
         checkTypeRules();
         //TODO: extra 8 rules
     }
 
-    private void checkTypeRules(){
+    private void checkTypeRules() throws SemanticError {
         for (CompilationUnit comp : env.compilationUnits){
+            SemanticError.currFile = comp.fileName;
             comp.accept(visitor);
         }
         assert visitor.context.isEmpty();   // assert all frames to be popped

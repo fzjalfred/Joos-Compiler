@@ -40,4 +40,9 @@ public class ArrayType extends ReferenceType{
         }
         v.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return getType().toString() + "[]";
+    }
 }

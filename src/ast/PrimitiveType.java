@@ -26,4 +26,9 @@ public class PrimitiveType extends Type {
         }
         v.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

@@ -19,6 +19,14 @@ public class ForInit extends ASTNode implements Referenceable{
         return null;
     }
 
+    public Type getType(){
+        if (isVarDecl()){
+            assert children.get(0) instanceof Type;
+            return (Type)children.get(0);
+        }
+        return null;
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){

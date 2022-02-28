@@ -21,7 +21,7 @@ public class ClassBody extends ASTNode {
     public void accept(Visitor v){
         if (v instanceof TypeCheckVisitor){
             TypeCheckVisitor visitor = (TypeCheckVisitor)v;
-            visitor.context.entry();
+            visitor.context.entry("ClassDecl");
             acceptMain(v);
             visitor.context.pop();
         }   else{

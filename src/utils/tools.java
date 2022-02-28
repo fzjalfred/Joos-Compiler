@@ -31,4 +31,8 @@ public class tools {
         return new ArrayList<ASTNode>();
     }
 
+    public static List<ASTNode> list(ASTNode node){
+        return new ArrayList<ASTNode>(){{add(node);}};
+    }
+
 }

@@ -6,6 +6,7 @@ public class Context {
     /**context frame for each scope */
     class ContextFrame{
         private Map<String, Type> T;
+        private String name;
         public Type get(String name){
             if (T.containsKey(name)) return T.get(name);
             return null;
@@ -14,13 +15,15 @@ public class Context {
         public void put(String name, Type type){
             T.put(name, type);
         }
-        public ContextFrame(){
+        public ContextFrame(String name){
+            this.name = name;
             T = new HashMap<String,Type>();
         }
 
         @Override
         public String toString() {
             return "ContextFrame{" +
+                    "name: " + name +
                     "T=" + T +
                     '}';
         }
@@ -29,9 +32,9 @@ public class Context {
     private Stack<ContextFrame> frames;
 
     /** put empty context frame on top of frames */
-    public void entry(){
+    public void entry(String name){
         //System.out.println("pushing " + frames.size()+1);
-        frames.push(new ContextFrame());
+        frames.push(new ContextFrame(name));
     }
 
     /** pop top of the frame */

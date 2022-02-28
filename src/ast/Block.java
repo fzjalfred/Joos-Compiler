@@ -24,7 +24,7 @@ public class Block extends StmtWithoutSubstmt {
     public void accept(Visitor v){
         if (v instanceof TypeCheckVisitor){
             TypeCheckVisitor visitor = (TypeCheckVisitor)v;
-            visitor.context.entry();
+            visitor.context.entry("Block");
             acceptMain(v);
             visitor.context.pop();
         }   else{

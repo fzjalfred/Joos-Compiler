@@ -18,6 +18,10 @@ public class VarDeclarators extends ASTNode{
         return res;
     }
 
+    public String getFirstName(){
+        return getName().get(0);
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){
