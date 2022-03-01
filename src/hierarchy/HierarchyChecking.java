@@ -64,7 +64,6 @@ public class HierarchyChecking {
             }
             declareMapRe.put(T, inclass_map);
         }
-        System.out.println("=========declareMap==================");
         inheritMapRe = new HashMap<ASTNode, Map<String, List<ASTNode>>>();
         for(ASTNode T: inheritMap.keySet()) {
             Map<String, List<ASTNode>> inclass_map = new HashMap<String, List<ASTNode>>();
@@ -159,7 +158,6 @@ public class HierarchyChecking {
 
 
     public void checkClassHierary(RootEnvironment env) throws Exception {
-        this.env = env;
         checkContainSameSigDiffReturn(env);
         checkAbstrictMethod(env);
         checkStaticMethod(env);
@@ -284,6 +282,7 @@ public class HierarchyChecking {
                 Map<ASTNode, ASTNode> replace_set = get_replace(T);
                 for (ASTNode m: replace_set.keySet()) {
                     ASTNode m_base = replace_set.get(m);
+                    //System.out.println(get_full_sig((MethodDecl)m_base));
                     if (get_mods(m_base).contains("final") ) {
                         throw new Exception("A method \'"+ get_sig(m).get(0) + "\' must not replace a final method.");
                     }
@@ -344,7 +343,19 @@ public class HierarchyChecking {
         ParameterList parameter_list = (ParameterList)method_decl.children.get(0).children.get(2).children.get(1);
         List<Parameter> paras = parameter_list.getParams();
         for (Parameter i: paras) {
-            res.add(i.children.get(0).toString());
+            if (i.getType() instanceof ClassOrInterfaceType) {
+                Referenceable class_decl_of_param = ((ClassOrInterfaceType)i.getType()).typeDecl;
+                String qualified_name = "";
+                if (class_decl_of_param instanceof ClassDecl) {
+                    qualified_name = get_class_qualifed_name((ClassDecl)class_decl_of_param, env);
+                }
+                if (class_decl_of_param instanceof InterfaceDecl) {
+                    qualified_name = get_class_qualifed_name((InterfaceDecl)class_decl_of_param, env);
+                }
+                res.add(qualified_name);
+            } else {
+                res.add(i.children.get(0).toString());
+            }
         }
         return res;
     }
@@ -588,6 +599,7 @@ public class HierarchyChecking {
     }
 
     public void checkRootEnvironment(RootEnvironment env) throws Exception{
+        this.env = env;
         for (String packKey : env.packageScopes.keySet()) {
             ScopeEnvironment packScope = (ScopeEnvironment) env.packageScopes.get(packKey);
             for (ASTNode compileKey : packScope.childScopes.keySet()) {
