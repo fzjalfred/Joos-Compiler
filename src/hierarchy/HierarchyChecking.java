@@ -16,7 +16,15 @@ public class HierarchyChecking {
     public Map<ASTNode, List<Referenceable>> parentMap;
     public Map<ASTNode, List<Referenceable>> directParentMap;
     public Map<ASTNode, List<Referenceable>> inheritMap;
-    public Map<ASTNode, Map<String, Referenceable>> containMap;
+    
+
+
+    //rebuild map for A3
+    public Map<ASTNode, Map<String, List<ASTNode>>> inheritMapRe;
+    public Map<ASTNode, Map<String, List<ASTNode>>> declareMapRe;
+    public Map<ASTNode, Map<String, List<ASTNode>>> containMap;
+
+
     RootEnvironment env;
     public HierarchyChecking() {
         this.generalBaseObjectClass = new ArrayList <Referenceable>(){};
@@ -27,47 +35,125 @@ public class HierarchyChecking {
         this.inheritMap = new HashMap<ASTNode, List<Referenceable>>();
     }
 
-    public void createContainMap() {
-        containMap = new HashMap<ASTNode, Map <String, Referenceable>>();
-        for (ASTNode T: declareMap.keySet()) {
-            if (!containMap.containsKey(T)) {
-                containMap.put(T, new HashMap<String, Referenceable>());
+    public void rebuildMaps() {
+        declareMapRe = new HashMap<ASTNode, Map<String, List<ASTNode>>>();
+
+        
+        for(ASTNode T: declareMap.keySet()) {
+            Map<String, List<ASTNode>> inclass_map = new HashMap<String, List<ASTNode>>();
+            for (Referenceable l: declareMap.get(T)) {
+                if (l instanceof MethodList){
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    for (MethodDecl single: ((MethodList)l).methods) {
+                        method_lst_buff.add(single);
+                    }
+                    inclass_map.put(((MethodList)l).getSimpleName(), method_lst_buff);
+                }
+                if (l instanceof AbstractMethodList){
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    for (AbstractMethodDecl single: ((AbstractMethodList)l).methods) {
+                        method_lst_buff.add(single);
+                    }
+                    inclass_map.put(((AbstractMethodList)l).getSimpleName(), method_lst_buff);
+                }
+                if (l instanceof FieldDecl){
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    method_lst_buff.add((FieldDecl)l);
+                    inclass_map.put(((FieldDecl)l).getFirstVarName(), method_lst_buff);
+                }
             }
-            for (int l = 0; l<declareMap.get(T).size(); l++) {
-                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
-                if (declareMap.get(T).get(l) instanceof MethodList) {
-                    MethodList method_list = (MethodList) declareMap.get(T).get(l);
-                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
-                }
-                if (declareMap.get(T).get(l) instanceof AbstractMethodList) {
-                    AbstractMethodList method_list = (AbstractMethodList) declareMap.get(T).get(l);
-                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
-                }
-                if (declareMap.get(T).get(l) instanceof FieldDecl) {
-                    FieldDecl method_list = (FieldDecl) declareMap.get(T).get(l);
-                    containMap.get(T).put(method_list.getFirstVarName(), (Referenceable)method_list);
-                }
-            }
+            declareMapRe.put(T, inclass_map);
         }
-        for (ASTNode T: inheritMap.keySet()) {
-            if (!containMap.containsKey(T)) {
-                containMap.put(T, new HashMap<String, Referenceable>());
+        System.out.println("=========declareMap==================");
+        inheritMapRe = new HashMap<ASTNode, Map<String, List<ASTNode>>>();
+        for(ASTNode T: inheritMap.keySet()) {
+            Map<String, List<ASTNode>> inclass_map = new HashMap<String, List<ASTNode>>();
+            for (Referenceable l: inheritMap.get(T)) {
+                if (l instanceof MethodList){
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    for (MethodDecl single: ((MethodList)l).methods) {
+                        method_lst_buff.add(single);
+                    }
+                    inclass_map.put(((MethodList)l).getSimpleName(), method_lst_buff);
+                }
+                if (l instanceof AbstractMethodList){
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    for (AbstractMethodDecl single: ((AbstractMethodList)l).methods) {
+                        method_lst_buff.add(single);
+                    }
+                    inclass_map.put(((AbstractMethodList)l).getSimpleName(), method_lst_buff);
+                }
+                if (l instanceof FieldDecl){
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    method_lst_buff.add((FieldDecl)l);
+                    inclass_map.put(((FieldDecl)l).getFirstVarName(), method_lst_buff);
+                } 
             }
-            for (int l = 0; l<inheritMap.get(T).size(); l++) {
-                // MethodList|ConstructorList|fieldDecl|AbstractMethodList
-                if (inheritMap.get(T).get(l) instanceof MethodList) {
-                    MethodList method_list = (MethodList) inheritMap.get(T).get(l);
-                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
+            inheritMapRe.put(T, inclass_map);
+        }
+        createContainMap();
+        /**DEBUG: Print inheritMapRe, declareMapRe, containMap */
+        // for(ASTNode T: inheritMapRe.keySet()) {
+        //     for (String name: inheritMapRe.get(T).keySet()) {
+        //         System.out.println(name);
+        //         for(ASTNode l: inheritMapRe.get(T).get(name)) {
+        //             if (l instanceof MethodDecl){
+        //                 System.out.println(get_full_sig(l));
+        //             }
+        //         }
+        //     }
+        // }
+        // for(ASTNode T: declareMapRe.keySet()) {
+        //     for (String name: declareMapRe.get(T).keySet()) {
+        //         System.out.println(name);
+        //         for(ASTNode l: declareMapRe.get(T).get(name)) {
+        //             if (l instanceof MethodDecl){
+        //                 System.out.println(get_full_sig(l));
+        //             }
+        //         }
+        //     }
+        // }
+        // for(ASTNode T: containMap.keySet()) {
+        //     for (String name: containMap.get(T).keySet()) {
+        //         System.out.println(name);
+        //         for(ASTNode l: containMap.get(T).get(name)) {
+        //             if (l instanceof MethodDecl){
+        //                 System.out.println(get_full_sig(l));
+        //             }
+        //         }
+        //     }
+        // }
+    }
+
+    public void createContainMap() {
+        containMap =  new HashMap<ASTNode, Map<String, List<ASTNode>>>();
+        for (ASTNode T: declareMapRe.keySet()) {
+            Map<String, List<ASTNode>> inclass_map = new HashMap<String, List<ASTNode>>();
+            for (String name: declareMapRe.get(T).keySet()) {
+                List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                for (ASTNode e: declareMapRe.get(T).get(name)){
+                    method_lst_buff.add(e);
                 }
-                if (inheritMap.get(T).get(l) instanceof AbstractMethodList) {
-                    AbstractMethodList method_list = (AbstractMethodList) inheritMap.get(T).get(l);
-                    containMap.get(T).put(method_list.getSimpleName(), (Referenceable)method_list);
-                }
-                if (inheritMap.get(T).get(l) instanceof FieldDecl) {
-                    FieldDecl method_list = (FieldDecl) inheritMap.get(T).get(l);
-                    containMap.get(T).put(method_list.getFirstVarName(), (Referenceable)method_list);
-                }
+                inclass_map.put(name, method_lst_buff);
             }
+            containMap.put(T, inclass_map);
+        }
+        for (ASTNode T: inheritMapRe.keySet()) {
+            Map<ASTNode, ASTNode> replace_set = get_replace(T);
+            Map<String, List<ASTNode>> inclass_map = containMap.get(T);
+            for (String name: inheritMapRe.get(T).keySet()) {
+                List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                if (inclass_map.containsKey(name)) {
+                    method_lst_buff = inclass_map.get(name);
+                }
+                for (ASTNode e: inheritMapRe.get(T).get(name)){
+                    if (!replace_set.containsValue(e)) {
+                        method_lst_buff.add(e);
+                    }
+                }
+                inclass_map.put(name, method_lst_buff);
+            }
+            containMap.put(T, inclass_map);
         }
     }
 
@@ -510,7 +596,7 @@ public class HierarchyChecking {
         }
         createParentMap();
         createInheritanceMap();
-        createContainMap();
+        rebuildMaps();
         checkClassHierary(env);
     }
 
