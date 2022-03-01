@@ -5,10 +5,29 @@ import visitors.Visitor;
 import java.util.List;
 
 public class MethodInvocation extends PrimaryNoArray {
+    public Type type = null;
     public MethodInvocation(List<ASTNode> children, String value){
         super(children, value);
     }
 
+    public boolean hasName() {
+        if (children.size() == 0) {
+            return false;
+        }
+        return (children.get(0) instanceof Name);
+    }
+
+    public Name getName() {
+        assert children.get(0) instanceof Name;
+        return (Name) children.get(0);
+    }
+
+    public ArgumentList getArgumentList() {
+        if (children.get(2) == null) {
+            return null;
+        }
+        return (ArgumentList) children.get(2);
+    }
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){

@@ -16,6 +16,17 @@ public class InterfaceDecl extends TypeDecl {
         return (InterfaceBody)children.get(3);
     }
 
+    public boolean isStatic() {
+        Modifiers modifiers = (Modifiers) children.get(0);
+
+        for (ASTNode modifier : modifiers.children) {
+            if (modifier.value.equals( "static")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){

@@ -2,6 +2,7 @@ package ast;
 
 import visitors.Visitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MethodDecl extends ClassMemberDecl {
@@ -23,6 +24,40 @@ public class MethodDecl extends ClassMemberDecl {
     public String getName(){
         MethodHeader mh = getMethodHeader();
         return mh.getName();
+    }
+
+    public List<Type> getParamType() {
+        MethodHeader methodHeader = getMethodHeader();
+        MethodDeclarator methodDeclarator = methodHeader.getMethodDeclarator();
+        if (!methodDeclarator.hasParameterList()) {
+            return null;
+        }
+        ParameterList parameterList = methodDeclarator.getParameterList();
+        List<Parameter> parameters = parameterList.getParams();
+
+
+        List<Type> typeList = new ArrayList<Type>();
+
+        for (Parameter parameter : parameters) {
+            typeList.add(parameter.getType());
+        }
+        return typeList;
+    }
+
+    public Type getReturnType() {
+        Type returnType = (Type)getMethodHeader().children.get(1);
+        return returnType;
+    }
+
+    public boolean isStatic() {
+        Modifiers modifiers = (Modifiers) getMethodHeader().children.get(0);
+
+        for (ASTNode modifier : modifiers.children) {
+            if (modifier.value.equals( "static")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean ifContainModifier(ASTNode modifiers, String name){

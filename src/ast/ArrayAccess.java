@@ -10,6 +10,9 @@ public class ArrayAccess extends PrimaryNoArray {
     }
 
     public boolean hasName() {
+        if (children.size() == 0) {
+            return false;
+        }
         return (children.get(0) instanceof Name);
     }
 

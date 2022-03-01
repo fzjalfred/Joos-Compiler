@@ -264,7 +264,7 @@ public class TypeLinker {
         }   else if (node instanceof CastExpr){
             CastExpr castExpr = (CastExpr)node;
             ScopeEnvironment localScope = env.ASTNodeToScopes.get(castExpr);
-            castExpr.changePrefixExprToType();
+            castExpr.changePrefixExprToType(); //
             Type type = castExpr.getType();
             processType(localScope, type);
         }   else if (node instanceof RelationExpr){

@@ -1,0 +1,252 @@
+package type;
+import ast.*;
+import lexer.*;
+import exception.SemanticError;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import utils.*;
+
+public class NameDisambiguation {
+
+    public void rootEnvironmentDisambiguation(RootEnvironment rootEnv) throws SemanticError, Exception {
+        List<CompilationUnit> compilationUnitList = rootEnv.compilationUnits;
+
+        for (CompilationUnit compilationUnit : compilationUnitList) {
+            SemanticError.currFile = compilationUnit.fileName;
+            traverseNode((ASTNode) compilationUnit, rootEnv);
+        }
+    }
+
+    private Type getVarNameType(Name name, RootEnvironment rootEnv) throws SemanticError {
+        Type type = null;
+        if (name.isSimpleName()) {
+            // simple name
+            ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(name);
+            // construct simple name
+            String nameStr = name.getValue();
+            System.out.println(nameStr);
+            Token nameToken = tools.simpleNameConstructor(nameStr);
+            // lookup
+            Referenceable decl = nameScope.lookup(nameToken); // FIXME:: how to solve overloading method
+            if (decl == null) {
+                throw new SemanticError("Cannot find decl for simple name " + name.getValue());
+            } else {
+                type = getVarType(decl);
+            }
+        } else {
+            // qualified name
+            Referenceable decl = rootEnv.lookup(name);
+            // check if it is a static decl
+            if (decl instanceof FieldDecl) {
+                FieldDecl fieldDecl = (FieldDecl) decl;
+                if (!fieldDecl.isStatic()) {
+                    throw new SemanticError("Field is not static " + fieldDecl.getName());
+                }
+                type = getVarType(decl);
+            } else {
+                throw new SemanticError("Temp Error for debugging purpose: Not Var Decl " + decl.toString());
+            }
+
+        }
+        return type;
+    }
+
+    private void assignNameType(Name name, RootEnvironment rootEnv) throws SemanticError {
+        if (name.type != null) {
+            return;
+        }
+        Type type = getVarNameType(name, rootEnv);
+        name.type = type;
+    }
+
+    private Type getVarType(Referenceable ref) throws SemanticError {
+        Type type = null;
+        if (ref instanceof Parameter) {
+            type = ((Parameter)ref).getType();
+        } else if (ref instanceof FieldDecl) {
+            type = ((FieldDecl)ref).getType();
+        } else if (ref instanceof  LocalVarDecl) {
+            type = ((LocalVarDecl) ref).getType();
+        } else {
+            // temp debug exception
+            throw new SemanticError("Cannot identify node type " + ref.toString());
+        }
+        return type;
+    }
+
+    private List<Type> getArgumentType(ArgumentList argumentList, RootEnvironment rootEnv) throws SemanticError {
+        List<Name> nameList = argumentList.getNameList();
+        List<Type> typeList = new ArrayList<Type>();
+        for (Name name : nameList) {
+            if (name.type == null) {
+                Type type = getVarNameType(name, rootEnv);
+                name.type = type;
+            }
+            typeList.add(name.type);
+        }
+        return typeList;
+    }
+
+    private boolean compareParam(List<Type> paramTypes, List<Type> argTypes) {
+        if (paramTypes == null && argTypes == null) { // both take 0 argument
+            return true;
+        }
+
+        if (paramTypes.size() != argTypes.size()) {
+            return false;
+        }
+
+        int size = paramTypes.size();
+
+        for (int i = 0; i < size; i++) {
+            if (!(paramTypes.get(i).equals(argTypes.get(i)))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void assignMethodInvocationReturnType(Name methodName, MethodInvocation methodInvocation, RootEnvironment rootEnv) throws SemanticError {
+        // no need for worrying about overwriting here, as overwriting can only happen when they have the same sig and return type
+            Referenceable methodDecls = null;
+            // simple Name
+        if (methodName.isSimpleName()) {
+            ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(methodName);
+            // construct simple name
+            String nameStr = methodName.getValue();
+            Token nameToken = tools.simpleNameConstructor(nameStr);
+            // lookup
+            methodDecls = nameScope.lookup(nameToken); // FIXME:: how to solve overloading method
+        } else {
+            // qualified name
+            // FIXME:: assign method decls
+        }
+
+        if (methodDecls == null) {
+            throw new SemanticError("Cannot find method " + methodName.getValue());
+        }
+        ArgumentList argList = methodInvocation.getArgumentList();
+        List<Type> targetArgType = null;
+        if (argList != null) {
+            targetArgType = getArgumentType(argList, rootEnv);
+        }
+        if (methodDecls instanceof MethodList) {
+            List<MethodDecl> methods = ((MethodList)methodDecls).methods;
+            for (MethodDecl method : methods) {
+                List<Type> searchParamType = method.getParamType();
+                if (compareParam(searchParamType, targetArgType)) { // FIXME:: What if the arg type cannot be resolved here
+                    methodInvocation.type = method.getReturnType();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void findNodeNameAndType(ASTNode node, RootEnvironment rootEnv) throws SemanticError {
+        Name name = null;
+        if (node instanceof ArrayAccess) {
+            ArrayAccess arrayAccess = (ArrayAccess) node;
+            if (arrayAccess.hasName()){
+                name = arrayAccess.getName();
+            }
+        } else if (node instanceof PostFixExpr) {
+            PostFixExpr postFixExpr = (PostFixExpr) node;
+            if (postFixExpr.hasName()) {
+                name = postFixExpr.getName();
+            }
+
+        } else if (node instanceof LHS) {
+            LHS lhs = (LHS) node;
+            if (lhs.hasName()) {
+                name = lhs.getName();
+            }
+        } else if (node instanceof ClassOrInterfaceType) {
+            ClassOrInterfaceType classOrInterfaceType = (ClassOrInterfaceType) node;
+            name = classOrInterfaceType.getName();
+            name.type = classOrInterfaceType;
+            return;
+        } else if (node instanceof MethodInvocation) {
+//            MethodInvocation methodInvocation = (MethodInvocation) node;
+//            if (methodInvocation.hasName()) { // case 1 A()
+//                name = methodInvocation.getName();
+//                if (name.type != null) {
+//                    return;
+//                }
+//                assignMethodInvocationReturnType(name, methodInvocation, rootEnv);
+//                return;
+//            } else { // case 2 A().B()
+//                // it cannot be a void type
+//
+//
+//            }
+//            // FIXME: temp return
+//            return;
+        } else if (node instanceof CastExpr) {
+            CastExpr castExpr = (CastExpr) node;
+            if (castExpr.hasName()) {
+                name = castExpr.getName();
+                if (name.type != null) {
+                    return;
+                }
+                name.type =  castExpr.getType();
+            }
+            return;
+        }
+
+        if (name != null) {
+            System.out.println(node.toString());
+            assignNameType(name, rootEnv);
+        }
+    }
+
+    private boolean skipNode(ASTNode node) { // temp soln
+        if (node == null) {
+            return true;
+        }
+        if (node instanceof MethodInvocation) {
+            return true;
+        }
+        if (node instanceof ClassDecl) {
+            return true;
+        }
+        if (node instanceof InterfaceDecl) {
+            return true;
+        }
+        if (node instanceof MethodDecl) {
+            return true;
+        }
+        if (node instanceof Parameter) {
+            return true;
+        }
+        if (node instanceof ClassInstanceCreateExpr) {
+            return true;
+        }
+        if (node instanceof ForInit) {
+            return true;
+        }
+        if (node instanceof FieldDecl) {
+            return true;
+        }
+        if (node instanceof LocalVarDecl) {
+            return true;
+        }
+        return false;
+    }
+
+    public void traverseNode(ASTNode node, RootEnvironment rootEnv) throws SemanticError, Exception {
+        if (skipNode(node)) {
+            return;
+        }
+
+//        System.out.println(node);
+
+
+        findNodeNameAndType(node, rootEnv);
+        for (ASTNode child : node.children) {
+            traverseNode(child, rootEnv);
+        }
+
+
+    }
+}

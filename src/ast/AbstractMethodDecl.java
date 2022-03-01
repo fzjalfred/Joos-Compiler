@@ -26,6 +26,10 @@ public class AbstractMethodDecl extends InterfaceMemberDecl{
         return getMethodDeclarator().getName();
     }
 
+    public boolean isStatic() {
+        return false;
+    }
+
     public Type getType(){
         if(children.get(1) instanceof Type){
             return (Type)children.get(1);

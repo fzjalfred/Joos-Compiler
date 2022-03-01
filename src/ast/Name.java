@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Name extends ASTNode{
+    public Type type = null;
     public Name(List<ASTNode> children, String value){
         super(children, value);
     }

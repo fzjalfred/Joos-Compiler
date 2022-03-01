@@ -11,6 +11,12 @@ public class MethodDeclarator extends ASTNode {
     public String getName(){
         return children.get(0).value;
     }
+    public boolean hasParameterList() {
+        if (children.get(1) == null) {
+            return false;
+        }
+        return true;
+    }
     public ParameterList getParameterList(){
         assert children.get(1) instanceof ParameterList;
         return (ParameterList)children.get(1);

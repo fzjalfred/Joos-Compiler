@@ -17,6 +17,8 @@ public class Main {
 			RootEnvironment env = EnvironmentBuilder.buildRoot(argv);
 			HierarchyChecking checker = new HierarchyChecking();
 			checker.checkRootEnvironment(env);
+			NameDisambiguation nameDisamb = new NameDisambiguation();
+			nameDisamb.rootEnvironmentDisambiguation(env);
 			TypeChecker typeChecker = new TypeChecker(env);
 			typeChecker.check();
 		} catch (Exception e) {

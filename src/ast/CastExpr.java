@@ -27,6 +27,9 @@ public class CastExpr extends UnaryExprNotPlusMinus {
         return (Type)children.get(0);
     }
     public boolean hasName() {
+        if (children.size() == 0) {
+            return false;
+        }
         return (children.get(0) instanceof Name);
     }
 

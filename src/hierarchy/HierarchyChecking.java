@@ -979,6 +979,22 @@ public class HierarchyChecking {
         }
     }
 
+    public void printDeclare() {
+        for (ASTNode node : declareMap.keySet()) {
+            if (node instanceof ClassDecl) {
+                ClassDecl pdecl = (ClassDecl) node;
+                System.out.println(pdecl.getName());
+            } else {
+                InterfaceDecl pdecl = (InterfaceDecl) node;
+                System.out.println(pdecl.getName());
+            }
+            for (Referenceable ref : declareMap.get(node)) {
+                System.out.println(ref.toString());
+            }
+            System.out.println("");
+        }
+    }
+
     public void printParent() {
         for (ASTNode node : parentMap.keySet()) {
             if (node instanceof ClassDecl) {
