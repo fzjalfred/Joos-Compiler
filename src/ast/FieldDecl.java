@@ -31,11 +31,16 @@ public class FieldDecl extends ClassMemberDecl {
         Modifiers modifiers = (Modifiers) children.get(0);
 
         for (ASTNode modifier : modifiers.children) {
-            if (modifier.value.equals( "static")) {
+            if (modifier.value.equals("static")) {
                 return true;
             }
         }
         return false;
+    }
+
+    public Modifiers getModifiers(){
+        assert children.get(0) instanceof Modifiers;
+        return (Modifiers)children.get(0);
     }
 
     @Override

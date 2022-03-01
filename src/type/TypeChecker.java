@@ -2,16 +2,19 @@ package type;
 
 import ast.CompilationUnit;
 import exception.SemanticError;
+import hierarchy.HierarchyChecking;
 import visitors.TypeCheckVisitor;
 
 public class TypeChecker {
     RootEnvironment env;
     TypeCheckVisitor visitor;
+    HierarchyChecking hierarchyChecker;
 
-
-    public TypeChecker(RootEnvironment env){
+    public TypeChecker(RootEnvironment env, HierarchyChecking hierarchyChecker){
         this.env = env;
-        visitor = new TypeCheckVisitor(env);
+        this.hierarchyChecker = hierarchyChecker;
+        visitor = new TypeCheckVisitor(env, hierarchyChecker);
+
     }
 
     /** Check that the types of all expressions and subexpressions conform to the Joos 1W typing rules and that all statements are type-correct.

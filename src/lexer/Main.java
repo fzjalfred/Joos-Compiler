@@ -19,7 +19,7 @@ public class Main {
 			checker.checkRootEnvironment(env);
 			NameDisambiguation nameDisamb = new NameDisambiguation();
 			nameDisamb.rootEnvironmentDisambiguation(env);
-			TypeChecker typeChecker = new TypeChecker(env);
+			TypeChecker typeChecker = new TypeChecker(env, checker);
 			typeChecker.check();
 		} catch (Exception e) {
 			e.printStackTrace();

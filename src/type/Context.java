@@ -66,4 +66,11 @@ public class Context {
     public Context(){
         frames = new Stack<ContextFrame>();
     }
+
+    @Override
+    public String toString() {
+        return "Context{" +
+                "frames=" + frames +
+                '}';
+    }
 }

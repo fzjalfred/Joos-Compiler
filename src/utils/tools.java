@@ -35,4 +35,13 @@ public class tools {
         return new ArrayList<ASTNode>(){{add(node);}};
     }
 
+    public static ClassOrInterfaceType getClassType(String className, ClassDecl classDecl){
+        ClassOrInterfaceType classType = new ClassOrInterfaceType(new ArrayList<ASTNode>(){{add(nameConstructor(className));};}, "");
+        classType.typeDecl = classDecl;
+        return classType;
+    }
+    public static boolean checkStatic(Modifiers m){
+        return m.getModifiersSet().contains("static");
+    }
+
 }

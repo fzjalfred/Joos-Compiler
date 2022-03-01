@@ -225,7 +225,11 @@ public class TypeLinker {
             for (ClassOrInterfaceType i : interfaceTypes){
                 processType(localScope, i);
             }
-        } else if (node instanceof ClassInstanceCreateExpr ){
+        }   else if (node instanceof FieldDecl){
+            FieldDecl fieldDecl = (FieldDecl)node;
+            ScopeEnvironment localScope = env.ASTNodeToScopes.get(fieldDecl);
+            processType(localScope, fieldDecl.getType());
+        }   else if (node instanceof ClassInstanceCreateExpr ){
             ClassInstanceCreateExpr classInstanceCreateExpr = (ClassInstanceCreateExpr)node;
             ScopeEnvironment localScope = env.ASTNodeToScopes.get(classInstanceCreateExpr);
             Type type = classInstanceCreateExpr.getType();

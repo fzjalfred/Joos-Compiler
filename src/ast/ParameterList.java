@@ -22,22 +22,11 @@ public class ParameterList extends ASTNode {
         return params;
     }
 
-    private void acceptMain(Visitor v){
+    @Override
+    public void accept(Visitor v){
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }
         v.visit(this);
-    }
-
-    @Override
-    public void accept(Visitor v){
-        if (v instanceof TypeCheckVisitor){
-            TypeCheckVisitor visitor = (TypeCheckVisitor)v;
-            visitor.context.entry("Parameter List");
-            acceptMain(v);
-            visitor.context.pop();
-        }   else{
-            acceptMain(v);
-        }
     }
 }

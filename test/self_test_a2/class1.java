@@ -1,5 +1,5 @@
 package B;
-public class class1{
+public class class1 extends class2{
     public class1(){}
     public class1(int a){}
     public int field1;
@@ -17,15 +17,14 @@ public class class1{
         }
         while(v2){
             int d;
-            v7 = a + b;
-            while(v3){
+            while(v2){
                 int f;
-                v5 = v5 + v6;
+                int v5 = v2 + v2;
             }
         }
     }
 //
-//    public int foo(char v1){}
+   public int foo(char v1){}
 //
 //    public void foo(class1 v){}
 //
