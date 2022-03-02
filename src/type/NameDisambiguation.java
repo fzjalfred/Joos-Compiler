@@ -72,6 +72,7 @@ public class NameDisambiguation {
                 Token nameToken = tools.simpleNameConstructor(nameStr);
                 decl = nameScope.lookup(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) {
+//                    System.out.println(fullName.subList(fullName.size()-1, fullName.size()));
                     decl = findField((ASTNode) decl, fullName.subList(1, fullName.size()));
                 } else {
                     decl = null;
@@ -114,29 +115,37 @@ public class NameDisambiguation {
             type = ((FieldDecl)ref).getType();
         } else if (ref instanceof  LocalVarDecl) {
             type = ((LocalVarDecl) ref).getType();
-        } else {
-            // temp debug exception
-//            System.out.println("Cannot identify node type " + ref.toString());
         }
+//        } else {
+//            // temp debug exception
+///            System.out.println("Cannot identify node type " + ref.toString());
+//        }
         return type;
     }
 
     private List<Type> getArgumentType(ArgumentList argumentList, RootEnvironment rootEnv) throws SemanticError {
-        List<Name> nameList = argumentList.getNameList();
-        List<Type> typeList = new ArrayList<Type>();
-        for (Name name : nameList) {
-            if (name.type == null) {
-                Type type = getVarNameType(name, rootEnv);
-                name.type = type;
-            }
-            typeList.add(name.type);
-        }
-        return typeList;
+        return argumentList.getArgsType();
+//        List<Name> nameList = argumentList.getNameList();
+//        if (nameList == null) {
+//            return null;
+//        }
+//        List<Type> typeList = new ArrayList<Type>();
+//        for (Name name : nameList) {
+//            if (name.type == null) {
+//                Type type = getVarNameType(name, rootEnv);
+//                name.type = type;
+//            }
+//            typeList.add(name.type);
+//        }
+//        return typeList;
     }
 
     private boolean compareParam(List<Type> paramTypes, List<Type> argTypes) {
         if (paramTypes == null && argTypes == null) { // both take 0 argument
             return true;
+        }
+        if (paramTypes == null || argTypes == null) {
+            return false;
         }
 
         if (paramTypes.size() != argTypes.size()) {
@@ -153,12 +162,36 @@ public class NameDisambiguation {
         return true;
     }
 
+    private List<MethodDecl> findMethodDecls(ASTNode node, String name) {
+        ASTNode decls = null;
+        if (node instanceof ClassDecl) {
+            decls = ((ClassDecl)node).getClassBodyDecls();
+        } else {
+            if (!((InterfaceDecl)node).hasMemberDecls()) {
+                return new ArrayList<MethodDecl>();
+            }
+            decls = ((InterfaceDecl)node).getInterfaceMemberDecls();
+        }
+        List<MethodDecl> methodDecls = new ArrayList<MethodDecl>();
+        for (ASTNode decl : decls.children) {
+            if (decl instanceof MethodDecl) {
+                String methodName = ((MethodDecl)decl).getName();
+//                System.out.println("searched name: " +fieldName);
+                if (methodName.equals(name)) {
+                    methodDecls.add((MethodDecl) decl);
+                }
+            }
+        }
+        return methodDecls;
+    }
+
     private void assignMethodInvocationReturnType(Name methodName, MethodInvocation methodInvocation, RootEnvironment rootEnv) throws SemanticError {
         // no need for worrying about overwriting here, as overwriting can only happen when they have the same sig and return type
-            Referenceable methodDecls = null;
+        Referenceable methodDecls = null;
+        ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(methodName);
+        List<MethodDecl> methods = null;
             // simple Name
         if (methodName.isSimpleName()) {
-            ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(methodName);
             // construct simple name
             String nameStr = methodName.getValue();
             Token nameToken = tools.simpleNameConstructor(nameStr);
@@ -166,22 +199,37 @@ public class NameDisambiguation {
             methodDecls = nameScope.lookup(nameToken); // FIXME:: how to solve overloading method
         } else {
             // qualified name
-            // FIXME:: assign method decls
-        }
+            Referenceable decl = rootEnv.lookup(methodName);
+            if (decl == null) {
+                List<String> fullName = methodName.getFullName();
+                String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
+                Token nameToken = tools.simpleNameConstructor(nameStr);
+                decl = nameScope.lookup(nameToken);
+                if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) { //Fixme
+                    methods = findMethodDecls((ASTNode) decl, fullName.subList(fullName.size()-1, fullName.size()).get(0));
+                }
+            }
 
-        if (methodDecls == null) {
-            throw new SemanticError("Cannot find method " + methodName.getValue());
         }
+//        if (methodDecls == null) {
+//            throw new SemanticError("Cannot find method " + methodName.getValue());
+//        }
         ArgumentList argList = methodInvocation.getArgumentList();
         List<Type> targetArgType = null;
         if (argList != null) {
             targetArgType = getArgumentType(argList, rootEnv);
         }
-        if (methodDecls instanceof MethodList) {
-            List<MethodDecl> methods = ((MethodList)methodDecls).methods;
+        if (methodDecls instanceof MethodList || methods!= null) {
+            if (methodDecls instanceof MethodList && methods == null) {
+                methods = ((MethodList)methodDecls).methods;
+            }
             for (MethodDecl method : methods) {
                 List<Type> searchParamType = method.getParamType();
                 if (compareParam(searchParamType, targetArgType)) { // FIXME:: What if the arg type cannot be resolved here
+                    if (!method.isStatic() && !methodName.isSimpleName()) {
+                        throw new SemanticError("Method is not static "+ method.getName());
+                    }
+                    methodName.type = method.getReturnType();
                     methodInvocation.type = method.getReturnType();
                     break;
                 }
@@ -191,11 +239,16 @@ public class NameDisambiguation {
 
     private void findNodeNameAndType(ASTNode node, RootEnvironment rootEnv) throws SemanticError {
         Name name = null;
-        if (node instanceof ArrayAccess) {
-            ArrayAccess arrayAccess = (ArrayAccess) node;
-            if (arrayAccess.hasName()){
-                name = arrayAccess.getName();
+        if (node instanceof MethodInvocation) {
+            MethodInvocation methodInvocation = (MethodInvocation) node;
+            if (methodInvocation.hasName()) { // case 1 A()
+                name = methodInvocation.getName();
+                if (name.type != null) {
+                    return;
+                }
+                assignMethodInvocationReturnType(name, methodInvocation, rootEnv);
             }
+            return;
         } else if (node instanceof PostFixExpr) {
             PostFixExpr postFixExpr = (PostFixExpr) node;
             if (postFixExpr.hasName()) {
@@ -212,22 +265,11 @@ public class NameDisambiguation {
             name = classOrInterfaceType.getName();
             name.type = classOrInterfaceType;
             return;
-        } else if (node instanceof MethodInvocation) {
-//            MethodInvocation methodInvocation = (MethodInvocation) node;
-//            if (methodInvocation.hasName()) { // case 1 A()
-//                name = methodInvocation.getName();
-//                if (name.type != null) {
-//                    return;
-//                }
-//                assignMethodInvocationReturnType(name, methodInvocation, rootEnv);
-//                return;
-//            } else { // case 2 A().B()
-//                // it cannot be a void type
-//
-//
-//            }
-//            // FIXME: temp return
-//            return;
+        } else if (node instanceof ArrayAccess) {
+            ArrayAccess arrayAccess = (ArrayAccess) node;
+            if (arrayAccess.hasName()){
+                name = arrayAccess.getName();
+            }
         } else if (node instanceof CastExpr) {
             CastExpr castExpr = (CastExpr) node;
             if (castExpr.hasName()) {
@@ -249,9 +291,9 @@ public class NameDisambiguation {
         if (node == null) {
             return true;
         }
-        if (node instanceof MethodInvocation) {
-            return true;
-        }
+//        if (node instanceof MethodInvocation) {
+//            return true;
+//        }
         if (node instanceof InterfaceDecl) {
             return true;
         }
@@ -280,9 +322,10 @@ public class NameDisambiguation {
         }
 
 //        System.out.println(node);
-
-        for (ASTNode child : node.children) {
-            traverseNode(child, rootEnv);
+        if (!(node instanceof MethodInvocation)) {
+            for (ASTNode child : node.children) {
+                traverseNode(child, rootEnv);
+            }
         }
         findNodeNameAndType(node, rootEnv);
         node.traversed = true;
