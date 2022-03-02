@@ -18,25 +18,65 @@ public class NameDisambiguation {
         }
     }
 
+    private FieldDecl findField(ASTNode node, List<String> name) {
+//        System.out.println("looking for name: "+name);
+        ASTNode decls = null;
+        if (node instanceof ClassDecl) {
+            decls = ((ClassDecl)node).getClassBodyDecls();
+        } else {
+            if (!((InterfaceDecl)node).hasMemberDecls()) {
+                return null;
+            }
+            decls = ((InterfaceDecl)node).getInterfaceMemberDecls();
+        }
+        for (ASTNode decl : decls.children) {
+            if (decl instanceof FieldDecl) {
+                List<String> fieldName = ((FieldDecl)decl).getName();
+//                System.out.println("searched name: " +fieldName);
+                if (fieldName.size() != name.size()) {
+                    continue;
+                }
+                for (int i = 0; i < fieldName.size(); i++) {
+                    if (!fieldName.get(i).equals(name.get(i))) {
+                        continue;
+                    }
+                }
+                return (FieldDecl) decl;
+            }
+        }
+        return null;
+    }
+
     private Type getVarNameType(Name name, RootEnvironment rootEnv) throws SemanticError {
         Type type = null;
+        ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(name);
         if (name.isSimpleName()) {
             // simple name
-            ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(name);
             // construct simple name
             String nameStr = name.getValue();
-            System.out.println(nameStr);
             Token nameToken = tools.simpleNameConstructor(nameStr);
             // lookup
             Referenceable decl = nameScope.lookup(nameToken); // FIXME:: how to solve overloading method
             if (decl == null) {
-                throw new SemanticError("Cannot find decl for simple name " + name.getValue());
+//                throw new SemanticError("Cannot find decl for simple name " + name.getValue());
+                return null;
             } else {
                 type = getVarType(decl);
             }
         } else {
             // qualified name
             Referenceable decl = rootEnv.lookup(name);
+            if (decl == null) { // might be in the form: *.*.class.field
+                List<String> fullName = name.getFullName();
+                String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
+                Token nameToken = tools.simpleNameConstructor(nameStr);
+                decl = nameScope.lookup(nameToken);
+                if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) {
+                    decl = findField((ASTNode) decl, fullName.subList(1, fullName.size()));
+                } else {
+                    decl = null;
+                }
+            }
             // check if it is a static decl
             if (decl instanceof FieldDecl) {
                 FieldDecl fieldDecl = (FieldDecl) decl;
@@ -45,7 +85,10 @@ public class NameDisambiguation {
                 }
                 type = getVarType(decl);
             } else {
-                throw new SemanticError("Temp Error for debugging purpose: Not Var Decl " + decl.toString());
+                if (decl == null) {
+                    return null;
+                }
+                System.out.println("Temp Error for debugging purpose: Not Var Decl " + decl.toString());
             }
 
         }
@@ -61,6 +104,9 @@ public class NameDisambiguation {
     }
 
     private Type getVarType(Referenceable ref) throws SemanticError {
+        if (ref == null) {
+            return null;
+        }
         Type type = null;
         if (ref instanceof Parameter) {
             type = ((Parameter)ref).getType();
@@ -70,7 +116,7 @@ public class NameDisambiguation {
             type = ((LocalVarDecl) ref).getType();
         } else {
             // temp debug exception
-            throw new SemanticError("Cannot identify node type " + ref.toString());
+//            System.out.println("Cannot identify node type " + ref.toString());
         }
         return type;
     }
@@ -195,7 +241,6 @@ public class NameDisambiguation {
         }
 
         if (name != null) {
-            System.out.println(node.toString());
             assignNameType(name, rootEnv);
         }
     }
@@ -207,13 +252,7 @@ public class NameDisambiguation {
         if (node instanceof MethodInvocation) {
             return true;
         }
-        if (node instanceof ClassDecl) {
-            return true;
-        }
         if (node instanceof InterfaceDecl) {
-            return true;
-        }
-        if (node instanceof MethodDecl) {
             return true;
         }
         if (node instanceof Parameter) {
@@ -228,9 +267,6 @@ public class NameDisambiguation {
         if (node instanceof FieldDecl) {
             return true;
         }
-        if (node instanceof LocalVarDecl) {
-            return true;
-        }
         return false;
     }
 
@@ -239,13 +275,17 @@ public class NameDisambiguation {
             return;
         }
 
+        if (node.traversed) {
+            return;
+        }
+
 //        System.out.println(node);
 
-
-        findNodeNameAndType(node, rootEnv);
         for (ASTNode child : node.children) {
             traverseNode(child, rootEnv);
         }
+        findNodeNameAndType(node, rootEnv);
+        node.traversed = true;
 
 
     }

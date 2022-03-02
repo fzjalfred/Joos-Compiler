@@ -16,6 +16,21 @@ public class InterfaceDecl extends TypeDecl {
         return (InterfaceBody)children.get(3);
     }
 
+    public boolean hasMemberDecls() {
+        if (children.get(3) instanceof InterfaceBody) {
+            InterfaceBody body = getInterfaceBody();
+            return body.children.get(0) instanceof InterfaceMemberDecls;
+        }
+        return false;
+    }
+
+    public InterfaceMemberDecls getInterfaceMemberDecls() {
+        assert children.get(3) instanceof InterfaceBody;
+        InterfaceBody body = getInterfaceBody();
+        assert body.children.get(0) instanceof InterfaceMemberDecls;
+        return (InterfaceMemberDecls)body.children.get(0);
+    }
+
     public boolean isStatic() {
         Modifiers modifiers = (Modifiers) children.get(0);
 

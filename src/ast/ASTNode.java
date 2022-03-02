@@ -4,6 +4,7 @@ import visitors.Visitor;
 import java.util.List;
 
 abstract public class ASTNode {
+    public boolean traversed = false;
     public List<ASTNode> children;
     public String value;
 
