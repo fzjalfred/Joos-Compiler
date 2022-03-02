@@ -1,5 +1,5 @@
 package ast;
-
+import java.util.regex.Pattern;
 import exception.SemanticError;
 import type.EnvironmentBuilder;
 
@@ -12,6 +12,14 @@ public class ConstructorList implements Referenceable{
     public ConstructorList(String qualifiedName){
         cons = new ArrayList<ConstructorDecl>();
         this.qualifiedName = qualifiedName;
+    }
+
+    public String getSimpleName(){
+        String [] arr = qualifiedName.split(Pattern.quote("."));
+        if (arr.length == 0) {
+            return qualifiedName;
+        }
+        return arr[arr.length - 1];
     }
 
     public void add(ConstructorDecl ctor){

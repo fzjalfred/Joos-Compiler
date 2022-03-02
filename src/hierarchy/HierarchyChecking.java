@@ -61,6 +61,13 @@ public class HierarchyChecking {
                     method_lst_buff.add((FieldDecl)l);
                     inclass_map.put(((FieldDecl)l).getFirstVarName(), method_lst_buff);
                 }
+                if (l instanceof ConstructorList) {
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    for (ConstructorDecl single: ((ConstructorList)l).cons) {
+                        method_lst_buff.add(single);
+                    }
+                    inclass_map.put(((ConstructorList)l).getSimpleName(), method_lst_buff);
+                }
             }
             declareMapRe.put(T, inclass_map);
         }
@@ -86,6 +93,13 @@ public class HierarchyChecking {
                     List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
                     method_lst_buff.add((FieldDecl)l);
                     inclass_map.put(((FieldDecl)l).getFirstVarName(), method_lst_buff);
+                }
+                if (l instanceof ConstructorList) {
+                    List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
+                    for (ConstructorDecl single: ((ConstructorList)l).cons) {
+                        method_lst_buff.add(single);
+                    }
+                    inclass_map.put(((ConstructorList)l).getSimpleName(), method_lst_buff);
                 } 
             }
             inheritMapRe.put(T, inclass_map);
@@ -159,7 +173,7 @@ public class HierarchyChecking {
 
     public void checkClassHierary(RootEnvironment env) throws Exception {
         checkContainSameSigDiffReturn(env);
-        checkAbstrictMethod(env);
+        checkAbstractMethod(env);
         checkStaticMethod(env);
         checkReplaceType(env);
         checkProtectedMethod(env);
@@ -370,7 +384,19 @@ public class HierarchyChecking {
         ParameterList parameter_list = (ParameterList)method_decl.children.get(2).children.get(1);
         List<Parameter> paras = parameter_list.getParams();
         for (Parameter i: paras) {
-            res.add(i.children.get(0).toString());
+            if (i.getType() instanceof ClassOrInterfaceType) {
+                Referenceable class_decl_of_param = ((ClassOrInterfaceType)i.getType()).typeDecl;
+                String qualified_name = "";
+                if (class_decl_of_param instanceof ClassDecl) {
+                    qualified_name = get_class_qualifed_name((ClassDecl)class_decl_of_param, env);
+                }
+                if (class_decl_of_param instanceof InterfaceDecl) {
+                    qualified_name = get_class_qualifed_name((InterfaceDecl)class_decl_of_param, env);
+                }
+                res.add(qualified_name);
+            } else {
+                res.add(i.children.get(0).toString());
+            }
         }
         return res;
     }
@@ -518,7 +544,7 @@ public class HierarchyChecking {
         }
     }
 
-    public void checkAbstrictMethod(RootEnvironment env) throws Exception {
+    public void checkAbstractMethod(RootEnvironment env) throws Exception {
         // signature, Class_decl
         Map<List<String>, ASTNode> checkbuff = new HashMap<List<String>, ASTNode>();
         // declareMap + inheritMap = contains
