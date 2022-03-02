@@ -608,6 +608,8 @@ public class HierarchyChecking {
         }
         createParentMap();
         createInheritanceMap();
+//        printDeclare();
+//        printInherit();
         rebuildMaps();
         checkClassHierary(env);
     }
@@ -983,12 +985,28 @@ public class HierarchyChecking {
         for (ASTNode node : declareMap.keySet()) {
             if (node instanceof ClassDecl) {
                 ClassDecl pdecl = (ClassDecl) node;
-                System.out.println(pdecl.getName());
+                System.out.println("declare " + pdecl.getName());
             } else {
                 InterfaceDecl pdecl = (InterfaceDecl) node;
-                System.out.println(pdecl.getName());
+                System.out.println("declare " + pdecl.getName());
             }
             for (Referenceable ref : declareMap.get(node)) {
+                System.out.println(ref.toString());
+            }
+            System.out.println("");
+        }
+    }
+
+    public void printInherit() {
+        for (ASTNode node : inheritMap.keySet()) {
+            if (node instanceof ClassDecl) {
+                ClassDecl pdecl = (ClassDecl) node;
+                System.out.println("inherit "+pdecl.getName());
+            } else {
+                InterfaceDecl pdecl = (InterfaceDecl) node;
+                System.out.println("inherit "+pdecl.getName());
+            }
+            for (Referenceable ref : inheritMap.get(node)) {
                 System.out.println(ref.toString());
             }
             System.out.println("");
