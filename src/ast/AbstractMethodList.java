@@ -7,8 +7,9 @@ import type.EnvironmentBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import utils.tools;
 
-public class AbstractMethodList implements Referenceable{
+public class AbstractMethodList implements Referenceable, ReferenceableList{
     public List<AbstractMethodDecl> methods;
     public String qualifiedName;
 
@@ -59,5 +60,15 @@ public class AbstractMethodList implements Referenceable{
         return "AbstractMethodList{" + qualifiedName + " " +
                 "methods=" + methods +
                 '}';
+    }
+
+    @Override
+    public Referenceable match(List<Type> args) {
+        //Referenceable res = null;
+        for (AbstractMethodDecl methodDecl: methods){
+            List<Type> methodTypes = methodDecl.getParamType();
+            if (tools.compTypeListEqual(methodTypes, args)) {return methodDecl;}
+        }
+        return null;
     }
 }

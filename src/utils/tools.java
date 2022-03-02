@@ -44,4 +44,14 @@ public class tools {
         return m.getModifiersSet().contains("static");
     }
 
+
+    public static boolean compTypeListEqual(List<Type> list1, List<Type>list2){
+        if (list1 == null && list2 == null) return true;
+        if (list1 == null || list2 == null) return false;
+        if (list1.size() != list2.size()) return false;
+        for (int idx = 0; idx< list1.size(); idx++){
+            if (list1.get(idx) != list2.get(idx)) return false;
+        }
+        return true;
+    }
 }

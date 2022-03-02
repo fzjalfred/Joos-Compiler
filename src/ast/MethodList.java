@@ -2,12 +2,13 @@ package ast;
 
 import exception.SemanticError;
 import type.EnvironmentBuilder;
+import utils.tools;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class MethodList implements Referenceable{
+public class MethodList implements Referenceable, ReferenceableList{
     public List<MethodDecl> methods;
     public String qualifiedName;
 
@@ -58,5 +59,15 @@ public class MethodList implements Referenceable{
         return "MethodList{" + qualifiedName + " " +
                 "methods=" + methods +
                 '}';
+    }
+
+    @Override
+    public Referenceable match(List<Type> args) {
+        //Referenceable res = null;
+        for (MethodDecl methodDecl: methods){
+            List<Type> methodTypes = methodDecl.getParamType();
+            if (tools.compTypeListEqual(methodTypes, args)) {return methodDecl;}
+        }
+        return null;
     }
 }

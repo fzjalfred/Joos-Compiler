@@ -246,7 +246,18 @@ public class TypeLinker {
                     processType(methodScope, type);
                 }
             }
-        }   else if (node instanceof ConstructorDecl){
+        }   else if (node instanceof AbstractMethodDecl){
+            AbstractMethodDecl methodDecl = (AbstractMethodDecl)node;
+            ScopeEnvironment methodScope = env.ASTNodeToScopes.get(methodDecl);
+            Type returnType = methodDecl.getType();
+            processType(methodScope, returnType);
+            if (methodDecl.getMethodDeclarator().getParameterList() != null){
+                for (Parameter p : methodDecl.getMethodDeclarator().getParameterList().getParams()){
+                    Type type = p.getType();
+                    processType(methodScope, type);
+                }
+            }
+        } else if (node instanceof ConstructorDecl){
             ConstructorDecl constructorDecl = (ConstructorDecl)node;
             ScopeEnvironment methodScope = env.ASTNodeToScopes.get(constructorDecl);
             if (constructorDecl.getConstructorDeclarator().getParameterList() != null){

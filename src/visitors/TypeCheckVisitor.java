@@ -75,7 +75,10 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(PostFixExpr node) {
         /** first check whether it's static */
-
+        if (node.getName().type != null){
+            node.type = node.getName().type;
+            return;
+        }
 
         /** derive first expr's type  */
         Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(currTypeDecl);

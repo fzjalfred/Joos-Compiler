@@ -3,6 +3,7 @@ package ast;
 import visitors.TypeCheckVisitor;
 import visitors.Visitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractMethodDecl extends InterfaceMemberDecl{
@@ -36,6 +37,23 @@ public class AbstractMethodDecl extends InterfaceMemberDecl{
             return (Type)children.get(1);
         }
         return null;
+    }
+
+    public List<Type> getParamType() {
+        MethodDeclarator methodDeclarator = getMethodDeclarator();
+        if (!methodDeclarator.hasParameterList()) {
+            return null;
+        }
+        ParameterList parameterList = methodDeclarator.getParameterList();
+        List<Parameter> parameters = parameterList.getParams();
+
+
+        List<Type> typeList = new ArrayList<Type>();
+
+        for (Parameter parameter : parameters) {
+            typeList.add(parameter.getType());
+        }
+        return typeList;
     }
 
     private void acceptMain(Visitor v){
