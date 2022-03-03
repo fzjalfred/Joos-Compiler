@@ -1031,7 +1031,7 @@ public class HierarchyChecking {
                 System.out.println("declare " + pdecl.getName());
             }
             for (Referenceable ref : declareMap.get(node)) {
-                System.out.println(ref.toString());
+                System.out.println(ref);
             }
             System.out.println("");
         }
@@ -1080,7 +1080,28 @@ public class HierarchyChecking {
             List <Referenceable> inherited = new ArrayList <Referenceable>(){};
 
             for (Referenceable parentNode: parentMap.get(node)) {
-                List<Referenceable> adding = declareMap.get((ASTNode)parentNode);
+                List<Referenceable> adding = new ArrayList<Referenceable>();
+                for (Referenceable ref : declareMap.get((ASTNode)parentNode)){
+                    if (ref instanceof AbstractMethodList) {
+                        AbstractMethodList temp = (AbstractMethodList)  ref;
+                        AbstractMethodList absDecls = new AbstractMethodList(temp.methods.get(0).getName());
+
+                        for (AbstractMethodDecl abs : temp.methods) {
+                            absDecls.methods.add(abs);
+                        }
+                        adding.add(absDecls);
+                    } else if (ref instanceof MethodList) {
+                        MethodList temp = (MethodList)  ref;
+                        MethodList methodDecls = new MethodList(temp.methods.get(0).getName());
+                        for (MethodDecl abs : temp.methods) {
+                            methodDecls.methods.add(abs);
+                        }
+                        adding.add(methodDecls);
+
+                    } else {
+                        adding.add(ref);
+                    }
+                }
                 if (adding != null) {
                     List <Pair <Referenceable, Referenceable>> addingReplaceList = new ArrayList <Pair <Referenceable, Referenceable>> () {};
                     List <Pair <Referenceable, Referenceable>> inheritReplaceList = new ArrayList <Pair <Referenceable, Referenceable>> () {};
@@ -1154,8 +1175,18 @@ public class HierarchyChecking {
                         }
                     }
                     if (equal) {
-                        if (abstractMethod.isPublic() && method.isProtected()) {
-                            throw new Exception("Public method is replaced by public because of abstract "+ abstractMethod.getName() + " " + method.getName());
+//                        System.out.println(abstractMethod);
+//                        if (abstractMethod.isPublic()) {
+//                            System.out.println("public abstract " + abstractMethod);
+//                        }
+//                        System.out.println(method);
+//                        if (method.isNonAbAndProtected()) {
+//                            System.out.println("protected public " + method);
+//                        }
+
+                        if (abstractMethod.isPublic() && method.isNonAbAndProtected()) {
+
+                            throw new Exception("Public method is replaced by protected because of abstract "+ abstractMethod.getName() + " " + method.getName());
                         }
                         if (!get_type(abstractMethod).equals(get_type(method)) ) {
                             throw new Exception("Same sig diff return being overriden");
