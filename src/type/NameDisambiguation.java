@@ -123,23 +123,6 @@ public class NameDisambiguation {
         return type;
     }
 
-    private List<Type> getArgumentType(ArgumentList argumentList, RootEnvironment rootEnv) throws SemanticError {
-        return argumentList.getArgsType();
-//        List<Name> nameList = argumentList.getNameList();
-//        if (nameList == null) {
-//            return null;
-//        }
-//        List<Type> typeList = new ArrayList<Type>();
-//        for (Name name : nameList) {
-//            if (name.type == null) {
-//                Type type = getVarNameType(name, rootEnv);
-//                name.type = type;
-//            }
-//            typeList.add(name.type);
-//        }
-//        return typeList;
-    }
-
     private boolean compareParam(List<Type> paramTypes, List<Type> argTypes) {
         if (paramTypes == null && argTypes == null) { // both take 0 argument
             return true;
@@ -217,7 +200,7 @@ public class NameDisambiguation {
         ArgumentList argList = methodInvocation.getArgumentList();
         List<Type> targetArgType = null;
         if (argList != null) {
-            targetArgType = getArgumentType(argList, rootEnv);
+            targetArgType = argList.getArgsType();
         }
         if (methodDecls instanceof MethodList || methods!= null) {
             if (methodDecls instanceof MethodList && methods == null) {
@@ -322,11 +305,10 @@ public class NameDisambiguation {
         }
 
 //        System.out.println(node);
-        if (!(node instanceof MethodInvocation)) {
-            for (ASTNode child : node.children) {
-                traverseNode(child, rootEnv);
-            }
+        for (ASTNode child : node.children) {
+            traverseNode(child, rootEnv);
         }
+
         findNodeNameAndType(node, rootEnv);
         node.traversed = true;
 

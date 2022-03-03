@@ -14,25 +14,6 @@ public class ArgumentList extends ASTNode {
         argsTypes = null;
     }
 
-    public List<Name> getNameList() {
-        for (ASTNode node: children) {
-            if (!(node instanceof PostFixExpr)) {
-                return null;
-            }
-            PostFixExpr postFixExpr = (PostFixExpr) node;
-            if (!postFixExpr.hasName()) {
-                return null;
-            }
-        }
-
-        List <Name> nameList = new ArrayList<Name>();
-        for (ASTNode node : children) {
-            PostFixExpr postFixExpr = (PostFixExpr) node;
-            nameList.add(postFixExpr.getName());
-        }
-        return nameList;
-    }
-
     public List<Expr> getArgs(){
         if(args != null) return args;
         args = new ArrayList<Expr>();
