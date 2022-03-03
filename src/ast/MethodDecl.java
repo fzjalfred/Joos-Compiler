@@ -46,7 +46,7 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
     }
 
     public Type getReturnType() {
-        Type returnType = (Type)getMethodHeader().children.get(1);
+        Type returnType = (Type)getMethodHeader().getType();
         return returnType;
     }
 
@@ -73,8 +73,12 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
         }
         return false;
     }
-    public boolean isProtected() {
-        return ifContainModifier(children.get(0).children.get(0), "protected");
+    public boolean isNonAbAndProtected() {
+        if (ifContainModifier(children.get(0).children.get(0), "abstract")) {
+            return false;
+        }
+
+        return ifContainModifier(children.get(0).children.get(0), "protected") ;
     }
 
 
