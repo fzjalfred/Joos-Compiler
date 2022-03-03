@@ -40,8 +40,8 @@ public class NameDisambiguation {
                     if (!fieldName.get(i).equals(name.get(i))) {
                         continue;
                     }
+                    return (FieldDecl) decl;
                 }
-                return (FieldDecl) decl;
             }
         }
         return null;
@@ -72,7 +72,6 @@ public class NameDisambiguation {
                 Token nameToken = tools.simpleNameConstructor(nameStr);
                 decl = nameScope.lookup(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) {
-//                    System.out.println(fullName.subList(fullName.size()-1, fullName.size()));
                     decl = findField((ASTNode) decl, fullName.subList(1, fullName.size()));
                 } else {
                     decl = null;
@@ -274,9 +273,6 @@ public class NameDisambiguation {
         if (node == null) {
             return true;
         }
-//        if (node instanceof MethodInvocation) {
-//            return true;
-//        }
         if (node instanceof InterfaceDecl) {
             return true;
         }
