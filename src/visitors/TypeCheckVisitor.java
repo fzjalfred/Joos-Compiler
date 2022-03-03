@@ -180,6 +180,10 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(MethodInvocation node) {
+        Referenceable resMethodList = null;
+        Referenceable resMethod = null;
+        Map<String, List<ASTNode>> containMap = null;
+        Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
         if (node.hasName()){
             Name methodName = node.getName();
 
@@ -188,13 +192,10 @@ public class TypeCheckVisitor extends Visitor{
                 return;
             }
 
-            Map<String, List<ASTNode>> containMap = null;
-            Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
+
             List<String> names = node.getName().getFullName();
             String nameStr = "";
             Type currType = null;
-            Referenceable resMethodList = null;
-            Referenceable resMethod = null;
             int idx = 0;
             for (;idx < names.size();idx++){
                 String str = names.get(idx);
@@ -274,24 +275,30 @@ public class TypeCheckVisitor extends Visitor{
                     throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
                 }
             } // for
-
-            if (resMethod!= null){
+        } /* if has name */   else {
+            Primary primary = node.getPrimary();
+            if (primary.type instanceof ClassOrInterfaceType){
+                TypeDecl typeDecl = ((ClassOrInterfaceType)primary.type).typeDecl;
+                containMap = hierarchyChecker.containMap.get(typeDecl);
+                if (containMap.containsKey(node.getID().value)){
+                    resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
+                } // if
+            }
+        } // general if
+        if (resMethod!= null){
+            node.type = resMethod.getType();
+            node.whichMethod = (Callable)resMethod;
+            return;
+        }   else if (resMethodList != null){
+            assert resMethodList instanceof MethodList;
+            resMethod = ((MethodList)resMethodList).match(node.getArgumentTypeList());
+            if (resMethod != null){
                 node.type = resMethod.getType();
                 node.whichMethod = (Callable)resMethod;
                 return;
-            }   else if (resMethodList != null){
-                assert resMethodList instanceof MethodList;
-                resMethod = ((MethodList)resMethodList).match(node.getArgumentTypeList());
-                if (resMethod != null){
-                    node.type = resMethod.getType();
-                    return;
-                }
             }
-            //throw new SemanticError(nameStr + " cannot be resolved to type"); TODO: uncomment this when finish all expr type check
-
-        }   else {
-            //TODO: deal with primary
-        }
+        } // if
+        throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList());
     }
 
     private boolean isLastIdx(int idx, int size){
@@ -357,7 +364,6 @@ public class TypeCheckVisitor extends Visitor{
                 currType = new NumericType(tools.empty(), "int");
                 nameStr += '.';
             }   else if (currType instanceof ClassOrInterfaceType){
-                ClassDecl classDecl1 = (ClassDecl)currTypeDecl;
                 ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
                 assert classType.typeDecl != null;
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);

@@ -1,5 +1,6 @@
 package ast;
 
+import lexer.Token;
 import visitors.Visitor;
 
 import java.util.List;
@@ -19,9 +20,19 @@ public class MethodInvocation extends PrimaryNoArray {
     }
 
     public Name getName() {
-        assert children.get(0) instanceof Name;
+        if (!hasName()) return null;
         return (Name) children.get(0);
     }
+
+    public Primary getPrimary(){
+        if (hasName()) return null;
+        return (Primary) children.get(0);
+    }
+
+    public Token getID(){
+        if (hasName()) return null;
+        return (Token)children.get(1);
+     }
 
     public ArgumentList getArgumentList() {
         if (children.get(2) == null) {
