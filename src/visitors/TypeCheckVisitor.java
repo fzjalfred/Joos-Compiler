@@ -1,10 +1,13 @@
 package visitors;
+import lexer.Token;
+import lexer.sym;
 import ast.*;
 import exception.SemanticError;
 import hierarchy.HierarchyChecking;
 import type.*;
 import utils.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +17,7 @@ public class TypeCheckVisitor extends Visitor{
     public HierarchyChecking hierarchyChecker;
     public Type returnType;
     public TypeDecl currTypeDecl;
+    public List<Type> numsTypes;
 
 
     public TypeCheckVisitor(RootEnvironment env, HierarchyChecking hierarchyChecker){
@@ -55,6 +59,8 @@ public class TypeCheckVisitor extends Visitor{
         return true;
     }
 
+
+    /** Literal */
     @Override
     public void visit(NumericLiteral node) {
         node.type = new NumericType(tools.empty(), "int");
@@ -62,7 +68,233 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(StringLiteral node) {
-        node.type = new ClassOrInterfaceType(tools.list(tools.nameConstructor("java.lang.String")), "");
+        
+        node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+        
+    }
+
+    @Override
+    public void visit(CharLiteral node) {
+        //node.type = new ClassOrInterfaceType(tools.list(tools.nameConstructor("java.lang.Character")), "");
+        node.type = new NumericType(tools.empty(), "char");
+    }
+
+    @Override
+    public void visit(BoolLiteral node) {
+        //node.type = new ClassOrInterfaceType(tools.list(tools.nameConstructor("java.lang.Boolean")), "");
+        //node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.Boolean")));
+        node.type = new PrimitiveType(tools.empty(), "bool");
+    }
+
+    @Override
+    public void visit(NullLiteral node) {
+        node.type = new NullType(tools.empty(), "null");
+    }
+
+    public void visit(ThisLiteral node) {
+        //node.type = new ClassOrInterfaceType(tools.list(tools.nameConstructor("java.lang.String")), "");
+        node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+    }
+
+    /** Operators */
+
+    public void visit(UnaryExprNotPlusMinus node){
+        if (node.children.size() == 2) {
+            // Not statement
+            Type expr = node.getUnaryExpr().type;
+            if (!(expr instanceof PrimitiveType && expr.getNameString() == "bool")) {
+                throw new SemanticError("expression after '!' is not boolean.");
+            }
+        } else {
+            throw new SemanticError("should never go here ...");
+        }
+    }
+
+    public void visit(UnaryExpr node){
+        if (node.children.size() == 2) {
+            // Not statement
+            Type expr = node.getUnaryExpr().type;
+            node.type = expr;
+        } else if (node.children.size() == 2){
+            node.type = node.getSingleChild().type;
+        }
+    }
+
+    public void visit(PrimaryNoArray node){
+        node.type = ((Expr)node.children.get(0)).type;
+    }
+
+    public void visit(AdditiveExpr node){
+        if (node.children.size() == 1) {
+            node.type = ((Expr)node.getSingleChild()).type;
+        } else {
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new NumericType(tools.empty(), "int");
+            } else if (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env) == "java.lang.String" && t2 != null) {
+                node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+            }   else {
+                // System.out.println(node.children.get(0));
+                // System.out.print("isNumericType: ");
+                // System.out.println(t1 instanceof NumericType);
+                // System.out.println(t1 == null);
+                // System.out.println(((MethodInvocation)node.children.get(0)).getName().getValue());
+                // System.out.println(((PostFixExpr)node.children.get(0)).getName().getValue());
+                // System.out.println(node.children.get(2));
+                // System.out.print("isNumericType: ");
+                // System.out.println(t2 instanceof NumericType);
+                
+                throw new SemanticError("NumericType or String are needed for +, - .");
+            }
+        }
+    }
+
+    public void visit(MultiplicativeExpr node){
+        if (node.children.size() == 1) {
+            node.type = ((Expr)node.getSingleChild()).type;
+        } else {
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new NumericType(tools.empty(), "int");
+            } else {
+                // System.out.println(node.children.get(0));
+                // System.out.print("isNumericType: ");
+                // System.out.println(t1 instanceof NumericType);
+                // System.out.println(t1 == null);
+                // System.out.println(((MethodInvocation)node.children.get(0)).getName().getValue());
+                // System.out.println(((PostFixExpr)node.children.get(0)).getName().getValue());
+                // System.out.println(node.children.get(2));
+                // System.out.print("isNumericType: ");
+                // System.out.println(t2 instanceof NumericType);
+                
+                throw new SemanticError("NumericType are needed for *, /, % .");
+            }
+        }
+    }
+
+    public void visit(RelationExpr node){
+        if (node.children.size() == 1) {
+            node.type = ((Expr)node.getSingleChild()).type;
+        } else if (((Token)node.children.get(1)).type == sym.INSTANCEOF) {
+            node.type = new PrimitiveType(tools.empty(), "bool");
+        } else {
+            Type t1 = ((Expr)node.getOperatorLeft()).type;
+            Type t2 = ((Expr)node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else {
+                throw new SemanticError("Invalid RelationExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+            }
+        }
+    }
+
+    public void visit(EqualityExpr node){
+        if (node.children.size() == 1) {    
+            node.type = (node.getSingleChild()).type;
+        } else {
+            Type t1 = ((Expr)node.getOperatorLeft()).type;
+            Type t2 = ((Expr)node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t2 instanceof NullType ) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else {
+                throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+            }
+        }
+    }
+
+    public void visit(AndExpr node){
+        if (node.children.size() == 1) {
+            node.type = (node.getSingleChild()).type;
+        } else {
+            Type t1 = ((Expr)node.getOperatorLeft()).type;
+            Type t2 = ((Expr)node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else {
+                throw new SemanticError("Invalid AndExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+            }
+        }
+    }
+
+    public void visit(OrExpr node){
+        if (node.children.size() == 1) {
+            node.type = (node.getSingleChild()).type;
+        } else {
+            Type t1 = ((Expr)node.getOperatorLeft()).type;
+            Type t2 = ((Expr)node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else {
+                throw new SemanticError("Invalid OrExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+            }
+        }
+    }
+
+    public void visit(ConditionalAndExpr node){
+        if (node.children.size() == 1) {
+            node.type = (node.getSingleChild()).type;
+        } else {
+            Type t1 = ((Expr)node.getOperatorLeft()).type;
+            Type t2 = ((Expr)node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else {
+                throw new SemanticError("Invalid ConditionalAndExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+            }
+        }
+    }
+
+    public void visit(ConditionalOrExpr node){
+        if (node.children.size() == 1) {
+            node.type = (node.getSingleChild()).type;
+        } else {
+            Type t1 = ((Expr)node.getOperatorLeft()).type;
+            Type t2 = ((Expr)node.getOperatorRight()).type;
+            if (t1 instanceof NumericType && t2 instanceof NumericType) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
+            } else {
+                throw new SemanticError("Invalid ConditionalOrExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+            }
+        }
+    }
+
+    public void visit(Assignment node){
+        Type t1;
+        LHS lhs = node.getAssignmentLeft();
+        Type t2 = ((Expr)node.getAssignmentRight()).type;
+        if (lhs.hasName()) {
+            Name methodName = lhs.getName();
+            t1 = methodName.type;
+            if (t1.equals(t2)) {
+                node.type = t1;
+            } else {
+                throw new SemanticError("Invalid Assignment use between ");
+            }
+        }
+        // if () {
+        //     node.type = t1;
+        // } else {
+        //     throw new SemanticError("Invalid Assignment use between ");
+        // }
+    }
+    
+
+    public void visit(AssignmentExpr node){
+        node.type = (node.getSingleChild()).type;
     }
 
     /** TypeDecls */
@@ -298,6 +530,11 @@ public class TypeCheckVisitor extends Visitor{
                 return;
             }
         } // if
+        // for (ASTNode i: node.children) {
+        //     System.out.println(i);
+        // }
+        // System.out.println(((Name)node.children.get(0)).getValue());
+        // System.out.println(((ArgumentList)node.children.get(2)).getArgsType());
         throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList());
     }
 

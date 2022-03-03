@@ -7,7 +7,7 @@ import hierarchy.HierarchyChecking;
 
 public class Main {
 
-	static public DebugID id = DebugID.None;
+	static public DebugID id = DebugID.fzj;
 
 	static public void main(String argv[]) {
 		try {

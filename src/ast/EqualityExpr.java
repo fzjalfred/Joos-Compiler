@@ -9,10 +9,6 @@ public class EqualityExpr extends AndExpr {
         super(children, value);
     }
 
-    @Override
-    public ASTNode getRight() {
-        return children.get(2);
-    }
 
     @Override
     public void accept(Visitor v){

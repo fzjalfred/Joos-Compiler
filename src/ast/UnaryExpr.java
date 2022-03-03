@@ -14,9 +14,9 @@ public class UnaryExpr extends MultiplicativeExpr {
         return false;
     }
 
-    @Override
-    public ASTNode getRight() {
-        return null;
+    public UnaryExpr getUnaryExpr() {
+        assert children.size() == 2 && children.get(1) instanceof UnaryExpr;
+        return (UnaryExpr)children.get(1);
     }
 
     @Override

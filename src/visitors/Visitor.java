@@ -104,5 +104,6 @@ public abstract class Visitor {
     public void visit(NullLiteral node){}
     public void visit(StringLiteral node){}
     public void visit(ThisLiteral node){}
+    public void visit(BoolLiteral node) {}
 
 }

@@ -2,6 +2,7 @@
 .ivy2/
 .sbt/
 .idea/
+.vscode/
 .scala_history_jline3
 main
 project/project/
@@ -12,3 +13,5 @@ lib/lexer.jar
 src/lexer/Lexer.java
 src/lexer/Lexer.java~
 src/lexer/parser.java
+tmp.out
+test.out

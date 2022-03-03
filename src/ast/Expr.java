@@ -10,17 +10,23 @@ public class Expr extends ASTNode {
     }
     public Type type;
 
+    public Expr getSingleChild() {
+        assert children.size() == 1;
+        return (Expr)children.get(0);
+    }
 
     public boolean isBinary(){
         return  (children.size() > 1 && children.get(1) != null);
     }
 
-    public ASTNode getLeft(){
-        return children.get(0);
+    public Expr getOperatorLeft() {
+        assert children.size() == 3;
+        return (Expr)children.get(0);
     }
 
-    public ASTNode getRight(){
-        return children.get(1);
+    public Expr getOperatorRight() {
+        assert children.size() == 3;
+        return (Expr)children.get(2);
     }
 
     @Override

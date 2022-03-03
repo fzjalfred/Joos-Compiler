@@ -2,6 +2,8 @@ package utils;
 import ast.*;
 import java.util.*;
 import lexer.*;
+import type.RootEnvironment;
+import type.ScopeEnvironment;
 
 public class tools {
 
@@ -98,5 +100,17 @@ public class tools {
         if (id == Main.id){
             System.out.println(msg);
         }
+    }
+
+    public static String get_class_qualifed_name(ASTNode class_decl, RootEnvironment env) {
+        ScopeEnvironment underenv = env.ASTNodeToScopes.get(class_decl);
+        if (underenv.prefix == null) {
+            return class_decl.children.get(1).value;
+        }
+        return underenv.prefix+"."+class_decl.children.get(1).value;
+    }
+    public static String get_class_qualifed_name(ClassOrInterfaceType class_decl, RootEnvironment env) {
+        assert class_decl.typeDecl != null;
+        return get_class_qualifed_name(class_decl.typeDecl, env);
     }
 }
