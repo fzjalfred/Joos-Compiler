@@ -36,11 +36,19 @@ public class tools {
         return new ArrayList<ASTNode>(){{add(node);}};
     }
 
+
+    /** create classorinterface type based on nameStr and decl */
     public static ClassOrInterfaceType getClassType(String className, TypeDecl classDecl){
         ClassOrInterfaceType classType = new ClassOrInterfaceType(new ArrayList<ASTNode>(){{add(nameConstructor(className));};}, "");
         classType.typeDecl = classDecl;
         return classType;
     }
+
+    /** create classorinterface type based on name and decl */
+    public static ClassOrInterfaceType getClassType(Name className, TypeDecl classDecl){
+        return getClassType(className.getValue(), classDecl);
+    }
+
     public static boolean checkStatic(Modifiers m){
         return m.getModifiersSet().contains("static");
     }

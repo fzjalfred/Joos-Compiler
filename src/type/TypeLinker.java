@@ -3,6 +3,8 @@ import ast.*;
 import lexer.*;
 import exception.SemanticError;
 import java.util.*;
+
+import utils.DebugID;
 import utils.tools;
 
 public class TypeLinker {
@@ -192,6 +194,12 @@ public class TypeLinker {
         if (type == null) return;
         if (type instanceof ClassOrInterfaceType){
             resolveTypename(scope, (ClassOrInterfaceType)type);
+        }   else if (type instanceof ArrayType){
+            /** process array of ClassOrInterfaceType*/
+            if (((ArrayType)type).getType() instanceof ClassOrInterfaceType){
+                resolveTypename(scope, (ClassOrInterfaceType)((ArrayType)type).getType());
+                tools.println("link array type " + (ClassOrInterfaceType)((ArrayType)type).getType() + " " + ((ClassOrInterfaceType)((ArrayType)type).getType()).typeDecl, DebugID.zhenyan);
+            }
         }
     }
 
@@ -281,6 +289,7 @@ public class TypeLinker {
             ScopeEnvironment localScope = env.ASTNodeToScopes.get(castExpr);
             castExpr.changePrefixExprToType(); //
             Type type = castExpr.getType();
+            tools.println(type, DebugID.zhenyan);
             processType(localScope, type);
         }   else if (node instanceof RelationExpr){
             RelationExpr relationExpr = (RelationExpr)node;

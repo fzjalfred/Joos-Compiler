@@ -4,6 +4,7 @@ import visitors.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import utils.tools;
 
 public class CastExpr extends UnaryExprNotPlusMinus {
     public CastExpr(List<ASTNode> children, String value){
@@ -16,9 +17,10 @@ public class CastExpr extends UnaryExprNotPlusMinus {
             assert postFixExpr.getName() != null;
             Name name = postFixExpr.getName();
             children.set(0,new ClassOrInterfaceType(new ArrayList<ASTNode>(){{add(name);}}, ""));
-        }
-        if (children.get(1) instanceof Dims){
-            children.set(0, new ArrayType(new ArrayList<ASTNode>(){{add(children.get(0));}}, ""));
+        }   else if (children.get(0) instanceof Name){
+            children.set(0, new ArrayType(tools.list(tools.getClassType((Name)children.get(0), null)), ""));
+        }   else if (children.get(1) instanceof Dims){
+            children.set(0, new ArrayType(tools.list(children.get(0)), ""));
         }
     }
 
