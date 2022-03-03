@@ -15,6 +15,7 @@ public class Main {
 			HierarchyChecking checker = new HierarchyChecking();
 			checker.checkRootEnvironment(env);
 			NameDisambiguation nameDisamb = new NameDisambiguation();
+			nameDisamb.parentMap = checker.parentMap;
 			nameDisamb.rootEnvironmentDisambiguation(env);
 			TypeChecker typeChecker = new TypeChecker(env, checker);
 			typeChecker.check();

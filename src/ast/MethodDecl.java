@@ -64,11 +64,15 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
         }
         return false;
     }
-    public boolean isNonAbAndProtected() {
-        if (ifContainModifier(children.get(0).children.get(0), "abstract")) {
-            return false;
-        }
 
+    public boolean isAbstract() {
+        return ifContainModifier(children.get(0).children.get(0), "abstract");
+    }
+
+    public boolean isPublic() {
+        return ifContainModifier(children.get(0).children.get(0), "public") ;
+    }
+    public boolean isProtected() {
         return ifContainModifier(children.get(0).children.get(0), "protected") ;
     }
 

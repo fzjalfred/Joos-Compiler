@@ -24,6 +24,10 @@ public class AbstractMethodDecl extends InterfaceMemberDecl implements Callable{
     public boolean isPublic() {
         return ifContainModifier(children.get(0), "public");
     }
+
+    public boolean isProtected() {
+        return ifContainModifier(children.get(0), "protected");
+    }
     public String getName(){
         return getMethodDeclarator().getName();
     }

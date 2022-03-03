@@ -1003,10 +1003,10 @@ public class HierarchyChecking {
         for (ASTNode node : directParentMap.keySet()) {
             if (node instanceof ClassDecl) {
                 ClassDecl pdecl = (ClassDecl) node;
-                System.out.println(pdecl.getName());
+                System.out.println("direct parent of " + pdecl.getName());
             } else {
                 InterfaceDecl pdecl = (InterfaceDecl) node;
-                System.out.println(pdecl.getName());
+                System.out.println("direct parent of " + pdecl.getName());
             }
             for (Referenceable ref : directParentMap.get(node)) {
                 if (ref instanceof ClassDecl) {
@@ -1057,10 +1057,10 @@ public class HierarchyChecking {
         for (ASTNode node : parentMap.keySet()) {
             if (node instanceof ClassDecl) {
                 ClassDecl pdecl = (ClassDecl) node;
-                System.out.println(pdecl.getName());
+                System.out.println("parent of " + pdecl.getName());
             } else {
                 InterfaceDecl pdecl = (InterfaceDecl) node;
-                System.out.println(pdecl.getName());
+                System.out.println("parent of " +  pdecl.getName());
             }
             for (Referenceable ref : parentMap.get(node)) {
                 if (ref instanceof ClassDecl) {
@@ -1078,8 +1078,10 @@ public class HierarchyChecking {
     public void createInheritanceMap() throws Exception{
         for (ASTNode node : parentMap.keySet()){
             List <Referenceable> inherited = new ArrayList <Referenceable>(){};
-
+//            System.out.println("class");
+//            System.out.println(node);
             for (Referenceable parentNode: parentMap.get(node)) {
+//                System.out.println(parentNode);
                 List<Referenceable> adding = new ArrayList<Referenceable>();
                 for (Referenceable ref : declareMap.get((ASTNode)parentNode)){
                     if (ref instanceof AbstractMethodList) {
@@ -1102,6 +1104,8 @@ public class HierarchyChecking {
                         adding.add(ref);
                     }
                 }
+//                System.out.println(adding);
+
                 if (adding != null) {
                     List <Pair <Referenceable, Referenceable>> addingReplaceList = new ArrayList <Pair <Referenceable, Referenceable>> () {};
                     List <Pair <Referenceable, Referenceable>> inheritReplaceList = new ArrayList <Pair <Referenceable, Referenceable>> () {};
@@ -1151,6 +1155,8 @@ public class HierarchyChecking {
                             adding.add(pair.second);
                         }
                     }
+//                    System.out.println(adding);
+//                    System.out.println("");
                     inherited.addAll(adding);
                 }
             }
@@ -1183,11 +1189,12 @@ public class HierarchyChecking {
 //                        if (method.isNonAbAndProtected()) {
 //                            System.out.println("protected public " + method);
 //                        }
-
-                        if (abstractMethod.isPublic() && method.isNonAbAndProtected()) {
-
+                        if (method.isAbstract()) {
+                            continue;
+                        } else if (abstractMethod.isPublic() && method.isProtected()) {
                             throw new Exception("Public method is replaced by protected because of abstract "+ abstractMethod.getName() + " " + method.getName());
                         }
+
                         if (!get_type(abstractMethod).equals(get_type(method)) ) {
                             throw new Exception("Same sig diff return being overriden");
                         }

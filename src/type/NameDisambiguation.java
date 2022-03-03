@@ -8,6 +8,7 @@ import java.util.*;
 import utils.*;
 
 public class NameDisambiguation {
+    public Map<ASTNode, List<Referenceable>> parentMap;
 
     public void rootEnvironmentDisambiguation(RootEnvironment rootEnv) throws SemanticError, Exception {
         List<CompilationUnit> compilationUnitList = rootEnv.compilationUnits;
@@ -16,6 +17,37 @@ public class NameDisambiguation {
             SemanticError.currFile = compilationUnit.fileName;
             traverseNode((ASTNode) compilationUnit, rootEnv);
         }
+    }
+
+    private boolean isSameTypeOrSuperType(String searchName, ASTNode decl) throws SemanticError {
+        if (decl instanceof ClassDecl) {
+            if (searchName.equals(((ClassDecl)decl).getName())) {
+                return true;
+            }
+        } else {
+            if (searchName.equals(((InterfaceDecl)decl).getName())) {
+                return true;
+            }
+        }
+
+        if (parentMap.containsKey(decl)) {
+            List<Referenceable> parents = parentMap.get(decl);
+            for (Referenceable parent : parents) {
+                String parentName = "";
+                if (parent instanceof ClassDecl) {
+                    parentName = ((ClassDecl)parent).getName();
+                } else {
+                    parentName = ((InterfaceDecl)parent).getName();
+                }
+                if (searchName.equals(parentName)){
+                    return true;
+                }
+            }
+
+        } else {
+            throw new SemanticError("Cannot find classdecl in the parent map "+decl);
+        }
+        return false;
     }
 
     private FieldDecl findField(ASTNode node, List<String> name) {
@@ -66,9 +98,9 @@ public class NameDisambiguation {
         } else {
             // qualified name
             Referenceable decl = rootEnv.lookup(name);
+            List<String> fullName = name.getFullName();
+            String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
             if (decl == null) { // might be in the form: *.*.class.field
-                List<String> fullName = name.getFullName();
-                String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
                 Token nameToken = tools.simpleNameConstructor(nameStr);
                 decl = nameScope.lookup(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) {
@@ -81,7 +113,11 @@ public class NameDisambiguation {
             if (decl instanceof FieldDecl) {
                 FieldDecl fieldDecl = (FieldDecl) decl;
                 if (!fieldDecl.isStatic()) {
-                    throw new SemanticError("Field is not static " + fieldDecl.getName());
+                    // check if the field contain in the class
+                    if (!isSameTypeOrSuperType(nameStr, nameScope.typeDecl)) {
+                        throw new SemanticError("Field is not static " + fieldDecl.getName());
+                    }
+
                 }
                 type = getVarType(decl);
             } else {
@@ -172,6 +208,7 @@ public class NameDisambiguation {
         Referenceable methodDecls = null;
         ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(methodName);
         List<MethodDecl> methods = null;
+        String classOrInterfaceName = "";
             // simple Name
         if (methodName.isSimpleName()) {
             // construct simple name
@@ -182,9 +219,10 @@ public class NameDisambiguation {
         } else {
             // qualified name
             Referenceable decl = rootEnv.lookup(methodName);
+            List<String> fullName = methodName.getFullName();
+            String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
+            classOrInterfaceName = nameStr;
             if (decl == null) {
-                List<String> fullName = methodName.getFullName();
-                String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
                 Token nameToken = tools.simpleNameConstructor(nameStr);
                 decl = nameScope.lookup(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) { //Fixme
@@ -193,9 +231,6 @@ public class NameDisambiguation {
             }
 
         }
-//        if (methodDecls == null) {
-//            throw new SemanticError("Cannot find method " + methodName.getValue());
-//        }
         ArgumentList argList = methodInvocation.getArgumentList();
         List<Type> targetArgType = null;
         if (argList != null) {
@@ -209,7 +244,9 @@ public class NameDisambiguation {
                 List<Type> searchParamType = method.getParamType();
                 if (compareParam(searchParamType, targetArgType)) { // FIXME:: What if the arg type cannot be resolved here
                     if (!method.isStatic() && !methodName.isSimpleName()) {
-                        throw new SemanticError("Method is not static "+ method.getName());
+                        if (classOrInterfaceName != "" && !isSameTypeOrSuperType(classOrInterfaceName, nameScope.typeDecl)) {
+                            throw new SemanticError("Method is not static "+ method.getName());
+                        }
                     }
                     methodName.type = method.getReturnType();
                     methodInvocation.type = method.getReturnType();
