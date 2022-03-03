@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class DimExpr extends ASTNode {
+public class DimExpr extends Expr {
     public DimExpr(List<ASTNode> children, String value){
         super(children, value);
     }

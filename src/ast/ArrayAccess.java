@@ -22,6 +22,15 @@ public class ArrayAccess extends PrimaryNoArray {
 
     }
 
+    public PrimaryNoArray getExpr(){
+        if (hasName()) return null;
+        return (PrimaryNoArray)children.get(0);
+    }
+
+    public DimExpr getDimExpr(){
+        return (DimExpr)children.get(1);
+    }
+
     @Override
     public void accept(Visitor v) {
         for (ASTNode node : children) {

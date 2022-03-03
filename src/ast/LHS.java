@@ -4,8 +4,8 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class LHS extends ASTNode {
-    public Type type;
+public class LHS extends Expr {
+
     public LHS(List<ASTNode> children, String value){
         super(children, value);
     }

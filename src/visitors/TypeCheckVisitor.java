@@ -29,10 +29,10 @@ public class TypeCheckVisitor extends Visitor{
     }
     /** helpers */
 
-    private void disAmbiguousNameField(Name name, Type type){
+    private void disAmbiguousNameField(Name name, Expr node){
         /** first check whether it's static */
         if (name.type != null){
-            type = name.type;
+            node.type = name.type;
             return;
         }
 
@@ -80,7 +80,7 @@ public class TypeCheckVisitor extends Visitor{
         if (!isLastIdx(idx, names.size())) nameStr += '.';
         idx++;
         for (; idx < names.size(); idx++){
-            if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
+            if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + name.getValue() + " cannot be resolved to type");
             String str = names.get(idx);
             if (currType instanceof ArrayType && str.equals("length")){
                 nameStr += str;
@@ -106,7 +106,7 @@ public class TypeCheckVisitor extends Visitor{
         } // for
 
         if (currType!= null){
-            type = currType;
+            node.type = currType;
             //tools.println("assign " + currType + " to " + node.getName().getValue(), DebugID.zhenyan);
         }   else {
             throw new SemanticError(nameStr + " cannot be resolved to type");
@@ -159,6 +159,7 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(StringLiteral node) {
         
         node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+        tools.println("assign " + node.value + " to " + node.type, DebugID.zhenyan);
         
     }
 
@@ -202,11 +203,33 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(LHS node) {
         if (node.hasName()){
-            disAmbiguousNameField(node.getName(), node.type);
+            disAmbiguousNameField(node.getName(), node);
         }   else {
             node.type = node.getExpr().type;
         }
     }
+
+    public void visit(DimExpr node){
+        node.type = node.getOperatorLeft().type;
+    }
+
+    public void visit(ArrayAccess node) {
+        Type e1Type = null;
+        if (node.hasName()){
+            disAmbiguousNameField(node.getName(), node);
+            e1Type = node.type;
+        }   else {
+            e1Type = node.getExpr().type;
+        }
+        if (! (e1Type instanceof ArrayType)){
+            throw new SemanticError("in array access: e1 " + e1Type + " is not array type");
+        }
+        if (!(node.getDimExpr().type instanceof NumericType)){
+            throw new SemanticError("in array access: dimexpr " + node.getDimExpr().type + " is not numeric type");
+        }
+        node.type = ((ArrayType)e1Type).getType();
+    }
+
 
     public void visit(UnaryExpr node){
         if (node.children.size() == 2) {
@@ -301,7 +324,7 @@ public class TypeCheckVisitor extends Visitor{
             } else if (t2 instanceof NullType ) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+                //throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft().toString() + " : " + t1 + " "+ node.getOperatorRight().toString()  + " : " + t2);
             }
         }
     }
@@ -374,15 +397,7 @@ public class TypeCheckVisitor extends Visitor{
         Type t1;
         LHS lhs = node.getAssignmentLeft();
         Type t2 = (node.getAssignmentRight()).type;
-        if (lhs.hasName()) {
-            Name methodName = lhs.getName();
-            t1 = methodName.type;
-            if (t1.equals(t2)) {
-                node.type = t1;
-            } else {
-                throw new SemanticError("Invalid Assignment use between " + t1 + " and " + t2 );
-            }
-        }
+
         // if () {
         //     node.type = t1;
         // } else {
@@ -670,7 +685,7 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(PostFixExpr node) {
-        disAmbiguousNameField(node.getName(), node.type);
+        disAmbiguousNameField(node.getName(), node);
     }
 
 

@@ -86,9 +86,11 @@ public class tools {
     }
 
     public static MethodDecl fetchMethod(List<ASTNode> refers, List<Type> argTypes){
+
         for (ASTNode refer : refers){
             if (refer instanceof MethodDecl){
                 MethodDecl method = (MethodDecl)refer;
+                tools.println("matching " + method.getParamType() + " to " + argTypes, DebugID.zhenyan );
                 if (compTypeListEqual(method.getParamType(), argTypes)){
                     return method;
                 }
