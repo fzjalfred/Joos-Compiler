@@ -30,19 +30,10 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
     public List<Type> getParamType() {
         MethodHeader methodHeader = getMethodHeader();
         MethodDeclarator methodDeclarator = methodHeader.getMethodDeclarator();
-        if (!methodDeclarator.hasParameterList()) {
-            return null;
+        if (methodDeclarator.hasParameterList()){
+            return methodDeclarator.getParameterList().getParamType();
         }
-        ParameterList parameterList = methodDeclarator.getParameterList();
-        List<Parameter> parameters = parameterList.getParams();
-
-
-        List<Type> typeList = new ArrayList<Type>();
-
-        for (Parameter parameter : parameters) {
-            typeList.add(parameter.getType());
-        }
-        return typeList;
+        return null;
     }
 
     public Type getReturnType() {

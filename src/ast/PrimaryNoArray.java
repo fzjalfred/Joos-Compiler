@@ -11,6 +11,10 @@ public class PrimaryNoArray extends Primary {
         super(children, value);
     }
 
+    public Expr getExpr(){
+        return (Expr)children.get(0);
+    }
+
     public Type getType() {
         if (type != null) {
             return type;

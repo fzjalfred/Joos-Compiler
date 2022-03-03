@@ -1,5 +1,6 @@
 package ast;
 
+import lexer.Token;
 import visitors.Visitor;
 
 import java.util.List;
@@ -7,6 +8,11 @@ import java.util.List;
 public class FieldAccess extends PrimaryNoArray {
     public FieldAccess(List<ASTNode> children, String value){
         super(children, value);
+    }
+
+    public Token getID(){
+        assert children.get(1) instanceof Token;
+        return (Token)children.get(1);
     }
 
     @Override

@@ -5,8 +5,10 @@ import visitors.Visitor;
 import java.util.List;
 
 public class ClassInstanceCreateExpr extends PrimaryNoArray {
+    public Callable callable;
     public ClassInstanceCreateExpr(List<ASTNode> children, String value){
         super(children, value);
+        callable = null;
     }
 
     public ClassOrInterfaceType getType(){
@@ -24,7 +26,7 @@ public class ClassInstanceCreateExpr extends PrimaryNoArray {
 
     public ArgumentList getArgumentList(){
         assert (children.get(1) instanceof ArgumentList);
-        return (ArgumentList)children.get(0);
+        return (ArgumentList)children.get(1);
     }
 
     public List<Type> getArgumentTypeList(){

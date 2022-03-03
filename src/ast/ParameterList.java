@@ -7,19 +7,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParameterList extends ASTNode {
+    private List<Type> types;
+    private List<Parameter> parameters;
     public ParameterList(List<ASTNode> children, String value){
         super(children, value);
+        types = null;
+        parameters = null;
     }
     public int paramNum(){
         return children.size();
     }
     public List<Parameter> getParams(){
-        List<Parameter> params = new ArrayList<Parameter>();
+        if (parameters != null) return parameters;
+        parameters = new ArrayList<Parameter>();
         for (ASTNode node : children){
             assert node instanceof Parameter;
-            params.add((Parameter)node);
+            parameters.add((Parameter)node);
         }
-        return params;
+        return parameters;
+    }
+
+    public List<Type> getParamType(){
+        if (types != null) return types;
+        types = new ArrayList<Type>();
+        for (ASTNode node : children){
+            assert node instanceof Parameter;
+            types.add(((Parameter)node).getType());
+        }
+        return types;
     }
 
     @Override

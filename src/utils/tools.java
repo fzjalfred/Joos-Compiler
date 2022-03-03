@@ -66,6 +66,16 @@ public class tools {
         return true;
     }
 
+    public static ConstructorDecl fetchConstructor(List<Referenceable> refers, List<Type> types){
+        for (Referenceable refer: refers){
+            if (refer instanceof ConstructorDecl){
+                if (compTypeListEqual(((ConstructorDecl)refer).getConstructorDeclarator().getParamType(), types));
+                return (ConstructorDecl)refer;
+            }
+        }
+        return null;
+    }
+
     public static FieldDecl fetchField(List<ASTNode> refers){
         for (ASTNode refer : refers){
             if (refer instanceof FieldDecl){
@@ -102,6 +112,7 @@ public class tools {
         }
     }
 
+
     public static String get_class_qualifed_name(ASTNode class_decl, RootEnvironment env) {
         ScopeEnvironment underenv = env.ASTNodeToScopes.get(class_decl);
         if (underenv.prefix == null) {
@@ -112,5 +123,9 @@ public class tools {
     public static String get_class_qualifed_name(ClassOrInterfaceType class_decl, RootEnvironment env) {
         assert class_decl.typeDecl != null;
         return get_class_qualifed_name(class_decl.typeDecl, env);
+    }
+
+    public static NumericType intType(){
+        return new NumericType(empty(), "int");
     }
 }

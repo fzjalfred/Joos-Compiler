@@ -15,6 +15,11 @@ public class ConstructorDeclarator extends ASTNode {
         assert children.get(1) instanceof ParameterList;
         return (ParameterList)children.get(1);
     }
+
+    public List<Type> getParamType(){
+        if (getParameterList() == null) return null;
+        return getParameterList().getParamType();
+    }
     public int numParams(){
         if (getParameterList() == null) return 0;
         return getParameterList().paramNum();

@@ -4,10 +4,10 @@ import lexer.sym;
 import ast.*;
 import exception.SemanticError;
 import hierarchy.HierarchyChecking;
+import lexer.Token;
 import type.*;
 import utils.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,14 +28,18 @@ public class TypeCheckVisitor extends Visitor{
         this.currTypeDecl = null;
     }
     /** helpers */
+
+
     private boolean checkUpCast(Type t1, Type t2){
         if (t2 instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)t2).typeDecl == env.lookup(tools.nameConstructor("java.lang.Object"))){
             return true;
         }   else if (t1 instanceof ClassOrInterfaceType && t2 instanceof ClassOrInterfaceType){
             TypeDecl t1Decl = ((ClassOrInterfaceType)t1).typeDecl;
             TypeDecl t2Decl = ((ClassOrInterfaceType)t2).typeDecl;
-            tools.println(hierarchyChecker.parentMap.get(t2Decl) + " p for t1 " + t1Decl, DebugID.zhenyan);
+            //tools.println(hierarchyChecker.parentMap.get(t2Decl) + " p for t1 " + t1Decl, DebugID.zhenyan);
             return tools.containClass(hierarchyChecker.parentMap.get(t1Decl), t2Decl);
+        }   else if (t1 instanceof ArrayType && t2 instanceof ArrayType){
+            return  (checkUpCast(((ArrayType) t1).getType(), ((ArrayType) t2).getType()));
         }
         return false;
     }
@@ -46,8 +50,10 @@ public class TypeCheckVisitor extends Visitor{
         }   else if (t1 instanceof ClassOrInterfaceType && t2 instanceof ClassOrInterfaceType){
             TypeDecl t1Decl = ((ClassOrInterfaceType)t1).typeDecl;
             TypeDecl t2Decl = ((ClassOrInterfaceType)t2).typeDecl;
-            tools.println(hierarchyChecker.parentMap.get(t1Decl) + " p for t2 " + t2Decl, DebugID.zhenyan);
+            //tools.println(hierarchyChecker.parentMap.get(t1Decl) + " p for t2 " + t2Decl, DebugID.zhenyan);
             return tools.containClass(hierarchyChecker.parentMap.get(t2Decl), t1Decl);
+        }  else if (t1 instanceof ArrayType && t2 instanceof ArrayType){
+            return  (checkDownCast(((ArrayType) t1).getType(), ((ArrayType) t2).getType()));
         }
         return false;
     }
@@ -92,8 +98,8 @@ public class TypeCheckVisitor extends Visitor{
     }
 
     public void visit(ThisLiteral node) {
-        //node.type = new ClassOrInterfaceType(tools.list(tools.nameConstructor("java.lang.String")), "");
-        node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+        ClassDecl classDecl = (ClassDecl) env.ASTNodeToScopes.get(node).typeDecl;
+        node.type = tools.getClassType(classDecl.getName(), classDecl);
     }
 
     /** Operators */
@@ -121,12 +127,12 @@ public class TypeCheckVisitor extends Visitor{
     }
 
     public void visit(PrimaryNoArray node){
-        node.type = ((Expr)node.children.get(0)).type;
+        node.type = node.getExpr().type;
     }
 
     public void visit(AdditiveExpr node){
         if (node.children.size() == 1) {
-            node.type = ((Expr)node.getSingleChild()).type;
+            node.type = (node.getSingleChild()).type;
         } else {
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
@@ -152,7 +158,7 @@ public class TypeCheckVisitor extends Visitor{
 
     public void visit(MultiplicativeExpr node){
         if (node.children.size() == 1) {
-            node.type = ((Expr)node.getSingleChild()).type;
+            node.type = (node.getSingleChild()).type;
         } else {
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
@@ -176,12 +182,12 @@ public class TypeCheckVisitor extends Visitor{
 
     public void visit(RelationExpr node){
         if (node.children.size() == 1) {
-            node.type = ((Expr)node.getSingleChild()).type;
+            node.type = (node.getSingleChild()).type;
         } else if (((Token)node.children.get(1)).type == sym.INSTANCEOF) {
             node.type = new PrimitiveType(tools.empty(), "bool");
         } else {
-            Type t1 = ((Expr)node.getOperatorLeft()).type;
-            Type t2 = ((Expr)node.getOperatorRight()).type;
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
@@ -196,8 +202,8 @@ public class TypeCheckVisitor extends Visitor{
         if (node.children.size() == 1) {    
             node.type = (node.getSingleChild()).type;
         } else {
-            Type t1 = ((Expr)node.getOperatorLeft()).type;
-            Type t2 = ((Expr)node.getOperatorRight()).type;
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t2 instanceof NullType ) {
@@ -212,8 +218,8 @@ public class TypeCheckVisitor extends Visitor{
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
         } else {
-            Type t1 = ((Expr)node.getOperatorLeft()).type;
-            Type t2 = ((Expr)node.getOperatorRight()).type;
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
@@ -228,8 +234,8 @@ public class TypeCheckVisitor extends Visitor{
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
         } else {
-            Type t1 = ((Expr)node.getOperatorLeft()).type;
-            Type t2 = ((Expr)node.getOperatorRight()).type;
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
@@ -244,8 +250,8 @@ public class TypeCheckVisitor extends Visitor{
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
         } else {
-            Type t1 = ((Expr)node.getOperatorLeft()).type;
-            Type t2 = ((Expr)node.getOperatorRight()).type;
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
@@ -260,8 +266,8 @@ public class TypeCheckVisitor extends Visitor{
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
         } else {
-            Type t1 = ((Expr)node.getOperatorLeft()).type;
-            Type t2 = ((Expr)node.getOperatorRight()).type;
+            Type t1 = (node.getOperatorLeft()).type;
+            Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
@@ -275,14 +281,14 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(Assignment node){
         Type t1;
         LHS lhs = node.getAssignmentLeft();
-        Type t2 = ((Expr)node.getAssignmentRight()).type;
+        Type t2 = (node.getAssignmentRight()).type;
         if (lhs.hasName()) {
             Name methodName = lhs.getName();
             t1 = methodName.type;
             if (t1.equals(t2)) {
                 node.type = t1;
             } else {
-                throw new SemanticError("Invalid Assignment use between ");
+                throw new SemanticError("Invalid Assignment use between " + t1 + " and " + t2 );
             }
         }
         // if () {
@@ -347,13 +353,41 @@ public class TypeCheckVisitor extends Visitor{
 
     /** Exprs */
     @Override
+    public void visit(FieldAccess node) {
+        String field = node.getID().value;
+        if (node.type instanceof ArrayType){
+            if (field.equals("length")){
+                node.type = tools.intType();
+                return;
+            }
+        }   else if (node.type instanceof ClassOrInterfaceType) {
+            ClassOrInterfaceType classType = (ClassOrInterfaceType)node.type;
+            Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(classType.typeDecl);
+            FieldDecl fieldDecl = tools.fetchField(containMap.get(field));
+            if (fieldDecl != null){
+                node.type = fieldDecl.getType();
+                tools.println("assign field access " + field + " to type: " + node.type, DebugID.zhenyan );
+                return;
+            }
+        }
+        // TODO: throw new SemanticError("cannot evaluate " + field + " to any type");
+    }
+
+
+    @Override
     public void visit(ClassInstanceCreateExpr node) {
         TypeDecl typeDecl = node.getType().typeDecl;
         if (typeDecl instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)typeDecl;
-            return;
+            List<Referenceable>  declares = hierarchyChecker.declareMap.get(classDecl);
+            ConstructorDecl ctorDecl = tools.fetchConstructor(declares, node.getArgumentTypeList());
+            if (ctorDecl != null){
+                node.type = node.getType();
+                node.callable = ctorDecl;
+                return;
+            }
         }
-        throw new SemanticError("Cannot init interface type " + node.getType());
+        //throw new SemanticError("Cannot init interface type " + node.getType());
 
     }
 
@@ -405,8 +439,8 @@ public class TypeCheckVisitor extends Visitor{
                     node.type = t2;
                     return;
                 }
-        }
-    } // if classOrInterfaceType
+            }
+        } // if classOrInterfaceType
         throw new SemanticError("Cannot cast " + t1 + " to " + t2);
     }
 
