@@ -32,6 +32,7 @@ public class AbstractMethodDecl extends InterfaceMemberDecl{
         return false;
     }
 
+    @Override
     public Type getType(){
         if(children.get(1) instanceof Type){
             return (Type)children.get(1);

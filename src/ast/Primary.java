@@ -5,7 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class Primary extends PostFixExpr {
-    public Type type = null;
+
     public Primary(List<ASTNode> children, String value){
         super(children, value);
     }

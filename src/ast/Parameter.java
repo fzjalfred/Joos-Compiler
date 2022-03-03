@@ -13,6 +13,7 @@ public class Parameter extends ASTNode implements Referenceable {
         return (VarDeclaratorID)children.get(1);
     }
 
+    @Override
     public Type getType(){
         assert children.get(0) instanceof Type;
         return (Type)children.get(0);

@@ -18,7 +18,7 @@ abstract public class ASTNode {
     }
     @Override
     public String toString() {
-        return this.getClass().getName() + "(val: " + value + "; children: "+ childrenToString() + ")";
+        return this.getClass().getName();
     }
 
 //     @Override

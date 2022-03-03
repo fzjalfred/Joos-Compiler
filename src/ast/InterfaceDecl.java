@@ -1,5 +1,6 @@
 package ast;
 
+import utils.tools;
 import visitors.Visitor;
 
 import java.util.List;
@@ -48,5 +49,10 @@ public class InterfaceDecl extends TypeDecl {
             if (node != null) node.accept(v);
         }
         v.visit(this);
+    }
+
+    @Override
+    public Type getType() {
+        return tools.getClassType(getName(), this);
     }
 }

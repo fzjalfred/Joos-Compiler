@@ -653,6 +653,7 @@ public class HierarchyChecking {
             if (node.first.contains("java.lang.Object")) { // general base class
                 ClassDecl classDecl = (ClassDecl) node.second;
                 generalBaseObjectClass.addAll(declare((Referenceable)classDecl, env));
+                declareMap.put(node.second, generalBaseObjectClass);
                 continue; // No need to check base class correctness(?
             }
 

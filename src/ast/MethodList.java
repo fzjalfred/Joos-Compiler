@@ -62,12 +62,17 @@ public class MethodList implements Referenceable, ReferenceableList{
     }
 
     @Override
-    public Referenceable match(List<Type> args) {
+    public MethodDecl match(List<Type> args) {
         //Referenceable res = null;
         for (MethodDecl methodDecl: methods){
             List<Type> methodTypes = methodDecl.getParamType();
             if (tools.compTypeListEqual(methodTypes, args)) {return methodDecl;}
         }
+        return null;
+    }
+
+    @Override
+    public Type getType() {
         return null;
     }
 }

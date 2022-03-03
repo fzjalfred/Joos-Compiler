@@ -58,4 +58,9 @@ public class ConstructorList implements Referenceable{
                 "cons=" + cons +
                 '}';
     }
+
+    @Override
+    public Type getType() {
+        return null;
+    }
 }

@@ -2,6 +2,7 @@ package utils;
 import ast.*;
 import java.util.*;
 import lexer.*;
+
 public class tools {
 
     public static Name nameConstructor(String qualifiedName){
@@ -35,7 +36,7 @@ public class tools {
         return new ArrayList<ASTNode>(){{add(node);}};
     }
 
-    public static ClassOrInterfaceType getClassType(String className, ClassDecl classDecl){
+    public static ClassOrInterfaceType getClassType(String className, TypeDecl classDecl){
         ClassOrInterfaceType classType = new ClassOrInterfaceType(new ArrayList<ASTNode>(){{add(nameConstructor(className));};}, "");
         classType.typeDecl = classDecl;
         return classType;
@@ -53,5 +54,41 @@ public class tools {
             if (list1.get(idx) != list2.get(idx)) return false;
         }
         return true;
+    }
+
+    public static FieldDecl fetchField(List<ASTNode> refers){
+        for (ASTNode refer : refers){
+            if (refer instanceof FieldDecl){
+                return (FieldDecl)refer;
+            }
+        }
+        return null;
+    }
+
+    public static MethodDecl fetchMethod(List<ASTNode> refers, List<Type> argTypes){
+        for (ASTNode refer : refers){
+            if (refer instanceof MethodDecl){
+                MethodDecl method = (MethodDecl)refer;
+                if (compTypeListEqual(method.getParamType(), argTypes)){
+                    return method;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean containClass(List<Referenceable> refers, TypeDecl typeDecl){
+        if (refers == null) return false;
+        for (Referenceable refer: refers){
+            if (typeDecl == refer) return true;
+        }
+        return false;
+    }
+
+    /** print a message if debug is on*/
+    public static void println(Object msg, DebugID id){
+        if (id == Main.id){
+            System.out.println(msg);
+        }
     }
 }

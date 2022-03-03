@@ -45,4 +45,9 @@ public class CastExpr extends UnaryExprNotPlusMinus {
         }
         v.visit(this);
     }
+
+    public UnaryExpr getUnaryExpr(){
+        assert children.get(2) instanceof UnaryExpr;
+        return (UnaryExpr)children.get(2);
+    }
 }

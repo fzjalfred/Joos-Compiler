@@ -19,6 +19,7 @@ public class ForInit extends ASTNode implements Referenceable{
         return null;
     }
 
+    @Override
     public Type getType(){
         if (isVarDecl()){
             assert children.get(0) instanceof Type;

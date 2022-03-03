@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class TypeDecl extends ASTNode implements Referenceable{
+public abstract class TypeDecl extends ASTNode implements Referenceable{
     public TypeDecl(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -16,4 +16,7 @@ public class TypeDecl extends ASTNode implements Referenceable{
         }
         v.visit(this);
     }
+
+    @Override
+    public abstract Type getType();
 }

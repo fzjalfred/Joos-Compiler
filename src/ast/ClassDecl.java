@@ -3,6 +3,7 @@ package ast;
 import visitors.Visitor;
 
 import java.util.List;
+import utils.tools;
 
 public class ClassDecl extends TypeDecl{
     // children( modifiers ID Super Interface ClassBody)
@@ -42,4 +43,8 @@ public class ClassDecl extends TypeDecl{
 
     }
 
+    @Override
+    public Type getType() {
+        return tools.getClassType(getName(), this);
+    }
 }

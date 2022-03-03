@@ -71,4 +71,9 @@ public class AbstractMethodList implements Referenceable, ReferenceableList{
         }
         return null;
     }
+
+    @Override
+    public Type getType() {
+        return null;
+    }
 }

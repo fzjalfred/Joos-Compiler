@@ -29,4 +29,9 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable{
         }
         v.visit(this);
     }
+
+    @Override
+    public Type getType() {
+        return null;
+    }
 }

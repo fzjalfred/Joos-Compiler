@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ClassMemberDecl extends ClassBodyDecl implements Referenceable{
+public abstract class ClassMemberDecl extends ClassBodyDecl implements Referenceable{
     public ClassMemberDecl(List<ASTNode> children, String value){
         super(children, value);
     }

@@ -35,4 +35,9 @@ public class CompilationUnit extends ASTNode implements Referenceable{
         }
         v.visit(this);
     }
+
+    @Override
+    public Type getType() {
+        return null;
+    }
 }

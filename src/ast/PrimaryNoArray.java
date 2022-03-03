@@ -6,7 +6,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class PrimaryNoArray extends Primary {
-    public Type type = null;
+
     public PrimaryNoArray(List<ASTNode> children, String value){
         super(children, value);
     }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReferenceType extends Type {
-    public Referenceable typeDecl;
+    public TypeDecl typeDecl;
     public ReferenceType(List<ASTNode> children, String value){
         super(children, value);
         typeDecl = null;

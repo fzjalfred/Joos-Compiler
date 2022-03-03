@@ -5,7 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class MethodInvocation extends PrimaryNoArray {
-    public Type type = null;
+
     public MethodInvocation(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -27,6 +27,11 @@ public class MethodInvocation extends PrimaryNoArray {
             return null;
         }
         return (ArgumentList) children.get(2);
+    }
+
+    public List<Type> getArgumentTypeList(){
+        if (getArgumentList() == null) return null;
+        return getArgumentList().getArgsType();
     }
     @Override
     public void accept(Visitor v){

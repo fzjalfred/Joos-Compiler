@@ -50,6 +50,11 @@ public class MethodDecl extends ClassMemberDecl {
         return returnType;
     }
 
+    @Override
+    public Type getType() {
+        return getReturnType();
+    }
+
     public boolean isStatic() {
         Modifiers modifiers = (Modifiers) getMethodHeader().children.get(0);
 
@@ -74,10 +79,10 @@ public class MethodDecl extends ClassMemberDecl {
 
 
     private void acceptMain(Visitor v){
+        v.visit(this);
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }
-        v.visit(this);
     }
 
     @Override

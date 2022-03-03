@@ -2,22 +2,23 @@ package type;
 
 import java.util.*;
 import ast.*;
+import utils.Pair;
 public class Context {
     /**context frame for each scope */
     class ContextFrame{
-        private Map<String, Type> T;
+        private Map<String, Referenceable> T;
         private String name;
-        public Type get(String name){
+        public Referenceable get(String name){
             if (T.containsKey(name)) return T.get(name);
             return null;
         }
 
-        public void put(String name, Type type){
+        public void put(String name, Referenceable type){
             T.put(name, type);
         }
         public ContextFrame(String name){
             this.name = name;
-            T = new HashMap<String,Type>();
+            T = new HashMap<String,Referenceable>();
         }
 
         @Override
@@ -28,13 +29,14 @@ public class Context {
                     '}';
         }
     }
-
-    private Stack<ContextFrame> frames;
+    /** first denotes field frame; second denotes method frame */
+    private Stack<Pair<ContextFrame, ContextFrame>> frames;
 
     /** put empty context frame on top of frames */
     public void entry(String name){
         //System.out.println("pushing " + frames.size()+1);
-        frames.push(new ContextFrame(name));
+        Pair<ContextFrame, ContextFrame> frame = new Pair<ContextFrame,ContextFrame>(new ContextFrame(name), new ContextFrame(name));
+        frames.push(frame);
     }
 
     /** pop top of the frame */
@@ -44,18 +46,58 @@ public class Context {
     }
 
     /** put <name, type> on top of frames */
-    public void put(String name, Type type){
-        frames.peek().put(name, type);
+    public void put(String name, Referenceable type){
+        frames.peek().first.put(name, type);
+    }
+
+    public void put(String name, MethodDecl methodDecl){
+        Referenceable methods = get(name);
+        if (methods == null){
+            MethodList methodList = new MethodList(name);
+            methodList.add(methodDecl);
+            put(name, methodList);
+        }   else if (methods instanceof MethodList) {
+            MethodList methodList = (MethodList)methods;
+            methodList.add(methodDecl);
+        }
+    }
+
+    public void put(String name, AbstractMethodDecl methodDecl){
+        Referenceable methods = get(name);
+        if (methods == null){
+            AbstractMethodList methodList = new AbstractMethodList(name);
+            methodList.add(methodDecl);
+            put(name, methodList);
+        }   else if (methods instanceof AbstractMethodList) {
+            AbstractMethodList methodList = (AbstractMethodList)methods;
+            methodList.add(methodDecl);
+        }
     }
 
     /** get the type of the name of closet context frame  */
-    public Type get(String name){
-        Iterator<ContextFrame> it = frames.iterator();
-        Type res = null;
+    public Referenceable get(String name){
+        Iterator<Pair<ContextFrame, ContextFrame>> it = frames.iterator();
+        Referenceable res = null;
         while (it.hasNext()){
-            res = it.next().get(name);
+            res = it.next().first.get(name);
             if (res != null) return res;
         }
+        return null;
+    }
+
+    public Referenceable getMethods(String name){
+        Iterator<Pair<ContextFrame, ContextFrame>> it = frames.iterator();
+        Referenceable res = null;
+        while (it.hasNext()){
+            res = it.next().second.get(name);
+            if (res != null) return res;
+        }
+        return null;
+    }
+
+    public Type getType(String name){
+        Referenceable refer = get(name);
+        if (refer != null) return refer.getType();
         return null;
     }
 
@@ -64,7 +106,7 @@ public class Context {
     }
 
     public Context(){
-        frames = new Stack<ContextFrame>();
+        frames = new Stack<Pair<ContextFrame, ContextFrame>>();
     }
 
     @Override

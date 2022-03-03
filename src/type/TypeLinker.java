@@ -179,12 +179,12 @@ public class TypeLinker {
             Token simpleName = tools.simpleNameConstructor(tools.getSimpleName(typeName));
             Referenceable res = env.lookupTypeDecl(simpleName);
             if (res == null) throw new SemanticError("Cannot find symbol " + simpleName+  " scope " );
-            type.typeDecl = res;
+            type.typeDecl = (TypeDecl)res;
         }   else {
             Referenceable res = env.lookup(typeName);
             if (res == null) throw new SemanticError("Cannot find symbol " + typeName.getValue() + " res " + res);
             checkPrefixNotType(env.root, typeName.getFullName(), true, env);
-            type.typeDecl = res;
+            type.typeDecl = (TypeDecl)res;
         }
     }
 

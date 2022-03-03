@@ -1,16 +1,13 @@
 package lexer;
 import java.io.*;
 import java.util.*;
-
-import ast.CompilationUnit;
-import ast.Name;
-import java_cup.runtime.*;
 import type.*;
-import visitors.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
 
 public class Main {
+
+	static public DebugID id = DebugID.None;
 
 	static public void main(String argv[]) {
 		try {
