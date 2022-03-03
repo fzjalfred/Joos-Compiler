@@ -29,6 +29,89 @@ public class TypeCheckVisitor extends Visitor{
     }
     /** helpers */
 
+    private void disAmbiguousNameField(Name name, Type type){
+        /** first check whether it's static */
+        if (name.type != null){
+            type = name.type;
+            return;
+        }
+
+        /** derive first expr's type  */
+        Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(currTypeDecl);
+        Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
+        List<String> names = name.getFullName();
+        String nameStr = "";
+        Type currType = null;
+
+        int idx = 0;
+        for (;idx < names.size();idx++){
+            String str = names.get(idx);
+            nameStr += str;
+            currType = context.getType(nameStr);
+            if (currType != null) {
+                break;
+            }
+
+            // second check inherit map
+            if (inheritMap.containsKey(nameStr)){
+                FieldDecl  field = tools.fetchField(inheritMap.get(nameStr));
+                if (field != null){
+                    currType = field.getType();
+                    break;
+                }
+            }
+
+            // third check static field, which is env lookup: A.B.C
+            Referenceable nameRefer = env.lookup(tools.nameConstructor(nameStr));
+            if (nameRefer instanceof FieldDecl){
+                if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
+                FieldDecl field = (FieldDecl)nameRefer;
+                currType = field.getType();
+                break;
+            }   else if (nameRefer instanceof ClassDecl){
+                ClassDecl classDecl = (ClassDecl)nameRefer;
+                currType = tools.getClassType(nameStr, classDecl);
+                break;
+            }
+
+        }
+
+        /** process remaining name */
+        if (!isLastIdx(idx, names.size())) nameStr += '.';
+        idx++;
+        for (; idx < names.size(); idx++){
+            if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
+            String str = names.get(idx);
+            if (currType instanceof ArrayType && str.equals("length")){
+                nameStr += str;
+                currType = new NumericType(tools.empty(), "int");
+                nameStr += '.';
+            }   else if (currType instanceof ClassOrInterfaceType){
+                ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
+                assert classType.typeDecl != null;
+                containMap = hierarchyChecker.containMap.get(classType.typeDecl);
+                if (containMap.containsKey(str)){
+                    FieldDecl  field = tools.fetchField(containMap.get(str));
+                    if (field != null){
+                        nameStr += str;
+                        currType = field.getType();
+                        nameStr += '.';
+                        continue;
+                    } // if
+                } // if
+                throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + name.getValue() + " cannot be resolved to type");
+            }   else {
+                throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + name.getValue() + " cannot be resolved to type");
+            } // if
+        } // for
+
+        if (currType!= null){
+            type = currType;
+            //tools.println("assign " + currType + " to " + node.getName().getValue(), DebugID.zhenyan);
+        }   else {
+            throw new SemanticError(nameStr + " cannot be resolved to type");
+        }
+    }
 
     private boolean checkUpCast(Type t1, Type t2){
         if (t2 instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)t2).typeDecl == env.lookup(tools.nameConstructor("java.lang.Object"))){
@@ -116,6 +199,15 @@ public class TypeCheckVisitor extends Visitor{
         }
     }
 
+    @Override
+    public void visit(LHS node) {
+        if (node.hasName()){
+            disAmbiguousNameField(node.getName(), node.type);
+        }   else {
+            node.type = node.getExpr().type;
+        }
+    }
+
     public void visit(UnaryExpr node){
         if (node.children.size() == 2) {
             // Not statement
@@ -138,7 +230,7 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
-            } else if (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env) == "java.lang.String" && t2 != null) {
+            } else if (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null) {
                 node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
             }   else {
                 // System.out.println(node.children.get(0));
@@ -578,88 +670,7 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(PostFixExpr node) {
-        /** first check whether it's static */
-        if (node.getName().type != null){
-            node.type = node.getName().type;
-            return;
-        }
-
-        /** derive first expr's type  */
-        Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(currTypeDecl);
-        Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
-        List<String> names = node.getName().getFullName();
-        String nameStr = "";
-        Type currType = null;
-
-        int idx = 0;
-        for (;idx < names.size();idx++){
-            String str = names.get(idx);
-            nameStr += str;
-            currType = context.getType(nameStr);
-            if (currType != null) {
-                break;
-            }
-
-            // second check inherit map
-            if (inheritMap.containsKey(nameStr)){
-                FieldDecl  field = tools.fetchField(inheritMap.get(nameStr));
-                if (field != null){
-                    currType = field.getType();
-                    break;
-                }
-            }
-
-            // third check static field, which is env lookup: A.B.C
-            Referenceable nameRefer = env.lookup(tools.nameConstructor(nameStr));
-            if (nameRefer instanceof FieldDecl){
-                if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
-                FieldDecl field = (FieldDecl)nameRefer;
-                currType = field.getType();
-                break;
-            }   else if (nameRefer instanceof ClassDecl){
-                ClassDecl classDecl = (ClassDecl)nameRefer;
-                currType = tools.getClassType(nameStr, classDecl);
-                break;
-            }
-
-        }
-
-        /** process remaining name */
-        if (!isLastIdx(idx, names.size())) nameStr += '.';
-        idx++;
-        for (; idx < names.size(); idx++){
-            if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
-            String str = names.get(idx);
-            if (currType instanceof ArrayType && str.equals("length")){
-                nameStr += str;
-                currType = new NumericType(tools.empty(), "int");
-                nameStr += '.';
-            }   else if (currType instanceof ClassOrInterfaceType){
-                ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
-                assert classType.typeDecl != null;
-                containMap = hierarchyChecker.containMap.get(classType.typeDecl);
-                if (containMap.containsKey(str)){
-                    FieldDecl  field = tools.fetchField(containMap.get(str));
-                    if (field != null){
-                        nameStr += str;
-                        currType = field.getType();
-                        nameStr += '.';
-                        continue;
-                    } // if
-                } // if
-                throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
-            }   else {
-                throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
-            } // if
-        } // for
-
-        if (currType!= null){
-            node.type = currType;
-            //tools.println("assign " + currType + " to " + node.getName().getValue(), DebugID.zhenyan);
-        }   else {
-            throw new SemanticError(nameStr + " cannot be resolved to type");
-        }
-
+        disAmbiguousNameField(node.getName(), node.type);
     }
 
 

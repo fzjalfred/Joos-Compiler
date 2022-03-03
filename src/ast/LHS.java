@@ -5,6 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class LHS extends ASTNode {
+    public Type type;
     public LHS(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -19,6 +20,11 @@ public class LHS extends ASTNode {
     public Name getName() {
         assert children.get(0) instanceof Name;
         return (Name)children.get(0);
+    }
+
+    public Expr getExpr(){
+        if (hasName()) return null;
+        return (Expr)children.get(0);
     }
 
     @Override
