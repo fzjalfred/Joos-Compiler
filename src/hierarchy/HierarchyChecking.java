@@ -9,6 +9,7 @@ import utils.*;
 import lexer.*;
 
 public class HierarchyChecking {
+    public ASTNode objectClass;
     public List <Referenceable> generalBaseObjectClass;
     // public List <Referenceable> generalBaseMethodInterface;
     public Map<ASTNode, List<Referenceable>> declareMap;
@@ -634,7 +635,13 @@ public class HierarchyChecking {
         }
         createParentMap();
         createInheritanceMap();
+//        System.out.println("===============direct parent====================");
+//        printDirectParent();
+//        System.out.println("===============parent=================");
+//        printParent();;
+//        System.out.println("===============declare=================");
 //        printDeclare();
+//        System.out.println("===============inherit=================");
 //        printInherit();
         rebuildMaps();
         checkClassHierary(env);
@@ -650,14 +657,15 @@ public class HierarchyChecking {
         }
 
         for (Pair<String, ASTNode> node : nonImported) {
+            directParentMap.put(node.second, new ArrayList <Referenceable>());
             if (node.first.contains("java.lang.Object")) { // general base class
                 ClassDecl classDecl = (ClassDecl) node.second;
                 generalBaseObjectClass.addAll(declare((Referenceable)classDecl, env));
+                objectClass = node.second;
                 declareMap.put(node.second, generalBaseObjectClass);
                 continue; // No need to check base class correctness(?
             }
 
-            directParentMap.put(node.second, new ArrayList <Referenceable>());
             if (node.second instanceof ClassDecl) {
                 ClassDecl classDecl = (ClassDecl) node.second;
                 List<Pair<Referenceable, ScopeEnvironment>> extendNodes = new ArrayList <Pair<Referenceable, ScopeEnvironment>>(){};
@@ -967,6 +975,11 @@ public class HierarchyChecking {
     }
 
     public void createParentMap() {
+        for (ASTNode node: directParentMap.keySet()) {
+            if (node != objectClass && directParentMap.get(node).size() == 0) {
+                directParentMap.get(node).add((Referenceable)objectClass);
+            }
+        }
         for (ASTNode node : directParentMap.keySet()) {
             if (!(parentMap.containsKey(node)) && directParentMap.containsKey(node)) {
                 parentMap.put(node, new ArrayList <Referenceable> ());
@@ -1120,8 +1133,6 @@ public class HierarchyChecking {
                     inherited.addAll(adding);
                 }
             }
-
-            inherited.addAll(generalBaseObjectClass);
             inheritMap.put(node, inherited);
         }
     }
