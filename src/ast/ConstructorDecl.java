@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ConstructorDecl extends ClassBodyDecl implements Referenceable{
+public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Callable{
     public ConstructorDecl(List<ASTNode> children, String value){
         super(children, value);
     }

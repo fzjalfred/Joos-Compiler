@@ -31,10 +31,10 @@ public class EnvironmentBuilder {
             packageName = p.getName().getValue();
         }
         if (!env.packageScopes.containsKey(packageName)){
-            env.packageScopes.put(packageName, new ScopeEnvironment(env, env, packageName));
+            env.packageScopes.put(packageName, new ScopeEnvironment(env, env, packageName, null));
         }
         ScopeEnvironment packageScope = env.packageScopes.get(packageName);
-        ScopeEnvironment compliationScope = new ScopeEnvironment(packageScope, env, packageName);
+        ScopeEnvironment compliationScope = new ScopeEnvironment(packageScope, env, packageName, null);
         packageScope.localDecls.put(packageName+".CompliationUnit"+c.hashCode(), c);
         packageScope.childScopes.put(c, compliationScope);
         TypeDecls typeDecls = c.getTypeDecls();
@@ -68,7 +68,7 @@ public class EnvironmentBuilder {
             env.localDecls.put(qualifiedClassName, classDecl);
             env.simpleNameSet.add(classDecl.getName()); // add simple name to check dup
             // add scope
-            env.childScopes.put(classDecl, new ScopeEnvironment(env, env.root, qualifiedClassName));
+            env.childScopes.put(classDecl, new ScopeEnvironment(env, env.root, qualifiedClassName, typeDecl));
             processClassMemberDecls(env.childScopes.get(classDecl), classDecl.getClassBodyDecls());
         }   else if (typeDecl instanceof InterfaceDecl){
             InterfaceDecl interfaceDecl = (InterfaceDecl)typeDecl;
@@ -78,7 +78,7 @@ public class EnvironmentBuilder {
                 throw new SemanticError("Interface " + qualifiedInterfaceName + " has already been defined");
             }
             env.localDecls.put(qualifiedInterfaceName, interfaceDecl);
-            env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName));
+            env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName, typeDecl));
             env.simpleNameSet.add(interfaceDecl.getName());
             InterfaceMemberDecls interfaceMemberDecls= interfaceDecl.getInterfaceBody().getInterfaceMemberDecls();
             processInterfaceMemberDecls(env.childScopes.get(interfaceDecl), interfaceMemberDecls);
@@ -106,7 +106,7 @@ public class EnvironmentBuilder {
             abstractMethodList.add(abstractMethodDecl);
             env.localDecls.put(methodName, abstractMethodList);
         }
-        env.childScopes.put(abstractMethodDecl, new ScopeEnvironment(env, env.root, ""));
+        env.childScopes.put(abstractMethodDecl, new ScopeEnvironment(env, env.root, "", env.typeDecl));
         processParameters(env.childScopes.get(abstractMethodDecl),methodDeclarator.getParameterList());
     }
 
@@ -143,7 +143,7 @@ public class EnvironmentBuilder {
                 methods.add(cd);
                 env.localDecls.put(constructorName, methods);
             }
-            env.childScopes.put(cd, new ScopeEnvironment(env, env.root, ""));
+            env.childScopes.put(cd, new ScopeEnvironment(env, env.root, "", env.typeDecl));
             processParameters(env.childScopes.get(cd), cd.getConstructorDeclarator().getParameterList());   // resolve param names
             processBlockStmts(env.childScopes.get(cd), cd.getConstructorBody().getBlockStmts());    // resolve local decls
         }   else if (classBodyDecl instanceof FieldDecl){   // field decl
@@ -166,7 +166,7 @@ public class EnvironmentBuilder {
                 methods.add(md);
                 env.localDecls.put(qualifiedMethodName, methods);
             }
-            env.childScopes.put(md, new ScopeEnvironment(env, env.root, ""));
+            env.childScopes.put(md, new ScopeEnvironment(env, env.root, "", env.typeDecl));
             processMethodHeader(env.childScopes.get(md), md.getMethodHeader());
             processMethodBody(env.childScopes.get(md), md.getMethodBody());
         }
@@ -241,7 +241,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processBlock(ScopeEnvironment env, Block block) throws SemanticError{
-        env.childScopes.put(block, new ScopeEnvironment(env, env.root, ""));
+        env.childScopes.put(block, new ScopeEnvironment(env, env.root, "", env.typeDecl));
         if (block == null) return;
         BlockStmts blockStmts = block.getBlockStmts();
         processBlockStmts(env.childScopes.get(block), blockStmts);
@@ -277,7 +277,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processForStmt(ScopeEnvironment env, ForStmt forStmt) throws SemanticError{
-        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, ""));
+        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl));
         ScopeEnvironment newScope = env.childScopes.get(forStmt);
         ForInit forInit = forStmt.getForInit();
         VarDeclarator varDeclarator = forInit.getVarDeclarator();
@@ -290,7 +290,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processForStmtNotIf(ScopeEnvironment env, ForStmtNotIf forStmt) throws SemanticError{
-        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, ""));
+        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl));
         ScopeEnvironment newScope = env.childScopes.get(forStmt);
         ForInit forInit = forStmt.getForInit();
         VarDeclarator varDeclarator = forInit.getVarDeclarator();

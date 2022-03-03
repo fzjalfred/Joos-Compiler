@@ -197,8 +197,9 @@ public class ScopeEnvironment extends Environment{
     public Set<String> simpleNameSet; // set of all simple names; used for checking dup
     public String prefix;
     public boolean isLocalDecl;
+    public TypeDecl typeDecl;
 
-    public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix){
+    public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix, TypeDecl typeDecl){
         this.parent = parent;
         this.root = root;
         this.localDecls = new HashMap<String, Referenceable>();
@@ -206,6 +207,7 @@ public class ScopeEnvironment extends Environment{
         this.simpleNameSet = new HashSet<String>();
         this.prefix = prefix;
         this.isLocalDecl = false;
+        this.typeDecl = typeDecl;
     }
 
     @Override

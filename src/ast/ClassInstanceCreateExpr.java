@@ -9,9 +9,9 @@ public class ClassInstanceCreateExpr extends PrimaryNoArray {
         super(children, value);
     }
 
-    public Type getType(){
-        assert (children.get(0) instanceof Type);
-        return (Type)children.get(0);
+    public ClassOrInterfaceType getType(){
+        assert (children.get(0) instanceof ClassOrInterfaceType);
+        return (ClassOrInterfaceType)children.get(0);
     }
 
     @Override
@@ -20,5 +20,15 @@ public class ClassInstanceCreateExpr extends PrimaryNoArray {
             if (node != null) node.accept(v);
         }
         v.visit(this);
+    }
+
+    public ArgumentList getArgumentList(){
+        assert (children.get(1) instanceof ArgumentList);
+        return (ArgumentList)children.get(0);
+    }
+
+    public List<Type> getArgumentTypeList(){
+        if (getArgumentList() == null) return null;
+        return getArgumentList().getArgsType();
     }
 }

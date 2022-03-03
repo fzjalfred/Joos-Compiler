@@ -5,9 +5,10 @@ import visitors.Visitor;
 import java.util.List;
 
 public class MethodInvocation extends PrimaryNoArray {
-
+    public Callable whichMethod;
     public MethodInvocation(List<ASTNode> children, String value){
         super(children, value);
+        whichMethod = null;
     }
 
     public boolean hasName() {

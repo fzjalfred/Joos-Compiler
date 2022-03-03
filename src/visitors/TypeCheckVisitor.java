@@ -23,10 +23,41 @@ public class TypeCheckVisitor extends Visitor{
         this.returnType = null;
         this.currTypeDecl = null;
     }
+    /** helpers */
+    private boolean checkUpCast(Type t1, Type t2){
+        if (t2 instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)t2).typeDecl == env.lookup(tools.nameConstructor("java.lang.Object"))){
+            return true;
+        }   else if (t1 instanceof ClassOrInterfaceType && t2 instanceof ClassOrInterfaceType){
+            TypeDecl t1Decl = ((ClassOrInterfaceType)t1).typeDecl;
+            TypeDecl t2Decl = ((ClassOrInterfaceType)t2).typeDecl;
+            tools.println(hierarchyChecker.parentMap.get(t2Decl) + " p for t1 " + t1Decl, DebugID.zhenyan);
+            return tools.containClass(hierarchyChecker.parentMap.get(t1Decl), t2Decl);
+        }
+        return false;
+    }
+
+    private boolean checkDownCast(Type t1, Type t2){
+        if (t1 instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)t1).typeDecl == env.lookup(tools.nameConstructor("java.lang.Object"))){
+            return true;
+        }   else if (t1 instanceof ClassOrInterfaceType && t2 instanceof ClassOrInterfaceType){
+            TypeDecl t1Decl = ((ClassOrInterfaceType)t1).typeDecl;
+            TypeDecl t2Decl = ((ClassOrInterfaceType)t2).typeDecl;
+            tools.println(hierarchyChecker.parentMap.get(t1Decl) + " p for t2 " + t2Decl, DebugID.zhenyan);
+            return tools.containClass(hierarchyChecker.parentMap.get(t2Decl), t1Decl);
+        }
+        return false;
+    }
+
+    private boolean checkFinalClass(ClassOrInterfaceType t){
+        if (t.typeDecl instanceof ClassDecl){
+            if (((ClassDecl)t.typeDecl).getModifiers().getModifiersSet().contains("final")) return true;
+        }
+        return true;
+    }
 
     @Override
     public void visit(NumericLiteral node) {
-        node.type = new PrimitiveType(tools.empty(), "int");
+        node.type = new NumericType(tools.empty(), "int");
     }
 
     @Override
@@ -83,19 +114,15 @@ public class TypeCheckVisitor extends Visitor{
 
 
     /** Exprs */
-    private boolean checkUpCast(ClassOrInterfaceType t1, ClassOrInterfaceType t2){
-        TypeDecl t1Decl = t1.typeDecl;
-        TypeDecl t2Decl = t2.typeDecl;
+    @Override
+    public void visit(ClassInstanceCreateExpr node) {
+        TypeDecl typeDecl = node.getType().typeDecl;
+        if (typeDecl instanceof ClassDecl){
+            ClassDecl classDecl = (ClassDecl)typeDecl;
+            return;
+        }
+        throw new SemanticError("Cannot init interface type " + node.getType());
 
-        //tools.println(hierarchyChecker.parentMap.get(t1Decl) + " p for t1 " + t1.typeDecl.getType());
-        return tools.containClass(hierarchyChecker.parentMap.get(t1Decl), t2Decl);
-    }
-
-    private boolean checkDownCast(ClassOrInterfaceType t1, ClassOrInterfaceType t2){
-        TypeDecl t1Decl = t1.typeDecl;
-        TypeDecl t2Decl = t2.typeDecl;
-        //tools.println(hierarchyChecker.parentMap.get(t2Decl) + " p for t2  " + t2.typeDecl.getType());
-        return tools.containClass(hierarchyChecker.parentMap.get(t2Decl), t1Decl);
     }
 
     @Override
@@ -117,25 +144,38 @@ public class TypeCheckVisitor extends Visitor{
             return;
         }
 
+
+        /** case 3: upcast */
+        if (checkUpCast(t1, t2)){
+            tools.println("cast " + t1 + " to " + t2 + " is upcast", DebugID.zhenyan);
+            node.type = t2;
+            return;
+        }
+
+        /** case 4: down cast*/
+        if (checkDownCast(t1, t2)){
+            tools.println("cast " + t1 + " to " + t2 + " is down cast", DebugID.zhenyan);
+            node.type = t2;
+            return;
+        }
         if (t1 instanceof ClassOrInterfaceType && t2 instanceof ClassOrInterfaceType){
             ClassOrInterfaceType classt1 = (ClassOrInterfaceType)t1;
             ClassOrInterfaceType classt2 = (ClassOrInterfaceType)t2;
-            /** case 3: upcast */
-            if (checkUpCast(classt1, classt2)){
-                tools.println("cast " + classt1 + " to " + classt2 + " is upcast", DebugID.zhenyan);
-                node.type = t2;
-                return;
+            /** case 5: interface cast */
+            if (classt1.typeDecl instanceof InterfaceDecl){
+                if (classt2.typeDecl instanceof InterfaceDecl && !checkFinalClass(classt2)){
+                    node.type = t2;
+                    return;
+                }
             }
-
-            /** case 4: down cast*/
-            if (checkDownCast(classt1, classt2)){
-                tools.println("cast " + classt1 + " to " + classt2 + " is upcast", DebugID.zhenyan);
-                node.type = t2;
-                return;
-            }
-            // TODO: interface cases
+            if (classt2.typeDecl instanceof InterfaceDecl){
+                if (classt1.typeDecl instanceof InterfaceDecl && !checkFinalClass(classt1)){
+                    node.type = t2;
+                    return;
+                }
         }
-        // TODO: throw error
+    } // if classOrInterfaceType
+        throw new SemanticError("Cannot cast " + t1 + " to " + t2);
     }
 
     @Override
@@ -237,6 +277,7 @@ public class TypeCheckVisitor extends Visitor{
 
             if (resMethod!= null){
                 node.type = resMethod.getType();
+                node.whichMethod = (Callable)resMethod;
                 return;
             }   else if (resMethodList != null){
                 assert resMethodList instanceof MethodList;
@@ -337,7 +378,7 @@ public class TypeCheckVisitor extends Visitor{
 
         if (currType!= null){
             node.type = currType;
-            tools.println("assign " + currType + " to " + node.getName().getValue(), DebugID.zhenyan);
+            //tools.println("assign " + currType + " to " + node.getName().getValue(), DebugID.zhenyan);
         }   else {
             throw new SemanticError(nameStr + " cannot be resolved to type");
         }

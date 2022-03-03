@@ -6,7 +6,7 @@ import visitors.Visitor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodDecl extends ClassMemberDecl {
+public class MethodDecl extends ClassMemberDecl implements Callable {
     public MethodDecl(List<ASTNode> children, String value){
 
         super(children, value);
