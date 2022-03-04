@@ -19,7 +19,7 @@ public class CastExpr extends UnaryExprNotPlusMinus {
             children.set(0,new ClassOrInterfaceType(new ArrayList<ASTNode>(){{add(name);}}, ""));
         }   else if (children.get(0) instanceof Name){
             children.set(0, new ArrayType(tools.list(tools.getClassType((Name)children.get(0), null)), ""));
-        }   else if (children.get(1) instanceof Dims){
+        }   else if (children.get(0) instanceof PrimitiveType && children.get(1) != null){
             children.set(0, new ArrayType(tools.list(children.get(0)), ""));
         }
     }

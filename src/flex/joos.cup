@@ -858,7 +858,7 @@ expr ::= assignment_expr:e {:RESULT = e;:};
 
 
 // type
-dims ::= LEFTBRACKET RIGHTBARCKET;
+dims ::= LEFTBRACKET RIGHTBARCKET {:RESULT = new Dims(list(), "");:};
 
 type ::= primitive_type:e {:RESULT = e;:}
         | reference_type:e {:RESULT = e;:};

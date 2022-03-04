@@ -59,7 +59,6 @@ public class TypeCheckVisitor extends Visitor{
 
         /** derive first expr's type  */
         Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(currTypeDecl);
-        Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
         List<String> names = name.getFullName();
         String nameStr = "";
         Type currType = null;
@@ -75,8 +74,8 @@ public class TypeCheckVisitor extends Visitor{
             }
 
             // second check inherit map
-            if (inheritMap.containsKey(nameStr)){
-                FieldDecl  field = tools.fetchField(inheritMap.get(nameStr));
+            if (containMap.containsKey(nameStr)){
+                FieldDecl  field = tools.fetchField(containMap.get(nameStr));
                 if (field != null){
                     currType = field.getType();
                     break;
@@ -478,6 +477,7 @@ public class TypeCheckVisitor extends Visitor{
         qualified_name1.equals("java.io.Serializable"))) {
             return true;
         }
+
         if (checkUpCast(t2,t1)){
             return true;
         }
@@ -564,7 +564,9 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(FieldDecl node) {
         String var = node.getVarDeclarators().getFirstName();
         context.put(var, node);
+
     }
+
 
     @Override
     public void visit(LocalVarDecl node) {
@@ -577,7 +579,7 @@ public class TypeCheckVisitor extends Visitor{
         if (dec.children.size() == 2) {
             Type t2 = dec.getExpr().type;
             if (!isAssignable(t1, t2, env)) {
-                throw new SemanticError("Invalid Assignment use between " + var +":"+t1 + " and " +dec.getExpr()+":"+ t2); 
+                throw new SemanticError("Invalid Assignment use between " + var +":"+t1 + " and " +dec.getExpr()+":"+ t2);
             }
         }
         
