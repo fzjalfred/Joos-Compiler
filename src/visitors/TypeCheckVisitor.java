@@ -282,7 +282,7 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
-            } else if (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null) {
+            } else if (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String.String") && t2 != null) {
                 node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
             }   else {
                 // System.out.println(node.children.get(0));
@@ -294,8 +294,7 @@ public class TypeCheckVisitor extends Visitor{
                 // System.out.println(node.children.get(2));
                 // System.out.print("isNumericType: ");
                 // System.out.println(t2 instanceof NumericType);
-                
-                throw new SemanticError("NumericType or String are needed for +, - .");
+                throw new SemanticError("Invalid AdditiveExpr between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -319,7 +318,7 @@ public class TypeCheckVisitor extends Visitor{
                 // System.out.print("isNumericType: ");
                 // System.out.println(t2 instanceof NumericType);
                 
-                throw new SemanticError("NumericType are needed for *, /, % .");
+                throw new SemanticError("Invalid MultiplicativeExpr between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
