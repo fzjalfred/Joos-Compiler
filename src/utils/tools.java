@@ -116,10 +116,7 @@ public class tools {
 
     public static String get_class_qualifed_name(ASTNode class_decl, RootEnvironment env) {
         ScopeEnvironment underenv = env.ASTNodeToScopes.get(class_decl);
-        if (underenv.prefix == null || underenv.prefix == "") {
-            return class_decl.children.get(1).value;
-        }
-        return underenv.prefix+"."+class_decl.children.get(1).value;
+        return underenv.prefix;
     }
     public static String get_class_qualifed_name(ClassOrInterfaceType class_decl, RootEnvironment env) {
         assert class_decl.typeDecl != null;

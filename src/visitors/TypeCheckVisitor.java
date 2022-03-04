@@ -282,8 +282,8 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
-            } else if ((t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String.String") && t2 != null)
-            || (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String.String") && t1 != null)) {
+            } else if ((t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null)
+            || (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String") && t1 != null)) {
                 node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
             }   else {
                 // System.out.println(node.children.get(0));
@@ -468,14 +468,14 @@ public class TypeCheckVisitor extends Visitor{
         if (t2 instanceof ClassOrInterfaceType) {
             qualified_name1 = tools.get_class_qualifed_name(((ClassOrInterfaceType)t2).typeDecl, env);
         }
-        if (t1 instanceof ArrayType && (qualified_name2.equals("java.lang.Cloneable.Cloneable")||
-        qualified_name2.equals("java.lang.Object.Object")||
-        qualified_name2.equals("java.io.Serializable.Serializable"))) {
+        if (t1 instanceof ArrayType && (qualified_name2.equals("java.lang.Cloneable")||
+        qualified_name2.equals("java.lang.Object")||
+        qualified_name2.equals("java.io.Serializable"))) {
             return true;
         }
-        if (t2 instanceof ArrayType && (qualified_name1.equals("java.lang.Cloneable.Cloneable")||
-        qualified_name1.equals("java.lang.Object.Object")||
-        qualified_name1.equals("java.io.Serializable.Serializable"))) {
+        if (t2 instanceof ArrayType && (qualified_name1.equals("java.lang.Cloneable")||
+        qualified_name1.equals("java.lang.Object")||
+        qualified_name1.equals("java.io.Serializable"))) {
             return true;
         }
         if (checkUpCast(t2,t1)){
@@ -538,7 +538,7 @@ public class TypeCheckVisitor extends Visitor{
         // System.out.println(class_name);
         // System.out.println(tools.get_class_qualifed_name(node, env));
         //node.type = tools.getClassType(tools.get_class_qualifed_name(node, env), env.ASTNodeToScopes.get(node).typeDecl);
-        if (!tools.get_class_qualifed_name(node, env).equals("java.lang.Object.Object")) {
+        if (!tools.get_class_qualifed_name(node, env).equals("java.lang.Object")) {
             ConstructorDeclarator constructor_declarator = node.getConstructorDeclarator();
             if (constructor_declarator.getParameterList() == null || constructor_declarator.getParameterList().getParams().size() == 0) {
                 
