@@ -94,7 +94,7 @@ public class NameDisambiguation {
             String nameStr = fullName.get(0);
             if (decl == null && fullName.size() == 2) { // might be in the form: class.field
                 Token nameToken = tools.simpleNameConstructor(nameStr);
-                decl = nameScope.lookup(nameToken);
+                decl = nameScope.lookupTypeDecl(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) {
                     decl = findField((ASTNode) decl, fullName.get(1));
                 } else {
@@ -213,7 +213,7 @@ public class NameDisambiguation {
             classOrInterfaceName = nameStr;
             if (decl == null && fullName.size() == 0) {
                 Token nameToken = tools.simpleNameConstructor(nameStr);
-                decl = nameScope.lookup(nameToken);
+                decl = nameScope.lookupTypeDecl(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) { //Fixme
                     methods = findMethodDecls((ASTNode) decl, fullName.get(1));
                 }
