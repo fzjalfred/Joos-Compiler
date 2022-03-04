@@ -626,6 +626,18 @@ public class TypeCheckVisitor extends Visitor{
             if (fieldDecl != null){
                 node.type = fieldDecl.getType();
                 tools.println("assign field access " + field + " to type: " + node.type, DebugID.zhenyan );
+
+                /** check protected access */
+                if (fieldDecl.getModifiers().getModifiersSet().contains("protected")) {
+                    ScopeEnvironment currentScope = env.ASTNodeToScopes.get(node);
+                    ASTNode currentClass = env.ASTNodeToScopes.get(node).typeDecl;
+                    ScopeEnvironment accessScope = env.ASTNodeToScopes.get(fieldDecl);
+                    Referenceable accessClass = env.ASTNodeToScopes.get(fieldDecl).typeDecl;
+                    if (currentScope!=accessScope&&!hierarchyChecker.parentMap.get(currentClass).contains(accessClass)) {
+                        throw new SemanticError("\'" + field + "\' is protected.");
+                    }
+                }
+
                 return;
             }
         }
