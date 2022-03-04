@@ -244,6 +244,9 @@ public class TypeCheckVisitor extends Visitor{
             e1Type = node.getExpr().type;
         }
         if (! (e1Type instanceof ArrayType)){
+            for (ASTNode i: node.children) {
+                System.out.println(i);
+            }
             throw new SemanticError("in array access: e1 " + e1Type + " is not array type");
         }
         if (!(node.getDimExpr().type instanceof NumericType)){
@@ -424,15 +427,10 @@ public class TypeCheckVisitor extends Visitor{
         Type t2 = (node.getAssignmentRight()).type;
         if (lhs.hasName()) {
             Name methodName = lhs.getName();
-            t1 = methodName.type;
+            t1 = lhs.type;
             if ((t1 != null && t2 != null) && (t2 instanceof NullType||t1.equals(t2))) {
                 node.type = t1;
             } else {
-                System.out.println(lhs.getName().getValue());
-                //System.out.println(((Expr)node.getAssignmentRight()));
-                for (ASTNode i: lhs.children) {
-                    System.out.println(i);
-                }
                 throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
             }
         } else{
