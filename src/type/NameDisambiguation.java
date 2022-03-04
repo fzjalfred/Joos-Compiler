@@ -9,6 +9,7 @@ import utils.*;
 
 public class NameDisambiguation {
     public Map<ASTNode, List<Referenceable>> parentMap;
+    public Map<ASTNode, Map<String, List<ASTNode>>> containMap;
 
     public void rootEnvironmentDisambiguation(RootEnvironment rootEnv, boolean checkMethodInvoc) throws SemanticError {
         List<CompilationUnit> compilationUnitList = rootEnv.compilationUnits;
@@ -50,29 +51,15 @@ public class NameDisambiguation {
         return false;
     }
 
-    private FieldDecl findField(ASTNode node, List<String> name) {
-//        System.out.println("looking for name: "+name);
-        ASTNode decls = null;
-        if (node instanceof ClassDecl) {
-            decls = ((ClassDecl)node).getClassBodyDecls();
-        } else {
-            if (!((InterfaceDecl)node).hasMemberDecls()) {
-                return null;
-            }
-            decls = ((InterfaceDecl)node).getInterfaceMemberDecls();
-        }
-        for (ASTNode decl : decls.children) {
-            if (decl instanceof FieldDecl) {
-                List<String> fieldName = ((FieldDecl)decl).getName();
-//                System.out.println("searched name: " +fieldName);
-                if (fieldName.size() != name.size()) {
-                    continue;
-                }
-                for (int i = 0; i < fieldName.size(); i++) {
-                    if (!fieldName.get(i).equals(name.get(i))) {
-                        continue;
+    private FieldDecl findField(ASTNode node, String name) {
+        List<ASTNode> sameNameNodes;
+        if (containMap.containsKey(node)) {
+            if (containMap.get(node).containsKey(name)) {
+                sameNameNodes = containMap.get(node).get(name);
+                for (ASTNode containNode : sameNameNodes) {
+                    if (containNode instanceof FieldDecl) {
+                        return (FieldDecl) containNode;
                     }
-                    return (FieldDecl) decl;
                 }
             }
         }
@@ -104,12 +91,12 @@ public class NameDisambiguation {
             // qualified name
             Referenceable decl = rootEnv.lookup(name);
             List<String> fullName = name.getFullName();
-            String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
-            if (decl == null) { // might be in the form: *.*.class.field
+            String nameStr = fullName.get(0);
+            if (decl == null && fullName.size() == 2) { // might be in the form: class.field
                 Token nameToken = tools.simpleNameConstructor(nameStr);
                 decl = nameScope.lookup(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) {
-                    decl = findField((ASTNode) decl, fullName.subList(1, fullName.size()));
+                    decl = findField((ASTNode) decl, fullName.get(1));
                 } else {
                     decl = null;
                 }
@@ -186,22 +173,15 @@ public class NameDisambiguation {
     }
 
     private List<MethodDecl> findMethodDecls(ASTNode node, String name) {
-        ASTNode decls = null;
-        if (node instanceof ClassDecl) {
-            decls = ((ClassDecl)node).getClassBodyDecls();
-        } else {
-            if (!((InterfaceDecl)node).hasMemberDecls()) {
-                return new ArrayList<MethodDecl>();
-            }
-            decls = ((InterfaceDecl)node).getInterfaceMemberDecls();
-        }
+        List<ASTNode> sameNameNodes;
         List<MethodDecl> methodDecls = new ArrayList<MethodDecl>();
-        for (ASTNode decl : decls.children) {
-            if (decl instanceof MethodDecl) {
-                String methodName = ((MethodDecl)decl).getName();
-//                System.out.println("searched name: " +fieldName);
-                if (methodName.equals(name)) {
-                    methodDecls.add((MethodDecl) decl);
+        if (containMap.containsKey(node)) {
+            if (containMap.get(node).containsKey(name)) {
+                sameNameNodes = containMap.get(node).get(name);
+                for (ASTNode containNode : sameNameNodes) {
+                    if (containNode instanceof MethodDecl) {
+                        methodDecls.add((MethodDecl)containNode);
+                    }
                 }
             }
         }
@@ -229,13 +209,13 @@ public class NameDisambiguation {
             // qualified name
             Referenceable decl = rootEnv.lookup(methodName);
             List<String> fullName = methodName.getFullName();
-            String nameStr = fullName.subList(fullName.size()-2, fullName.size()-1).get(0);
+            String nameStr = fullName.get(0);
             classOrInterfaceName = nameStr;
-            if (decl == null) {
+            if (decl == null && fullName.size() == 0) {
                 Token nameToken = tools.simpleNameConstructor(nameStr);
                 decl = nameScope.lookup(nameToken);
                 if (decl instanceof ClassDecl || decl instanceof InterfaceDecl ) { //Fixme
-                    methods = findMethodDecls((ASTNode) decl, fullName.subList(fullName.size()-1, fullName.size()).get(0));
+                    methods = findMethodDecls((ASTNode) decl, fullName.get(1));
                 }
             }
 

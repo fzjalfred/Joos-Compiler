@@ -16,6 +16,7 @@ public class Main {
 			checker.checkRootEnvironment(env);
 			NameDisambiguation nameDisamb = new NameDisambiguation();
 			nameDisamb.parentMap = checker.parentMap;
+			nameDisamb.containMap = checker.containMap;
 			nameDisamb.rootEnvironmentDisambiguation(env, false);
 			TypeChecker typeChecker = new TypeChecker(env, checker, nameDisamb);
 			typeChecker.check();
