@@ -194,6 +194,7 @@ public class TypeCheckVisitor extends Visitor{
     }
 
     private boolean checkDownCast(Type t1, Type t2){
+        if (t1 instanceof NullType) return true;
         if (t1 instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)t1).typeDecl == env.lookup(tools.nameConstructor("java.lang.Object"))){
             return true;
         }   else if (t1 instanceof ClassOrInterfaceType && t2 instanceof ClassOrInterfaceType){
@@ -714,7 +715,6 @@ public class TypeCheckVisitor extends Visitor{
         Type t2 = node.getType();
 
         if (t1 == null) return; //TODO: remove these when type completed
-
         /** case 1: 2 same types*/
         if (t1.equals(t2)){
             node.type = t2;
@@ -855,7 +855,12 @@ public class TypeCheckVisitor extends Visitor{
         disAmbiguousNameField(node.getName(), node);
     }
 
+    /** stmts */
 
-
-
+    @Override
+    public void visit(ReturnStmt node) {
+        if (node.getExpr()!= null){
+            if (!isAssignable(returnType, node.getExpr().type, env)) throw new SemanticError("return type " + returnType + " does not match " + node.getExpr().type);
+        }
+    }
 }
