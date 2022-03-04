@@ -560,6 +560,7 @@ public class TypeCheckVisitor extends Visitor{
         if (typeDecl instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)typeDecl;
             List<Referenceable>  declares = hierarchyChecker.declareMap.get(classDecl);
+            tools.println(" declares are " + declares, DebugID.zhenyan);
             ConstructorDecl ctorDecl = tools.fetchConstructor(declares, node.getArgumentTypeList());
             if (ctorDecl != null){
                 node.type = node.getType();
@@ -567,7 +568,8 @@ public class TypeCheckVisitor extends Visitor{
                 return;
             }
         }
-        //throw new SemanticError("Cannot init interface type " + node.getType());
+
+        throw new SemanticError("Cannot init interface type " + node.getType());
 
     }
 

@@ -69,9 +69,8 @@ public class tools {
 
     public static ConstructorDecl fetchConstructor(List<Referenceable> refers, List<Type> types){
         for (Referenceable refer: refers){
-            if (refer instanceof ConstructorDecl){
-                if (compTypeListEqual(((ConstructorDecl)refer).getConstructorDeclarator().getParamType(), types));
-                return (ConstructorDecl)refer;
+            if (refer instanceof ConstructorList){
+                return ((ConstructorList)refer).match(types);
             }
         }
         return null;

@@ -2,6 +2,7 @@ package ast;
 import java.util.regex.Pattern;
 import exception.SemanticError;
 import type.EnvironmentBuilder;
+import utils.tools;
 
 import java.util.*;
 
@@ -50,6 +51,15 @@ public class ConstructorList implements Referenceable{
             assert c.getName().equals(ctor.getName());
             checkMethodDecl(c, ctor);
         }
+    }
+
+    public ConstructorDecl match(List<Type> args) {
+        //Referenceable res = null;
+        for (ConstructorDecl constructorDecl: cons){
+            List<Type> methodTypes = constructorDecl.getConstructorDeclarator().getParamType();
+            if (tools.compTypeListEqual(methodTypes, args)) {return constructorDecl;}
+        }
+        return null;
     }
 
     @Override
