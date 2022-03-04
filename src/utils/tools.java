@@ -57,11 +57,12 @@ public class tools {
 
 
     public static boolean compTypeListEqual(List<Type> list1, List<Type>list2){
+        tools.println("matching " + list1 + " to " + list2, DebugID.zhenyan );
         if (list1 == null && list2 == null) return true;
         if (list1 == null || list2 == null) return false;
         if (list1.size() != list2.size()) return false;
         for (int idx = 0; idx< list1.size(); idx++){
-            if (list1.get(idx) != list2.get(idx)) return false;
+            if (!list1.get(idx).equals(list2.get(idx))) return false;
         }
         return true;
     }
@@ -90,7 +91,6 @@ public class tools {
         for (ASTNode refer : refers){
             if (refer instanceof MethodDecl){
                 MethodDecl method = (MethodDecl)refer;
-                tools.println("matching " + method.getParamType() + " to " + argTypes, DebugID.zhenyan );
                 if (compTypeListEqual(method.getParamType(), argTypes)){
                     return method;
                 }

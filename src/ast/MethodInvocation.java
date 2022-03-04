@@ -41,6 +41,11 @@ public class MethodInvocation extends PrimaryNoArray {
         return (ArgumentList) children.get(2);
     }
 
+    public List<Expr> getArgsList(){
+        if (getArgumentList() == null) return null;
+        return getArgumentList().getArgs();
+    }
+
     public List<Type> getArgumentTypeList(){
         if (getArgumentList() == null) return null;
         return getArgumentList().getArgsType();
@@ -48,7 +53,9 @@ public class MethodInvocation extends PrimaryNoArray {
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){
-            if (node != null) node.accept(v);
+            if (node != null) {
+                node.accept(v);
+            }
         }
         v.visit(this);
     }

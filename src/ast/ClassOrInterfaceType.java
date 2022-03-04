@@ -14,9 +14,14 @@ public class ClassOrInterfaceType extends ReferenceType {
     }
 
     public boolean equals(ClassOrInterfaceType classOrInterfaceType) {
-        Name myName = getName();
-        Name hisName = classOrInterfaceType.getName();
-        return myName.equals(hisName);
+        if (classOrInterfaceType.typeDecl == null && typeDecl == null){
+            Name myName = getName();
+            Name hisName = classOrInterfaceType.getName();
+            return myName.equals(hisName);
+        }   else {
+            return classOrInterfaceType.typeDecl == typeDecl;
+        }
+
     }
 
     @Override

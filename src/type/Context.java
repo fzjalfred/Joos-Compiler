@@ -34,7 +34,6 @@ public class Context {
 
     /** put empty context frame on top of frames */
     public void entry(String name){
-        //System.out.println("pushing " + frames.size()+1);
         Pair<ContextFrame, ContextFrame> frame = new Pair<ContextFrame,ContextFrame>(new ContextFrame(name), new ContextFrame(name));
         frames.push(frame);
     }
@@ -51,11 +50,11 @@ public class Context {
     }
 
     public void put(String name, MethodDecl methodDecl){
-        Referenceable methods = get(name);
+        Referenceable methods = getMethods(name);
         if (methods == null){
             MethodList methodList = new MethodList(name);
             methodList.add(methodDecl);
-            put(name, methodList);
+            frames.peek().second.put(name, methodList);
         }   else if (methods instanceof MethodList) {
             MethodList methodList = (MethodList)methods;
             methodList.add(methodDecl);
@@ -67,7 +66,7 @@ public class Context {
         if (methods == null){
             AbstractMethodList methodList = new AbstractMethodList(name);
             methodList.add(methodDecl);
-            put(name, methodList);
+            frames.peek().second.put(name, methodList);
         }   else if (methods instanceof AbstractMethodList) {
             AbstractMethodList methodList = (AbstractMethodList)methods;
             methodList.add(methodDecl);

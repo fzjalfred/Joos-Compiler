@@ -8,6 +8,9 @@ public class MethodHeader extends ASTNode {
     public MethodHeader(List<ASTNode> children, String value){
         super(children, value);
     }
+    public Modifiers getModifiers(){
+        return (Modifiers)children.get(0);
+    }
     public String getName(){
         MethodDeclarator md = getMethodDeclarator();
         return md.getName();

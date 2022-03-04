@@ -20,13 +20,17 @@ public class Expr extends ASTNode {
     }
 
     public Expr getOperatorLeft() {
-        assert children.size() == 3;
         return (Expr)children.get(0);
     }
 
     public Expr getOperatorRight() {
-        assert children.size() == 3;
-        return (Expr)children.get(2);
+        if (children.size() == 3){
+            return (Expr)children.get(2);
+        }   else if (children.size() == 2){
+            return (Expr)children.get(1);
+        }
+        return (Expr)children.get(0);
+
     }
 
     @Override

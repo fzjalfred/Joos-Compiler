@@ -28,7 +28,26 @@ public class TypeCheckVisitor extends Visitor{
         this.currTypeDecl = null;
     }
     /** helpers */
-
+    private Referenceable findStaticMethod(ScopeEnvironment scopeEnvironment, Name name, List<Type> types){
+        Referenceable res = env.lookup(name);
+        if (res instanceof MethodList){
+            MethodList methodList = (MethodList)res;
+            MethodDecl methodDecl = methodList.match(types);
+            if (methodDecl != null && tools.checkStatic(methodDecl.getMethodHeader().getModifiers()) ){
+                return methodDecl;
+            }
+        }   else if (name.children.size() == 2){
+            List<String> nameStrs = name.getFullName();
+            res = scopeEnvironment.lookupTypeDecl(tools.simpleNameConstructor(nameStrs.get(0)));
+            if (res != null){
+                TypeDecl typeDecl = (TypeDecl)res;
+                Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
+                MethodDecl methodDecl = tools.fetchMethod(contain.get(nameStrs.get(1)), types);
+                if (tools.checkStatic(methodDecl.getMethodHeader().getModifiers())) return methodDecl;
+            }
+        }
+        return null;
+    }
     private void disAmbiguousNameField(Name name, Expr node){
         /** first check whether it's static */
         if (name.type != null){
@@ -48,6 +67,7 @@ public class TypeCheckVisitor extends Visitor{
             String str = names.get(idx);
             nameStr += str;
             currType = context.getType(nameStr);
+            //tools.println("look up field" + nameStr + " get " + currType, DebugID.zhenyan);
             if (currType != null) {
                 break;
             }
@@ -447,6 +467,7 @@ public class TypeCheckVisitor extends Visitor{
         this.returnType = node.getMethodHeader().getType();
         /** add method to context */
         context.put(node.getName(), node);
+        tools.println("put " + node.getName(),DebugID.zhenyan  );
     }
 
     @Override
@@ -555,16 +576,17 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(MethodInvocation node) {
         Referenceable resMethodList = null;
         Referenceable resMethod = null;
-        Map<String, List<ASTNode>> containMap = null;
+        Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(currTypeDecl);;
         Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
         if (node.hasName()){
             Name methodName = node.getName();
 
-            if (methodName.type != null) {
-                node.type = methodName.type;
+            resMethod = findStaticMethod(env.ASTNodeToScopes.get(node), node.getName(), node.getArgumentTypeList());
+            if (resMethod!= null){
+                node.type = resMethod.getType();
+                node.whichMethod = (Callable)resMethod;
                 return;
             }
-
 
             List<String> names = node.getName().getFullName();
             String nameStr = "";
@@ -574,10 +596,8 @@ public class TypeCheckVisitor extends Visitor{
                 String str = names.get(idx);
                 nameStr += str;
                 if (isLastIdx(idx, names.size())){  // check method case
-                    resMethodList = context.getMethods(nameStr);    // first check context methods
-                    if (resMethodList != null) break;
-                    if (inheritMap.containsKey(nameStr)){
-                        resMethod = tools.fetchMethod(inheritMap.get(nameStr), node.getArgumentTypeList());
+                    if (containMap.containsKey(nameStr)){
+                        resMethod = tools.fetchMethod(containMap.get(nameStr), node.getArgumentTypeList());
                         if (resMethod != null) break;
                     } // if
                 }   else {
@@ -664,19 +684,21 @@ public class TypeCheckVisitor extends Visitor{
             return;
         }   else if (resMethodList != null){
             assert resMethodList instanceof MethodList;
+            tools.println("method list is  " + resMethodList, DebugID.zhenyan);
             resMethod = ((MethodList)resMethodList).match(node.getArgumentTypeList());
             if (resMethod != null){
                 node.type = resMethod.getType();
                 node.whichMethod = (Callable)resMethod;
                 return;
             }
+            throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList());
         } // if
         // for (ASTNode i: node.children) {
         //     System.out.println(i);
         // }
         // System.out.println(((Name)node.children.get(0)).getValue());
         // System.out.println(((ArgumentList)node.children.get(2)).getArgsType());
-        throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList());
+        throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList() + " find " + resMethodList + " and " + resMethod);
     }
 
     private boolean isLastIdx(int idx, int size){

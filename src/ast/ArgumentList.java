@@ -25,11 +25,12 @@ public class ArgumentList extends ASTNode {
     }
 
     public List<Type> getArgsType(){
-        if(argsTypes != null) return argsTypes;
         argsTypes = new ArrayList<Type>();
         for (ASTNode node : children){
             assert node instanceof Expr;
-            argsTypes.add(((Expr)node).type);
+            Expr expr = (Expr)node;
+            //System.out.print(expr.type);
+            argsTypes.add(expr.type);
         }
         return argsTypes;
     }
