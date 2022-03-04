@@ -335,6 +335,8 @@ public class TypeCheckVisitor extends Visitor{
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1 != null && t2 != null && t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
+            } else if (isAssignable(t1, t2, env) || isAssignable(t2, t1, env)) {
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid RelationExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -352,6 +354,8 @@ public class TypeCheckVisitor extends Visitor{
             } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t2 instanceof NullType ) {
+                node.type = new PrimitiveType(tools.empty(), "boolean");
+            } else if (isAssignable(t1, t2, env) || isAssignable(t2, t1, env)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
@@ -629,11 +633,9 @@ public class TypeCheckVisitor extends Visitor{
 
                 /** check protected access */
                 if (fieldDecl.getModifiers().getModifiersSet().contains("protected")) {
-                    ScopeEnvironment currentScope = env.ASTNodeToScopes.get(node);
                     ASTNode currentClass = env.ASTNodeToScopes.get(node).typeDecl;
-                    ScopeEnvironment accessScope = env.ASTNodeToScopes.get(fieldDecl);
                     Referenceable accessClass = env.ASTNodeToScopes.get(fieldDecl).typeDecl;
-                    if (currentScope!=accessScope&&!hierarchyChecker.parentMap.get(currentClass).contains(accessClass)) {
+                    if (currentClass!=accessClass&&!hierarchyChecker.parentMap.get(currentClass).contains(accessClass)) {
                         throw new SemanticError("\'" + field + "\' is protected.");
                     }
                 }
