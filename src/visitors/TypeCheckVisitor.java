@@ -138,6 +138,7 @@ public class TypeCheckVisitor extends Visitor{
                 currType = tools.getClassType(nameStr, classDecl);
                 break;
             }
+            nameStr += '.';
 
         }
 
