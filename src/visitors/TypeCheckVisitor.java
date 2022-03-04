@@ -11,6 +11,8 @@ import utils.*;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.text.AbstractDocument.Content;
+
 public class TypeCheckVisitor extends Visitor{
     public Context context;
     public RootEnvironment env;
@@ -325,10 +327,10 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
-            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+            } else if (t1 != null && t2 != null && t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                throw new SemanticError("Invalid RelationExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+                throw new SemanticError("Invalid RelationExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -341,10 +343,12 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
+            } else if (t1.equals(t2)) {
+                node.type = new PrimitiveType(tools.empty(), "bool");
             } else if (t2 instanceof NullType ) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                //throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft().toString() + " : " + t1 + " "+ node.getOperatorRight().toString()  + " : " + t2);
+                throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -357,10 +361,10 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
-            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+            } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                throw new SemanticError("Invalid AndExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+                throw new SemanticError("Invalid AndExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -373,10 +377,10 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
-            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+            } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                throw new SemanticError("Invalid OrExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+                throw new SemanticError("Invalid OrExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -389,10 +393,10 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
-            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+            } else if (t1.equals(t2) ) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                throw new SemanticError("Invalid ConditionalAndExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+                throw new SemanticError("Invalid ConditionalAndExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -405,29 +409,75 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
-            } else if (t1 instanceof NumericType && t2 instanceof NumericType ) {
+            } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "bool");
             } else {
-                throw new SemanticError("Invalid ConditionalOrExpr use between "+ node.getOperatorLeft().toString() + " "+ node.getOperatorRight().toString());
+                throw new SemanticError("Invalid ConditionalOrExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
+
 
     public void visit(Assignment node){
         Type t1;
         LHS lhs = node.getAssignmentLeft();
         Type t2 = (node.getAssignmentRight()).type;
-
-        // if () {
-        //     node.type = t1;
-        // } else {
-        //     throw new SemanticError("Invalid Assignment use between ");
-        // }
+        if (lhs.hasName()) {
+            Name methodName = lhs.getName();
+            t1 = methodName.type;
+            if ((t1 != null && t2 != null) && (t2 instanceof NullType||t1.equals(t2))) {
+                node.type = t1;
+            } else {
+                System.out.println(lhs.getName().getValue());
+                //System.out.println(((Expr)node.getAssignmentRight()));
+                for (ASTNode i: lhs.children) {
+                    System.out.println(i);
+                }
+                throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
+            }
+        } else{
+            //field_access|array_access
+            node.type = lhs.getExpr().type;
+        }
     }
     
 
     public void visit(AssignmentExpr node){
         node.type = (node.getSingleChild()).type;
+    }
+
+    public void visit(ArrayCreationExpr node){
+        Type t1 = node.getType();
+        node.type = new ArrayType(tools.list(t1), "");
+    }
+
+    /** Check that the name of a constructor is the same as the name of its enclosing class. */
+    /** A constructor in a class other than java.lang.Object implicitly calls the zero-argument constructor of its superclass. 
+     * Check that this zero-argument constructor exists. (insert superclass’s constructor into that constructor) */
+
+
+    public void visit(ConstructorDecl node){
+        String constructor_name = node.getName();
+        String class_name = "";
+        if (env.ASTNodeToScopes.get(node).typeDecl instanceof ClassDecl) {
+            class_name = ((ClassDecl)env.ASTNodeToScopes.get(node).typeDecl).getName();
+        } else if (env.ASTNodeToScopes.get(node).typeDecl instanceof InterfaceDecl) {
+            class_name = ((InterfaceDecl)env.ASTNodeToScopes.get(node).typeDecl).getName();
+        }
+        if (!class_name.equals(constructor_name)){
+            throw new SemanticError("constructor name \'"+ constructor_name +"\' differs in Class \'"+class_name +"\' .");
+        }
+        // System.out.println(class_name);
+        // System.out.println(tools.get_class_qualifed_name(node, env));
+        //node.type = tools.getClassType(tools.get_class_qualifed_name(node, env), env.ASTNodeToScopes.get(node).typeDecl);
+        if (!tools.get_class_qualifed_name(node, env).equals("java.lang.Object")) {
+            ConstructorDeclarator constructor_declarator = node.getConstructorDeclarator();
+            if (constructor_declarator.getParameterList() == null || constructor_declarator.getParameterList().getParams().size() == 0) {
+                
+            }
+        }
+        context.put(class_name, (Referenceable)node);
+
     }
 
     /** TypeDecls */
