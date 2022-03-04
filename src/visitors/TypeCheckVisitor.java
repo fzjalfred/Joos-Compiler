@@ -324,9 +324,13 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
-            } else if ((t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null)
+            } else if ( (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null)
             || (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String") && t1 != null)) {
-                node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+                if (node.isPlusOperator()) {
+                    node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+                } else {
+                    throw new SemanticError("Invalid operator for String between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
+                }
             }   else {
                 // System.out.println(node.children.get(0));
                 // System.out.print("isNumericType: ");
@@ -369,14 +373,30 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(RelationExpr node){
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
-        } else if (((Token)node.children.get(1)).type == sym.INSTANCEOF) {
-            node.type = new PrimitiveType(tools.empty(), "boolean");
+        } else if (node.isInstanceOf()) {
+            Type t1 = node.getisInstanceOfLeft().type;
+            Type t2 = node.getisInstanceOfRight();
+            // String qualified_name2 = tools.get_class_qualifed_name(((ClassOrInterfaceType)t2).typeDecl, env);
+            // if (t2 instanceof ClassOrInterfaceType && (qualified_name2.equals("java.lang.Object") || qualified_name2.equals("java.lang.Cloneable")
+            // || qualified_name2.equals("java.io.Serializable") ) ) {
+            //     throw new SemanticError("Cannot check instanceof on simple types");
+            // }
+            if (t1 instanceof PrimitiveType || t2 instanceof PrimitiveType) {
+                throw new SemanticError("Invalid instanceof use between "+t1 + " and "+t2);
+            }
+            if (isAssignable(t1, t2, env) || isAssignable(t2, t1, env)) {
+                node.type = new PrimitiveType(tools.empty(), "boolean");
+            } else {
+                throw new SemanticError("Invalid instanceof use between "+t1 + " and "+t2);
+            }
+
+            
         } else {
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
-            } else if (t1 != null && t2 != null && t1.equals(t2)) {
+            } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (isAssignable(t1, t2, env) || isAssignable(t2, t1, env)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
@@ -472,6 +492,46 @@ public class TypeCheckVisitor extends Visitor{
 
 
     /** Assignment */
+
+    public void visit(IfThenStmt node){
+        Expr expr = node.getExpr();
+        Type type = expr.type;
+        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
+            throw new SemanticError("if statement needs boolean: "+ expr+ ":"+type);
+        }
+    }
+
+    public void visit(IfThenElseStmt node){
+        Expr expr = node.getExpr();
+        Type type = expr.type;
+        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
+            throw new SemanticError("if statement needs boolean: "+ expr+ ":"+type);
+        }
+    }
+
+    public void visit(IfThenElseStmtNotIf node){
+        Expr expr = node.getExpr();
+        Type type = expr.type;
+        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
+            throw new SemanticError("if statement needs boolean: "+ expr+ ":"+type);
+        }
+    }
+
+    public void visit(WhileStmt node){
+        Expr expr = node.getExpr();
+        Type type = expr.type;
+        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
+            throw new SemanticError("While statement needs boolean: "+ expr+ ":"+type);
+        }
+    }
+
+    public void visit(WhileStmtNotIf node){
+        Expr expr = node.getExpr();
+        Type type = expr.type;
+        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
+            throw new SemanticError("While statement needs boolean: "+ expr+ ":"+type);
+        }
+    }
 
     public void visit(Expr node){
         node.type = ((AssignmentExpr)node.getSingleChild()).type;
@@ -700,6 +760,10 @@ public class TypeCheckVisitor extends Visitor{
             ConstructorDecl ctorDecl = tools.fetchConstructor(declares, node.getArgumentTypeList());
             if (ctorDecl != null){
                 node.type = node.getType();
+                if ( (((ClassOrInterfaceType)node.type).typeDecl instanceof InterfaceDecl) || 
+                ((ClassDecl)((ClassOrInterfaceType)node.type).typeDecl).getModifiers().getModifiersSet().contains("abstract") ) {
+                    throw new SemanticError("The type in a class instance creation expression must be a non-abstract class.");
+                }
                 node.callable = ctorDecl;
                 return;
             }

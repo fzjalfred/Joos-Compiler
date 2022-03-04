@@ -1,0 +1,1 @@
+./joosc $(find stdlib/2.0/java/ -name *.java ) $(find ./test/assignment_testcases/a3/$1 -name *.java)

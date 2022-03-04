@@ -9,10 +9,11 @@ public class ReturnStmt extends StmtWithoutSubstmt {
         super(children, value);
     }
 
-
     public Expr getExpr(){
+        assert children.get(0) instanceof Expr;
         return (Expr)children.get(0);
     }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){

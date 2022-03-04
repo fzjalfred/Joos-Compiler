@@ -9,6 +9,13 @@ public class AdditiveExpr extends RelationExpr {
         super(children, value);
     }
 
+    public boolean isPlusOperator() {
+        if (children.size()==3 && children.get(1).value == "+") {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){
