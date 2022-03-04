@@ -282,7 +282,8 @@ public class TypeCheckVisitor extends Visitor{
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
-            } else if (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String.String") && t2 != null) {
+            } else if ((t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String.String") && t2 != null)
+            || (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String.String") && t1 != null)) {
                 node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
             }   else {
                 // System.out.println(node.children.get(0));
@@ -434,7 +435,7 @@ public class TypeCheckVisitor extends Visitor{
         node.type = (node.getSingleChild()).type;
     }
 
-    public boolean isAssignable(Type t1, Type t2) {
+    public boolean isAssignable(Type t1, Type t2, RootEnvironment env) {
         if (t2 instanceof NullType) {
             return true;
         }
@@ -446,6 +447,9 @@ public class TypeCheckVisitor extends Visitor{
             if (t1.getNameString().equals(t2.getNameString())) {
                 return true;
             }
+            if (t1.getNameString().equals("int") && t2.getNameString().equals("byte")) {
+                return true;
+            }
             if (t1.getNameString().equals("int") && t2.getNameString().equals("short")) {
                 return true;
             }
@@ -455,6 +459,24 @@ public class TypeCheckVisitor extends Visitor{
             if (t1.getNameString().equals("int") && t2.getNameString().equals("char")) {
                 return true;
             }
+        }
+        String qualified_name1 = "";
+        String qualified_name2 = "";
+        if (t1 instanceof ClassOrInterfaceType) {
+            qualified_name1 = tools.get_class_qualifed_name(((ClassOrInterfaceType)t1).typeDecl, env);
+        }
+        if (t2 instanceof ClassOrInterfaceType) {
+            qualified_name1 = tools.get_class_qualifed_name(((ClassOrInterfaceType)t2).typeDecl, env);
+        }
+        if (t1 instanceof ArrayType && (qualified_name2.equals("java.lang.Cloneable.Cloneable")||
+        qualified_name2.equals("java.lang.Object.Object")||
+        qualified_name2.equals("java.io.Serializable.Serializable"))) {
+            return true;
+        }
+        if (t2 instanceof ArrayType && (qualified_name1.equals("java.lang.Cloneable.Cloneable")||
+        qualified_name1.equals("java.lang.Object.Object")||
+        qualified_name1.equals("java.io.Serializable.Serializable"))) {
+            return true;
         }
         if (checkUpCast(t2,t1)){
             return true;
@@ -474,7 +496,7 @@ public class TypeCheckVisitor extends Visitor{
             if (t1 == null) {
                 throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
             }
-            if (isAssignable(t1, t2)) {
+            if (isAssignable(t1, t2, env)) {
                 node.type = t1;
             } else {
                 throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
@@ -516,7 +538,7 @@ public class TypeCheckVisitor extends Visitor{
         // System.out.println(class_name);
         // System.out.println(tools.get_class_qualifed_name(node, env));
         //node.type = tools.getClassType(tools.get_class_qualifed_name(node, env), env.ASTNodeToScopes.get(node).typeDecl);
-        if (!tools.get_class_qualifed_name(node, env).equals("java.lang.Object")) {
+        if (!tools.get_class_qualifed_name(node, env).equals("java.lang.Object.Object")) {
             ConstructorDeclarator constructor_declarator = node.getConstructorDeclarator();
             if (constructor_declarator.getParameterList() == null || constructor_declarator.getParameterList().getParams().size() == 0) {
                 
@@ -554,7 +576,7 @@ public class TypeCheckVisitor extends Visitor{
         Type t1 = node.getType();
         if (dec.children.size() == 2) {
             Type t2 = dec.getExpr().type;
-            if (!isAssignable(t1, t2)) {
+            if (!isAssignable(t1, t2, env)) {
                 throw new SemanticError("Invalid Assignment use between " + var +":"+t1 + " and " +dec.getExpr()+":"+ t2); 
             }
         }
