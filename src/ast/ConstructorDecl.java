@@ -24,10 +24,11 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Cal
 
     @Override
     public void accept(Visitor v){
+        v.visit(this);
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }
-        v.visit(this);
+        
     }
 
     @Override

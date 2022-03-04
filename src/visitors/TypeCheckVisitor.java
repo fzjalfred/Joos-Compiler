@@ -21,6 +21,7 @@ public class TypeCheckVisitor extends Visitor{
     public TypeDecl currTypeDecl;
     public List<Type> numsTypes;
     public boolean isStatic = false;
+    public Type fieldType;
 
 
 
@@ -30,6 +31,7 @@ public class TypeCheckVisitor extends Visitor{
         this.hierarchyChecker = hierarchyChecker;
         this.returnType = null;
         this.currTypeDecl = null;
+        this.fieldType = null;
     }
 
     private boolean checkStaticUse(Referenceable decl){
@@ -439,6 +441,16 @@ public class TypeCheckVisitor extends Visitor{
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t2 instanceof NullType ) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
+            } else if (t1 instanceof NumericType && t2 instanceof ClassOrInterfaceType) {
+                String qualified_name2 = tools.get_class_qualifed_name(((ClassOrInterfaceType)t2).typeDecl, env);
+                if (qualified_name2.equals("java.lang.Object")) {
+                    throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
+                }
+            }  else if (t2 instanceof NumericType && t1 instanceof ClassOrInterfaceType) {
+                String qualified_name1 = tools.get_class_qualifed_name(((ClassOrInterfaceType)t1).typeDecl, env);
+                if (qualified_name1.equals("java.lang.Object")) {
+                    throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
+                }
             } else if (isAssignable(t1, t2, env) || isAssignable(t2, t1, env)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
@@ -563,7 +575,7 @@ public class TypeCheckVisitor extends Visitor{
     }
 
     public boolean isAssignable(Type t1, Type t2, RootEnvironment env) {
-        if (t2 instanceof NullType) {
+        if (t2 instanceof NullType && !(t1 instanceof PrimitiveType)) {
             return true;
         }
         if (t1.equals(t2) && !(t1 instanceof PrimitiveType)) {
@@ -604,6 +616,12 @@ public class TypeCheckVisitor extends Visitor{
         qualified_name1.equals("java.lang.Object")||
         qualified_name1.equals("java.io.Serializable"))) {
             return true;
+        }
+        if (t1 instanceof PrimitiveType && qualified_name2.equals("java.lang.Object")) {
+            return false;
+        }
+        if (qualified_name1.equals("java.lang.String") && qualified_name2.equals("java.lang.Object")) {
+            return false;
         }
 
         if (checkUpCast(t2,t1)){
@@ -653,6 +671,7 @@ public class TypeCheckVisitor extends Visitor{
 
 
     public void visit(ConstructorDecl node){
+        returnType = null;
         String constructor_name = node.getName();
         String class_name = "";
         if (env.ASTNodeToScopes.get(node).typeDecl instanceof ClassDecl) {
@@ -679,8 +698,28 @@ public class TypeCheckVisitor extends Visitor{
     /** TypeDecls */
     @Override
     public void visit(ClassDecl node) {
-        //System.out.println("visited classdecl");
         currTypeDecl = node;
+
+        /** check its super constructor */
+        List<Referenceable> parents =  hierarchyChecker.parentMap.get(node);
+        for (Referenceable superclass: parents) {
+            boolean hasSuperConstructor = true;
+            if (superclass instanceof ClassDecl && 
+            !((ClassDecl)superclass).getModifiers().getModifiersSet().contains("abstract")) {
+                hasSuperConstructor = false;
+                Map<String, List<ASTNode>> methods = hierarchyChecker.declareMapRe.get((ClassDecl)superclass);
+                List<ASTNode> constructors = methods.get(((ClassDecl)superclass).getName());
+                for (ASTNode i: constructors) {
+                    ConstructorDecl construct = (ConstructorDecl)i;
+                    if (construct.getConstructorDeclarator().numParams() == 0) {
+                        hasSuperConstructor = true;
+                    }
+                }
+            }
+            if (!hasSuperConstructor) {
+                throw new SemanticError("Zero-arguments super constructor not exisit: " + node+":"+node.getName());
+            }
+        }
     }
 
     @Override
@@ -691,8 +730,18 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(FieldDecl node) {
         isStatic = tools.checkStatic(node.getModifiers());
+        this.fieldType = node.getType();
+    }
 
-
+    @Override
+    public void visit(VarDeclarator node){
+        if (node.children.size() == 2 && fieldType != null && node.getExpr()!=null) {
+            Type t2 = node.getExpr().type;
+            if (!isAssignable(fieldType, t2, env)) {
+                throw new SemanticError("Invalid FieldDecl between " +":"+fieldType + " and " +node.getExpr()+":"+ t2); 
+            }
+        }
+        fieldType = null;
     }
 
 
@@ -947,6 +996,10 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(ReturnStmt node) {
+        if (returnType == null && node.getExpr() != null) {
+            /** constructor needs no return type */
+            throw new SemanticError("value return in constructor :"+ node.getExpr().type);
+        }
         if (node.getExpr()!= null){
             if (!isAssignable(returnType, node.getExpr().type, env)) throw new SemanticError("return type " + returnType + " does not match " + node.getExpr().type);
         }
