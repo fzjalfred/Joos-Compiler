@@ -755,7 +755,7 @@ array_creation_expr ::= NEW primitive_type:e1 dim_expr:e2 {:RESULT = new ArrayCr
 
 
 primary_no_new_array ::= literal:e {:RESULT = e;:}
-                         | this_literal:e {:RESULT = new PrimaryNoArray(list(e), "");:}
+                         | this_literal:e {:RESULT = e;:}
                          | LEFTPARN expr:e RIGHTPARN {:RESULT = new PrimaryNoArray(list(e), "");:}
                          | class_instance_creation_expression:e {:RESULT = e;:}
                          | field_access:e {:RESULT = e;:}

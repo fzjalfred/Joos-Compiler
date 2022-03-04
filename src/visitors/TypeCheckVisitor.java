@@ -213,10 +213,11 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(UnaryExprNotPlusMinus node){
         if (node.children.size() == 2) {
             // Not statement
-            Type type1 = node.getUnaryExpr().type;
-            if (!(type1 instanceof PrimitiveType && type1.getNameString().equals("boolean"))) {
-                throw new SemanticError("expression \'"+node.getUnaryExpr()+":" +type1+"\' after '!' is not boolean.");
+            Type type = node.getUnaryExpr().type;
+            if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean") )) {
+                throw new SemanticError("expression after '!' is not boolean.");
             }
+            node.type = type;
         } else {
             throw new SemanticError("should never go here ...");
         }
@@ -267,6 +268,9 @@ public class TypeCheckVisitor extends Visitor{
     }
 
     public void visit(PrimaryNoArray node){
+        if (node.getExpr().type == null){
+            throw new SemanticError(node.getExpr().type + " should not be null");
+        }
         node.type = node.getExpr().type;
     }
 
@@ -531,13 +535,13 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(FieldAccess node) {
         String field = node.getID().value;
-        if (node.type instanceof ArrayType){
+        if (node.getPrimary().type instanceof ArrayType){
             if (field.equals("length")){
                 node.type = tools.intType();
                 return;
             }
-        }   else if (node.type instanceof ClassOrInterfaceType) {
-            ClassOrInterfaceType classType = (ClassOrInterfaceType)node.type;
+        }   else if (node.getPrimary().type instanceof ClassOrInterfaceType) {
+            ClassOrInterfaceType classType = (ClassOrInterfaceType)node.getPrimary().type;
             Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(classType.typeDecl);
             FieldDecl fieldDecl = tools.fetchField(containMap.get(field));
             if (fieldDecl != null){
@@ -546,7 +550,7 @@ public class TypeCheckVisitor extends Visitor{
                 return;
             }
         }
-        // TODO: throw new SemanticError("cannot evaluate " + field + " to any type");
+        throw new SemanticError("cannot evaluate " + field + " to any type");
     }
 
 

@@ -15,6 +15,10 @@ public class FieldAccess extends PrimaryNoArray {
         return (Token)children.get(1);
     }
 
+    public Primary getPrimary(){
+        return (Primary)children.get(0);
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){
