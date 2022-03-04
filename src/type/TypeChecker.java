@@ -9,10 +9,12 @@ public class TypeChecker {
     RootEnvironment env;
     TypeCheckVisitor visitor;
     HierarchyChecking hierarchyChecker;
+    NameDisambiguation nameDisambiguation;
 
-    public TypeChecker(RootEnvironment env, HierarchyChecking hierarchyChecker){
+    public TypeChecker(RootEnvironment env, HierarchyChecking hierarchyChecker, NameDisambiguation nameDisambiguation){
         this.env = env;
         this.hierarchyChecker = hierarchyChecker;
+        this.nameDisambiguation = nameDisambiguation;
         visitor = new TypeCheckVisitor(env, hierarchyChecker);
 
     }
@@ -28,6 +30,7 @@ public class TypeChecker {
      * Check that the implicit this variable is not accessed in a static method or in the initializer of a static field.*/
     public void check() throws SemanticError{
         checkTypeRules();
+        nameDisambiguation.rootEnvironmentDisambiguation(env, true);
         //TODO: extra 8 rules
     }
 

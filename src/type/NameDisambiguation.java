@@ -10,12 +10,12 @@ import utils.*;
 public class NameDisambiguation {
     public Map<ASTNode, List<Referenceable>> parentMap;
 
-    public void rootEnvironmentDisambiguation(RootEnvironment rootEnv) throws SemanticError, Exception {
+    public void rootEnvironmentDisambiguation(RootEnvironment rootEnv, boolean checkMethodInvoc) throws SemanticError {
         List<CompilationUnit> compilationUnitList = rootEnv.compilationUnits;
 
         for (CompilationUnit compilationUnit : compilationUnitList) {
             SemanticError.currFile = compilationUnit.fileName;
-            traverseNode((ASTNode) compilationUnit, rootEnv);
+            traverseNode((ASTNode) compilationUnit, rootEnv, checkMethodInvoc);
         }
     }
 
@@ -89,6 +89,11 @@ public class NameDisambiguation {
             Token nameToken = tools.simpleNameConstructor(nameStr);
             // lookup
             Referenceable decl = nameScope.lookup(nameToken); // FIXME:: how to solve overloading method
+            if (decl instanceof FieldDecl) {
+                if (((FieldDecl)decl).isStatic()) {
+                    throw new SemanticError("Calls a static field without naming the class " + ((FieldDecl)decl).getName());
+                }
+            }
             if (decl == null) {
 //                throw new SemanticError("Cannot find decl for simple name " + name.getValue());
                 return null;
@@ -205,17 +210,21 @@ public class NameDisambiguation {
 
     private void assignMethodInvocationReturnType(Name methodName, MethodInvocation methodInvocation, RootEnvironment rootEnv) throws SemanticError {
         // no need for worrying about overwriting here, as overwriting can only happen when they have the same sig and return type
+//        System.out.println("");
+//        System.out.println(methodName);
         Referenceable methodDecls = null;
         ScopeEnvironment nameScope = rootEnv.ASTNodeToScopes.get(methodName);
         List<MethodDecl> methods = null;
         String classOrInterfaceName = "";
             // simple Name
         if (methodName.isSimpleName()) {
+//            System.out.println("simple");
             // construct simple name
             String nameStr = methodName.getValue();
             Token nameToken = tools.simpleNameConstructor(nameStr);
             // lookup
             methodDecls = nameScope.lookup(nameToken); // FIXME:: how to solve overloading method
+//            System.out.println(methodDecls);
         } else {
             // qualified name
             Referenceable decl = rootEnv.lookup(methodName);
@@ -245,8 +254,10 @@ public class NameDisambiguation {
                 if (compareParam(searchParamType, targetArgType)) { // FIXME:: What if the arg type cannot be resolved here
                     if (!method.isStatic() && !methodName.isSimpleName()) {
                         if (classOrInterfaceName != "" && !isSameTypeOrSuperType(classOrInterfaceName, nameScope.typeDecl)) {
-                            throw new SemanticError("Method is not static "+ method.getName());
+                            throw new SemanticError("Naming an irrelevant class but the calling method is not static "+ method.getName());
                         }
+                    } else if (method.isStatic() && methodName.isSimpleName()) {
+                        throw new SemanticError("Calls a static method without naming the class " + method.getName());
                     }
                     methodName.type = method.getReturnType();
                     methodInvocation.type = method.getReturnType();
@@ -328,22 +339,28 @@ public class NameDisambiguation {
         return false;
     }
 
-    public void traverseNode(ASTNode node, RootEnvironment rootEnv) throws SemanticError, Exception {
+    public void traverseNode(ASTNode node, RootEnvironment rootEnv, boolean checkMethodInvoc) throws SemanticError {
         if (skipNode(node)) {
             return;
         }
+        if (checkMethodInvoc) {
+            //        System.out.println(node);
+            for (ASTNode child : node.children) {
+                traverseNode(child, rootEnv, checkMethodInvoc);
+            }
+            if (node instanceof MethodInvocation) {
+                findNodeNameAndType(node, rootEnv);
+            }
+        } else {
+//                    System.out.println(node);
+            for (ASTNode child : node.children) {
+                traverseNode(child, rootEnv, checkMethodInvoc);
+            }
+            if (!(node instanceof MethodInvocation)) {
+                findNodeNameAndType(node, rootEnv);
+            }
 
-        if (node.traversed) {
-            return;
         }
-
-//        System.out.println(node);
-        for (ASTNode child : node.children) {
-            traverseNode(child, rootEnv);
-        }
-
-        findNodeNameAndType(node, rootEnv);
-        node.traversed = true;
 
 
     }

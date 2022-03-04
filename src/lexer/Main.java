@@ -16,8 +16,8 @@ public class Main {
 			checker.checkRootEnvironment(env);
 			NameDisambiguation nameDisamb = new NameDisambiguation();
 			nameDisamb.parentMap = checker.parentMap;
-			nameDisamb.rootEnvironmentDisambiguation(env);
-			TypeChecker typeChecker = new TypeChecker(env, checker);
+			nameDisamb.rootEnvironmentDisambiguation(env, false);
+			TypeChecker typeChecker = new TypeChecker(env, checker, nameDisamb);
 			typeChecker.check();
 		} catch (Exception e) {
 			e.printStackTrace();
