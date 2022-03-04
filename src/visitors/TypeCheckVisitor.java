@@ -43,8 +43,8 @@ public class TypeCheckVisitor extends Visitor{
                 assert classType.typeDecl != null;
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                 if (containMap.containsKey(str)){
-                    System.out.println(containMap.get(str));
                     resMethod = tools.fetchMethod(containMap.get(str),types);
+                    if (resMethod == null) resMethod = tools.fetchAbstractMethod(containMap.get(str), types);
                 } // if
             }   else if (currType instanceof ArrayType && str.equals("length")){
                 currType = new NumericType(tools.empty(), "int");
@@ -288,9 +288,6 @@ public class TypeCheckVisitor extends Visitor{
             e1Type = node.getExpr().type;
         }
         if (! (e1Type instanceof ArrayType)){
-            for (ASTNode i: node.children) {
-                System.out.println(i);
-            }
             throw new SemanticError("in array access: e1 " + e1Type + " is not array type");
         }
         if (!(node.getDimExpr().type instanceof NumericType)){
@@ -793,7 +790,6 @@ public class TypeCheckVisitor extends Visitor{
                 }   else {
                     currType = context.getType(nameStr);
                     if (currType != null) {
-                        System.out.println("eval " + nameStr + " to " + currType);
                         break;
                     }
 

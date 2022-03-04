@@ -98,6 +98,19 @@ public class tools {
         return null;
     }
 
+    public static AbstractMethodDecl fetchAbstractMethod(List<ASTNode> refers, List<Type> argTypes){
+
+        for (ASTNode refer : refers){
+            if (refer instanceof AbstractMethodDecl){
+                AbstractMethodDecl method = (AbstractMethodDecl)refer;
+                if (compTypeListEqual(method.getParamType(), argTypes)){
+                    return method;
+                }
+            }
+        }
+        return null;
+    }
+
     public static boolean containClass(List<Referenceable> refers, TypeDecl typeDecl){
         if (refers == null) return false;
         for (Referenceable refer: refers){
