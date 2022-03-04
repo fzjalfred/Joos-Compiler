@@ -195,7 +195,7 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(BoolLiteral node) {
         //node.type = new ClassOrInterfaceType(tools.list(tools.nameConstructor("java.lang.Boolean")), "");
         //node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.Boolean")));
-        node.type = new PrimitiveType(tools.empty(), "bool");
+        node.type = new PrimitiveType(tools.empty(), "boolean");
     }
 
     @Override
@@ -213,9 +213,9 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(UnaryExprNotPlusMinus node){
         if (node.children.size() == 2) {
             // Not statement
-            Type expr = node.getUnaryExpr().type;
-            if (!(expr instanceof PrimitiveType && expr.getNameString() == "bool")) {
-                throw new SemanticError("expression after '!' is not boolean.");
+            Type type1 = node.getUnaryExpr().type;
+            if (!(type1 instanceof PrimitiveType && type1.getNameString().equals("boolean"))) {
+                throw new SemanticError("expression \'"+node.getUnaryExpr()+":" +type1+"\' after '!' is not boolean.");
             }
         } else {
             throw new SemanticError("should never go here ...");
