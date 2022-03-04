@@ -425,28 +425,73 @@ public class TypeCheckVisitor extends Visitor{
     }
 
 
-    public void visit(Assignment node){
-        Type t1;
-        LHS lhs = node.getAssignmentLeft();
-        Type t2 = (node.getAssignmentRight()).type;
-        if (lhs.hasName()) {
-            Name methodName = lhs.getName();
-            t1 = lhs.type;
-            if ((t1 != null && t2 != null) && (t2 instanceof NullType||t1.equals(t2))) {
-                node.type = t1;
-            } else {
-                throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
-            }
-        } else{
-            //field_access|array_access
-            node.type = lhs.getExpr().type;
-        }
+    /** Assignment */
+
+    public void visit(Expr node){
+        node.type = ((AssignmentExpr)node.getSingleChild()).type;
     }
-    
 
     public void visit(AssignmentExpr node){
         node.type = (node.getSingleChild()).type;
     }
+
+    public boolean isAssignable(Type t1, Type t2) {
+        if (t2 instanceof NullType) {
+            return true;
+        }
+        if (t1.equals(t2) && !(t1 instanceof PrimitiveType)) {
+            return true;
+        }
+        if (t1 instanceof PrimitiveType  &&
+        t2 instanceof PrimitiveType) {
+            if (t1.getNameString().equals(t2.getNameString())) {
+                return true;
+            }
+            if (t1.getNameString().equals("int") && t2.getNameString().equals("short")) {
+                return true;
+            }
+            if (t1.getNameString().equals("short") && t2.getNameString().equals("byte")) {
+                return true;
+            }
+            if (t1.getNameString().equals("int") && t2.getNameString().equals("char")) {
+                return true;
+            }
+        }
+        if (checkUpCast(t2,t1)){
+            return true;
+        }
+        return false;
+    }
+
+
+    public void visit(Assignment node){
+        Type t1;
+        LHS lhs = node.getAssignmentLeft();
+        Type t2 = (node.getAssignmentRight()).type;
+        //System.out.println(node.getAssignmentLeft());
+        if (lhs.hasName()) {
+            //Name methodName = lhs.getName();
+            t1 = lhs.type;
+            if (t1 == null) {
+                throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
+            }
+            if (isAssignable(t1, t2)) {
+                node.type = t1;
+            } else {
+                throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
+            }
+            //System.out.println(((Name)lhs.children.get(0)).getValue());
+        } else{
+            //field_access|array_access
+            node.type = lhs.getExpr().type;
+        }
+        
+        //System.out.println(t2.getNameString());
+        //System.out.println("====================");
+    }
+    
+
+    
 
     public void visit(ArrayCreationExpr node){
         Type t1 = node.getType();
@@ -504,6 +549,17 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(LocalVarDecl node) {
         String var = node.getVarDeclarators().getFirstName();
         context.put(var, node);
+
+        // check t1 = t2
+        VarDeclarator dec = (VarDeclarator)node.getVarDeclarators().children.get(0);
+        Type t1 = node.getType();
+        if (dec.children.size() == 2) {
+            Type t2 = dec.getExpr().type;
+            if (!isAssignable(t1, t2)) {
+                throw new SemanticError("Invalid Assignment use between " + var +":"+t1 + " and " +dec.getExpr()+":"+ t2); 
+            }
+        }
+        
     }
 
     @Override

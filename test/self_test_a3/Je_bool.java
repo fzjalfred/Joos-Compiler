@@ -1,10 +1,10 @@
 package B;
 
-public class abstract1{
-    public abstract1() {}
+public class Je_bool{
+    public Je_bool() {}
     public int foo(int a) {}
     public int foo() {}
     public int bar(int b) {
-        boolean n = !;
+        boolean n = !"abc";
     }
 }

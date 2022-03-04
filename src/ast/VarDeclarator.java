@@ -17,6 +17,11 @@ public class VarDeclarator extends ASTNode{
         return (VarDeclaratorID)children.get(0);
     }
 
+    public Expr getExpr() {
+        assert children.get(1) instanceof Expr;
+        return (Expr) children.get(1);
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){

@@ -22,6 +22,10 @@ public class VarDeclarators extends ASTNode{
         return getName().get(0);
     }
 
+    public String getLastDeclarator(){
+        return getName().get(0);
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){
