@@ -29,6 +29,43 @@ public class TypeCheckVisitor extends Visitor{
         this.returnType = null;
         this.currTypeDecl = null;
     }
+
+    private Referenceable evalMethod(Type currType, Name name, int idx, List<Type>types){
+        Map<String, List<ASTNode>> containMap = null;
+        List<String> names = name.getFullName();
+        Referenceable resMethod = null;
+        for (; idx < names.size(); idx++){
+            if (currType instanceof PrimitiveType) return null;
+            String str = names.get(idx);
+            if (isLastIdx(idx, names.size()) && currType instanceof ClassOrInterfaceType){
+
+                ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
+                assert classType.typeDecl != null;
+                containMap = hierarchyChecker.containMap.get(classType.typeDecl);
+                if (containMap.containsKey(str)){
+                    System.out.println(containMap.get(str));
+                    resMethod = tools.fetchMethod(containMap.get(str),types);
+                } // if
+            }   else if (currType instanceof ArrayType && str.equals("length")){
+                currType = new NumericType(tools.empty(), "int");
+            }   else if (currType instanceof ClassOrInterfaceType){
+                ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
+                assert classType.typeDecl != null;
+                containMap = hierarchyChecker.containMap.get(classType.typeDecl);
+                if (containMap.containsKey(str)){
+                    FieldDecl  field = tools.fetchField(containMap.get(str));
+                    if (field != null){
+                        currType = field.getType();
+                        continue;
+                    } // if
+                } // if
+                return null;
+            }   else {
+                return null;
+            }
+        } // for
+        return resMethod;
+    }
     /** helpers */
     private Referenceable findStaticMethod(ScopeEnvironment scopeEnvironment, Name name, List<Type> types){
         Referenceable res = env.lookup(name);
@@ -38,14 +75,21 @@ public class TypeCheckVisitor extends Visitor{
             if (methodDecl != null && tools.checkStatic(methodDecl.getMethodHeader().getModifiers()) ){
                 return methodDecl;
             }
-        }   else if (name.children.size() == 2){
+        }   else {
             List<String> nameStrs = name.getFullName();
             res = scopeEnvironment.lookupTypeDecl(tools.simpleNameConstructor(nameStrs.get(0)));
             if (res != null){
                 TypeDecl typeDecl = (TypeDecl)res;
                 Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
-                MethodDecl methodDecl = tools.fetchMethod(contain.get(nameStrs.get(1)), types);
-                if (tools.checkStatic(methodDecl.getMethodHeader().getModifiers())) return methodDecl;
+                if (name.children.size() == 2){
+                    MethodDecl methodDecl = tools.fetchMethod(contain.get(nameStrs.get(1)), types);
+                    if (tools.checkStatic(methodDecl.getMethodHeader().getModifiers())) return methodDecl;
+                }   else {
+                    FieldDecl fieldDecl = tools.fetchField(contain.get(nameStrs.get(1)));
+                    if (fieldDecl != null && tools.checkStatic(fieldDecl.getModifiers())){
+                        return evalMethod(fieldDecl.getType(), name, 2, types);
+                    }
+                }
             }
         }
         return null;
@@ -721,7 +765,6 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(MethodInvocation node) {
-        Referenceable resMethodList = null;
         Referenceable resMethod = null;
         Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(currTypeDecl);;
         Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
@@ -750,7 +793,7 @@ public class TypeCheckVisitor extends Visitor{
                 }   else {
                     currType = context.getType(nameStr);
                     if (currType != null) {
-                        nameStr += '.';
+                        System.out.println("eval " + nameStr + " to " + currType);
                         break;
                     }
 
@@ -759,7 +802,6 @@ public class TypeCheckVisitor extends Visitor{
                         FieldDecl  field = tools.fetchField(inheritMap.get(nameStr));
                         if (field != null){
                             currType = field.getType();
-                            nameStr += '.';
                             break;
                         }
                     }
@@ -770,12 +812,10 @@ public class TypeCheckVisitor extends Visitor{
                         if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
                         FieldDecl field = (FieldDecl)nameRefer;
                         currType = field.getType();
-                        nameStr += '.';
                         break;
                     }   else if (nameRefer instanceof ClassDecl){
                         ClassDecl classDecl = (ClassDecl)nameRefer;
                         currType = tools.getClassType(nameStr, classDecl);
-                        nameStr += '.';
                         break;
                     }
                     nameStr += '.';
@@ -784,37 +824,8 @@ public class TypeCheckVisitor extends Visitor{
 
 
             idx++;
-            for (; idx < names.size(); idx++){
-                if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
-                String str = names.get(idx);
-                nameStr += str;
-                if (isLastIdx(idx, names.size()) && currType instanceof ClassOrInterfaceType){
+            if (resMethod == null) resMethod = evalMethod(currType, node.getName(), idx, node.getArgumentTypeList());
 
-                    ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
-                    assert classType.typeDecl != null;
-                    containMap = hierarchyChecker.containMap.get(classType.typeDecl);
-                    if (containMap.containsKey(str)){
-                        resMethod = tools.fetchMethod(containMap.get(str), node.getArgumentTypeList());
-                    } // if
-                }   else if (currType instanceof ArrayType && str.equals("length")){
-                    currType = new NumericType(tools.empty(), "int");
-                }   else if (currType instanceof ClassOrInterfaceType){
-                    ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
-                    assert classType.typeDecl != null;
-                    containMap = hierarchyChecker.containMap.get(classType.typeDecl);
-                    if (containMap.containsKey(str)){
-                        FieldDecl  field = tools.fetchField(containMap.get(str));
-                        if (field != null){
-                            currType = field.getType();
-                            nameStr += '.';
-                            continue;
-                        } // if
-                    } // if
-                    throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
-                }   else {
-                    throw new SemanticError(nameStr + " has been inferred to type " + currType + "; so " + node.getName().getValue() + " cannot be resolved to type");
-                }
-            } // for
         } /* if has name */   else {
             Primary primary = node.getPrimary();
             if (primary.type instanceof ClassOrInterfaceType){
@@ -829,23 +840,13 @@ public class TypeCheckVisitor extends Visitor{
             node.type = resMethod.getType();
             node.whichMethod = (Callable)resMethod;
             return;
-        }   else if (resMethodList != null){
-            assert resMethodList instanceof MethodList;
-            tools.println("method list is  " + resMethodList, DebugID.zhenyan);
-            resMethod = ((MethodList)resMethodList).match(node.getArgumentTypeList());
-            if (resMethod != null){
-                node.type = resMethod.getType();
-                node.whichMethod = (Callable)resMethod;
-                return;
-            }
-            throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList());
-        } // if
+        }
         // for (ASTNode i: node.children) {
         //     System.out.println(i);
         // }
         // System.out.println(((Name)node.children.get(0)).getValue());
         // System.out.println(((ArgumentList)node.children.get(2)).getArgsType());
-        throw new SemanticError("Cannot evaluate method invocation " + node + " " + node.getArgumentTypeList() + " find " + resMethodList + " and " + resMethod);
+        throw new SemanticError("Cannot evaluate method invocation " + node.getName().getValue() + " " + node.getArgumentTypeList() + " find " + resMethod);
     }
 
     private boolean isLastIdx(int idx, int size){

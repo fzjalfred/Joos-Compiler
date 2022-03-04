@@ -59,4 +59,11 @@ public class MethodInvocation extends PrimaryNoArray {
         }
         v.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return "MethodInvocation{" +
+                getName().getValue() +
+                '}';
+    }
 }
