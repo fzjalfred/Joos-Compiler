@@ -215,7 +215,7 @@ public class TypeCheckVisitor extends Visitor{
             // Not statement
             Type type = node.getUnaryExpr().type;
             if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean") )) {
-                throw new SemanticError("expression after '!' is not boolean.");
+                throw new SemanticError("expression \'"+node.getUnaryExpr()+":" +type+"\' after '!' is not boolean.");
             }
             node.type = type;
         } else {
@@ -328,14 +328,14 @@ public class TypeCheckVisitor extends Visitor{
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
         } else if (((Token)node.children.get(1)).type == sym.INSTANCEOF) {
-            node.type = new PrimitiveType(tools.empty(), "bool");
+            node.type = new PrimitiveType(tools.empty(), "boolean");
         } else {
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1 != null && t2 != null && t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid RelationExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -349,11 +349,11 @@ public class TypeCheckVisitor extends Visitor{
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t2 instanceof NullType ) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -367,9 +367,9 @@ public class TypeCheckVisitor extends Visitor{
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid AndExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -383,9 +383,9 @@ public class TypeCheckVisitor extends Visitor{
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid OrExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -399,9 +399,9 @@ public class TypeCheckVisitor extends Visitor{
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1.equals(t2) ) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid ConditionalAndExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -415,9 +415,9 @@ public class TypeCheckVisitor extends Visitor{
             Type t1 = (node.getOperatorLeft()).type;
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "bool");
+                node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid ConditionalOrExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
