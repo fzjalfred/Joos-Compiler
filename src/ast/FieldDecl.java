@@ -1,5 +1,6 @@
 package ast;
 
+import visitors.TypeCheckVisitor;
 import visitors.Visitor;
 
 import java.util.List;
@@ -46,9 +47,13 @@ public class FieldDecl extends ClassMemberDecl {
 
     @Override
     public void accept(Visitor v){
+        v.visit(this);
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }
-        v.visit(this);
+        if (v instanceof TypeCheckVisitor){
+            String var = getVarDeclarators().getFirstName();
+            ((TypeCheckVisitor)v).context.put(var, this);
+        }
     }
 }
