@@ -316,6 +316,10 @@ public class NameDisambiguation {
         if (node instanceof FieldDecl) {
             return true;
         }
+
+        if (node instanceof LocalVarDecl) {
+            return true;
+        }
         return false;
     }
 
