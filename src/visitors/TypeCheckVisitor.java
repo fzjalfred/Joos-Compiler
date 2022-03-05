@@ -23,6 +23,7 @@ public class TypeCheckVisitor extends Visitor{
     public List<Type> numsTypes;
     public boolean isStatic = false;
     public Type fieldType;
+    public ClassBodyDecl classBodyDecl;
 
 
 
@@ -33,6 +34,7 @@ public class TypeCheckVisitor extends Visitor{
         this.returnType = null;
         this.currTypeDecl = null;
         this.fieldType = null;
+        this.classBodyDecl = null;
     }
 
     private boolean checkStaticUse(Referenceable decl){
@@ -52,7 +54,29 @@ public class TypeCheckVisitor extends Visitor{
         }
     }
 
-    private Referenceable evalMethod(Type currType, Name name, int idx, List<Type>types){
+    private boolean checkObjectStatic(Referenceable decl){
+        if (decl instanceof FieldDecl){
+            FieldDecl fieldDecl = (FieldDecl)decl;
+            return tools.checkStatic(fieldDecl.getModifiers());
+        }   else if (decl instanceof MethodDecl){
+            MethodDecl methodDecl = (MethodDecl)decl;
+            return tools.checkStatic(methodDecl.getMethodHeader().getModifiers());
+        }   else if (decl instanceof AbstractMethodDecl){
+            return false;
+        }
+        return false;
+    }
+
+    private void ambiguousNameBaseCase(List<String> names,Map<String, List<ASTNode>> declareMap){
+        /** base case: cannot use declared field */
+        if (tools.fetchField(declareMap.get(names.get(0))) != null){
+            Referenceable refer = context.get(names.get(0));
+            //System.out.println("find " + names.get(0));
+            if (refer == null && refer instanceof FieldDecl) throw new SemanticError("field " + ((FieldDecl)refer).getFirstVarName() + " has not been declared yet");
+        }
+    }
+
+    private Referenceable evalMethod(Type currType, Name name, int idx, List<Type>types, boolean isObject){
         Map<String, List<ASTNode>> containMap = null;
         List<String> names = name.getFullName();
         Referenceable resMethod = null;
@@ -67,6 +91,7 @@ public class TypeCheckVisitor extends Visitor{
                 if (containMap.containsKey(str)){
                     resMethod = tools.fetchMethod(containMap.get(str),types);
                     if (resMethod == null) resMethod = tools.fetchAbstractMethod(containMap.get(str), types);
+                    if (isObject && checkObjectStatic(resMethod)) throw new SemanticError("cannot use " + resMethod + " on Objects");
                 } // if
             }   else if (currType instanceof ArrayType && str.equals("length")){
                 currType = new NumericType(tools.empty(), "int");
@@ -109,7 +134,7 @@ public class TypeCheckVisitor extends Visitor{
                 }   else {
                     FieldDecl fieldDecl = tools.fetchField(contain.get(nameStrs.get(1)));
                     if (fieldDecl != null && tools.checkStatic(fieldDecl.getModifiers())){
-                        return evalMethod(fieldDecl.getType(), name, 2, types);
+                        return evalMethod(fieldDecl.getType(), name, 2, types, false);
                     }
                 }
             }
@@ -127,6 +152,7 @@ public class TypeCheckVisitor extends Visitor{
         List<String> names = name.getFullName();
         String nameStr = "";
         Type currType = null;
+        boolean isObject = false;
 
         int idx = 0;
         for (;idx < names.size();idx++){
@@ -136,6 +162,7 @@ public class TypeCheckVisitor extends Visitor{
             //tools.println("look up field" + nameStr + " get " + currType, DebugID.zhenyan);
             if (currType != null) {
                 /** check static field access*/
+                isObject = true;
                 if (!checkStaticUse(context.get(nameStr))) throw new SemanticError("Cannot use non-static field " + nameStr + " in static class member decl");
                 break;
             }
@@ -144,6 +171,7 @@ public class TypeCheckVisitor extends Visitor{
             if (containMap.containsKey(nameStr)){
                 FieldDecl  field = tools.fetchField(containMap.get(nameStr));
                 if (field != null){
+                    isObject = true;
                     currType = field.getType();
                     break;
                 }
@@ -152,6 +180,7 @@ public class TypeCheckVisitor extends Visitor{
             // third check static field, which is env lookup: A.B.C
             Referenceable nameRefer = env.lookup(tools.nameConstructor(nameStr));
             if (nameRefer instanceof FieldDecl){
+                isObject = true;
                 if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
                 FieldDecl field = (FieldDecl)nameRefer;
                 currType = field.getType();
@@ -184,6 +213,9 @@ public class TypeCheckVisitor extends Visitor{
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                 if (containMap.containsKey(str)){
                     FieldDecl  field = tools.fetchField(containMap.get(str));
+                    if (isObject && checkObjectStatic(field)){
+                        throw new SemanticError("cannot read static field on Object " + field.getFirstVarName());
+                    }
                     if (field != null){
                         nameStr += str;
                         currType = field.getType();
@@ -311,7 +343,13 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(ArrayAccess node) {
         Type e1Type = null;
         if (node.hasName()){
-            disAmbiguousNameField(node.getName(), node, hierarchyChecker.inheritMapRe.get(currTypeDecl));
+            Map<String, List<ASTNode>> map = null;
+            if (classBodyDecl instanceof FieldDecl){
+                map = hierarchyChecker.inheritMapRe.get(currTypeDecl);
+            }   else {
+                map = hierarchyChecker.containMap.get(currTypeDecl);
+            }
+            disAmbiguousNameField(node.getName(), node, map);
             e1Type = node.type;
         }   else {
             e1Type = node.getExpr().type;
@@ -702,7 +740,9 @@ public class TypeCheckVisitor extends Visitor{
 
 
     public void visit(ConstructorDecl node){
+        classBodyDecl = node;
         returnType = null;
+        isStatic = false;
         String constructor_name = node.getName();
         String class_name = "";
         if (env.ASTNodeToScopes.get(node).typeDecl instanceof ClassDecl) {
@@ -761,6 +801,7 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(FieldDecl node) {
         isStatic = tools.checkStatic(node.getModifiers());
+        classBodyDecl = node;
         this.fieldType = node.getType();
     }
 
@@ -805,6 +846,7 @@ public class TypeCheckVisitor extends Visitor{
         isStatic = tools.checkStatic(node.getMethodHeader().getModifiers());
         /** update return value*/
         this.returnType = node.getMethodHeader().getType();
+        this.classBodyDecl = node;
         /** add method to context */
         context.put(node.getName(), node);
         tools.println("put " + node.getName(),DebugID.zhenyan  );
@@ -930,11 +972,12 @@ public class TypeCheckVisitor extends Visitor{
     @Override
     public void visit(MethodInvocation node) {
         Referenceable resMethod = null;
+        boolean isObject = false;
         Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(currTypeDecl);;
-        Map<String, List<ASTNode>> inheritMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
         if (node.hasName()){
+            Map<String, List<ASTNode>> declareMap = hierarchyChecker.declareMapRe.get(currTypeDecl);
             Name methodName = node.getName();
-
+            //ambiguousNameBaseCase(methodName.getFullName(), declareMap);
             resMethod = findStaticMethod(env.ASTNodeToScopes.get(node), node.getName(), node.getArgumentTypeList());
             if (resMethod!= null){
                 node.type = resMethod.getType();
@@ -958,13 +1001,15 @@ public class TypeCheckVisitor extends Visitor{
                 }   else {
                     currType = context.getType(nameStr);
                     if (currType != null) {
+                        isObject = true;
                         break;
                     }
 
                     // second check inherit map
-                    if (inheritMap.containsKey(nameStr)){
-                        FieldDecl  field = tools.fetchField(inheritMap.get(nameStr));
+                    if (containMap.containsKey(nameStr)){
+                        FieldDecl  field = tools.fetchField(containMap.get(nameStr));
                         if (field != null){
+                            isObject = true;
                             currType = field.getType();
                             break;
                         }
@@ -973,6 +1018,7 @@ public class TypeCheckVisitor extends Visitor{
                     // third check static field, which is env lookup: A.B.C
                     Referenceable nameRefer = env.lookup(tools.nameConstructor(nameStr));
                     if (nameRefer instanceof FieldDecl){
+                        isObject = true;
                         if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
                         FieldDecl field = (FieldDecl)nameRefer;
                         currType = field.getType();
@@ -988,7 +1034,7 @@ public class TypeCheckVisitor extends Visitor{
 
 
             idx++;
-            if (resMethod == null) resMethod = evalMethod(currType, node.getName(), idx, node.getArgumentTypeList());
+            if (resMethod == null) resMethod = evalMethod(currType, node.getName(), idx, node.getArgumentTypeList(), isObject);
 
         } /* if has name */   else {
             Primary primary = node.getPrimary();
@@ -1020,7 +1066,14 @@ public class TypeCheckVisitor extends Visitor{
 
     @Override
     public void visit(PostFixExpr node) {
-        disAmbiguousNameField(node.getName(), node, hierarchyChecker.inheritMapRe.get(currTypeDecl));
+        Map<String, List<ASTNode>> map = null;
+        if (classBodyDecl instanceof FieldDecl){
+            map = hierarchyChecker.inheritMapRe.get(currTypeDecl);
+        }   else {
+            //System.out.println(currTypeDecl);
+            map = hierarchyChecker.containMap.get(currTypeDecl);
+        }
+        disAmbiguousNameField(node.getName(), node, map);
     }
 
     /** stmts */

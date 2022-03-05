@@ -85,6 +85,7 @@ public class tools {
     }
 
     public static FieldDecl fetchField(List<ASTNode> refers){
+        if (refers == null) return null;
         for (ASTNode refer : refers){
             if (refer instanceof FieldDecl){
                 return (FieldDecl)refer;
