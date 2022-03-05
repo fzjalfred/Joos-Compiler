@@ -13,6 +13,11 @@ public class ArrayCreationExpr extends Primary {
         return (Type)children.get(0);
     }
 
+    public DimExpr getDimExpr(){
+        assert children.get(1) instanceof DimExpr;
+        return (DimExpr)children.get(1);
+    }
+
     @Override
     public void accept(Visitor v){
         for (ASTNode node: children){

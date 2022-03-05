@@ -322,6 +322,12 @@ public class TypeCheckVisitor extends Visitor{
         if (!(node.getDimExpr().type instanceof NumericType)){
             throw new SemanticError("in array access: dimexpr " + node.getDimExpr().type + " is not numeric type");
         }
+
+        Type t1 = new NumericType(tools.empty(), "int");
+        Type t2 = node.getDimExpr().type;
+        if (!isAssignable(t1, t2, env)) {
+            throw new SemanticError("Array index must have numeric type: "+ t2);
+        }
         node.type = ((ArrayType)e1Type).getType();
     }
 
@@ -679,10 +685,15 @@ public class TypeCheckVisitor extends Visitor{
     
 
     
-
+    @Override
     public void visit(ArrayCreationExpr node){
-        Type t1 = node.getType();
-        node.type = new ArrayType(tools.list(t1), "");
+        Type t1 = new NumericType(tools.empty(), "int");
+        Type t2 = node.getDimExpr().type;
+        if (isAssignable(t1, t2, env)) {
+            node.type = new ArrayType(tools.list(node.getType()), "");
+        } else {
+            throw new SemanticError("Array index must have numeric type: "+ t2);
+        } 
     }
 
     /** Check that the name of a constructor is the same as the name of its enclosing class. */
