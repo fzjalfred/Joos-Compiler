@@ -37,6 +37,39 @@ public class TypeCheckVisitor extends Visitor{
         this.classBodyDecl = null;
     }
 
+    private void checkProtected(TypeDecl classDecl, Referenceable refer){
+        /** check protected access */
+        if (refer instanceof FieldDecl){
+            FieldDecl fieldDecl = (FieldDecl)refer;
+            if (fieldDecl.getModifiers().getModifiersSet().contains("protected")) {
+                ASTNode currentClass = currTypeDecl;
+                Referenceable accessClass = env.ASTNodeToScopes.get(fieldDecl).typeDecl;
+                if (currentClass!=accessClass&&!hierarchyChecker.parentMap.get(currentClass).contains(accessClass)) {
+                    throw new SemanticError("\' field " + fieldDecl.getFirstVarName() + "\' is protected.");
+                }
+            }
+        }   else if (refer instanceof MethodDecl){
+            MethodDecl methodDecl = (MethodDecl)refer;
+            if (methodDecl.getMethodHeader().getModifiers().getModifiersSet().contains("protected")) {
+                ASTNode currentClass = currTypeDecl;
+                Referenceable accessClass = env.ASTNodeToScopes.get(methodDecl).typeDecl;
+                if (currentClass!=accessClass&&!hierarchyChecker.parentMap.get(currentClass).contains(accessClass)) {
+                    throw new SemanticError("\' method " + methodDecl.getName() + "\' is protected.");
+                }
+            }
+        }   else if (refer instanceof AbstractMethodDecl){
+            AbstractMethodDecl methodDecl = (AbstractMethodDecl)refer;
+            if (methodDecl.getModifiers().getModifiersSet().contains("protected")) {
+                ASTNode currentClass = currTypeDecl;
+                Referenceable accessClass = env.ASTNodeToScopes.get(methodDecl).typeDecl;
+                if (currentClass!=accessClass&&!hierarchyChecker.parentMap.get(currentClass).contains(accessClass)) {
+                    throw new SemanticError("\' abstract method " + methodDecl.getName() + "\' is protected.");
+                }
+            }
+        }
+
+    }
+
     private boolean checkStaticUse(Referenceable decl){
         if (isStatic){
             if (decl instanceof FieldDecl){
@@ -146,6 +179,7 @@ public class TypeCheckVisitor extends Visitor{
         if (name.type != null){
             node.type = name.type;
             return;
+            //if (!checkStaticUse(name.decl)) throw new SemanticError("Cannot use non-static field " + name.getValue() + " in static class member decl");
         }
 
         /** derive first expr's type  */
@@ -162,6 +196,7 @@ public class TypeCheckVisitor extends Visitor{
             //tools.println("look up field" + nameStr + " get " + currType, DebugID.zhenyan);
             if (currType != null) {
                 /** check static field access*/
+
                 isObject = true;
                 if (!checkStaticUse(context.get(nameStr))) throw new SemanticError("Cannot use non-static field " + nameStr + " in static class member decl");
                 break;

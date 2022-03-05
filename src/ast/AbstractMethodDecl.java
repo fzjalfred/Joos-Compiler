@@ -14,6 +14,10 @@ public class AbstractMethodDecl extends InterfaceMemberDecl implements Callable{
         assert children.get(2) instanceof MethodDeclarator;
         return (MethodDeclarator)children.get(2);
     }
+
+    public Modifiers getModifiers(){
+        return (Modifiers)children.get(0);
+    }
     private boolean ifContainModifier(ASTNode modifiers, String name){
         if (modifiers == null) return false;
         for (ASTNode n : modifiers.children){
