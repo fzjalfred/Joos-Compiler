@@ -5,6 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class LHS extends Expr {
+    public boolean isAssignable = true;
 
     public LHS(List<ASTNode> children, String value){
         super(children, value);

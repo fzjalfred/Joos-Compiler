@@ -8,6 +8,7 @@ import lexer.Token;
 import type.*;
 import utils.*;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -174,6 +175,9 @@ public class TypeCheckVisitor extends Visitor{
                 nameStr += str;
                 currType = new NumericType(tools.empty(), "int");
                 nameStr += '.';
+                if (node instanceof LHS) {
+                    ((LHS)node).isAssignable = false;
+                }
             }   else if (currType instanceof ClassOrInterfaceType){
                 ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
                 assert classType.typeDecl != null;
@@ -634,10 +638,12 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(Assignment node){
         Type t1;
         LHS lhs = node.getAssignmentLeft();
+        if (lhs.isAssignable == false) {
+            throw new SemanticError("A final field must not be assigned to. (Array.length is final)");
+        }
         Type t2 = (node.getAssignmentRight()).type;
         //System.out.println(node.getAssignmentLeft());
         if (lhs.hasName()) {
-            //Name methodName = lhs.getName();
             t1 = lhs.type;
             if (t1 == null) {
                 throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
@@ -650,7 +656,21 @@ public class TypeCheckVisitor extends Visitor{
             //System.out.println(((Name)lhs.children.get(0)).getValue());
         } else{
             //field_access|array_access
-            node.type = lhs.getExpr().type;
+            if (lhs.children.get(0) instanceof FieldAccess) {
+                FieldAccess field_access = (FieldAccess)lhs.children.get(0);
+                String field = field_access.getID().value;
+                if (field_access.getPrimary().type instanceof ArrayType){
+                    if (field.equals("length")){
+                        throw new SemanticError("A final field must not be assigned to. (Array.length is final)");
+                    }
+                }
+            }
+            t1 = lhs.getExpr().type;
+            if (isAssignable(t1, t2, env)) {
+                node.type = t1;
+            } else {
+                throw new SemanticError("Invalid Assignment use between " + node.getAssignmentLeft()+":"+t1 + " and " +node.getAssignmentRight()+":"+ t2);
+            }
         }
         
         //System.out.println(t2.getNameString());

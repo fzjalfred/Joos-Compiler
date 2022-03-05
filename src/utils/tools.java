@@ -16,6 +16,14 @@ public class tools {
         return new Name(tokens, "");
     }
 
+    public static Name nameConstructor(List<String> names){
+        List<ASTNode> tokens = new ArrayList<ASTNode>();
+        for (String s : names){
+            tokens.add(new Token(sym.ID, s));
+        }
+        return new Name(tokens, "");
+    }
+
     public static Token simpleNameConstructor(String simpleName){
         return new Token(sym.ID, simpleName);
     }
