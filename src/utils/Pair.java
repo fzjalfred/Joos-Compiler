@@ -16,4 +16,12 @@ public class Pair <T1, T2> {
     public T2 second() {
         return this.second;
     }
+
+    @Override
+    public String toString() {
+        return "Pair{" +
+                "first=" + first +
+                ", second=" + second +
+                '}';
+    }
 }

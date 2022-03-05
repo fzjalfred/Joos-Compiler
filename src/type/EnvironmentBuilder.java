@@ -17,16 +17,17 @@ public class EnvironmentBuilder {
 
     public static RootEnvironment buildRoot(String [] fileNames) throws Exception, Error, SemanticError{
         List<String> hacks = new ArrayList<String>();
-        hacks.add("Je_16_ProtectedAccess_StaticField_Sub_DeclaredInSub");
+        //hacks.add("Je_16_ProtectedAccess_StaticField_Sub_DeclaredInSub");
         hacks.add("Je_5_AmbiguousInvoke_LocalInOwnInitializer");
         hacks.add("Je_5_AmbiguousName_DefaultPackageNotVisible");
         hacks.add("Je_5_AmbiguousName_FieldVsType_Initializer");
         hacks.add("Je_5_AmbiguousName_SamePackageAndClassName");
-        hacks.add("Je_5_ForwardReference_MethodCall");
-        hacks.add("Je_6_ProtectedAccess_ClassCreation_Sub");
+        //hacks.add("Je_5_ForwardReference_MethodCall");
+        /*hacks.add("Je_6_ProtectedAccess_ClassCreation_Sub");
         hacks.add("Je_6_ProtectedAccess_ClassCreation_Super");
         hacks.add("Je_6_ProtectedAccess_Constructor");
         hacks.add("Je_6_ProtectedAccess_External");
+        hacks.add("Je_5_AmbiguousName_LinkToFirstFound");
         hacks.add("Je_6_ProtectedAccess_InstanceField_NoRelation_External");
         hacks.add("Je_6_ProtectedAccess_InstanceField_NoRelation_Internal");
         hacks.add("Je_6_ProtectedAccess_InstanceField_SubDeclare_SubVar");
@@ -41,9 +42,9 @@ public class EnvironmentBuilder {
         hacks.add("Je_6_ProtectedAccess_SuperConstructor_NewExp");
         hacks.add("Je_6_ProtectedAccess_TwoSubtypes");
         hacks.add("Je_6_ProtectedAccess_WriteField_OutsidePackage_NotBySubclass");
-        hacks.add("Je_6_ProtectedAccess_WriteField_OutsidePackage_NotInSubclass");
-        hacks.add("Je_6_StaticAccessToNontatic_Field.java");
-        hacks.add("Je_6_StaticThis_NonStaticField_ImplicitThis");
+        hacks.add("Je_6_ProtectedAccess_WriteField_OutsidePackage_NotInSubclass");*/
+        //hacks.add("Je_6_StaticAccessToNontatic_Field.java");
+        //hacks.add("Je_6_StaticThis_NonStaticField_ImplicitThis");
         foo(fileNames, hacks);
         RootEnvironment env = new RootEnvironment();
         env.uploadFiles(fileNames);
@@ -69,10 +70,10 @@ public class EnvironmentBuilder {
             packageName = p.getName().getValue();
         }
         if (!env.packageScopes.containsKey(packageName)){
-            env.packageScopes.put(packageName, new ScopeEnvironment(env, env, packageName, null));
+            env.packageScopes.put(packageName, new ScopeEnvironment(env, env, packageName, null, packageName));
         }
         ScopeEnvironment packageScope = env.packageScopes.get(packageName);
-        ScopeEnvironment compliationScope = new ScopeEnvironment(packageScope, env, packageName, null);
+        ScopeEnvironment compliationScope = new ScopeEnvironment(packageScope, env, packageName, null, packageName);
         packageScope.localDecls.put(packageName+".CompliationUnit"+c.hashCode(), c);
         packageScope.childScopes.put(c, compliationScope);
         TypeDecls typeDecls = c.getTypeDecls();
@@ -106,7 +107,7 @@ public class EnvironmentBuilder {
             env.localDecls.put(qualifiedClassName, classDecl);
             env.simpleNameSet.add(classDecl.getName()); // add simple name to check dup
             // add scope
-            env.childScopes.put(classDecl, new ScopeEnvironment(env, env.root, qualifiedClassName, typeDecl));
+            env.childScopes.put(classDecl, new ScopeEnvironment(env, env.root, qualifiedClassName, typeDecl, env.packageName));
             processClassMemberDecls(env.childScopes.get(classDecl), classDecl.getClassBodyDecls());
         }   else if (typeDecl instanceof InterfaceDecl){
             InterfaceDecl interfaceDecl = (InterfaceDecl)typeDecl;
@@ -116,7 +117,7 @@ public class EnvironmentBuilder {
                 throw new SemanticError("Interface " + qualifiedInterfaceName + " has already been defined");
             }
             env.localDecls.put(qualifiedInterfaceName, interfaceDecl);
-            env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName, typeDecl));
+            env.childScopes.put(interfaceDecl, new ScopeEnvironment(env, env.root, qualifiedInterfaceName, typeDecl, env.packageName));
             env.simpleNameSet.add(interfaceDecl.getName());
             InterfaceMemberDecls interfaceMemberDecls= interfaceDecl.getInterfaceBody().getInterfaceMemberDecls();
             processInterfaceMemberDecls(env.childScopes.get(interfaceDecl), interfaceMemberDecls);
@@ -144,7 +145,7 @@ public class EnvironmentBuilder {
             abstractMethodList.add(abstractMethodDecl);
             env.localDecls.put(methodName, abstractMethodList);
         }
-        env.childScopes.put(abstractMethodDecl, new ScopeEnvironment(env, env.root, "", env.typeDecl));
+        env.childScopes.put(abstractMethodDecl, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
         processParameters(env.childScopes.get(abstractMethodDecl),methodDeclarator.getParameterList());
     }
 
@@ -181,7 +182,7 @@ public class EnvironmentBuilder {
                 methods.add(cd);
                 env.localDecls.put(constructorName, methods);
             }
-            env.childScopes.put(cd, new ScopeEnvironment(env, env.root, "", env.typeDecl));
+            env.childScopes.put(cd, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
             processParameters(env.childScopes.get(cd), cd.getConstructorDeclarator().getParameterList());   // resolve param names
             processBlockStmts(env.childScopes.get(cd), cd.getConstructorBody().getBlockStmts());    // resolve local decls
         }   else if (classBodyDecl instanceof FieldDecl){   // field decl
@@ -204,7 +205,7 @@ public class EnvironmentBuilder {
                 methods.add(md);
                 env.localDecls.put(qualifiedMethodName, methods);
             }
-            env.childScopes.put(md, new ScopeEnvironment(env, env.root, "", env.typeDecl));
+            env.childScopes.put(md, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
             processMethodHeader(env.childScopes.get(md), md.getMethodHeader());
             processMethodBody(env.childScopes.get(md), md.getMethodBody());
         }
@@ -279,7 +280,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processBlock(ScopeEnvironment env, Block block) throws SemanticError{
-        env.childScopes.put(block, new ScopeEnvironment(env, env.root, "", env.typeDecl));
+        env.childScopes.put(block, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
         if (block == null) return;
         BlockStmts blockStmts = block.getBlockStmts();
         processBlockStmts(env.childScopes.get(block), blockStmts);
@@ -315,7 +316,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processForStmt(ScopeEnvironment env, ForStmt forStmt) throws SemanticError{
-        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl));
+        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
         ScopeEnvironment newScope = env.childScopes.get(forStmt);
         ForInit forInit = forStmt.getForInit();
         VarDeclarator varDeclarator = forInit.getVarDeclarator();
@@ -328,7 +329,7 @@ public class EnvironmentBuilder {
     }
 
     public static void processForStmtNotIf(ScopeEnvironment env, ForStmtNotIf forStmt) throws SemanticError{
-        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl));
+        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
         ScopeEnvironment newScope = env.childScopes.get(forStmt);
         ForInit forInit = forStmt.getForInit();
         VarDeclarator varDeclarator = forInit.getVarDeclarator();

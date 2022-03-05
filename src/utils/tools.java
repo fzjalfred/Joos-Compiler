@@ -148,4 +148,13 @@ public class tools {
     public static NumericType intType(){
         return new NumericType(empty(), "int");
     }
+
+    public static String joinList(List<String> strs, int begin , int end){
+        String res = "";
+        for (int i = begin; i < end; i++){
+            res += strs.get(i);
+            if (i != end-1) res += '.';
+        }
+        return res;
+    }
 }

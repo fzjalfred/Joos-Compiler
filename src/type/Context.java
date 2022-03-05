@@ -45,7 +45,12 @@ public class Context {
     }
 
     /** put <name, type> on top of frames */
+    public Pair<ContextFrame, ContextFrame> peek(){
+        return frames.peek();
+    }
+
     public void put(String name, Referenceable type){
+
         frames.peek().first.put(name, type);
     }
 
@@ -75,10 +80,8 @@ public class Context {
 
     /** get the type of the name of closet context frame  */
     public Referenceable get(String name){
-        Iterator<Pair<ContextFrame, ContextFrame>> it = frames.iterator();
-        Referenceable res = null;
-        while (it.hasNext()){
-            res = it.next().first.get(name);
+        for (int i = frames.size()-1; i >= 0; i--){
+            Referenceable res = frames.get(i).first.get(name);
             if (res != null) return res;
         }
         return null;

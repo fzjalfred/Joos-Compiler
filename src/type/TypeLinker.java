@@ -110,7 +110,7 @@ public class TypeLinker {
         for (String packageName : relatedPackages){
             ScopeEnvironment packageScope = env.packageScopes.get(packageName);
             if (!existTypeOnDemand(scope, packageNameStr)){
-                scope.childScopes.put(typeImportOndemandDecl, new ScopeEnvironment(scope, env, scope.prefix, scope.typeDecl));
+                scope.childScopes.put(typeImportOndemandDecl, new ScopeEnvironment(scope, env, scope.prefix, scope.typeDecl, scope.packageName));
             }
             ScopeEnvironment targetScope = scope.childScopes.get(typeImportOndemandDecl);
             addAllSelfTypeDecls(targetScope, packageScope, scope.localDecls);   // add all self class or interface decls from package scope to import scope
@@ -158,7 +158,7 @@ public class TypeLinker {
     static void processEmptyPackage(RootEnvironment env, ScopeEnvironment scopeEnvironment) {
         assert env.packageScopes.containsKey("");
         ScopeEnvironment packageScope = env.packageScopes.get("");
-        ScopeEnvironment targetScope = new ScopeEnvironment(packageScope, env, packageScope.prefix, null);
+        ScopeEnvironment targetScope = new ScopeEnvironment(packageScope, env, packageScope.prefix, null, "");
         scopeEnvironment.childScopes.put(new PackageDecl(new ArrayList<>(), ""), targetScope);
         addAllSelfTypeDecls(targetScope, packageScope, scopeEnvironment.localDecls);
     }
@@ -170,7 +170,7 @@ public class TypeLinker {
         ScopeEnvironment scope = env.ASTNodeToScopes.get(packageDecl);
         checkPrefixNotType(env, names, false, scope);
 
-        scope.childScopes.put(packageDecl, new ScopeEnvironment(scope, env,"", scope.typeDecl)); // create a new scope for package classes
+        scope.childScopes.put(packageDecl, new ScopeEnvironment(scope, env,"", scope.typeDecl, scope.packageName)); // create a new scope for package classes
         ScopeEnvironment packageScope = env.packageScopes.get(packageDecl.getName().getValue());
         addAllSelfTypeDecls(scope.childScopes.get(packageDecl), packageScope, scope.localDecls);
     }

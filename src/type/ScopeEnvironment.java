@@ -198,8 +198,9 @@ public class ScopeEnvironment extends Environment{
     public String prefix;
     public boolean isLocalDecl;
     public TypeDecl typeDecl;
+    public String packageName = "";
 
-    public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix, TypeDecl typeDecl){
+    public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix, TypeDecl typeDecl, String packageName){
         this.parent = parent;
         this.root = root;
         this.localDecls = new HashMap<String, Referenceable>();
@@ -208,6 +209,7 @@ public class ScopeEnvironment extends Environment{
         this.prefix = prefix;
         this.isLocalDecl = false;
         this.typeDecl = typeDecl;
+        this.packageName = packageName;
     }
 
     @Override
