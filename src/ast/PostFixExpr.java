@@ -4,7 +4,10 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class PostFixExpr extends UnaryExprNotPlusMinus {
+public class PostFixExpr extends UnaryExprNotPlusMinus{
+
+    public Referenceable refer;
+
     public PostFixExpr(List<ASTNode> children, String value){
         super(children, value);
     }

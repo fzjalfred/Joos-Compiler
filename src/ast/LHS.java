@@ -4,7 +4,8 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class LHS extends Expr {
+public class LHS extends Expr{
+    public Referenceable refer = null;
     public boolean isAssignable = true;
 
     public LHS(List<ASTNode> children, String value){

@@ -157,4 +157,8 @@ public class tools {
         }
         return res;
     }
+
+    public static FieldDecl arrayLen(){
+        return new FieldDecl(empty(), "length");
+    }
 }

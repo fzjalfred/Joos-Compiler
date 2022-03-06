@@ -61,14 +61,13 @@ public class RootEnvironment extends Environment{
         List<String> names = name.getFullName();
         String nameStr = "";
         Referenceable res = null;
-        res = lookupStr("", name); // lookup empty package
-        if (res != null) return res;
         for (String s : names){
             nameStr = nameStr + s;
             res = lookupStr(nameStr, name);
             if (res != null) return res;
             nameStr = nameStr + '.';
         }
+        res = lookupStr("", name); // lookup empty package
         return null;
     }
 
@@ -85,14 +84,14 @@ public class RootEnvironment extends Environment{
     public Pair<Referenceable, ScopeEnvironment> lookupNameAndEnv(Name name) {
         List<String> names = name.getFullName();
         String nameStr = "";
-        Pair<Referenceable, ScopeEnvironment> res = lookupStrEnv("", name); // lookup empty package
-        if (res.first() != null) return res;
+        Pair<Referenceable, ScopeEnvironment> res = null;
         for (String s : names){
             nameStr = nameStr + s;
             res = lookupStrEnv(nameStr,name);
             if (res.first() != null) return res;
             nameStr = nameStr + '.';
         }
+        res = lookupStrEnv("", name); // lookup empty package
         return new Pair<Referenceable, ScopeEnvironment>(null, null);
     }
 

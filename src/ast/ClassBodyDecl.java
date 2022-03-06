@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ClassBodyDecl extends ASTNode {
+public abstract class ClassBodyDecl extends ASTNode {
     public ClassBodyDecl(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -16,4 +16,6 @@ public class ClassBodyDecl extends ASTNode {
         }
         v.visit(this);
     }
+
+    public abstract Modifiers getModifiers();
 }

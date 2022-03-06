@@ -18,10 +18,10 @@ public class EnvironmentBuilder {
     public static RootEnvironment buildRoot(String [] fileNames) throws Exception, Error, SemanticError{
         List<String> hacks = new ArrayList<String>();
         //hacks.add("Je_16_ProtectedAccess_StaticField_Sub_DeclaredInSub");
-        hacks.add("Je_5_AmbiguousInvoke_LocalInOwnInitializer");
-        hacks.add("Je_5_AmbiguousName_DefaultPackageNotVisible");
-        hacks.add("Je_5_AmbiguousName_FieldVsType_Initializer");
-        hacks.add("Je_5_AmbiguousName_SamePackageAndClassName");
+        //hacks.add("Je_5_AmbiguousInvoke_LocalInOwnInitializer");
+        //hacks.add("Je_5_AmbiguousName_DefaultPackageNotVisible");
+        //hacks.add("Je_5_AmbiguousName_FieldVsType_Initializer");
+        //hacks.add("Je_5_AmbiguousName_SamePackageAndClassName");
         //hacks.add("Je_5_ForwardReference_MethodCall");
         /*hacks.add("Je_6_ProtectedAccess_ClassCreation_Sub");
         hacks.add("Je_6_ProtectedAccess_ClassCreation_Super");
@@ -45,7 +45,7 @@ public class EnvironmentBuilder {
         hacks.add("Je_6_ProtectedAccess_WriteField_OutsidePackage_NotInSubclass");*/
         //hacks.add("Je_6_StaticAccessToNontatic_Field.java");
         //hacks.add("Je_6_StaticThis_NonStaticField_ImplicitThis");
-        foo(fileNames, hacks);
+        //foo(fileNames, hacks);
         RootEnvironment env = new RootEnvironment();
         env.uploadFiles(fileNames);
         List<CompilationUnit> nodes = env.compilationUnits;

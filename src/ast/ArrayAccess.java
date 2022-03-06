@@ -5,6 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class ArrayAccess extends PrimaryNoArray {
+    public Referenceable refer = null;
     public ArrayAccess(List<ASTNode> children, String value){
         super(children, value);
     }

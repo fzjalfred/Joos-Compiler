@@ -30,12 +30,11 @@ public class Context {
         }
     }
     /** first denotes field frame; second denotes method frame */
-    private Stack<Pair<ContextFrame, ContextFrame>> frames;
+    private Stack<ContextFrame> frames;
 
     /** put empty context frame on top of frames */
     public void entry(String name){
-        Pair<ContextFrame, ContextFrame> frame = new Pair<ContextFrame,ContextFrame>(new ContextFrame(name), new ContextFrame(name));
-        frames.push(frame);
+        frames.push(new ContextFrame(name));
     }
 
     /** pop top of the frame */
@@ -45,53 +44,20 @@ public class Context {
     }
 
     /** put <name, type> on top of frames */
-    public Pair<ContextFrame, ContextFrame> peek(){
+    public ContextFrame peek(){
         return frames.peek();
     }
 
     public void put(String name, Referenceable type){
 
-        frames.peek().first.put(name, type);
+        frames.peek().put(name, type);
     }
 
-    public void put(String name, MethodDecl methodDecl){
-        Referenceable methods = getMethods(name);
-        if (methods == null){
-            MethodList methodList = new MethodList(name);
-            methodList.add(methodDecl);
-            frames.peek().second.put(name, methodList);
-        }   else if (methods instanceof MethodList) {
-            MethodList methodList = (MethodList)methods;
-            methodList.add(methodDecl);
-        }
-    }
-
-    public void put(String name, AbstractMethodDecl methodDecl){
-        Referenceable methods = get(name);
-        if (methods == null){
-            AbstractMethodList methodList = new AbstractMethodList(name);
-            methodList.add(methodDecl);
-            frames.peek().second.put(name, methodList);
-        }   else if (methods instanceof AbstractMethodList) {
-            AbstractMethodList methodList = (AbstractMethodList)methods;
-            methodList.add(methodDecl);
-        }
-    }
 
     /** get the type of the name of closet context frame  */
     public Referenceable get(String name){
         for (int i = frames.size()-1; i >= 0; i--){
-            Referenceable res = frames.get(i).first.get(name);
-            if (res != null) return res;
-        }
-        return null;
-    }
-
-    public Referenceable getMethods(String name){
-        Iterator<Pair<ContextFrame, ContextFrame>> it = frames.iterator();
-        Referenceable res = null;
-        while (it.hasNext()){
-            res = it.next().second.get(name);
+            Referenceable res = frames.get(i).get(name);
             if (res != null) return res;
         }
         return null;
@@ -108,7 +74,7 @@ public class Context {
     }
 
     public Context(){
-        frames = new Stack<Pair<ContextFrame, ContextFrame>>();
+        frames = new Stack<ContextFrame>();
     }
 
     @Override

@@ -203,7 +203,7 @@ public class ScopeEnvironment extends Environment{
     public ScopeEnvironment(Environment parent, RootEnvironment root, String prefix, TypeDecl typeDecl, String packageName){
         this.parent = parent;
         this.root = root;
-        this.localDecls = new HashMap<String, Referenceable>();
+        this.localDecls = new HashMap<String, Referenceable>(); // local decls for fields && imports
         this.childScopes = new HashMap<ASTNode, ScopeEnvironment>();
         this.simpleNameSet = new HashSet<String>();
         this.prefix = prefix;

@@ -77,6 +77,11 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
     }
 
 
+    @Override
+    public Modifiers getModifiers() {
+        return getMethodHeader().getModifiers();
+    }
+
     private void acceptMain(Visitor v){
         v.visit(this);
         for (ASTNode node: children){

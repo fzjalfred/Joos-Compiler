@@ -161,6 +161,11 @@ public class TypeCheckVisitor extends Visitor{
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                 if (containMap.containsKey(str)){
                     FieldDecl  field = tools.fetchField(containMap.get(str));
+                    if (isObject &&  checkObjectStatic(field)){
+                        throw new SemanticError("cannot read static field on Object " + field.getFirstVarName());
+                    }   else if (!isObject && !checkStaticUse(field)){
+                        throw new SemanticError("cannot use non-static field " + field.getFirstVarName() + " in static method");
+                    }
                     if (field != null){
                         isObject = true;
                         checkProtected(field, classType.typeDecl);
@@ -175,6 +180,8 @@ public class TypeCheckVisitor extends Visitor{
         } // for
         return resMethod;
     }
+
+
     /** helpers */
     private Referenceable findStaticMethod(ScopeEnvironment scopeEnvironment, Name name, List<Type> types){
         Referenceable res = env.lookup(name);
@@ -206,36 +213,114 @@ public class TypeCheckVisitor extends Visitor{
         return null;
     }
 
-    private FieldDecl findStaticField(ScopeEnvironment scopeEnvironment, Name name){
+    private Referenceable fetchMethodOrAbsMethod(List<ASTNode> refers, List<Type> types){
+        Referenceable res = null;
+        res = tools.fetchMethod(refers, types);
+        if (res == null) res = tools.fetchAbstractMethod(refers, types);
+        return res;
+    }
+
+    private Referenceable checkStaticMethodUse(Referenceable refer, TypeDecl typeDecl){
+        //TODO
+        if (refer instanceof MethodDecl) {
+            MethodDecl methodDecl = (MethodDecl)refer;
+            if (methodDecl != null && (tools.checkStatic(methodDecl.getModifiers()) || (typeDecl == currTypeDecl && checkStaticUse(refer)))) return refer;
+        }
+        if (refer instanceof AbstractMethodDecl) {
+            AbstractMethodDecl methodDecl = (AbstractMethodDecl)refer;
+            if (methodDecl != null && (tools.checkStatic(methodDecl.getModifiers()) || (typeDecl == currTypeDecl && checkStaticUse(refer)))) return refer;
+        }
+        return null;
+    }
+
+    private Referenceable findStaticMethodfix(ScopeEnvironment scopeEnvironment, Name name, List<Type> types){
+        //System.out.println(name.getValue());
         List<String> nameStrs = name.getFullName();
         Token classSimpleName = tools.simpleNameConstructor(nameStrs.get(0));
-        if (context.get(classSimpleName.value) != null){
-            return null;
+        if (scopeEnvironment.lookupTypeDecl(classSimpleName) != null) return null;
+        if (context.get(classSimpleName.value) != null) return null;
+        Referenceable res = null;
+
+        if (name.children.size() == 2){
+
+            res = scopeEnvironment.lookupTypeDecl(classSimpleName);
+            if (res != null){
+                TypeDecl typeDecl = (TypeDecl)res;
+                Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
+                Referenceable methodDecl = fetchMethodOrAbsMethod(contain.get(nameStrs.get(1)), types);
+                methodDecl = checkStaticMethodUse(methodDecl, typeDecl);
+                checkProtected(methodDecl, null);
+                if (methodDecl!=null) return methodDecl;
+                //TODO
+                throw new SemanticError(name.getValue() + "is non static");
+            }
+            throw new SemanticError("cannot resolve " + name.getValue() );
         }
-        Referenceable res = env.lookup(name);
-        //System.out.println(name.getValue() + " has type " + res);
-        if (res instanceof FieldDecl){
-            TypeDecl typeDecl = env.ASTNodeToScopes.get(res).typeDecl;
-            if (res != null && (tools.checkStatic(((FieldDecl)res).getModifiers()) || (typeDecl == currTypeDecl && checkStaticUse(res))) ){
-                return (FieldDecl) res;
-            }   else throw new SemanticError(name.getValue() + "is non static");
-        }   else if (name.children.size() == 2){
+        if (name.children.size() > 2){
+            String method = nameStrs.get(nameStrs.size()-1);
+            Name qualifiedName = tools.nameConstructor(tools.joinList(nameStrs, 0, nameStrs.size()-1));
+            res = env.lookup(qualifiedName);
+            //System.out.println(res);
+            if (res != null && res instanceof TypeDecl){
+                TypeDecl typeDecl = (TypeDecl)res;
+                Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
+                Referenceable methodDecl = fetchMethodOrAbsMethod(contain.get(method), types);
+                methodDecl = checkStaticMethodUse(methodDecl, typeDecl);
+                checkProtected(methodDecl, null);
+                if (methodDecl!=null) return methodDecl;
+                throw new SemanticError(name.getValue() + "is non static");
+            }   /*else if (res != null && res instanceof FieldDecl){
+                //System.out.println(qualifiedName.getValue());
+                FieldDecl fieldDecl = (FieldDecl)res;
+                if (tools.checkStatic(fieldDecl.getModifiers())){
+                    TypeDecl typeDecl = env.ASTNodeToScopes.get(fieldDecl).typeDecl;
+                    Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
+                    Referenceable methodDecl = fetchMethodOrAbsMethod(contain.get(method), types);
+                    if (methodDecl instanceof MethodDecl){
+                        MethodDecl methodDecl1 = (MethodDecl)methodDecl;
+                        if (tools.checkStatic(methodDecl1.getModifiers())) throw new SemanticError("cannot call static method: " + methodDecl1.getName() + " on instance " + qualifiedName.getValue());
+                    }   else if (methodDecl instanceof AbstractMethodDecl){
+                        AbstractMethodDecl methodDecl1 = (AbstractMethodDecl)methodDecl;
+                        if (tools.checkStatic(methodDecl1.getModifiers())) throw new SemanticError("cannot call static abstract method: " + methodDecl1.getName() + " on instance " + qualifiedName.getValue());
+                    }
+                    checkProtected(methodDecl, typeDecl);
+                    return methodDecl;
+                }   else {
+                    throw new SemanticError(qualifiedName.getValue() + " is non static in " + name.getValue());
+                }
+            }*/
+        }
+        return null;
+    }
+
+    private FieldDecl findStaticField(ScopeEnvironment scopeEnvironment, Name name){
+        //System.out.println(name.getValue());
+        List<String> nameStrs = name.getFullName();
+        Token classSimpleName = tools.simpleNameConstructor(nameStrs.get(0));
+        if (scopeEnvironment.lookupTypeDecl(classSimpleName) != null) return null;
+        if (context.get(classSimpleName.value) != null) return null;
+        Referenceable res = null;
+        if (name.children.size() == 2){
             res = scopeEnvironment.lookupTypeDecl(classSimpleName);
             if (res != null){
                 TypeDecl typeDecl = (TypeDecl)res;
                 Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
                 FieldDecl fieldDecl = tools.fetchField(contain.get(nameStrs.get(1)));
+                checkProtected(fieldDecl, null);
                 if (fieldDecl != null && (tools.checkStatic(fieldDecl.getModifiers()) || (typeDecl == currTypeDecl && checkStaticUse(fieldDecl)))) return fieldDecl;
                 else throw new SemanticError(name.getValue() + "is non static");
             }
-        }   else if (name.children.size() > 2){
+            throw new SemanticError("cannot resolve " + name.getValue() );
+        }
+        if (name.children.size() > 2){
             String field = nameStrs.get(nameStrs.size()-1);
             Name qualifiedName = tools.nameConstructor(tools.joinList(nameStrs, 0, nameStrs.size()-1));
             res = env.lookup(qualifiedName);
-            if (res instanceof TypeDecl){
+            if (res != null && res instanceof TypeDecl){
                 TypeDecl typeDecl = (TypeDecl)res;
                 Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
                 FieldDecl fieldDecl = tools.fetchField(contain.get(field));
+                checkProtected(fieldDecl, null);
                 if (fieldDecl != null && (tools.checkStatic(fieldDecl.getModifiers()) || (typeDecl == currTypeDecl && checkStaticUse(fieldDecl)))) return fieldDecl;
                 else throw new SemanticError(name.getValue() + "is non static");
             }
@@ -246,7 +331,8 @@ public class TypeCheckVisitor extends Visitor{
     private void disAmbiguousNameField(Name name, Expr node, Map<String, List<ASTNode>> containMap){
         /** first check whether it's static */
         ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(node);
-        FieldDecl res = findStaticField(scopeEnvironment, name);
+        Referenceable res = findStaticField(scopeEnvironment, name);
+        boolean isObject = true;
         if (res != null) {
             checkProtected(res, null);
             node.type = res.getType();
@@ -257,7 +343,6 @@ public class TypeCheckVisitor extends Visitor{
         List<String> names = name.getFullName();
         String nameStr = "";
         Type currType = null;
-
         int idx = 0;
         for (;idx < names.size();idx++){
             String str = names.get(idx);
@@ -265,8 +350,10 @@ public class TypeCheckVisitor extends Visitor{
             Referenceable currRes = context.get(nameStr);
             //tools.println("look up field" + nameStr + " get " + currType, DebugID.zhenyan);
             if (currRes != null) {
+
                 currType = currRes.getType();
                 checkProtected(currRes, null);
+                res = currRes;
                 /** check static field access*/
                 //System.out.println(nameStr + " has decl "  + context.get(nameStr) + " scope find " + scopeEnvironment.lookup(tools.simpleNameConstructor(nameStr)));
                 if (!checkStaticUse(currRes)) throw new SemanticError("Cannot use non-static field " + nameStr + " in static class member decl");
@@ -279,18 +366,32 @@ public class TypeCheckVisitor extends Visitor{
                 if (field != null){
                     checkProtected(field, null);
                     currType = field.getType();
+                    res = field;
+                    break;
+                }
+            }
+            // check first simple name
+            if (idx == 0){
+                Token simpleName = tools.simpleNameConstructor(str);
+                Referenceable refer = scopeEnvironment.lookupTypeDecl(simpleName);
+
+                if (refer != null && refer instanceof TypeDecl){
+                    currType = tools.getClassType(str, (TypeDecl)refer);
+                    isObject = false;
                     break;
                 }
             }
 
+
             // third check static field, which is env lookup: A.B.C
             Referenceable nameRefer = env.lookup(tools.nameConstructor(nameStr));
-            if (nameRefer instanceof FieldDecl){
+            if (nameRefer != null && nameRefer instanceof FieldDecl){
                 TypeDecl typeDecl = env.ASTNodeToScopes.get(nameRefer).typeDecl;
                 checkProtected(nameRefer, typeDecl);
                 if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
                 FieldDecl field = (FieldDecl)nameRefer;
                 currType = field.getType();
+                res = field;
                 break;
             }
             nameStr += '.';
@@ -307,6 +408,7 @@ public class TypeCheckVisitor extends Visitor{
                 nameStr += str;
                 currType = new NumericType(tools.empty(), "int");
                 nameStr += '.';
+                res = tools.arrayLen();
                 if (node instanceof LHS) {
                     ((LHS)node).isAssignable = false;
                 }
@@ -316,13 +418,16 @@ public class TypeCheckVisitor extends Visitor{
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                 if (containMap.containsKey(str)){
                     FieldDecl  field = tools.fetchField(containMap.get(str));
-                    if (checkObjectStatic(field)){
+                    if (isObject &&  checkObjectStatic(field)){
                         throw new SemanticError("cannot read static field on Object " + field.getFirstVarName());
+                    }   else if (!isObject && !checkStaticUse(field)){
+                        throw new SemanticError("cannot use non-static field " + field.getFirstVarName() + " in static method");
                     }
                     if (field != null){
-
                         checkProtected(field, classType.typeDecl);
+                        isObject = true;
                         nameStr += str;
+                        res = field;
                         currType = field.getType();
                         nameStr += '.';
                         continue;
@@ -334,9 +439,11 @@ public class TypeCheckVisitor extends Visitor{
             } // if
         } // for
 
-        if (currType!= null){
+        if (res!= null){
             node.type = currType;
-            //tools.println("assign " + currType + " to " + node.getName().getValue(), DebugID.zhenyan);
+            if (node instanceof PostFixExpr) ((PostFixExpr)node).refer = res;
+            if (node instanceof LHS) ((LHS)node).refer = res;
+            if (node instanceof ArrayAccess) ((ArrayAccess)node).refer = res;
         }   else {
             throw new SemanticError(nameStr + " cannot be resolved to type");
         }
@@ -867,7 +974,6 @@ public class TypeCheckVisitor extends Visitor{
                 
             }
         }
-        context.put(class_name, (Referenceable)node);
 
     }
 
@@ -926,17 +1032,7 @@ public class TypeCheckVisitor extends Visitor{
     public void visit(LocalVarDecl node) {
         String var = node.getVarDeclarators().getFirstName();
         context.put(var, node);
-
-        // check t1 = t2
-        VarDeclarator dec = (VarDeclarator)node.getVarDeclarators().children.get(0);
-        Type t1 = node.getType();
-        if (dec.children.size() == 2) {
-            Type t2 = dec.getExpr().type;
-            if (!isAssignable(t1, t2, env)) {
-                throw new SemanticError("Invalid Assignment use between " + var +":"+t1 + " and " +dec.getExpr()+":"+ t2);
-            }
-        }
-        
+        fieldType = node.getType();
     }
 
     @Override
@@ -951,9 +1047,6 @@ public class TypeCheckVisitor extends Visitor{
         /** update return value*/
         this.returnType = node.getMethodHeader().getType();
         this.classBodyDecl = node;
-        /** add method to context */
-        context.put(node.getName(), node);
-        tools.println("put " + node.getName(),DebugID.zhenyan  );
     }
 
     @Override
@@ -1084,7 +1177,7 @@ public class TypeCheckVisitor extends Visitor{
             Map<String, List<ASTNode>> declareMap = hierarchyChecker.declareMapRe.get(currTypeDecl);
             Name methodName = node.getName();
             //ambiguousNameBaseCase(methodName.getFullName(), declareMap);
-            resMethod = findStaticMethod(env.ASTNodeToScopes.get(node), node.getName(), node.getArgumentTypeList());
+            resMethod = findStaticMethodfix(env.ASTNodeToScopes.get(node), node.getName(), node.getArgumentTypeList());
             if (resMethod!= null){
                 node.type = resMethod.getType();
                 node.whichMethod = (Callable)resMethod;
@@ -1123,9 +1216,20 @@ public class TypeCheckVisitor extends Visitor{
                             break;
                         }
                     }
+
+                    if (idx == 0){
+                        Token simpleName = tools.simpleNameConstructor(str);
+                        ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(node);
+                        Referenceable refer = scopeEnvironment.lookupTypeDecl(simpleName);
+                       // System.out.println(str + " has type " + refer);
+                        if (refer != null && refer instanceof TypeDecl){
+                            currType = tools.getClassType(str, (TypeDecl)refer);
+                            break;
+                        }
+                    }
                     // third check static field, which is env lookup: A.B.C
                     Referenceable nameRefer = env.lookup(tools.nameConstructor(nameStr));
-                    if (nameRefer instanceof FieldDecl){
+                    if (nameRefer != null && nameRefer instanceof FieldDecl){
                         isObject = true;
                         if (!tools.checkStatic(((FieldDecl) nameRefer).getModifiers())) throw new SemanticError(nameStr + " is non static");
                         FieldDecl field = (FieldDecl)nameRefer;
@@ -1133,9 +1237,8 @@ public class TypeCheckVisitor extends Visitor{
                         checkProtected(field, typeDecl);
                         currType = field.getType();
                         break;
-                    }   else if (nameRefer instanceof ClassDecl){
-                        ClassDecl classDecl = (ClassDecl)nameRefer;
-                        currType = tools.getClassType(nameStr, classDecl);
+                    }   else if (nameRefer != null && nameRefer instanceof TypeDecl){
+                        currType = tools.getClassType(nameStr, (TypeDecl)nameRefer);
                         break;
                     }
                     nameStr += '.';
