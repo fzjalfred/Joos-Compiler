@@ -36,10 +36,8 @@ public abstract class Visitor {
     public void visit(FieldAccess node){}
     public void visit(ForInit node){}
     public void visit(ForStmt node){}
-    public void visit(ForStmtNotIf node){}
     public void visit(ForUpdate node){}
     public void visit(IfThenElseStmt node){}
-    public void visit(IfThenElseStmtNotIf node){}
     public void visit(IfThenStmt node){}
     public void visit(ImportDecl node){}
     public void visit(ImportDecls node){}
@@ -79,7 +77,6 @@ public abstract class Visitor {
     public void visit(Stmt node){}
     public void visit(StmtExpr node){}
     public void visit(StmtExprList node){}
-    public void visit(StmtNotIf node){}
     public void visit(StmtWithoutSubstmt node){}
     public void visit(Super node){}
     public void visit(Type node){}
@@ -92,7 +89,6 @@ public abstract class Visitor {
     public void visit(VarDeclaratorID node){}
     public void visit(VarDeclarators node){}
     public void visit(WhileStmt node){}
-    public void visit(WhileStmtNotIf node){}
     public void visit(CompilationUnit node){}
     public void visit(ClassDecl node){}
     public void visit(ClassBodyDecl node){}

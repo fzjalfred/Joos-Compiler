@@ -17,35 +17,6 @@ public class EnvironmentBuilder {
 
     public static RootEnvironment buildRoot(String [] fileNames) throws Exception, Error, SemanticError{
         List<String> hacks = new ArrayList<String>();
-        //hacks.add("Je_16_ProtectedAccess_StaticField_Sub_DeclaredInSub");
-        //hacks.add("Je_5_AmbiguousInvoke_LocalInOwnInitializer");
-        //hacks.add("Je_5_AmbiguousName_DefaultPackageNotVisible");
-        //hacks.add("Je_5_AmbiguousName_FieldVsType_Initializer");
-        //hacks.add("Je_5_AmbiguousName_SamePackageAndClassName");
-        //hacks.add("Je_5_ForwardReference_MethodCall");
-        /*hacks.add("Je_6_ProtectedAccess_ClassCreation_Sub");
-        hacks.add("Je_6_ProtectedAccess_ClassCreation_Super");
-        hacks.add("Je_6_ProtectedAccess_Constructor");
-        hacks.add("Je_6_ProtectedAccess_External");
-        hacks.add("Je_5_AmbiguousName_LinkToFirstFound");
-        hacks.add("Je_6_ProtectedAccess_InstanceField_NoRelation_External");
-        hacks.add("Je_6_ProtectedAccess_InstanceField_NoRelation_Internal");
-        hacks.add("Je_6_ProtectedAccess_InstanceField_SubDeclare_SubVar");
-        hacks.add("Je_6_ProtectedAccess_InstanceField_SuperVar");
-        hacks.add("Je_6_ProtectedAccess_InstanceMethod_SubDeclare_SubVar");
-        hacks.add("Je_6_ProtectedAccess_InstanceMethod_SuperVar");
-        hacks.add("Je_6_ProtectedAccess_Method_OutsidePackage_NotBySubclass");
-        hacks.add("Je_6_ProtectedAccess_Method_OutsidePackage_NotInSubclass");
-        hacks.add("Je_6_ProtectedAccess_ReadField_OutsidePackage_NotBySubclass");
-        hacks.add("Je_6_ProtectedAccess_ReadField_OutsidePackage_NotInSubclass");
-        hacks.add("Je_6_ProtectedAccess_StaticMethod_Sub_DeclaredInSub");
-        hacks.add("Je_6_ProtectedAccess_SuperConstructor_NewExp");
-        hacks.add("Je_6_ProtectedAccess_TwoSubtypes");
-        hacks.add("Je_6_ProtectedAccess_WriteField_OutsidePackage_NotBySubclass");
-        hacks.add("Je_6_ProtectedAccess_WriteField_OutsidePackage_NotInSubclass");*/
-        //hacks.add("Je_6_StaticAccessToNontatic_Field.java");
-        //hacks.add("Je_6_StaticThis_NonStaticField_ImplicitThis");
-        //foo(fileNames, hacks);
         RootEnvironment env = new RootEnvironment();
         env.uploadFiles(fileNames);
         List<CompilationUnit> nodes = env.compilationUnits;
@@ -270,12 +241,6 @@ public class EnvironmentBuilder {
             processIfThenEsleStmt(env, (IfThenElseStmt)blockStmt);
         }   else if (blockStmt instanceof WhileStmt){
             processWhileStmt(env, (WhileStmt)blockStmt);
-        }   else if (blockStmt instanceof IfThenElseStmtNotIf){
-            processIfThenElseStmtNotIf(env, (IfThenElseStmtNotIf)blockStmt);
-        }   else if (blockStmt instanceof WhileStmtNotIf){
-            processWhileStmtNotIf(env, (WhileStmtNotIf)blockStmt);
-        }   else if (blockStmt instanceof ForStmtNotIf){
-            processForStmtNotIf(env, (ForStmtNotIf)blockStmt);
         }
     }
 
@@ -291,10 +256,6 @@ public class EnvironmentBuilder {
         processBlockStmt(env, stmt);
     }
 
-    public static void processWhileStmtNotIf(ScopeEnvironment env, WhileStmtNotIf whileStmtNotIf) throws SemanticError{
-        BlockStmt stmt = whileStmtNotIf.getStmt();
-        processBlockStmt(env, stmt);
-    }
 
     public static void processIfThenStmt(ScopeEnvironment env, IfThenStmt ifThenStmt) throws SemanticError{
         BlockStmt stmt = ifThenStmt.getThenStmt();
@@ -308,12 +269,6 @@ public class EnvironmentBuilder {
         processBlockStmt(env, stmt2);
     }
 
-    public static void processIfThenElseStmtNotIf(ScopeEnvironment env, IfThenElseStmtNotIf ifThenElseStmt) throws SemanticError{
-        BlockStmt stmt1 = ifThenElseStmt.getThenStmt();
-        BlockStmt stmt2 = ifThenElseStmt.getElseStmt();
-        processBlockStmt(env, stmt1);
-        processBlockStmt(env, stmt2);
-    }
 
     public static void processForStmt(ScopeEnvironment env, ForStmt forStmt) throws SemanticError{
         env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
@@ -328,18 +283,6 @@ public class EnvironmentBuilder {
         processBlockStmt(newScope, forStmt.getBlockStmt());
     }
 
-    public static void processForStmtNotIf(ScopeEnvironment env, ForStmtNotIf forStmt) throws SemanticError{
-        env.childScopes.put(forStmt, new ScopeEnvironment(env, env.root, "", env.typeDecl, env.packageName));
-        ScopeEnvironment newScope = env.childScopes.get(forStmt);
-        ForInit forInit = forStmt.getForInit();
-        VarDeclarator varDeclarator = forInit.getVarDeclarator();
-        if (varDeclarator != null){
-            String name = varDeclarator.getName();
-            checkDupDecl(newScope, tools.simpleNameConstructor(name));
-            newScope.localDecls.put(name, forInit);
-        }
-        processBlockStmt(newScope, forStmt.getBlockStmt());
-    }
 
     public static void generateMapping(RootEnvironment env, List<CompilationUnit> nodes){
         Map<ASTNode, ScopeEnvironment> scopeMappings = new HashMap<ASTNode, ScopeEnvironment>(); //extract all mappings from root

@@ -802,23 +802,8 @@ public class TypeCheckVisitor extends Visitor{
         }
     }
 
-    public void visit(IfThenElseStmtNotIf node){
-        Expr expr = node.getExpr();
-        Type type = expr.type;
-        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
-            throw new SemanticError("if statement needs boolean: "+ expr+ ":"+type);
-        }
-    }
 
     public void visit(WhileStmt node){
-        Expr expr = node.getExpr();
-        Type type = expr.type;
-        if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {
-            throw new SemanticError("While statement needs boolean: "+ expr+ ":"+type);
-        }
-    }
-
-    public void visit(WhileStmtNotIf node){
         Expr expr = node.getExpr();
         Type type = expr.type;
         if (!(type instanceof PrimitiveType && type.getNameString().equals("boolean"))) {

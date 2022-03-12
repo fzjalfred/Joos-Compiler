@@ -548,17 +548,17 @@ non terminal    VarDeclarators                var_declarators;
 non terminal    VarDeclarator                var_declarator;
 non terminal    VarDeclaratorID                var_declarator_id;
 non terminal    Stmt                statement;
-non terminal    StmtNotIf                statement_no_short_if;
+non terminal    Stmt                statement_no_short_if;
 non terminal    StmtWithoutSubstmt                statement_without_trailing_substatement;
 non terminal    IfThenStmt                if_then_statement;
 non terminal    IfThenElseStmt                if_then_else_statement;
-non terminal    IfThenElseStmtNotIf                if_then_else_statement_no_short_if;
+non terminal    IfThenElseStmt                if_then_else_statement_no_short_if;
 non terminal    ForStmt                for_statement;
-non terminal    ForStmtNotIf                for_statement_no_short_if;
+non terminal    ForStmt               for_statement_no_short_if;
 non terminal    ForInit                for_init;
 non terminal    ForUpdate                for_update;
 non terminal    WhileStmt                while_statement;
-non terminal    WhileStmtNotIf                while_statement_no_short_if;
+non terminal    WhileStmt                while_statement_no_short_if;
 non terminal    ReturnStmt                return_statement;
 non terminal    EmptyStmt                empty_statement; //;
 
@@ -686,7 +686,7 @@ statement_without_trailing_substatement ::= block:e {:RESULT = e;:}   // single 
                                             | expression_statement:e {:RESULT = e;:}
                                             | return_statement:e {:RESULT = e;:};
 
-statement_no_short_if ::= statement_without_trailing_substatement:e {:RESULT = new StmtNotIf(list(e), "");:}
+statement_no_short_if ::= statement_without_trailing_substatement:e {:RESULT = e;:}
                         | if_then_else_statement_no_short_if:e {:RESULT = e;:}
                         | while_statement_no_short_if:e {:RESULT = e;:}
                         | for_statement_no_short_if:e {:RESULT = e;:};
@@ -706,12 +706,12 @@ if_then_statement ::= IF LEFTPARN expr:e1 RIGHTPARN statement:e2 {:RESULT = new 
 
 if_then_else_statement ::= IF LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 ELSE statement:e3 {:RESULT = new IfThenElseStmt(list(e1, e2, e3), "");:};
 
-if_then_else_statement_no_short_if ::= IF LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 ELSE statement_no_short_if:e3 {:RESULT = new IfThenElseStmtNotIf(list(e1, e2, e3), "");:};
+if_then_else_statement_no_short_if ::= IF LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 ELSE statement_no_short_if:e3 {:RESULT = new IfThenElseStmt(list(e1, e2, e3), "");:};
 
 // while statement
 while_statement ::= WHILE LEFTPARN expr:e1 RIGHTPARN statement:e2 {:RESULT = new WhileStmt(list(e1, e2), "");:};
 
-while_statement_no_short_if ::= WHILE LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 {:RESULT = new WhileStmtNotIf(list(e1, e2), "");:};
+while_statement_no_short_if ::= WHILE LEFTPARN expr:e1 RIGHTPARN statement_no_short_if:e2 {:RESULT = new WhileStmt(list(e1, e2), "");:};
 
 // for statement
 for_statement ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(null, null, null, e4), "");:}
@@ -723,14 +723,14 @@ for_statement ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement:e4 {
                 | FOR LEFTPARN  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(null, e2, e3, e4), "");:}
                 | FOR LEFTPARN for_init:e1  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement:e4 {:RESULT = new ForStmt(list(e1, e2, e3, e4), "");:};
 
-for_statement_no_short_if ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, null, null, e4), "");:}
-                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, null, null, e4), "");:}
-                | FOR LEFTPARN  SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, e2, null, e4), "");:}
-                | FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN for_update:e3  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, null, e3, e4), "");:}
-                | FOR LEFTPARN for_init:e1 SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, e2, null, e4), "");:}
-                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, null, e3, e4), "");:}
-                | FOR LEFTPARN  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(null, e2, e3, e4), "");:}
-                | FOR LEFTPARN for_init:e1  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmtNotIf(list(e1, e2, e3, e4), "");:};
+for_statement_no_short_if ::= FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(null, null, null, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(e1, null, null, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(null, e2, null, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN  SEMICOLUMN for_update:e3  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(null, null, e3, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN expr:e2  SEMICOLUMN  RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(e1, e2, null, e4), "");:}
+                | FOR LEFTPARN for_init:e1 SEMICOLUMN  SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(e1, null, e3, e4), "");:}
+                | FOR LEFTPARN  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(null, e2, e3, e4), "");:}
+                | FOR LEFTPARN for_init:e1  SEMICOLUMN expr:e2 SEMICOLUMN for_update:e3 RIGHTPARN statement_no_short_if:e4 {:RESULT = new ForStmt(list(e1, e2, e3, e4), "");:};
 
 for_init ::=  type:e1 var_declarator:e2 {:RESULT = new ForInit(list(e1, e2), "");:}
             | statement_expression:e1 {:RESULT = new ForInit(list(e1, null), "");:};
