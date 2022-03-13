@@ -17,7 +17,7 @@ lexer	:	$(FLEXS)
 
 main: $(SRCS) $(FLEXS)
 	javac -d ./build -cp ./lib/java_cup.jar  $(SRCS);
-	cd build && jar cvf ../lib/lexer.jar ./ast/*.class ./lexer/*.class ./type/*.class ./exception/*.class ./utils/*.class ./hierarchy/*.class ./visitors/*.class;
+	cd build && jar cvf ../lib/lexer.jar ./ast/*.class ./lexer/*.class ./type/*.class ./exception/*.class ./utils/*.class ./hierarchy/*.class ./visitors/*.class ./dataflowAnalysis/*.class;
 	@echo "#!/bin/sh\n\
     java -cp ./lib/lexer.jar:./lib/java_cup.jar lexer.Main \$$@" > joosc
 	chmod +x joosc

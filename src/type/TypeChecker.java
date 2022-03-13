@@ -3,11 +3,12 @@ package type;
 import ast.CompilationUnit;
 import exception.SemanticError;
 import hierarchy.HierarchyChecking;
-import visitors.TypeCheckVisitor;
+import visitors.*;
 
 public class TypeChecker {
     RootEnvironment env;
     TypeCheckVisitor visitor;
+    UnreachableStmtVisitor dataflowVisitor;
     HierarchyChecking hierarchyChecker;
     NameDisambiguation nameDisambiguation;
 
@@ -16,6 +17,7 @@ public class TypeChecker {
         this.hierarchyChecker = hierarchyChecker;
         this.nameDisambiguation = nameDisambiguation;
         visitor = new TypeCheckVisitor(env, hierarchyChecker);
+        dataflowVisitor = new UnreachableStmtVisitor();
 
     }
 
@@ -30,6 +32,7 @@ public class TypeChecker {
      * Check that the implicit this variable is not accessed in a static method or in the initializer of a static field.*/
     public void check() throws SemanticError{
         checkTypeRules();
+        checkUnreachableStmts();
         nameDisambiguation.rootEnvironmentDisambiguation(env, true);
         //TODO: extra 8 rules
     }
@@ -40,5 +43,14 @@ public class TypeChecker {
             comp.accept(visitor);
         }
         assert visitor.context.isEmpty();   // assert all frames to be popped
+    }
+
+    private void checkUnreachableStmts() throws SemanticError{
+        for (CompilationUnit comp : env.compilationUnits){
+            SemanticError.currFile = comp.fileName;
+            comp.accept(dataflowVisitor);
+        }
+
+        //System.out.println(dataflowVisitor.mapping);
     }
 }

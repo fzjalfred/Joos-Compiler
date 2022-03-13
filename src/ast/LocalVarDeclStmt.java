@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class LocalVarDeclStmt extends BlockStmt {
+public class LocalVarDeclStmt extends BlockStmt implements AtomicStmt {
     public LocalVarDeclStmt(List<ASTNode> children, String value){
         super(children, value);
     }

@@ -30,10 +30,10 @@ public class CompilationUnit extends ASTNode implements Referenceable{
 
     @Override
     public void accept(Visitor v){
+        v.visit(this);
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }
-        v.visit(this);
     }
 
     @Override

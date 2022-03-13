@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ForInit extends ASTNode implements Referenceable{
+public class ForInit extends Stmt implements Referenceable, AtomicStmt{
     public ForInit(List<ASTNode> children, String value){
         super(children, value);
     }

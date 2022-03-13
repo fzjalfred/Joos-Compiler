@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class TypeCheckVisitor extends Visitor{
+public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use Je_6_StaticAccessToNontatic_Method.java
     public Context context;
     public RootEnvironment env;
     public HierarchyChecking hierarchyChecker;
@@ -121,14 +121,6 @@ public class TypeCheckVisitor extends Visitor{
         return false;
     }
 
-    private void ambiguousNameBaseCase(List<String> names,Map<String, List<ASTNode>> declareMap){
-        /** base case: cannot use declared field */
-        if (tools.fetchField(declareMap.get(names.get(0))) != null){
-            Referenceable refer = context.get(names.get(0));
-            //System.out.println("find " + names.get(0));
-            if (refer == null && refer instanceof FieldDecl) throw new SemanticError("field " + ((FieldDecl)refer).getFirstVarName() + " has not been declared yet");
-        }
-    }
 
     private Referenceable evalMethod(Type currType, Name name, int idx, List<Type>types, boolean isObject){
         Map<String, List<ASTNode>> containMap = null;
@@ -149,9 +141,21 @@ public class TypeCheckVisitor extends Visitor{
                         resMethod = tools.fetchAbstractMethod(containMap.get(str), types);
                         if (isObject) checkProtected(resMethod, classType.typeDecl);
                         else checkProtected(resMethod, null);
-
+                        if (isObject &&  checkObjectStatic(resMethod)){
+                            throw new SemanticError("cannot read static method on Object " + classType);
+                        }   else if (!isObject && !checkStaticUse(resMethod)){
+                            throw new SemanticError("cannot use non-static method " + resMethod + " in static method");
+                        }
+                    }   else{
+                        if (isObject) checkProtected(resMethod, classType.typeDecl);
+                        else checkProtected(resMethod, null);
+                        if (isObject &&  checkObjectStatic(resMethod)){
+                            throw new SemanticError("cannot read static method on Object " + classType);
+                        }   else if (!isObject && !checkStaticUse(resMethod)){
+                            throw new SemanticError("cannot use non-static method " + resMethod + " in static method");
+                        }
                     }
-                    if (isObject && checkObjectStatic(resMethod)) throw new SemanticError("cannot use " + resMethod + " on Objects");
+
                 } // if
             }   else if (currType instanceof ArrayType && str.equals("length")){
                 currType = new NumericType(tools.empty(), "int");

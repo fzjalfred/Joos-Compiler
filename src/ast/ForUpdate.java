@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ForUpdate extends ASTNode{
+public class ForUpdate extends Stmt implements AtomicStmt{
     public ForUpdate(List<ASTNode> children, String value){
         super(children, value);
     }

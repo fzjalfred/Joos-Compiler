@@ -1,6 +1,7 @@
 package ast;
 
 import visitors.TypeCheckVisitor;
+import visitors.UnreachableStmtVisitor;
 import visitors.Visitor;
 
 import java.util.List;
@@ -41,6 +42,10 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Cal
             visitor.context.entry("Method Parameter List");
             acceptMain(v);
             visitor.context.pop();
+        }   else if (v instanceof UnreachableStmtVisitor){
+            UnreachableStmtVisitor uv = (UnreachableStmtVisitor)v;
+            acceptMain(v);
+            if (uv.currVertex != null) uv.currCFG.setEdge(uv.currVertex, uv.currCFG.END);
         }   else{
             acceptMain(v);
         }

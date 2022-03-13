@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ExprStmt extends StmtWithoutSubstmt{
+public class ExprStmt extends StmtWithoutSubstmt implements AtomicStmt{
     public ExprStmt(List<ASTNode> children, String value){
         super(children, value);
     }
