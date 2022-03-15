@@ -18,9 +18,18 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
         return (MethodHeader)children.get(0);
     }
 
+
     public MethodBody getMethodBody(){
         assert children.get(1) instanceof MethodBody;
         return (MethodBody)children.get(1);
+    }
+
+    public Boolean hasMethodBody() {
+        MethodBody methodBody = getMethodBody();
+        if (methodBody.children.get(0) != null) {
+            return true;
+        }
+        return false;
     }
 
     public String getName(){

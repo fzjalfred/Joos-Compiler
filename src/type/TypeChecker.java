@@ -1,8 +1,9 @@
 package type;
 
-import ast.CompilationUnit;
+import ast.*;
 import exception.SemanticError;
 import hierarchy.HierarchyChecking;
+import dataflowAnalysis.CFG;
 import visitors.*;
 
 public class TypeChecker {
@@ -33,6 +34,7 @@ public class TypeChecker {
     public void check() throws SemanticError{
         checkTypeRules();
         checkUnreachableStmts();
+//        checkWorkList();
         nameDisambiguation.rootEnvironmentDisambiguation(env, true);
         //TODO: extra 8 rules
     }
@@ -51,6 +53,22 @@ public class TypeChecker {
             comp.accept(dataflowVisitor);
         }
 
-        //System.out.println(dataflowVisitor.mapping);
+//        System.out.println(dataflowVisitor.mapping);
+    }
+
+    private void checkWorkList() throws SemanticError {
+        for (Referenceable ref : dataflowVisitor.mapping.keySet()) {
+            if (ref instanceof ConstructorDecl) {
+                continue;
+            } else if (ref instanceof MethodDecl) {
+                if (((MethodDecl)ref).isAbstract() || !((MethodDecl)ref).hasMethodBody()) continue;
+            } else if (ref instanceof AbstractMethodDecl) {
+                continue;
+            }
+            CFG cfg = dataflowVisitor.mapping.get(ref);
+            SemanticError.currFile = cfg.filename;
+            cfg.initWorkList();
+            cfg.runWorkList();
+        }
     }
 }

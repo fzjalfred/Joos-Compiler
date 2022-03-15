@@ -1,6 +1,7 @@
 package dataflowAnalysis;
 
 import ast.AtomicStmt;
+import ast.ReturnStmt;
 import exception.SemanticError;
 
 import java.util.*;
@@ -52,11 +53,13 @@ public class CFG {
     public Vertex START;
     public Vertex END;
     public String filename;
+    public Queue<Vertex> worklist;
 
     public CFG(String filename){
         vertices = new HashSet<Vertex>();
         START = new Vertex(null);
         END = new Vertex(null);
+        worklist = new LinkedList<>();
         vertices.add(START);
         vertices.add(END);
         this.filename = filename;
@@ -74,6 +77,53 @@ public class CFG {
         setEdge(prev, v);
         vertices.add(v);
         return v;
+    }
+
+    public void initWorkList() {
+        for (Vertex v : vertices) {
+            worklist.add(v);
+        }
+    }
+
+    public void updateVertex(Vertex vertex) {
+        if (vertex.stmt instanceof ReturnStmt) {
+            vertex.out = false;
+            return;
+        } else if (vertex == START) {
+            vertex.out = true;
+            return;
+        }
+
+        boolean flag = false;
+        for (Vertex precessor : vertex.precessors) {
+            flag = flag || precessor.out;
+        }
+        vertex.in = flag;
+        vertex.out = flag;
+    }
+
+    public void runWorkList() throws SemanticError{
+        System.out.println("new ");
+        System.out.println("start: " + START);
+        System.out.println("end: " + END);
+        while (!worklist.isEmpty()) {
+            Vertex v = worklist.remove();
+            System.out.println(v);
+            Boolean prevValue = v.out;
+            updateVertex(v);
+            if (v.out != prevValue) {
+                for (Vertex sucessor : v.successors) {
+                    if (!worklist.contains(sucessor)) {
+                        worklist.add(sucessor);
+                    }
+                }
+            }
+            System.out.println(v);
+            System.out.println("");
+        }
+        if (END.in != false) {
+            throw new SemanticError("in[END] is true");
+        }
     }
 
     @Override
