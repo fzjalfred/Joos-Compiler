@@ -18,6 +18,20 @@ public class Expr extends ASTNode {
     public boolean isBinary(){
         return  (children.size() > 1 && children.get(1) != null);
     }
+    public static class BoolStruct{
+        public boolean bool = false;
+        public BoolStruct(boolean bool){
+            this.bool = bool;
+        }
+
+        @Override
+        public String toString() {
+            return "BoolStruct{" +
+                    "bool=" + bool +
+                    '}';
+        }
+    }
+    public BoolStruct boolStruct = null;
 
     public Expr getOperatorLeft() {
         return (Expr)children.get(0);

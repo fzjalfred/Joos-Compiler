@@ -52,8 +52,7 @@ public class TypeChecker {
             SemanticError.currFile = comp.fileName;
             comp.accept(dataflowVisitor);
         }
-
-//        System.out.println(dataflowVisitor.mapping);
+        System.out.println(dataflowVisitor.mapping);
     }
 
     private void checkWorkList() throws SemanticError {
@@ -70,5 +69,8 @@ public class TypeChecker {
             cfg.initWorkList();
             cfg.runWorkList();
         }
+
+
+
     }
 }
