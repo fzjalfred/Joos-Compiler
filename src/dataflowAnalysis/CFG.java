@@ -102,13 +102,23 @@ public class CFG {
         vertex.out = flag;
     }
 
+    public void checkUnreachable() throws SemanticError {
+        for (Vertex v : vertices) {
+            if (v != START && v != END) {
+                if (!v.in) {
+                    throw new SemanticError(v + " is unreachable");
+                }
+            }
+        }
+    }
+
     public void runWorkList() throws SemanticError{
-        System.out.println("new ");
-        System.out.println("start: " + START);
-        System.out.println("end: " + END);
+//        System.out.println("new ");
+//        System.out.println("start: " + START);
+//        System.out.println("end: " + END);
         while (!worklist.isEmpty()) {
             Vertex v = worklist.remove();
-            System.out.println(v);
+//            System.out.println(v);
             Boolean prevValue = v.out;
             updateVertex(v);
             if (v.out != prevValue) {
@@ -118,9 +128,10 @@ public class CFG {
                     }
                 }
             }
-            System.out.println(v);
-            System.out.println("");
+//            System.out.println(v);
+//            System.out.println("");
         }
+        checkUnreachable();
         if (END.in != false) {
             throw new SemanticError("in[END] is true");
         }

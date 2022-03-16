@@ -34,7 +34,7 @@ public class TypeChecker {
     public void check() throws SemanticError{
         checkTypeRules();
         checkUnreachableStmts();
-//        checkWorkList();
+        checkWorkList();
         nameDisambiguation.rootEnvironmentDisambiguation(env, true);
         //TODO: extra 8 rules
     }
@@ -57,9 +57,7 @@ public class TypeChecker {
 
     private void checkWorkList() throws SemanticError {
         for (Referenceable ref : dataflowVisitor.mapping.keySet()) {
-            if (ref instanceof ConstructorDecl) {
-                continue;
-            } else if (ref instanceof MethodDecl) {
+           if (ref instanceof MethodDecl) {
                 if (((MethodDecl)ref).isAbstract() || !((MethodDecl)ref).hasMethodBody()) continue;
             } else if (ref instanceof AbstractMethodDecl) {
                 continue;
