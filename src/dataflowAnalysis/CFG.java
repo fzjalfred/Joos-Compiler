@@ -72,9 +72,9 @@ public class CFG {
 
     /** add a stmt to CFG, connect such vertex to previous vertex; return that vertex */
     public Vertex addVertex(AtomicStmt stmt, Vertex prev){
-        if (!vertices.contains(prev)) throw new SemanticError("no such vertex " + prev + " in CFG in " + filename + " (probably while(true){})");
+        if (prev != null && !vertices.contains(prev)) throw new SemanticError("no such vertex " + prev + " in CFG in " + filename);
         Vertex v = new Vertex(stmt);
-        setEdge(prev, v);
+        if (prev != null) setEdge(prev, v);
         vertices.add(v);
         return v;
     }
