@@ -1,5 +1,6 @@
 package ast;
 
+import visitors.UnreachableStmtVisitor;
 import visitors.Visitor;
 
 import java.util.List;
@@ -23,9 +24,13 @@ public class IfThenElseStmt extends Stmt {
 
     @Override
     public void accept(Visitor v){
-        for (ASTNode node: children){
-            if (node != null) node.accept(v);
+        if (v instanceof UnreachableStmtVisitor) {
+            v.visit(this);
+        } else {
+            for (ASTNode node: children){
+                if (node != null) node.accept(v);
+            }
+            v.visit(this);
         }
-        v.visit(this);
     }
 }

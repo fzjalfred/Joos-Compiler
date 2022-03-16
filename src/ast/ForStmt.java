@@ -1,6 +1,7 @@
 package ast;
 
 import visitors.TypeCheckVisitor;
+import visitors.UnreachableStmtVisitor;
 import visitors.Visitor;
 
 import java.util.List;
@@ -40,7 +41,9 @@ public class ForStmt extends Stmt {
             visitor.context.entry("ForStmt");
             acceptMain(v);
             visitor.context.pop();
-        }   else{
+        } else if(v instanceof UnreachableStmtVisitor) {
+            v.visit(this);
+        }  else{
             acceptMain(v);
         }
     }

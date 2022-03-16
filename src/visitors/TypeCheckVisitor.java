@@ -1022,6 +1022,12 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         String var = node.getVarDeclarators().getFirstName();
         context.put(var, node);
         fieldType = node.getType();
+
+        // check local var initializer
+        VarDeclarator vardecl = node.getVarDeclarators().getLastVarDeclarator();
+        if (vardecl.children.get(1) == null) {
+            throw new SemanticError("Local Variable"+ node.getType() + ":" +node.getName() +" needs initializer after."); 
+        }
     }
 
     @Override

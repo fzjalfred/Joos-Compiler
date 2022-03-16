@@ -68,14 +68,6 @@ public class UnreachableStmtVisitor extends Visitor{
         currVertex = currCFG.addVertex(node, currVertex);
     }
 
-    public void visit(ForInit node){
-        currVertex = currCFG.addVertex(node, currVertex);
-    }
-
-    public void visit(ForUpdate node){
-        currVertex = currCFG.addVertex(node, currVertex);
-    }
-
     public void visit(EmptyStmt node){
         currVertex = currCFG.addVertex(node, currVertex);
     }
@@ -107,5 +99,82 @@ public class UnreachableStmtVisitor extends Visitor{
         }
     }
 
+    
+    // dataflow
+    //                               ____________________________
+    //                               |                           |
+    //                               V                           |
+    // ForStmt = ForInit --> ConditionalStmt --> stmts --> ForUpdate
+    public void visit(ForInit node){
+        currVertex = currCFG.addVertex(node, currVertex);
+    }
+
+    public void visit(ForUpdate node){
+        currVertex = currCFG.addVertex(node, currVertex);
+    }
+
+    public void visit(ForStmt node) {
+        // add ForInit to CFG
+        node.getForInit().accept(this);
+
+        // add ConditionalStmt
+        Expr expr = node.getForExpr();
+        expr.accept(this);
+        if (expr.boolStruct != null && !expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + node.getBlockStmt() + " in for(;false;)");
+        ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
+        CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex);
+        currVertex = conditionVertex; 
+
+        /** build edges from forExpr to stmts */
+        node.getBlockStmt().accept(this);
+
+        // add ForUpdate
+        node.getForUpdate().accept(this);
+
+        currCFG.setEdge(currVertex, conditionVertex);
+        /** build edges from ForUpdate back to ConditionalStmt */
+        if (expr.boolStruct != null && expr.boolStruct.bool) {
+            currVertex = null;
+        } else  {
+            currVertex = conditionVertex;
+        }
+
+    }
+
+    //dataflow
+    // IfThenStmt = conditionalStmt -> blockstmt  -> null
+    //                      |                          ^
+    //                      |--------------------------|
+    public void visit(IfThenStmt node) {
+        Expr expr = node.getExpr();
+        BlockStmt blockstmt = node.getThenStmt();
+        expr.accept(this);
+        if (expr.boolStruct != null && !expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + blockstmt + " in if statement "+ expr);
+        ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
+        CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex);
+        currVertex = conditionVertex;
+        blockstmt.accept(this);
+    }
+
+    //dataflow
+    // IfThenStmt = conditionalStmt -> blockstmt  -> null
+    //                      |                          ^
+    //                      |--------> elsestmt -------|
+    public void visit(IfThenElseStmt node) {
+        Expr expr = node.getExpr();
+        BlockStmt ifstmt = node.getThenStmt();
+        BlockStmt elsestmt = node.getElseStmt();
+        expr.accept(this);
+        if (expr.boolStruct != null && !expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + ifstmt + " in if statement "+ expr);
+        if (expr.boolStruct != null && expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + elsestmt + " in if statement "+ expr);
+        ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
+        CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex);
+        currVertex = conditionVertex;
+
+        ifstmt.accept(this);
+        currVertex = conditionVertex;
+        elsestmt.accept(this);
+    }
+    
 
 }
