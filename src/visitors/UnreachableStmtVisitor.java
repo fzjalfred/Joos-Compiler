@@ -149,7 +149,6 @@ public class UnreachableStmtVisitor extends Visitor{
         Expr expr = node.getExpr();
         BlockStmt blockstmt = node.getThenStmt();
         expr.accept(this);
-        if (expr.boolStruct != null && !expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + blockstmt + " in if statement "+ expr);
         ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
         CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex);
         currVertex = conditionVertex;
@@ -165,8 +164,6 @@ public class UnreachableStmtVisitor extends Visitor{
         BlockStmt ifstmt = node.getThenStmt();
         BlockStmt elsestmt = node.getElseStmt();
         expr.accept(this);
-        if (expr.boolStruct != null && !expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + ifstmt + " in if statement "+ expr);
-        if (expr.boolStruct != null && expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + elsestmt + " in if statement "+ expr);
         ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
         CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex);
         currVertex = conditionVertex;
