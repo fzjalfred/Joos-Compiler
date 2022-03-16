@@ -1,5 +1,6 @@
 package ast;
 
+import visitors.TypeCheckVisitor;
 import visitors.Visitor;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class LocalVarDecl extends LocalVarDeclStmt implements Referenceable{
         v.visit(this);
         for (ASTNode node: children){
             if (node != null) node.accept(v);
+        }
+        if (v instanceof TypeCheckVisitor){
+            ((TypeCheckVisitor)v).localVarDecl = null;
         }
     }
 }

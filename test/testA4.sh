@@ -18,7 +18,7 @@ if [ $# -ne 1 ]; then
 fi
 
 EXE=$1
-PREF="test/assignment_testcases/a3"
+PREF="test/assignment_testcases/a4"
 TESTCASES=($(ls "${PREF}"))
 STDLIBSRC=$(find stdlib/2.0/java/ -name *.java )
 

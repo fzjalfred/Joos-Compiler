@@ -80,9 +80,16 @@ public class UnreachableStmtVisitor extends Visitor{
         currVertex2=null;
     }
 
-    public void visit(LocalVarDeclStmt node){
+    public void visit(LocalVarDecl node){
         currVertex = currCFG.addVertex(node, currVertex, currVertex2);
         currVertex2=null;
+    }
+
+    public void visit(Block node){
+        if (node.getBlockStmts() == null){
+            currVertex = currCFG.addVertex(node, currVertex, currVertex2);
+            currVertex2=null;
+        }
     }
 
     public void visit(WhileStmt node){
@@ -186,7 +193,6 @@ public class UnreachableStmtVisitor extends Visitor{
         } else if (expr.boolStruct!= null && expr.boolStruct.bool) {
             ifstmt.accept(this);
         } else {
-            expr.accept(this);
             ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
             CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex, currVertex2);
             currVertex2=null;

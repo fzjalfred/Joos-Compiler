@@ -23,6 +23,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     public boolean isStatic = false;
     public Type fieldType;
     public ClassBodyDecl classBodyDecl;
+    public LocalVarDecl localVarDecl;
 
 
 
@@ -354,7 +355,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Referenceable currRes = context.get(nameStr);
             //tools.println("look up field" + nameStr + " get " + currType, DebugID.zhenyan);
             if (currRes != null) {
-
+                if (localVarDecl != null && nameStr.equals(localVarDecl.getVarDeclarators().getFirstName())) throw new SemanticError("Local variable decl " + nameStr + " cannot use it self");
                 currType = currRes.getType();
                 checkProtected(currRes, null);
                 res = currRes;
@@ -1025,6 +1026,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
         // check local var initializer
         VarDeclarator vardecl = node.getVarDeclarators().getLastVarDeclarator();
+        localVarDecl = node;
         if (vardecl.children.get(1) == null) {
             throw new SemanticError("Local Variable"+ node.getType() + ":" +node.getName() +" needs initializer after."); 
         }
@@ -1196,6 +1198,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 }   else {
                     currRes = context.get(nameStr);
                     if (currRes != null) {
+                        if (localVarDecl != null && nameStr.equals(localVarDecl.getVarDeclarators().getFirstName())) throw new SemanticError("Local variable decl " + nameStr + " cannot use it self");
                         checkProtected(currRes, null);
                         currType = currRes.getType();
                         isObject = true;

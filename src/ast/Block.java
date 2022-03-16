@@ -4,7 +4,7 @@ import visitors.*;
 
 import java.util.List;
 
-public class Block extends StmtWithoutSubstmt {
+public class Block extends StmtWithoutSubstmt implements AtomicStmt {
     public Block(List<ASTNode> children, String value){
         super(children, value);
     }

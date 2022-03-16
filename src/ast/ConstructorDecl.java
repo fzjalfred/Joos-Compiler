@@ -46,6 +46,7 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Cal
             UnreachableStmtVisitor uv = (UnreachableStmtVisitor)v;
             acceptMain(v);
             if (uv.currVertex != null && uv.currVertex != uv.currCFG.START) uv.currCFG.setEdge(uv.currVertex, uv.currCFG.END);
+            if (uv.currVertex2 != null) uv.currCFG.setEdge(uv.currVertex2, uv.currCFG.END);
         }   else{
             acceptMain(v);
         }
