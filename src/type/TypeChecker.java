@@ -52,12 +52,19 @@ public class TypeChecker {
             SemanticError.currFile = comp.fileName;
             comp.accept(dataflowVisitor);
         }
-        System.out.println(dataflowVisitor.mapping);
+//        System.out.println(dataflowVisitor.mapping);
     }
 
     private void checkWorkList() throws SemanticError {
         for (Referenceable ref : dataflowVisitor.mapping.keySet()) {
+            boolean isVoid = false;
+           if (ref instanceof ConstructorDecl) {
+               isVoid = true;
+           }
            if (ref instanceof MethodDecl) {
+               if (((MethodDecl)ref).getType() == null) {
+                   isVoid = true;
+               }
                 if (((MethodDecl)ref).isAbstract() || !((MethodDecl)ref).hasMethodBody()) continue;
             } else if (ref instanceof AbstractMethodDecl) {
                 continue;
@@ -65,7 +72,7 @@ public class TypeChecker {
             CFG cfg = dataflowVisitor.mapping.get(ref);
             SemanticError.currFile = cfg.filename;
             cfg.initWorkList();
-            cfg.runWorkList();
+            cfg.runWorkList(isVoid);
         }
 
 

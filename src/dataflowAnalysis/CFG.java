@@ -87,20 +87,18 @@ public class CFG {
     }
 
     public void updateVertex(Vertex vertex) {
-        if (vertex.stmt instanceof ReturnStmt) {
-            vertex.out = false;
-            return;
-        } else if (vertex == START) {
-            vertex.out = true;
-            return;
-        }
-
         boolean flag = false;
         for (Vertex precessor : vertex.precessors) {
             flag = flag || precessor.out;
         }
         vertex.in = flag;
-        vertex.out = flag;
+        if (vertex.stmt instanceof ReturnStmt) {
+            vertex.out = false;
+        } else if (vertex == START) {
+            vertex.out = true;
+        } else {
+            vertex.out = flag;
+        }
     }
 
     public void checkUnreachable() throws SemanticError {
@@ -113,7 +111,7 @@ public class CFG {
         }
     }
 
-    public void runWorkList() throws SemanticError{
+    public void runWorkList(boolean isVoid ) throws SemanticError{
 //        System.out.println("new ");
 //        System.out.println("start: " + START);
 //        System.out.println("end: " + END);
@@ -133,7 +131,7 @@ public class CFG {
 //            System.out.println("");
         }
         checkUnreachable();
-        if (END.in != false) {
+        if (!isVoid && END.in != false) {
             throw new SemanticError("in[END] is true");
         }
     }
