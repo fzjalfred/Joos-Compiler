@@ -4,6 +4,8 @@ import visitors.TypeCheckVisitor;
 import visitors.UnreachableStmtVisitor;
 import visitors.Visitor;
 
+import dataflowAnalysis.CFG;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,7 +112,10 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
             UnreachableStmtVisitor uv = (UnreachableStmtVisitor)v;
             acceptMain(v);
             if (uv.currVertex != null && uv.currVertex != uv.currCFG.START) uv.currCFG.setEdge(uv.currVertex, uv.currCFG.END);
-            if (uv.currVertex2 != null) uv.currCFG.setEdge(uv.currVertex2, uv.currCFG.END);
+            for (CFG.Vertex i: uv.ifpaths) {
+                uv.currCFG.setEdge(i, uv.currCFG.END);
+            }
+            uv.ifpaths.clear();
         }   else{
             acceptMain(v);
         }

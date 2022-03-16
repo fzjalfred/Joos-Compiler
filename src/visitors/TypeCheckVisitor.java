@@ -642,6 +642,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
+                
             } else {
                 // System.out.println(node.children.get(0));
                 // System.out.print("isNumericType: ");

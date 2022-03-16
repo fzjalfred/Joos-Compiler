@@ -5,6 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class RelationExpr extends EqualityExpr {
+    Integer val = null;
     public RelationExpr(List<ASTNode> children, String value){
         super(children, value);
     }

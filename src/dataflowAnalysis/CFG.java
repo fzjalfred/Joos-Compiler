@@ -71,12 +71,16 @@ public class CFG {
     }
 
     /** add a stmt to CFG, connect such vertex to previous vertex; return that vertex */
-    public Vertex addVertex(AtomicStmt stmt, Vertex prev, Vertex prev2){
+    public Vertex addVertex(AtomicStmt stmt, Vertex prev, List<CFG.Vertex> ifpaths){
         if (prev != null && !vertices.contains(prev)) throw new SemanticError("no such vertex " + prev + " in CFG in " + filename);
         Vertex v = new Vertex(stmt);
         if (prev != null) setEdge(prev, v);
-        if (prev2 != null) setEdge(prev2, v);
+        for (CFG.Vertex i: ifpaths) {
+            if (i != null)
+                setEdge(i, v);
+        }
         vertices.add(v);
+        ifpaths.clear();
         return v;
     }
 
