@@ -71,10 +71,11 @@ public class CFG {
     }
 
     /** add a stmt to CFG, connect such vertex to previous vertex; return that vertex */
-    public Vertex addVertex(AtomicStmt stmt, Vertex prev){
+    public Vertex addVertex(AtomicStmt stmt, Vertex prev, Vertex prev2){
         if (prev != null && !vertices.contains(prev)) throw new SemanticError("no such vertex " + prev + " in CFG in " + filename);
         Vertex v = new Vertex(stmt);
         if (prev != null) setEdge(prev, v);
+        if (prev2 != null) setEdge(prev2, v);
         vertices.add(v);
         return v;
     }

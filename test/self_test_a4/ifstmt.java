@@ -10,5 +10,16 @@ public class ifstmt {
         } else {
             x = 5;
         }
+        return;
+    }
+
+    public void nest(int x) {
+        if (x == 2) {
+            if (x == 4) {
+                x = 34;
+            }
+            ;
+        }
+        return;
     }
 }
