@@ -10,6 +10,10 @@ public class EqualityExpr extends AndExpr {
         super(children, value);
     }
 
+    public String getOperator() {
+        assert children.size() == 3;
+        return children.get(1).value;
+    }
 
     @Override
     public void accept(Visitor v){

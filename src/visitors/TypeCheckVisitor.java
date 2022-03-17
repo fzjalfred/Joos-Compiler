@@ -495,6 +495,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     @Override
     public void visit(NumericLiteral node) {
         node.type = new NumericType(tools.empty(), "int");
+        if (!node.value.equals("2147483648")) {
+            node.integer_value = Integer.valueOf(node.value);
+        }
     }
 
     @Override
@@ -592,8 +595,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             // Not statement
             Type expr = node.getUnaryExpr().type;
             node.type = expr;
-        } else if (node.children.size() == 2){
-            node.type = node.getSingleChild().type;
+            if (node.getUnaryExpr().integer_value != null) {
+                node.integer_value = - node.getUnaryExpr().integer_value;
+            }
+            
         }
     }
 
@@ -602,6 +607,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             throw new SemanticError(node.getExpr().type + " should not be null");
         }
         node.type = node.getExpr().type;
+        if (node.getExpr() instanceof Expr) {
+            node.integer_value = node.getExpr().integer_value;
+        }
     }
 
     public void visit(AdditiveExpr node){
@@ -612,6 +620,14 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
+                if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
+                    if (node.getOperator() == "+") {
+                        node.integer_value = node.getOperatorLeft().integer_value + node.getOperatorRight().integer_value;
+                    } else if (node.getOperator() == "-") {
+                        node.integer_value = node.getOperatorLeft().integer_value - node.getOperatorRight().integer_value;
+                    }
+                }
+                
             } else if ( (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null)
             || (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String") && t1 != null)) {
                 if (node.isPlusOperator()) {
@@ -633,6 +649,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             }
         }
     }
+    
 
     public void visit(MultiplicativeExpr node){
         if (node.children.size() == 1) {
@@ -642,7 +659,15 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
-                
+                if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
+                    if (node.getOperator() == "*") {
+                        node.integer_value = node.getOperatorLeft().integer_value * node.getOperatorRight().integer_value;
+                    } else if (node.getOperator() == "/") {
+                        node.integer_value = node.getOperatorLeft().integer_value / node.getOperatorRight().integer_value;
+                    } else if (node.getOperator() == "%") {
+                        node.integer_value = node.getOperatorLeft().integer_value % node.getOperatorRight().integer_value;
+                    }
+                }
             } else {
                 // System.out.println(node.children.get(0));
                 // System.out.print("isNumericType: ");
@@ -685,6 +710,24 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
+                if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
+                    if (node.getOperator() == "<") {
+                        Boolean res = node.getOperatorLeft().integer_value < node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    } else if (node.getOperator() == ">") {
+                        Boolean res = node.getOperatorLeft().integer_value > node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    } else if (node.getOperator() == "<=") {
+                        Boolean res = node.getOperatorLeft().integer_value <= node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    } else if (node.getOperator() == ">=") {
+                        Boolean res = node.getOperatorLeft().integer_value >= node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    } else if (node.getOperator() == ">") {
+                        Boolean res = node.getOperatorLeft().integer_value > node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    }
+                }
             } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (isAssignable(t1, t2, env) || isAssignable(t2, t1, env)) {
@@ -703,6 +746,15 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Type t2 = (node.getOperatorRight()).type;
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
+                if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
+                    if (node.getOperator() == "==") {
+                        Boolean res = node.getOperatorLeft().integer_value == node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    } else if (node.getOperator() == "!=") {
+                        Boolean res = node.getOperatorLeft().integer_value != node.getOperatorRight().integer_value;
+                        node.boolStruct = new Expr.BoolStruct(res);
+                    }
+                }
             } else if (t1.equals(t2)) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else if (t2 instanceof NullType ) {
@@ -1041,6 +1093,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
     @Override
     public void visit(MethodDecl node) {
+        //System.out.println(node);
         isStatic = tools.checkStatic(node.getMethodHeader().getModifiers());
         /** update return value*/
         this.returnType = node.getMethodHeader().getType();
