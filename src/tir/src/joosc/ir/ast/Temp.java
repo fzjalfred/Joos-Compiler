@@ -22,4 +22,11 @@ public class Temp extends Expr_c {
     public String label() {
         return "TEMP(" + name + ")";
     }
+
+    @Override
+    public String toString() {
+        return "Temp{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

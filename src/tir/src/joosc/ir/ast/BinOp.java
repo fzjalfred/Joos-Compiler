@@ -66,4 +66,13 @@ public class BinOp extends Expr_c {
     public boolean isConstant() {
         return left.isConstant() && right.isConstant();
     }
+
+    @Override
+    public String toString() {
+        return "BinOp{" +
+                "type=" + type +
+                ", left=" + left +
+                ", right=" + right +
+                '}';
+    }
 }

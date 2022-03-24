@@ -10,6 +10,7 @@ public class Expr extends ASTNode {
     }
     public Type type;
     public Integer integer_value = null;
+    public Expr_c ir_node = null;
 
     public Expr getSingleChild() {
         assert children.size() == 1;

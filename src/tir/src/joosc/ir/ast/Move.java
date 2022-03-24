@@ -57,4 +57,12 @@ public class Move extends Statement {
         result = v.bind(result, v.visit(src));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Move{" +
+                "target=" + target +
+                ", src=" + src +
+                '}';
+    }
 }

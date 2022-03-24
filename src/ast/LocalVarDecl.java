@@ -1,5 +1,6 @@
 package ast;
 
+import visitors.IRTranslatorVisitor;
 import visitors.TypeCheckVisitor;
 import visitors.Visitor;
 
@@ -24,12 +25,20 @@ public class LocalVarDecl extends LocalVarDeclStmt implements Referenceable{
 
     @Override
     public void accept(Visitor v){
-        v.visit(this);
-        for (ASTNode node: children){
-            if (node != null) node.accept(v);
+        if (v instanceof IRTranslatorVisitor){
+            for (ASTNode node: children){
+                if (node != null) node.accept(v);
+            }
+            v.visit(this);
+        }   else {
+            v.visit(this);
+            for (ASTNode node: children){
+                if (node != null) node.accept(v);
+            }
+            if (v instanceof TypeCheckVisitor){
+                ((TypeCheckVisitor)v).localVarDecl = null;
+            }
         }
-        if (v instanceof TypeCheckVisitor){
-            ((TypeCheckVisitor)v).localVarDecl = null;
-        }
+
     }
 }

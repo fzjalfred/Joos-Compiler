@@ -33,4 +33,11 @@ public class Const extends Expr_c {
     public int constant() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "Const{" +
+                "value=" + value +
+                '}';
+    }
 }

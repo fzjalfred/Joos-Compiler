@@ -22,10 +22,6 @@ public class VarDeclarators extends ASTNode{
         return getName().get(0);
     }
 
-    public String getLastDeclarator(){
-        return getName().get(0);
-    }
-
     public VarDeclarator getLastVarDeclarator(){
         return (VarDeclarator)children.get(children.size()-1);
     }
