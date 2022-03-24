@@ -44,4 +44,11 @@ public class Return extends Statement {
         result = v.bind(result, v.visit(ret));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Return{" +
+                "expr=" + ret +
+                '}';
+    }
 }
