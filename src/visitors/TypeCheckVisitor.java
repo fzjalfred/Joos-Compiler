@@ -609,6 +609,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         node.type = node.getExpr().type;
         if (node.getExpr() instanceof Expr) {
             node.integer_value = node.getExpr().integer_value;
+            node.boolStruct = node.getExpr().boolStruct;
         }
     }
 
@@ -621,9 +622,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
                 if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
-                    if (node.getOperator() == "+") {
+                    if (node.getOperator().equals("+")) {
                         node.integer_value = node.getOperatorLeft().integer_value + node.getOperatorRight().integer_value;
-                    } else if (node.getOperator() == "-") {
+                    } else if (node.getOperator().equals("-")) {
                         node.integer_value = node.getOperatorLeft().integer_value - node.getOperatorRight().integer_value;
                     }
                 }
@@ -660,11 +661,11 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new NumericType(tools.empty(), "int");
                 if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
-                    if (node.getOperator() == "*") {
+                    if (node.getOperator().equals("*")) {
                         node.integer_value = node.getOperatorLeft().integer_value * node.getOperatorRight().integer_value;
-                    } else if (node.getOperator() == "/") {
+                    } else if (node.getOperator().equals("/")) {
                         node.integer_value = node.getOperatorLeft().integer_value / node.getOperatorRight().integer_value;
-                    } else if (node.getOperator() == "%") {
+                    } else if (node.getOperator().equals("%")) {
                         node.integer_value = node.getOperatorLeft().integer_value % node.getOperatorRight().integer_value;
                     }
                 }
@@ -711,19 +712,19 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
                 if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
-                    if (node.getOperator() == "<") {
+                    if (node.getOperator().equals("<")) {
                         Boolean res = node.getOperatorLeft().integer_value < node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
-                    } else if (node.getOperator() == ">") {
+                    } else if (node.getOperator().equals(">")) {
                         Boolean res = node.getOperatorLeft().integer_value > node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
-                    } else if (node.getOperator() == "<=") {
+                    } else if (node.getOperator().equals("<=")) {
                         Boolean res = node.getOperatorLeft().integer_value <= node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
-                    } else if (node.getOperator() == ">=") {
+                    } else if (node.getOperator().equals(">=")) {
                         Boolean res = node.getOperatorLeft().integer_value >= node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
-                    } else if (node.getOperator() == ">") {
+                    } else if (node.getOperator().equals(">")) {
                         Boolean res = node.getOperatorLeft().integer_value > node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
                     }
@@ -747,10 +748,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (t1 instanceof NumericType && t2 instanceof NumericType) {
                 node.type = new PrimitiveType(tools.empty(), "boolean");
                 if (node.getOperatorLeft().integer_value != null && node.getOperatorRight().integer_value != null) {
-                    if (node.getOperator() == "==") {
+                    if (node.getOperator().equals("==")) {
                         Boolean res = node.getOperatorLeft().integer_value == node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
-                    } else if (node.getOperator() == "!=") {
+                    } else if (node.getOperator().equals("!=")) {
                         Boolean res = node.getOperatorLeft().integer_value != node.getOperatorRight().integer_value;
                         node.boolStruct = new Expr.BoolStruct(res);
                     }
