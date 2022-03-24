@@ -47,8 +47,8 @@ public class NodeFactory_c implements NodeFactory {
     }
 
     @Override
-    public ESeq IRESeq(Stmt stmt, Expr expr) {
-        return new ESeq(stmt, expr);
+    public ESeq IRESeq(Statement statement, Expr expr) {
+        return new ESeq(statement, expr);
     }
 
     @Override
@@ -57,8 +57,8 @@ public class NodeFactory_c implements NodeFactory {
     }
 
     @Override
-    public FuncDecl IRFuncDecl(String name, int numParams, Stmt stmt) {
-        return new FuncDecl(name, numParams, stmt);
+    public FuncDecl IRFuncDecl(String name, int numParams, Statement statement) {
+        return new FuncDecl(name, numParams, statement);
     }
 
     @Override
@@ -92,13 +92,13 @@ public class NodeFactory_c implements NodeFactory {
     }
 
     @Override
-    public Seq IRSeq(Stmt... stmts) {
-        return new Seq(stmts);
+    public Seq IRSeq(Statement... statements) {
+        return new Seq(statements);
     }
 
     @Override
-    public Seq IRSeq(List<Stmt> stmts) {
-        return new Seq(stmts);
+    public Seq IRSeq(List<Statement> statements) {
+        return new Seq(statements);
     }
 
     @Override

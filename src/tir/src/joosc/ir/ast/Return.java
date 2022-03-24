@@ -4,7 +4,7 @@ import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 
 /** RETURN statement */
-public class Return extends Stmt {
+public class Return extends Statement {
     protected Expr ret;
 
     /**

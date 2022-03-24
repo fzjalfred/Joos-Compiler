@@ -9,25 +9,25 @@ import tir.src.joosc.ir.visit.IRVisitor;
  * ESEQ(stmt, expr)
  */
 public class ESeq extends Expr_c {
-    private Stmt stmt;
+    private Statement statement;
     private Expr expr;
 
     /**
-     * @param stmt IR statement to be evaluated for side effects
+     * @param statement IR statement to be evaluated for side effects
      * @param expr IR expression to be evaluated after {@code stmt}
      */
-    public ESeq(Stmt stmt, Expr expr) {
-        this.stmt = stmt;
+    public ESeq(Statement statement, Expr expr) {
+        this.statement = statement;
         this.expr = expr;
     }
 
-    public ESeq(Stmt stmt, Expr expr, boolean replaceParent) {
-        this.stmt = stmt;
+    public ESeq(Statement statement, Expr expr, boolean replaceParent) {
+        this.statement = statement;
         this.expr = expr;
     }
 
-    public Stmt stmt() {
-        return stmt;
+    public Statement stmt() {
+        return statement;
     }
 
     public Expr expr() {
@@ -41,11 +41,11 @@ public class ESeq extends Expr_c {
 
     @Override
     public Node visitChildren(IRVisitor v) {
-        Stmt stmt = (Stmt) v.visit(this, this.stmt);
+        Statement statement = (Statement) v.visit(this, this.statement);
         Expr expr = (Expr) v.visit(this, this.expr);
 
-        if (expr != this.expr || stmt != this.stmt)
-            return v.nodeFactory().IRESeq(stmt, expr);
+        if (expr != this.expr || statement != this.statement)
+            return v.nodeFactory().IRESeq(statement, expr);
 
         return this;
     }
@@ -53,7 +53,7 @@ public class ESeq extends Expr_c {
     @Override
     public <T> T aggregateChildren(AggregateVisitor<T> v) {
         T result = v.unit();
-        result = v.bind(result, v.visit(stmt));
+        result = v.bind(result, v.visit(statement));
         result = v.bind(result, v.visit(expr));
         return result;
     }

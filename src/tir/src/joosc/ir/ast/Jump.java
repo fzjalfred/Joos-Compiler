@@ -6,7 +6,7 @@ import tir.src.joosc.ir.visit.IRVisitor;
 /**
  * An intermediate representation for a transfer of control
  */
-public class Jump extends Stmt {
+public class Jump extends Statement {
     private Expr target;
 
     /**

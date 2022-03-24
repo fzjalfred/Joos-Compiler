@@ -7,7 +7,7 @@ import tir.src.joosc.ir.visit.IRVisitor;
  * An intermediate representation for a move statement
  * MOVE(target, expr)
  */
-public class Move extends Stmt {
+public class Move extends Statement {
     private Expr target;
     private Expr src;
 

@@ -1,5 +1,7 @@
 package ast;
 
+import tir.src.joosc.ir.ast.FuncDecl;
+import visitors.IRTranslatorVisitor;
 import visitors.TypeCheckVisitor;
 import visitors.UnreachableStmtVisitor;
 import visitors.Visitor;
@@ -10,9 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MethodDecl extends ClassMemberDecl implements Callable {
+    public FuncDecl funcDecl;
     public MethodDecl(List<ASTNode> children, String value){
-
         super(children, value);
+        funcDecl = null;
     }
 
     public MethodHeader getMethodHeader(){
@@ -116,8 +119,12 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
                 uv.currCFG.setEdge(i, uv.currCFG.END);
             }
             uv.ifpaths.clear();
-        }   else{
-            acceptMain(v);
+        }   else if (v instanceof IRTranslatorVisitor){
+            IRTranslatorVisitor iv = (IRTranslatorVisitor)v;
+            acceptMain(iv);
+            if (getMethodBody() != null){
+                iv.currFunc.body = getMethodBody().getBlock().ir_node; // set body of function
+            }
         }
     }
 }

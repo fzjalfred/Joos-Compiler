@@ -5,7 +5,7 @@ import tir.src.joosc.ir.visit.InsnMapsBuilder;
 /**
  * An intermediate representation for naming a memory address
  */
-public class Label extends Stmt {
+public class Label extends Statement {
     private String name;
 
     /**

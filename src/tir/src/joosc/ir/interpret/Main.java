@@ -20,7 +20,7 @@ public class Main {
         String arg0 = Configuration.ABSTRACT_ARG_PREFIX + 0;
         String arg1 = Configuration.ABSTRACT_ARG_PREFIX + 1;
 
-        Stmt aBody = new Seq(new Move(new Temp("i"), new Temp(arg0)),
+        Statement aBody = new Seq(new Move(new Temp("i"), new Temp(arg0)),
                                  new Move(new Temp("j"), new Temp(arg1)),
 
                                  new Return(new BinOp(BinOp.OpType.ADD,
@@ -30,7 +30,7 @@ public class Main {
                                                  new Temp("j")))));
         FuncDecl aFunc = new FuncDecl("a", 2, aBody);
 
-        Stmt bBody =
+        Statement bBody =
                 new Seq(new Move(new Temp("i"), new Temp(arg0)),
                           new Move(new Temp("j"), new Temp(arg1)),
                           new Move(new Temp("x"),

@@ -1,6 +1,8 @@
 package lexer;
 import java.io.*;
 import java.util.*;
+
+import backend.IRTranslator;
 import type.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
@@ -20,6 +22,9 @@ public class Main {
 			nameDisamb.rootEnvironmentDisambiguation(env, false);
 			TypeChecker typeChecker = new TypeChecker(env, checker, nameDisamb);
 			typeChecker.check();
+			IRTranslator translator = new IRTranslator(env.compilationUnits);
+			translator.translate();
+			System.out.println(translator.mapping);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(42);

@@ -9,7 +9,7 @@ import tir.src.joosc.ir.visit.IRVisitor;
  * discarding the result
  * EXP(e)
  */
-public class Exp extends Stmt {
+public class Exp extends Statement {
     private Expr expr;
 
     /**

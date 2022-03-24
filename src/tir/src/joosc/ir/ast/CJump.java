@@ -8,7 +8,7 @@ import tir.src.joosc.ir.visit.IRVisitor;
  * An intermediate representation for a conditional transfer of control
  * CJUMP(expr, trueLabel, falseLabel)
  */
-public class CJump extends Stmt {
+public class CJump extends Statement {
     private Expr cond;
     private String trueLabel, falseLabel;
 

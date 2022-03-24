@@ -1,7 +1,7 @@
 package ast;
 
 import visitors.Visitor;
-
+import tir.src.joosc.ir.ast.*;
 import java.util.List;
 
 public class Expr extends ASTNode {

@@ -7,10 +7,10 @@ import tir.src.joosc.ir.visit.InsnMapsBuilder;
 /** An IR function declaration */
 public class FuncDecl extends Node_c {
     private String name;
-    private Stmt body;
+    public Statement body;
     private int numParams;
 
-    public FuncDecl(String name, int numParams, Stmt body) {
+    public FuncDecl(String name, int numParams, Statement body) {
         this.name = name;
         this.body = body;
         this.numParams = numParams;
@@ -20,7 +20,7 @@ public class FuncDecl extends Node_c {
         return name;
     }
 
-    public Stmt body() {
+    public Statement body() {
         return body;
     }
 
@@ -35,13 +35,22 @@ public class FuncDecl extends Node_c {
 
     @Override
     public Node visitChildren(IRVisitor v) {
-        Stmt stmt = (Stmt) v.visit(this, body);
+        Statement statement = (Statement) v.visit(this, body);
 
-        if (stmt != body) return v.nodeFactory().IRFuncDecl(
-                name, numParams, stmt
+        if (statement != body) return v.nodeFactory().IRFuncDecl(
+                name, numParams, statement
         );
 
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "FuncDecl{" +
+                "name='" + name + '\'' +
+                ", body=" + body +
+                ", numParams=" + numParams +
+                '}';
     }
 
     @Override

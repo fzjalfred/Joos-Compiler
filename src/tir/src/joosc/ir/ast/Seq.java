@@ -14,15 +14,23 @@ import java.util.stream.Collectors;
  * An intermediate representation for a sequence of statements
  * SEQ(s1,...,sn)
  */
-public class Seq extends Stmt {
-    private List<Stmt> stmts;
+public class Seq extends Statement {
+    private List<Statement> statements;
     private boolean replaceParent;
 
     /**
-     * @param stmts the statements
+     * @param statements the statements
      */
-    public Seq(Stmt... stmts) {
-        this(Arrays.asList(stmts));
+    public Seq(Statement... statements) {
+        this(Arrays.asList(statements));
+    }
+
+    @Override
+    public String toString() {
+        return "Seq{" +
+                "statements=" + statements +
+                ", replaceParent=" + replaceParent +
+                '}';
     }
 
     private <T> List<T> filterNulls(List<T> list) {
@@ -34,21 +42,21 @@ public class Seq extends Stmt {
     /**
      * Create a SEQ from a list of statements.
      * The list should not be modified subsequently.
-     * @param stmts the sequence of statements
+     * @param statements the sequence of statements
      */
-    public Seq(List<Stmt> stmts) {
+    public Seq(List<Statement> statements) {
         // filter out nulls
-        this.stmts = filterNulls(stmts);
+        this.statements = filterNulls(statements);
         this.replaceParent = false;
     }
 
-    public Seq(List<Stmt> stmts, boolean replaceParent) {
-        this.stmts = filterNulls(stmts);
+    public Seq(List<Statement> statements, boolean replaceParent) {
+        this.statements = filterNulls(statements);
         this.replaceParent = replaceParent;
     }
 
-    public List<Stmt> stmts() {
-        return stmts;
+    public List<Statement> stmts() {
+        return statements;
     }
 
     @Override
@@ -60,11 +68,11 @@ public class Seq extends Stmt {
     public Node visitChildren(IRVisitor v) {
         boolean modified = false;
 
-        List<Stmt> results = new ArrayList<>(stmts.size());
-        for (Stmt stmt : stmts) {
-            Stmt newStmt = (Stmt) v.visit(this, stmt);
-            if (newStmt != stmt) modified = true;
-            results.add(newStmt);
+        List<Statement> results = new ArrayList<>(statements.size());
+        for (Statement statement : statements) {
+            Statement newStatement = (Statement) v.visit(this, statement);
+            if (newStatement != statement) modified = true;
+            results.add(newStatement);
         }
 
         if (modified) return v.nodeFactory().IRSeq(results);
@@ -75,8 +83,8 @@ public class Seq extends Stmt {
     @Override
     public <T> T aggregateChildren(AggregateVisitor<T> v) {
         T result = v.unit();
-        for (Stmt stmt : stmts)
-            result = v.bind(result, v.visit(stmt));
+        for (Statement statement : statements)
+            result = v.bind(result, v.visit(statement));
         return result;
     }
 

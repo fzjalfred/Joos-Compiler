@@ -51,10 +51,10 @@ public interface NodeFactory {
 
     /**
      *
-     * @param stmt IR statement to be evaluated for side effects
+     * @param statement IR statement to be evaluated for side effects
      * @param expr IR expression to be evaluated after {@code stmt}
      */
-    ESeq IRESeq(Stmt stmt, Expr expr);
+    ESeq IRESeq(Statement statement, Expr expr);
 
     /**
      *
@@ -62,7 +62,7 @@ public interface NodeFactory {
      */
     Exp IRExp(Expr expr);
 
-    FuncDecl IRFuncDecl(String name, int numParams, Stmt stmt);
+    FuncDecl IRFuncDecl(String name, int numParams, Statement statement);
 
     /**
      *
@@ -101,16 +101,16 @@ public interface NodeFactory {
     Return IRReturn(Expr ret);
 
     /**
-     * @param stmts the statements
+     * @param statements the statements
      */
-    Seq IRSeq(Stmt... stmts);
+    Seq IRSeq(Statement... statements);
 
     /**
      * Create a SEQ from a list of statements.
      * The list should not be modified subsequently.
-     * @param stmts the sequence of statements
+     * @param statements the sequence of statements
      */
-    Seq IRSeq(List<Stmt> stmts);
+    Seq IRSeq(List<Statement> statements);
 
     /**
      *
