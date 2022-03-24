@@ -20,7 +20,7 @@ public class IRTranslator {
         IRTranslatorVisitor visitor = new IRTranslatorVisitor();
         for (CompilationUnit comp : comps){
 
-            if (!comp.fileName.contains("ls")){
+            if (!comp.fileName.contains("stdlib")){
                 System.out.println(comp.fileName);
                 comp.accept(visitor);
             }
