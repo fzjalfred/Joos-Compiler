@@ -1,5 +1,6 @@
 package ast;
 
+import tir.src.joosc.ir.ast.Expr_c;
 import visitors.Visitor;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 public class ArgumentList extends ASTNode {
     private List<Expr> args;
     private List<Type> argsTypes;
+    public List <tir.src.joosc.ir.ast.Expr> ir_node;
     public ArgumentList(List<ASTNode> children, String value){
         super(children, value);
         args = null;

@@ -4,6 +4,7 @@ import java.util.*;
 import ast.*;
 import ast.Expr;
 import tir.src.joosc.ir.ast.*;
+import tir.src.joosc.ir.ast.Name;
 
 
 public class IRTranslatorVisitor extends Visitor {
@@ -52,6 +53,20 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(MethodBody node) {
         node.ir_node = node.getBlock().ir_node;
+    }
+
+    public void visit(ArgumentList node) {
+        List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+        for (Expr expr : node.getArgs()){
+            exprList.add((tir.src.joosc.ir.ast.Expr) expr.ir_node);
+        }
+        node.ir_node = exprList;
+    }
+
+    public void visit(MethodInvocation node) {
+        tir.src.joosc.ir.ast.Expr funcAddr = new Name(node.getName().value);
+        List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
+        node.ir_node = new Call(funcAddr, args);
     }
 
     public void visit(Block node){
