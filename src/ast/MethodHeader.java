@@ -1,10 +1,12 @@
 package ast;
 
+import tir.src.joosc.ir.ast.Statement;
 import visitors.Visitor;
 
 import java.util.List;
 
 public class MethodHeader extends ASTNode {
+    public List<Statement> ir_node;
     public MethodHeader(List<ASTNode> children, String value){
         super(children, value);
     }

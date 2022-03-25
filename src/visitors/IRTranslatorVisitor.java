@@ -19,25 +19,39 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(MethodDecl node) {
         List <Statement> stmts = new ArrayList<Statement>();
         // create label
-        Label label = new Label(node.getName() + " " + node.hashCode());
+        Label label = new Label(node.getName() + "_" + node.hashCode());
         stmts.add(label);
         // move params
-        MethodDeclarator methodDeclarator = node.getMethodHeader().getMethodDeclarator();
+        if (node.getMethodHeader().ir_node != null) {
+            stmts.addAll(node.getMethodHeader().ir_node);
+        }
+        Seq seq_node = (Seq)node.getMethodBody().getBlock().ir_node;
+
+        stmts.add(seq_node);
+        Seq body = new Seq(stmts);
+
+        node.funcDecl = new FuncDecl(node.getName(), node.getMethodHeader().getMethodDeclarator().numParams(), body);
+        currFunc = node.funcDecl;
+        mapping.put(node, node.funcDecl);
+    }
+
+    public void visit(MethodHeader node) {
+        List <Statement> stmts = new ArrayList<Statement>();
+        MethodDeclarator methodDeclarator = node.getMethodDeclarator();
         if (methodDeclarator.hasParameterList()) {
             ParameterList parameterList = methodDeclarator.getParameterList();
             int index = 0;
             for (Parameter p : parameterList.getParams()) {
                 // FIXME:: not sure about temp(arg)
-                stmts.add(new Move(new Temp("x"+index), new Temp(p.value)));
+                stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp("arg_" + index)));
                 index++;
             }
         }
-        Seq seq_node = (Seq)node.getMethodBody().getBlock().ir_node;
+        node.ir_node = stmts;
+    }
 
-        stmts.addAll(seq_node.stmts());
-        currFunc = new FuncDecl(node.getName(), node.getMethodHeader().getMethodDeclarator().numParams(), new Seq(stmts));
-        node.funcDecl = currFunc;
-        mapping.put(node, currFunc);
+    public void visit(MethodBody node) {
+        node.ir_node = node.getBlock().ir_node;
     }
 
     public void visit(Block node){
@@ -88,7 +102,9 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ReturnStmt node) {
-        node.ir_node = new Return(node.getExpr().ir_node);
+        if (node.getExpr() != null) {
+            node.ir_node = new Return(node.getExpr().ir_node);
+        }
     }
 
     public void visit(AndExpr node) {
@@ -108,7 +124,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public List<Statement> getConditionalIRNode(Expr expr, String l, String lt, String lf) {
-        return null;
+        return new ArrayList<Statement>();
     }
 
     public void visit(IfThenStmt node) {
@@ -117,32 +133,14 @@ public class IRTranslatorVisitor extends Visitor {
         Label true_label = new Label("true_"+node.hashCode());
         Label false_label = new Label("false_"+node.hashCode());
 
-        BlockStmt thenStmt = node.getThenStmt();
-        List <Statement> seq_stmts = new ArrayList<Statement>();
-        for (ASTNode stmt: thenStmt.children){
-            Stmt stmt1 = (Stmt)stmt;
-            seq_stmts.add(stmt1.ir_node);
-        }
-
+        Stmt thenStmt = (Stmt) node.getThenStmt();
         List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), label.name(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
-        stmts.add(new Seq(seq_stmts));
+        stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
 
         node.ir_node = new Seq(stmts);
-
-//        if (node.getExpr() instanceof AndExpr) {
-//            AndExpr andExpr = (AndExpr) node.getExpr();
-//            stmts.add(new CJump(andExpr.getOperatorLeft().ir_node, label.name(), false_label.name()));
-//            stmts.add(label);
-//            stmts.add(new CJump(andExpr.getOperatorRight().ir_node, true_label.name(), false_label.name()));
-//            stmts.add(true_label);
-//            stmts.add(new Seq(seq_stmts));
-//            stmts.add(false_label);
-//        } else {
-//            List <Statement> stmts =
-//        }
     }
 
     public void visit(IfThenElseStmt node) {
@@ -151,17 +149,17 @@ public class IRTranslatorVisitor extends Visitor {
         Label true_label = new Label("true_"+node.hashCode());
         Label false_label = new Label("false_"+node.hashCode());
 
-        BlockStmt thenStmt = node.getThenStmt();
-        List <Statement> seq_stmts = new ArrayList<Statement>();
-        for (ASTNode stmt: thenStmt.children){
-            Stmt stmt1 = (Stmt)stmt;
-            seq_stmts.add(stmt1.ir_node);
-        }
+        Stmt thenStmt = (Stmt)node.getThenStmt();
+//        List <Statement> seq_stmts = new ArrayList<Statement>();
+//        for (ASTNode stmt: thenStmt.children){
+//            Stmt stmt1 = (Stmt)stmt;
+//            seq_stmts.add(stmt1.ir_node);
+//        }
 
         List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), label.name(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
-        stmts.add(new Seq(seq_stmts));
+        stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
 
         node.ir_node = new Seq(stmts);
@@ -186,7 +184,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
         stmts.add(new Seq(seq_stmts));
-//           stmts.add(new Jump(label));
+        stmts.add(new Jump(new Temp(label.name())));
         stmts.add(false_label);
 
         node.ir_node = new Seq(stmts);

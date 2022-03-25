@@ -26,6 +26,13 @@ public class Label extends Statement {
     }
 
     @Override
+    public String toString() {
+        return "Label{" +
+                "name=" + name +
+                '}';
+    }
+
+    @Override
     public InsnMapsBuilder buildInsnMapsEnter(InsnMapsBuilder v) {
         v.addNameToCurrentIndex(name);
         return v;
