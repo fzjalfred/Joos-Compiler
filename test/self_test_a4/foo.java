@@ -3,7 +3,7 @@ public class foo{
 
     }
 
-    public int bar(){
+    public int main(){
         int a = 10+10*5;
         int b = 20;
         boolean bool = false;

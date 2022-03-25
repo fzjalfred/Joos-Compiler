@@ -6,10 +6,25 @@ import backend.IRTranslator;
 import type.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
+import tir.src.joosc.ir.interpret.*;
+import tir.src.joosc.ir.ast.*;
 
 public class Main {
 
 	static public DebugID id = DebugID.None;
+
+	static public void sim(IRTranslator translator, RootEnvironment env){
+		CompUnit compUnit = new CompUnit("test");
+		for (FuncDecl funcDecl : translator.mapping.values()){
+			compUnit.appendFunc(funcDecl);
+		}
+		// IR interpreter demo
+		{
+			Simulator sim = new Simulator(compUnit);
+			long result = sim.call("main");
+			System.out.println("main evaluates to " + result);
+		}
+	}
 
 	static public void main(String argv[]) {
 		try {
@@ -24,7 +39,7 @@ public class Main {
 			typeChecker.check();
 			IRTranslator translator = new IRTranslator(env.compilationUnits);
 			translator.translate();
-			System.out.println(translator.mapping);
+			sim(translator, env);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(42);
