@@ -693,7 +693,7 @@ statement_no_short_if ::= statement_without_trailing_substatement:e {:RESULT = e
 
 empty_statement ::= SEMICOLUMN {:RESULT = new EmptyStmt(list(), "");:};
 // not sure
-expression_statement ::= statement_expression:e SEMICOLUMN {:RESULT = new ExprStmt(list(e), "");:};
+expression_statement ::= statement_expression:e SEMICOLUMN {:RESULT = e;:};
 
 statement_expression ::= assignment:e {:RESULT = new StmtExpr(list(e), "");:}
                         | method_invocation:e {:RESULT = new StmtExpr(list(e), "");:}

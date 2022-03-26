@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class StmtExpr extends ASTNode {
+public class StmtExpr extends ExprStmt {
     public StmtExpr(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -15,5 +15,9 @@ public class StmtExpr extends ASTNode {
             if (node != null) node.accept(v);
         }
         v.visit(this);
+    }
+
+    public Expr getExpr(){
+        return (Expr)children.get(0);
     }
 }

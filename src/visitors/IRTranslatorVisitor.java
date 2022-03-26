@@ -64,6 +64,26 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = exprList;
     }
 
+    public void visit(StmtExpr node){
+        Expr child = node.getExpr();
+        if (child instanceof Assignment){
+            Assignment assignmentChild = (Assignment)child;
+            node.ir_node = new Move(assignmentChild.getAssignmentLeft().ir_node, assignmentChild.getAssignmentRight().ir_node);
+        }   else {
+            node.ir_node = new Exp(node.getExpr().ir_node);
+        }
+    }
+
+    public void visit(Assignment node){
+        node.ir_node = node.getAssignmentRight().ir_node;
+    }
+
+    public void visit(LHS node){
+        if (node.hasName()){
+            node.ir_node = new Temp(node.getName().getValue());
+        }
+    }
+
     public void visit(MethodInvocation node) {
         tir.src.joosc.ir.ast.Expr funcAddr = new Name(node.getName().getValue());
         List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
@@ -153,6 +173,7 @@ public class IRTranslatorVisitor extends Visitor {
         List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), label.name(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
+        System.out.println("ir node is " + thenStmt.ir_node);
         stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
 
@@ -175,6 +196,7 @@ public class IRTranslatorVisitor extends Visitor {
         List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), label.name(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
+        System.out.println(thenStmt.ir_node);
         stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
 
