@@ -21,8 +21,8 @@ public class Main {
 		// IR interpreter demo
 		{
 			Simulator sim = new Simulator(compUnit);
-			long result = sim.call("main");
-			System.out.println("main evaluates to " + result);
+			long result = sim.call("nest", 5);
+			System.out.println("nest evaluates to " + result);
 		}
 	}
 

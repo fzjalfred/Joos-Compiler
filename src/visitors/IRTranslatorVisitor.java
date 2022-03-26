@@ -159,18 +159,53 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = new ESeq(new Seq(stmts), temp);
     }
 
-    public List<Statement> getConditionalIRNode(Expr expr, String l, String lt, String lf) {
-        return new ArrayList<Statement>();
+    public List<Statement> getConditionalIRNode(Expr expr, String lt, String lf) {
+        List<Statement> stmts = new ArrayList<Statement>();
+        if (expr.boolStruct != null && expr.boolStruct.bool == true){
+            // C[true, lt, lf]
+            stmts.add(new Jump(new Temp(lt)));  
+        } else if (expr.boolStruct != null && expr.boolStruct.bool == false) {
+            // C[false, lt, lf]
+            stmts.add(new Jump(new Temp(lf)));  
+        } else if (expr instanceof PrimaryNoArray && expr.getSingleChild() instanceof Expr) {
+            return getConditionalIRNode(expr.getSingleChild(), lt, lf);
+        } else if (expr instanceof UnaryExprNotPlusMinus && ((UnaryExprNotPlusMinus)expr).isNot()) {
+            stmts.addAll(getConditionalIRNode(((UnaryExprNotPlusMinus)expr).getUnaryExpr(), lf, lt));
+            
+        } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("==")) {
+            stmts.add(new CJump(
+                new BinOp(BinOp.OpType.EQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                lt, lf));
+        } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("!=")) {
+            stmts.add(new CJump(
+                new BinOp(BinOp.OpType.NEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                lt, lf));
+        } else if (expr instanceof ConditionalOrExpr) {
+            Label l = new Label("condOrlabel_" + expr.hashCode());
+            stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), lt, l.name()));
+            stmts.add(l);
+            stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
+        } else if (expr instanceof ConditionalAndExpr){
+            Label l = new Label("condAndlabel_" + expr.hashCode());
+            stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), l.name(), lf));
+            stmts.add(l);
+            stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
+        } else {
+            //C[E[expr], lt, lf]
+            stmts.add(new CJump(expr.ir_node, lt, lf));
+        }
+        
+        return stmts;
     }
 
     public void visit(IfThenStmt node) {
         List <Statement> stmts = new ArrayList<Statement>();
-        Label label = new Label("label_" + node.hashCode());
+        
         Label true_label = new Label("true_"+node.hashCode());
         Label false_label = new Label("false_"+node.hashCode());
 
         Stmt thenStmt = (Stmt) node.getThenStmt();
-        List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), label.name(), true_label.name(), false_label.name());
+        List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
         System.out.println("ir node is " + thenStmt.ir_node);
@@ -193,7 +228,7 @@ public class IRTranslatorVisitor extends Visitor {
 //            seq_stmts.add(stmt1.ir_node);
 //        }
 
-        List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), label.name(), true_label.name(), false_label.name());
+        List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
         System.out.println(thenStmt.ir_node);
@@ -207,7 +242,7 @@ public class IRTranslatorVisitor extends Visitor {
         Label label = new Label("label_" + node.hashCode());
         Label true_label = new Label("true_"+node.hashCode());
         Label false_label = new Label("false_"+node.hashCode());
-        List<Statement> conditional_stmts = getConditionalIRNode(node.getExpr(),label.name(), true_label.name(), false_label.name());
+        List<Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), true_label.name(), false_label.name());
 
         List<Statement> stmts = new ArrayList<Statement>();
 
