@@ -5,6 +5,7 @@ import ast.*;
 import ast.Expr;
 import tir.src.joosc.ir.ast.*;
 import tir.src.joosc.ir.ast.Name;
+import tir.src.joosc.ir.interpret.Configuration;
 
 
 public class IRTranslatorVisitor extends Visitor {
@@ -44,7 +45,7 @@ public class IRTranslatorVisitor extends Visitor {
             int index = 0;
             for (Parameter p : parameterList.getParams()) {
                 // FIXME:: not sure about temp(arg)
-                stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp("arg_" + index)));
+                stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
                 index++;
             }
         }
@@ -64,7 +65,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(MethodInvocation node) {
-        tir.src.joosc.ir.ast.Expr funcAddr = new Name(node.getName().value);
+        tir.src.joosc.ir.ast.Expr funcAddr = new Name(node.getName().getValue());
         List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
         node.ir_node = new Call(funcAddr, args);
     }
@@ -199,7 +200,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
         stmts.add(new Seq(seq_stmts));
-        stmts.add(new Jump(new Temp(label.name())));
+        stmts.add(new Jump(new Name(label.name())));
         stmts.add(false_label);
 
         node.ir_node = new Seq(stmts);

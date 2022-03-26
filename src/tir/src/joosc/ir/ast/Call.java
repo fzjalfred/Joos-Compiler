@@ -85,4 +85,13 @@ public class Call extends Expr_c {
     public boolean isCanonical(CheckCanonicalIRVisitor v) {
         return !v.inExpr();
     }
+
+    @Override
+    public String toString() {
+        return "Call{" +
+                "function=" + target + ", " +
+                "args=" + args +
+                '}';
+    }
+
 }

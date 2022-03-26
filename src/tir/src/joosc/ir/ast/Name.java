@@ -23,4 +23,11 @@ public class Name extends Expr_c {
     public String label() {
         return "NAME(" + name + ")";
     }
+
+    @Override
+    public String toString() {
+        return "Name{" +
+                "name=" + name +
+                '}';
+    }
 }
