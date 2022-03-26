@@ -5,7 +5,7 @@ public class ifstmt {
         if (x == 1) {
             return 1;
         }
-        if (x == 3 || x == 4 || x == 5) {
+        if (x > 3 || x > 4 || x < 6) {
             return 43;
         }
         // if (!(x == 1)) {

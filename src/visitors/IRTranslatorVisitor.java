@@ -172,6 +172,22 @@ public class IRTranslatorVisitor extends Visitor {
         } else if (expr instanceof UnaryExprNotPlusMinus && ((UnaryExprNotPlusMinus)expr).isNot()) {
             stmts.addAll(getConditionalIRNode(((UnaryExprNotPlusMinus)expr).getUnaryExpr(), lf, lt));
             
+        } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals("<")) {
+            stmts.add(new CJump(
+                new BinOp(BinOp.OpType.LT, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                lt, lf));
+        } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals(">")) {
+            stmts.add(new CJump(
+                new BinOp(BinOp.OpType.GT, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                lt, lf));
+        } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals("<=")) {
+            stmts.add(new CJump(
+                new BinOp(BinOp.OpType.LEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                lt, lf));
+        } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals(">=")) {
+            stmts.add(new CJump(
+                new BinOp(BinOp.OpType.GEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                lt, lf));
         } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("==")) {
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.EQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
@@ -180,14 +196,14 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.NEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
                 lt, lf));
-        } else if (expr instanceof ConditionalOrExpr) {
-            Label l = new Label("condOrlabel_" + expr.hashCode());
-            stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), lt, l.name()));
-            stmts.add(l);
-            stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
         } else if (expr instanceof ConditionalAndExpr){
             Label l = new Label("condAndlabel_" + expr.hashCode());
             stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), l.name(), lf));
+            stmts.add(l);
+            stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
+        } else if (expr instanceof ConditionalOrExpr) {
+            Label l = new Label("condOrlabel_" + expr.hashCode());
+            stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), lt, l.name()));
             stmts.add(l);
             stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
         } else {
@@ -208,7 +224,6 @@ public class IRTranslatorVisitor extends Visitor {
         List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
-        System.out.println("ir node is " + thenStmt.ir_node);
         stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
 
