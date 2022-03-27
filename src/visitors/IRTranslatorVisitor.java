@@ -254,6 +254,10 @@ public class IRTranslatorVisitor extends Visitor {
         return stmts;
     }
 
+    public void visit(UnaryExpr node){
+        node.ir_node = new BinOp(BinOp.OpType.SUB, new Const(0), node.getUnaryExpr().ir_node);
+    }
+
     public void visit(IfThenStmt node) {
         List <Statement> stmts = new ArrayList<Statement>();
         
