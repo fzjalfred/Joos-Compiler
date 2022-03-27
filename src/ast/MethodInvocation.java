@@ -62,8 +62,14 @@ public class MethodInvocation extends PrimaryNoArray {
 
     @Override
     public String toString() {
-        return "MethodInvocation{" +
-                getName().getValue() +
-                '}';
+        if (hasName()){
+            return "MethodInvocation{" +
+                    getName().getValue() +
+                    '}';
+        }   else {
+            return "MethodInvocation{" +
+                    getPrimary() +
+                    '}';
+        }
     }
 }

@@ -504,7 +504,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     public void visit(StringLiteral node) {
         
         node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
-        tools.println("assign " + node.value + " to " + node.type, DebugID.zhenyan);
+        //tools.println("assign " + node.value + " to " + node.type, DebugID.zhenyan);
         
     }
 
@@ -774,38 +774,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 node.type = new PrimitiveType(tools.empty(), "boolean");
             } else {
                 throw new SemanticError("Invalid EqualityExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
-            }
-        }
-    }
-
-    public void visit(AndExpr node){
-        if (node.children.size() == 1) {
-            node.type = (node.getSingleChild()).type;
-        } else {
-            Type t1 = (node.getOperatorLeft()).type;
-            Type t2 = (node.getOperatorRight()).type;
-            if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "boolean");
-            } else if (t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "boolean");
-            } else {
-                throw new SemanticError("Invalid AndExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
-            }
-        }
-    }
-
-    public void visit(OrExpr node){
-        if (node.children.size() == 1) {
-            node.type = (node.getSingleChild()).type;
-        } else {
-            Type t1 = (node.getOperatorLeft()).type;
-            Type t2 = (node.getOperatorRight()).type;
-            if (t1 instanceof NumericType && t2 instanceof NumericType) {
-                node.type = new PrimitiveType(tools.empty(), "boolean");
-            } else if (t1.equals(t2)) {
-                node.type = new PrimitiveType(tools.empty(), "boolean");
-            } else {
-                throw new SemanticError("Invalid OrExpr use between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
     }
@@ -1125,7 +1093,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             FieldDecl fieldDecl = tools.fetchField(containMap.get(field));
             if (fieldDecl != null){
                 node.type = fieldDecl.getType();
-                tools.println("assign field access " + field + " to type: " + node.type, DebugID.zhenyan );
+                //tools.println("assign field access " + field + " to type: " + node.type, DebugID.zhenyan );
                 if (node.getPrimary() instanceof ThisLiteral && !checkStaticUse(fieldDecl)) throw new SemanticError("Cannot use non-static this." + field + " in static class body decl: " + classBodyDecl);
                 /** check protected access */
                 checkProtected(fieldDecl, classType.typeDecl);
@@ -1143,7 +1111,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         if (typeDecl instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)typeDecl;
             List<Referenceable>  declares = hierarchyChecker.declareMap.get(classDecl);
-            tools.println(" declares are " + declares, DebugID.zhenyan);
+            //tools.println(" declares are " + declares, DebugID.zhenyan);
             ConstructorDecl ctorDecl = tools.fetchConstructor(declares, node.getArgumentTypeList());
             if (ctorDecl != null){
                 checkProtected(ctorDecl, null);
@@ -1182,14 +1150,14 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
         /** case 3: upcast */
         if (checkUpCast(t1, t2)){
-            tools.println("cast " + t1 + " to " + t2 + " is upcast", DebugID.zhenyan);
+            //tools.println("cast " + t1 + " to " + t2 + " is upcast", DebugID.zhenyan);
             node.type = t2;
             return;
         }
 
         /** case 4: down cast*/
         if (checkDownCast(t1, t2)){
-            tools.println("cast " + t1 + " to " + t2 + " is down cast", DebugID.zhenyan);
+            //tools.println("cast " + t1 + " to " + t2 + " is down cast", DebugID.zhenyan);
             node.type = t2;
             return;
         }

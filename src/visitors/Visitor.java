@@ -6,7 +6,6 @@ public abstract class Visitor {
     public void visit(ASTNode node){}
     public void visit(AbstractMethodDecl node){}
     public void visit(AdditiveExpr node){}
-    public void visit(AndExpr node){}
     public void visit(ArgumentList node){}
     public void visit(ArrayAccess node){}
     public void visit(ArrayCreationExpr node){}
@@ -62,7 +61,6 @@ public abstract class Visitor {
     public void visit(Name node){}
     public void visit(NumericLiteral node){}
     public void visit(NumericType node){}
-    public void visit(OrExpr node){}
     public void visit(PackageDecl node){}
     public void visit(Parameter node){}
     public void visit(ParameterList node){}

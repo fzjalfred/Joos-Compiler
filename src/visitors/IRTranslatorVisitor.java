@@ -143,7 +143,7 @@ public class IRTranslatorVisitor extends Visitor {
         }
     }
 
-    public void visit(AndExpr node) {
+    public void visit(ConditionalAndExpr node) {
         Temp temp = new Temp("t");
         List <Statement> stmts = new ArrayList<Statement>();
 
@@ -157,6 +157,10 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(false_label);
 
         node.ir_node = new ESeq(new Seq(stmts), temp);
+    }
+
+    public void visit(PrimaryNoArray node){
+        node.ir_node = node.getExpr().ir_node;
     }
 
     public List<Statement> getConditionalIRNode(Expr expr, String lt, String lf) {

@@ -1,21 +1,17 @@
 public class ifstmt {
     public ifstmt() {}
 
-    public int nest(int x) {
+    public boolean nest(int x) {
         if (x == 1) {
-            return 1;
+            return false;
         }
-        if (x > 3 || x > 4 || x < 6) {
-            return 43;
+        if (x > 3 && x > 4 && x < 6) {
+            return true&&true;
         }
         // if (!(x == 1)) {
         //     return 34;
         // }
-        if (x != 1) {
-            return 999;
-        }
-
-        return x;
+        return true;
     }
 }
 

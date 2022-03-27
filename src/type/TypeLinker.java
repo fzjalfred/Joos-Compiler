@@ -198,7 +198,7 @@ public class TypeLinker {
             /** process array of ClassOrInterfaceType*/
             if (((ArrayType)type).getType() instanceof ClassOrInterfaceType){
                 resolveTypename(scope, (ClassOrInterfaceType)((ArrayType)type).getType());
-                tools.println("link array type " + (ClassOrInterfaceType)((ArrayType)type).getType() + " " + ((ClassOrInterfaceType)((ArrayType)type).getType()).typeDecl, DebugID.zhenyan);
+               // tools.println("link array type " + (ClassOrInterfaceType)((ArrayType)type).getType() + " " + ((ClassOrInterfaceType)((ArrayType)type).getType()).typeDecl, DebugID.zhenyan);
             }
         }
     }
@@ -289,7 +289,7 @@ public class TypeLinker {
             ScopeEnvironment localScope = env.ASTNodeToScopes.get(castExpr);
             castExpr.changePrefixExprToType(); //
             Type type = castExpr.getType();
-            tools.println(type, DebugID.zhenyan);
+            //tools.println(type, DebugID.zhenyan);
             processType(localScope, type);
         }   else if (node instanceof RelationExpr){
             RelationExpr relationExpr = (RelationExpr)node;
