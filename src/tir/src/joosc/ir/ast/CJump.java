@@ -78,4 +78,13 @@ public class CJump extends Statement {
     public boolean isCanonical(CheckCanonicalIRVisitor v) {
         return !hasFalseLabel();
     }
+
+    @Override
+    public String toString() {
+        return "Cjump{" +
+                "cond=" + cond + ", " +
+                "true=" + trueLabel + ", " +
+                "false=" + falseLabel +
+                '}';
+    }
 }

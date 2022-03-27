@@ -21,8 +21,8 @@ public class Main {
 		// IR interpreter demo
 		{
 			Simulator sim = new Simulator(compUnit);
-			long result = sim.call("nest", 5);
-			System.out.println("nest evaluates to " + result);
+			long result = sim.call("main", 5);
+			System.out.println("main evaluates to " + result);
 		}
 	}
 
@@ -39,7 +39,7 @@ public class Main {
 			typeChecker.check();
 			IRTranslator translator = new IRTranslator(env.compilationUnits);
 			translator.translate();
-			//System.out.println(translator.mapping);
+//			System.out.println(translator.mapping);
 			sim(translator, env);
 		} catch (Exception e) {
 			e.printStackTrace();

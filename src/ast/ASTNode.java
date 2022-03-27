@@ -16,16 +16,16 @@ abstract public class ASTNode {
         res += ")";
         return  res;
     }
-    // @Override
-    // public String toString() {
-    //     return this.getClass().getName();
-    // }
+     @Override
+     public String toString() {
+         return this.getClass().getName();
+     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getName() + "(val: " + value + "; children: "+ childrenToString() + ")";
-    }
-    
+//    @Override
+//    public String toString() {
+//        return this.getClass().getName() + "(val: " + value + "; children: "+ childrenToString() + ")";
+//    }
+//
     public ASTNode(List<ASTNode> children, String value){
         this.children = children;
         this.value = value;

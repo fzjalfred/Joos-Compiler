@@ -159,6 +159,42 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = new ESeq(new Seq(stmts), temp);
     }
 
+    public void visit(ConditionalOrExpr node) {
+        Temp temp = new Temp("t");
+        List <Statement> stmts = new ArrayList<Statement>();
+
+        Label true_label = new Label("true_"+node.hashCode());
+        Label false_label = new Label("false_"+node.hashCode());
+
+        stmts.add(new Move(temp, new Const(0)));
+        stmts.add(new CJump(node.getOperatorLeft().ir_node, true_label.name(), false_label.name()));
+        stmts.add(false_label);
+        stmts.add(new Move(temp, node.getOperatorRight().ir_node));
+        stmts.add(true_label);
+
+        node.ir_node = new ESeq(new Seq(stmts), temp);
+    }
+
+    public void visit(EqualityExpr node) {
+        if (node.getOperator().equals("==")) {
+            node.ir_node = new BinOp(BinOp.OpType.EQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+        } else if (node.getOperator().equals("!=")) {
+            node.ir_node = new BinOp(BinOp.OpType.NEQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+        }
+    }
+
+    public void visit(RelationExpr node) {
+        if (node.getOperator().equals(">")) {
+            node.ir_node = new BinOp(BinOp.OpType.GT, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+        } else if (node.getOperator().equals("<")) {
+            node.ir_node = new BinOp(BinOp.OpType.LT, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+        } else if (node.getOperator().equals(">=")) {
+            node.ir_node = new BinOp(BinOp.OpType.GEQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+        } else if (node.getOperator().equals("<=")) {
+            node.ir_node = new BinOp(BinOp.OpType.LEQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+        }
+    }
+
     public void visit(PrimaryNoArray node){
         node.ir_node = node.getExpr().ir_node;
     }
@@ -241,6 +277,7 @@ public class IRTranslatorVisitor extends Visitor {
         Label false_label = new Label("false_"+node.hashCode());
 
         Stmt thenStmt = (Stmt)node.getThenStmt();
+        Stmt elseStmt = (Stmt)node.getElseStmt();
 //        List <Statement> seq_stmts = new ArrayList<Statement>();
 //        for (ASTNode stmt: thenStmt.children){
 //            Stmt stmt1 = (Stmt)stmt;
@@ -253,6 +290,7 @@ public class IRTranslatorVisitor extends Visitor {
         System.out.println(thenStmt.ir_node);
         stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
+        stmts.add(elseStmt.ir_node);
 
         node.ir_node = new Seq(stmts);
     }
