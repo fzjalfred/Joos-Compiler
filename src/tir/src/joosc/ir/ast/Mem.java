@@ -43,4 +43,10 @@ public class Mem extends Expr_c {
         result = v.bind(result, v.visit(expr));
         return result;
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = ((Expr_c)(expr)).canonicalized_node;
+        canonicalized_node.setLastStatement(new Exp(new Mem(canonicalized_node.getLastExpr())));
+    }
 }

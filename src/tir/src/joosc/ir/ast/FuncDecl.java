@@ -71,4 +71,9 @@ public class FuncDecl extends Node_c {
     public Node buildInsnMaps(InsnMapsBuilder v) {
         return this;
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = body.canonicalized_node;
+    }
 }

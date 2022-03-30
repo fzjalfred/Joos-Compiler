@@ -1,5 +1,7 @@
 package tir.src.joosc.ir.ast;
 
+import java.util.ArrayList;
+
 /**
  * An intermediate representation for a 64-bit integer constant.
  * CONST(n)
@@ -39,5 +41,10 @@ public class Const extends Expr_c {
         return "Const{" +
                 "value=" + value +
                 '}';
+    }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = new Seq(new Exp(this));
     }
 }

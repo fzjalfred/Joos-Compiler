@@ -42,4 +42,9 @@ public abstract class Node_c implements Node {
     @Override
     public abstract String label();
 
+    @Override
+    public void canonicalize() {
+    }
+
+    public Seq canonicalized_node = null;
 }

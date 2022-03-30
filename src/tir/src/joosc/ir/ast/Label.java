@@ -37,4 +37,9 @@ public class Label extends Statement {
         v.addNameToCurrentIndex(name);
         return v;
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = new Seq(this);
+    }
 }

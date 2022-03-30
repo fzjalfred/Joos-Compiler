@@ -8,7 +8,7 @@ public class CheckCanonicalIRVisitor extends AggregateVisitor<Boolean> {
     protected boolean inExp;
     protected boolean inExpr;
 
-    protected Node offender;
+    public Node offender;
     protected CheckCanonicalIRVisitor outer;
 
     @Override

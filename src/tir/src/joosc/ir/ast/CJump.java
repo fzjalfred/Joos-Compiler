@@ -87,4 +87,9 @@ public class CJump extends Statement {
                 "false=" + falseLabel +
                 '}';
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = new Seq(new CJump(cond, trueLabel), new Jump(new Name(falseLabel)));
+    }
 }

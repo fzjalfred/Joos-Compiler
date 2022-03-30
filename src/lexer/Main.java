@@ -19,11 +19,7 @@ public class Main {
 			compUnit.appendFunc(funcDecl);
 		}
 		// IR interpreter demo
-		{
-			Simulator sim = new Simulator(compUnit);
-			long result = sim.call("main", 5);
-			System.out.println("main evaluates to " + result);
-		}
+		translator.canonicalize(compUnit);
 	}
 
 	static public void main(String argv[]) {

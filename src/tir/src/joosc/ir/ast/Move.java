@@ -65,4 +65,11 @@ public class Move extends Statement {
                 ", src=" + src +
                 '}';
     }
+
+    @Override
+    public void canonicalize() {
+        Seq e2_can = ((Expr_c)src).canonicalized_node;
+        e2_can.setLastStatement(new Move(target, e2_can.getLastExpr()));
+        canonicalized_node = e2_can;
+    }
 }

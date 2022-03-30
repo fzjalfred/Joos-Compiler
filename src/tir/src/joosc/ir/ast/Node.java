@@ -24,4 +24,6 @@ public interface Node {
     boolean isCanonical(CheckCanonicalIRVisitor v);
 
     String label();
+
+    void canonicalize();
 }

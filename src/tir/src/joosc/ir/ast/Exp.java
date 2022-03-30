@@ -50,4 +50,9 @@ public class Exp extends Statement {
             CheckCanonicalIRVisitor v) {
         return v.enterExp();
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = ((Expr_c)(expr)).canonicalized_node;
+    }
 }

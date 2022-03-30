@@ -98,4 +98,30 @@ public class Seq extends Statement {
     public boolean isCanonical(CheckCanonicalIRVisitor v) {
         return !v.inSeq();
     }
+
+    public Expr getLastExpr(){
+        Statement last = statements.get(statements.size()-1);
+        if (last instanceof Exp){
+            return ((Exp)last).expr();
+        }
+        return null;
+    }
+
+    void addSeq(Seq that){
+        this.statements.addAll(that.statements);
+    }
+
+    public void setLastStatement(Statement stmt){
+        statements.set(statements.size()-1, stmt);
+    }
+
+    @Override
+    public void canonicalize() {
+        List<Statement> stmts = new ArrayList<Statement>();
+        for (Statement statement: statements){
+            if (statement.canonicalized_node == null) System.out.println(statement);
+            stmts.addAll(statement.canonicalized_node.statements);
+        }
+        canonicalized_node = new Seq(stmts);
+    }
 }

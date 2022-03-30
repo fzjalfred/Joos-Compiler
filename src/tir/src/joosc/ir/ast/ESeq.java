@@ -62,4 +62,11 @@ public class ESeq extends Expr_c {
     public boolean isCanonical(CheckCanonicalIRVisitor v) {
         return false;
     }
+
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = statement.canonicalized_node;
+        canonicalized_node.addSeq(((Expr_c)expr).canonicalized_node);
+    }
 }

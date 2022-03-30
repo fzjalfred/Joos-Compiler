@@ -1,6 +1,7 @@
 package tir.src.joosc.ir.ast;
 
 import tir.src.joosc.ir.visit.AggregateVisitor;
+import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 
 import java.util.LinkedHashMap;
@@ -66,5 +67,10 @@ public class CompUnit extends Node_c {
         for (FuncDecl func : functions.values())
             result = v.bind(result, v.visit(func));
         return result;
+    }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = new Seq();
     }
 }

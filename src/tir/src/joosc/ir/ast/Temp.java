@@ -29,4 +29,9 @@ public class Temp extends Expr_c {
                 "name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = new Seq(new Exp(this));
+    }
 }

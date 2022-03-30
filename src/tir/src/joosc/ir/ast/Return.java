@@ -51,4 +51,11 @@ public class Return extends Statement {
                 "expr=" + ret +
                 '}';
     }
+
+    @Override
+    public void canonicalize() {
+        Seq ret_can = ((Expr_c)ret).canonicalized_node;
+        ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
+        canonicalized_node = ret_can;
+    }
 }

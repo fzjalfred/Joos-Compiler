@@ -41,4 +41,9 @@ public class Jump extends Statement {
         result = v.bind(result, v.visit(target));
         return result;
     }
+
+    @Override
+    public void canonicalize() {
+        canonicalized_node = new Seq(this);
+    }
 }
