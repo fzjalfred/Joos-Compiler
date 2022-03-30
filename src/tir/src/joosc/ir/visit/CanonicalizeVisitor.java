@@ -20,4 +20,10 @@ public class CanonicalizeVisitor extends IRVisitor{
         n_.canonicalize();
         return n_;
     }
+
+    public void processComp(CompUnit c){
+        for (FuncDecl f : c.functions().values()){
+            f.body = f.body.canonicalized_node;
+        }
+    }
 }

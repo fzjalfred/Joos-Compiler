@@ -36,11 +36,12 @@ public class IRTranslator {
         System.out.println("===================");
         CanonicalizeVisitor cv = new CanonicalizeVisitor();
         cv.visit(compUnit);
+        cv.processComp(compUnit);
         System.out.println("after canonicalize");
-        System.out.println(compUnit.functions().get("main").canonicalized_node);
+        System.out.println(compUnit.functions().get("main"));
         CheckCanonicalIRVisitor ckv = new CheckCanonicalIRVisitor();
         System.out.print("Canonical? ");
-        System.out.println(ckv.visit(compUnit.functions().get("main").canonicalized_node));
+        System.out.println(ckv.visit(compUnit.functions().get("main")));
         System.out.println(ckv.offender);
     }
 

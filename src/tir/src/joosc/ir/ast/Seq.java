@@ -119,7 +119,6 @@ public class Seq extends Statement {
     public void canonicalize() {
         List<Statement> stmts = new ArrayList<Statement>();
         for (Statement statement: statements){
-            if (statement.canonicalized_node == null) System.out.println(statement);
             stmts.addAll(statement.canonicalized_node.statements);
         }
         canonicalized_node = new Seq(stmts);
