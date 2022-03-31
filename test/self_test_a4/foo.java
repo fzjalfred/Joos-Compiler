@@ -2,12 +2,12 @@ public class foo{
     public foo(){
 
     }
-    public int bar(int a){
-        return a+1;
+    public int bar(){
+        return 11;
     }
 
     public int main(){
-        int a = bar(10);
+        int a = bar();
         int b = 5;
         {
             int c = 4;

@@ -142,8 +142,14 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(MethodInvocation node) {
         tir.src.joosc.ir.ast.Expr funcAddr = new Name(node.getName().getValue());
-        List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
-        node.ir_node = new Call(funcAddr, args);
+        if(node.getArgumentList() != null) {
+            List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
+            node.ir_node = new Call(funcAddr, args);
+        }else{
+            List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+            node.ir_node = new Call(funcAddr, exprList);
+        }
+
     }
 
     public void visit(Block node){

@@ -55,4 +55,11 @@ public class Exp extends Statement {
     public void canonicalize() {
         canonicalized_node = ((Expr_c)(expr)).canonicalized_node;
     }
+
+    @Override
+    public String toString() {
+        return "Exp{" +
+                "expr=" + expr +
+                '}';
+    }
 }
