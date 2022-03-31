@@ -110,6 +110,7 @@ public class Seq extends Statement {
     void addSeq(Seq that){
         this.statements.addAll(that.statements);
     }
+    void addStatement(Statement stmt) {this.statements.add(stmt);}
 
     public void setLastStatement(Statement stmt){
         statements.set(statements.size()-1, stmt);

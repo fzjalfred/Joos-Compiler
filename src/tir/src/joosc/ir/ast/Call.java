@@ -1,5 +1,6 @@
 package tir.src.joosc.ir.ast;
 
+import tir.src.joosc.ir.interpret.Configuration;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
@@ -94,4 +95,32 @@ public class Call extends Expr_c {
                 '}';
     }
 
+    @Override
+    public void canonicalize() {
+        List<Statement> stmts = new ArrayList<Statement>();
+        Seq seq = new Seq(stmts);
+        List<Expr> temp_list = new ArrayList<Expr>();
+
+        // Name
+        Temp name_t = new Temp("t_"+hashCode());
+        Seq name_seq = ((Expr_c)target).canonicalized_node;
+        name_seq.setLastStatement(new Move(name_t, name_seq.getLastExpr()));
+        seq.addSeq(name_seq);
+
+        // Arguments
+        int index = 0;
+
+        for (Expr arg : args) {
+            Temp t = new Temp("t"+index+"_"+hashCode());
+            Seq arg_seq = ((Expr_c)arg).canonicalized_node;
+            arg_seq.setLastStatement(new Move(t, arg_seq.getLastExpr()));
+            seq.addSeq(arg_seq);
+            temp_list.add(t);
+            index++;
+        }
+
+        seq.addStatement(new Exp(new Call(name_t, temp_list)));
+        seq.addStatement(new Exp(new Temp(Configuration.ABSTRACT_RET)));
+        canonicalized_node = seq;
+    }
 }

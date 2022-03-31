@@ -2,9 +2,12 @@ public class foo{
     public foo(){
 
     }
+    public int bar(int a){
+        return a+1;
+    }
 
     public int main(){
-        int a = 10;
+        int a = bar(10);
         int b = 5;
         {
             int c = 4;
