@@ -5,6 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class ArrayAccess extends PrimaryNoArray {
+    public String recursive_dectecter = "";
     public Referenceable refer = null;
     public ArrayAccess(List<ASTNode> children, String value){
         super(children, value);

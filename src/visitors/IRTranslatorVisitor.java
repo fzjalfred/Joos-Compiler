@@ -66,10 +66,66 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(StmtExpr node){
         Expr child = node.getExpr();
-        if (child instanceof Assignment){
+        if (child instanceof Assignment && ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr() instanceof ArrayAccess) {
+            ArrayAccess acs = (ArrayAccess) ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr();
+            
+            // depth first
+            for (ASTNode c: acs.children) {
+                c.accept(this);
+            }
+            ((Assignment)child).getAssignmentRight().accept(this);
+
+            List <Statement> stmts = new ArrayList<Statement>();
+            Temp ta = new Temp("ta");
+            tir.src.joosc.ir.ast.Expr e1 = null;
+            if (acs.hasName()) {
+                e1 = new Temp(acs.getName().getValue());
+            } else {
+                e1 = acs.getExpr().ir_node;
+            }
+            stmts.add(new Move(ta, e1));
+            // null check
+            Label null_exception_label = new Label("null_exception_label"+acs.hashCode());
+            Label ok_label = new Label("stmt_ok_label"+acs.hashCode());
+            stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, e1, new Const(0)), null_exception_label.name(), ok_label.name()));
+            stmts.add(null_exception_label);
+            stmts.add(new Exp(new Call(new Name("__exception"))));
+            stmts.add(ok_label);
+            Temp ti = new Temp("ti");
+            stmts.add(new Move(ti, acs.getDimExpr().ir_node));
+            // bounds check
+            Label negative_index_exception = new Label("negative_index_exception"+acs.hashCode());
+            Label lower_bound_ok_label = new Label("lower_bound_ok_label"+acs.hashCode());
+
+            Label index_exception_label = new Label("index_exception_label"+acs.hashCode());
+            Label bound_ok_label = new Label("bound_ok_label"+acs.hashCode());
+
+            //check 0<=ti
+            stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
+            stmts.add(negative_index_exception);
+            stmts.add(new Exp(new Call(new Name("__exception"))));
+            stmts.add(lower_bound_ok_label);
+
+            //check ti<size
+            stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
+            stmts.add(index_exception_label);
+            stmts.add(new Exp(new Call(new Name("__exception"))));
+            stmts.add(bound_ok_label);
+
+            Temp res = new Temp("res");
+            stmts.add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4))))));
+            acs.ir_node = new ESeq(new Seq(stmts), res);
+            
+            // array assignment
+            Temp te = new Temp("te");
+            stmts.add(new Move(te, ((Assignment)child).getAssignmentRight().ir_node));
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, new Const(4), ti))), te));
+            node.ir_node = new Seq(stmts);
+
+        } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
             node.ir_node = new Move(assignmentChild.getAssignmentLeft().ir_node, assignmentChild.getAssignmentRight().ir_node);
-        }   else {
+        } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
         }
     }
@@ -326,6 +382,97 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(false_label);
 
         node.ir_node = new Seq(stmts);
+    }
+
+    public void visit(DimExpr node) {
+        node.ir_node = node.getSingleChild().ir_node;
+    }
+
+    public void visit(ArrayAccess node){
+        List <Statement> stmts = new ArrayList<Statement>();
+        Temp ta = new Temp("ta");
+        tir.src.joosc.ir.ast.Expr e1 = null;
+        if (node.hasName()) {
+            e1 = new Temp(node.getName().getValue());
+        } else {
+            node.recursive_dectecter += "recursive_layer_";
+            e1 = node.getExpr().ir_node;
+        }
+        stmts.add(new Move(ta, e1));
+        
+        // null check
+        Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
+        Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, ta, new Const(0)), null_exception_label.name(), ok_label.name()));
+        stmts.add(null_exception_label);
+        stmts.add(new Exp(new Call(new Name("__exception"))));
+        stmts.add(ok_label);
+        Temp ti = new Temp("ti");
+        stmts.add(new Move(ti, node.getDimExpr().ir_node));
+        
+        // bounds check
+        Label negative_index_exception = new Label("negative_index_exception"+node.hashCode()+node.recursive_dectecter);
+        Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode()+node.recursive_dectecter);
+
+        Label index_exception_label = new Label("index_exception_label"+node.hashCode()+node.recursive_dectecter);
+        Label bound_ok_label = new Label("bound_ok_label"+node.hashCode()+node.recursive_dectecter);
+
+        //check 0<=ti
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
+        stmts.add(negative_index_exception);
+        stmts.add(new Exp(new Call(new Name("__exception"))));
+        stmts.add(lower_bound_ok_label);
+
+        //check ti<size
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
+        stmts.add(index_exception_label);
+        stmts.add(new Exp(new Call(new Name("__exception"))));
+        stmts.add(bound_ok_label);
+
+        Temp res = new Temp("res");
+        stmts.add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4))))));
+        node.ir_node = new ESeq(new Seq(stmts), res);
+
+    }
+
+    public void visit(ArrayCreationExpr node) {
+        List <Statement> stmts = new ArrayList<Statement>();
+        Temp tn = new Temp("tn");
+        
+        stmts.add(new Move(tn, node.getDimExpr().ir_node));
+        
+        
+        //check 0<=ti
+        Label negative_check = new Label("negative_check"+node.hashCode());
+        Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode());
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), tn), lower_bound_ok_label.name(), negative_check.name()));
+        stmts.add(negative_check);
+        stmts.add(new Exp(new Call(new Name("__exception"))));
+        stmts.add(lower_bound_ok_label);
+
+        Temp tm = new Temp("tm");
+        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, new Const(4), tn)))));
+        stmts.add(new Move(new Mem(tm), tn));
+        //TODO dispatch vector
+        //stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), ...));
+
+        // loop to clear memory locations.
+        Temp cleaner = new Temp("cleaner");
+        stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, new Const(4*2), tm)));
+
+        Label clean = new Label("clean"+node.hashCode());
+        Label cleanup_done = new Label("cleanup_done"+node.hashCode());
+        stmts.add(clean);
+        stmts.add(new Move(new Mem(cleaner), new Const(0)));
+        stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, cleaner, new Const(4))));
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, cleaner, new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, tn, new Const(4)))), clean.name(), cleanup_done.name()));
+        stmts.add(cleanup_done);
+
+
+        Temp res = new Temp("res");
+        stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, tm, new Const(4*2))));
+        //stmts.add(new Exp(new Call(new Name("__exception"))));
+        node.ir_node = new ESeq(new Seq(stmts), res);
     }
 
 }

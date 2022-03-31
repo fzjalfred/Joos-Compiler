@@ -22,8 +22,8 @@ public class Main {
 		translator.canonicalize(compUnit);
 		{
 			Simulator sim = new Simulator(compUnit);
-			long result = sim.call("main", 5);
-			System.out.println("main evaluates to " + result);
+			long result = sim.call("foo");
+			System.out.println("foo evaluates to " + result);
 		}
 	}
 
