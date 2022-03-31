@@ -73,7 +73,7 @@ public class Move extends Statement {
             Temp t1 = new Temp("t"+hashCode());
             e1_can.setLastStatement(new Move(t1, e1_can.getLastExpr()));
             Seq e2_can = ((Expr_c)src).canonicalized_node;
-            e2_can.setLastStatement(new Move(t1, e2_can.getLastExpr()));
+            e2_can.setLastStatement(new Move(new Mem(t1), e2_can.getLastExpr()));
             e1_can.addSeq(e2_can);
             canonicalized_node = e1_can;
         } else {
