@@ -121,7 +121,7 @@ public class Call extends Expr_c {
         if (target instanceof Name && isSyscall((Name)target)) {
             sys_flag = true;
         } else {
-            Seq name_seq = ((Expr_c)target).canonicalized_node;
+            Seq name_seq = new Seq(((Expr_c)target).canonicalized_node.stmts());
             name_seq.setLastStatement(new Move(name_t, name_seq.getLastExpr()));
             seq.addSeq(name_seq);
         }
@@ -132,7 +132,7 @@ public class Call extends Expr_c {
 
         for (Expr arg : args) {
             Temp t = new Temp("t"+index+"_"+hashCode());
-            Seq arg_seq = ((Expr_c)arg).canonicalized_node;
+            Seq arg_seq = new Seq(((Expr_c)arg).canonicalized_node.stmts());
             arg_seq.setLastStatement(new Move(t, arg_seq.getLastExpr()));
             seq.addSeq(arg_seq);
             temp_list.add(t);

@@ -53,7 +53,7 @@ public class Exp extends Statement {
 
     @Override
     public void canonicalize() {
-        canonicalized_node = ((Expr_c)(expr)).canonicalized_node;
+        canonicalized_node = new Seq(((Expr_c)(expr)).canonicalized_node.stmts());
     }
 
     @Override

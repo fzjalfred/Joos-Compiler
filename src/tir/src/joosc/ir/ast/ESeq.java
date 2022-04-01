@@ -74,7 +74,7 @@ public class ESeq extends Expr_c {
 
     @Override
     public void canonicalize() {
-        canonicalized_node = statement.canonicalized_node;
+        canonicalized_node = new Seq(statement.canonicalized_node.stmts());
         canonicalized_node.addSeq(((Expr_c)expr).canonicalized_node);
     }
 }

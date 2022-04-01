@@ -78,8 +78,8 @@ public class BinOp extends Expr_c {
 
     @Override
     public void canonicalize() {
-        Seq eq_can1 = ((Expr_c)left).canonicalized_node;
-        Seq eq_can2 = ((Expr_c)right).canonicalized_node;
+        Seq eq_can1 = new Seq(((Expr_c)left).canonicalized_node.stmts());
+        Seq eq_can2 = new Seq(((Expr_c)right).canonicalized_node.stmts());
         Temp t1 = new Temp("t"+hashCode());
         eq_can1.setLastStatement(new Move(t1, eq_can1.getLastExpr()));
         eq_can2.setLastStatement(new Exp(new BinOp(type, t1, eq_can2.getLastExpr())));

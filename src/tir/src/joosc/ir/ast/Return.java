@@ -54,7 +54,7 @@ public class Return extends Statement {
 
     @Override
     public void canonicalize() {
-        Seq ret_can = ((Expr_c)ret).canonicalized_node;
+        Seq ret_can = new Seq(((Expr_c)ret).canonicalized_node.stmts());
         ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
         canonicalized_node = ret_can;
     }
