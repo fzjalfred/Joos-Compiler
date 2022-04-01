@@ -59,6 +59,14 @@ public class ESeq extends Expr_c {
     }
 
     @Override
+    public String toString() {
+        return "Eseq{" +
+                "statement=" + statement + ", " +
+                "expr=" + expr +
+                '}';
+    }
+
+    @Override
     public boolean isCanonical(CheckCanonicalIRVisitor v) {
         return false;
     }

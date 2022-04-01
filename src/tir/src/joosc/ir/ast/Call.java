@@ -49,6 +49,20 @@ public class Call extends Expr_c {
         return args.size();
     }
 
+    private boolean isSyscall(Name name) {
+        String name_str = name.name();
+        if (name_str.equals("NATIVEjava.io.OutputStream.nativeWrite")) {
+            return true;
+        } else if (name_str.equals("__malloc")) {
+            return true;
+        } else if (name_str.equals("__debexit")) {
+            return true;
+        } else if (name_str.equals("__exception")) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String label() {
         return "CALL";
@@ -100,12 +114,18 @@ public class Call extends Expr_c {
         List<Statement> stmts = new ArrayList<Statement>();
         Seq seq = new Seq(stmts);
         List<Expr> temp_list = new ArrayList<Expr>();
-
-        // Name
         Temp name_t = new Temp("t_"+hashCode());
-        Seq name_seq = ((Expr_c)target).canonicalized_node;
-        name_seq.setLastStatement(new Move(name_t, name_seq.getLastExpr()));
-        seq.addSeq(name_seq);
+
+        boolean sys_flag = false;
+        // Name
+        if (target instanceof Name && isSyscall((Name)target)) {
+            sys_flag = true;
+        } else {
+            Seq name_seq = ((Expr_c)target).canonicalized_node;
+            name_seq.setLastStatement(new Move(name_t, name_seq.getLastExpr()));
+            seq.addSeq(name_seq);
+        }
+
 
         // Arguments
         int index = 0;
@@ -119,7 +139,12 @@ public class Call extends Expr_c {
             index++;
         }
 
-        seq.addStatement(new Exp(new Call(name_t, temp_list)));
+        if (sys_flag) {
+            seq.addStatement(new Exp(new Call(target, temp_list)));
+        } else {
+            seq.addStatement(new Exp(new Call(name_t, temp_list)));
+        }
+
         seq.addStatement(new Exp(new Temp(Configuration.ABSTRACT_RET)));
         canonicalized_node = seq;
     }
