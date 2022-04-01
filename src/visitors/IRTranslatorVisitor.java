@@ -156,6 +156,10 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(Block node){
         List<Statement> stmts = new ArrayList<Statement>();
+        if (node.getBlockStmts() == null) {
+            node.ir_node = new Seq(stmts);
+            return;
+        }
         for (ASTNode stmt: node.getBlockStmts().children){
             Stmt stmt1 = (Stmt)stmt;
             stmts.add(stmt1.ir_node);
@@ -409,12 +413,12 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(ta, e1));
         
         // // null check
-        // Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
-        // Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
-        // stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, ta, new Const(0)), null_exception_label.name(), ok_label.name()));
-        // stmts.add(null_exception_label);
-        // stmts.add(new Exp(new Call(new Name("__exception"))));
-        // stmts.add(ok_label);
+         Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
+         Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
+         stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, ta, new Const(0)), null_exception_label.name(), ok_label.name()));
+         stmts.add(null_exception_label);
+         stmts.add(new Exp(new Call(new Name("__exception"))));
+         stmts.add(ok_label);
 
         Temp ti = new Temp("ti");
         stmts.add(new Move(ti, node.getDimExpr().ir_node));
@@ -451,7 +455,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(tn, node.getDimExpr().ir_node));
         
         
-        // //check 0<=ti
+         //check 0<=ti
         // Label negative_check = new Label("negative_check"+node.hashCode());
         // Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode());
         // stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), tn), lower_bound_ok_label.name(), negative_check.name()));
