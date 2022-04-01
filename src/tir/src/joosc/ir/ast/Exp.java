@@ -4,6 +4,9 @@ import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * An intermediate representation for evaluating an expression for side effects,
  * discarding the result
@@ -53,7 +56,12 @@ public class Exp extends Statement {
 
     @Override
     public void canonicalize() {
-        canonicalized_node = new Seq(((Expr_c)(expr)).canonicalized_node.stmts());
+        List<Statement> stmts = new ArrayList<Statement>();
+        List<Statement> stmts_e = ((Expr_c)(expr)).canonicalized_node.stmts();
+        for (int i = 0; i < stmts_e.size()-1; ++i){
+            stmts.add(stmts_e.get(i));
+        }
+        canonicalized_node = new Seq(stmts);
     }
 
     @Override
