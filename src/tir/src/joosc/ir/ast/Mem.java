@@ -43,6 +43,12 @@ public class Mem extends Expr_c {
         result = v.bind(result, v.visit(expr));
         return result;
     }
+    @Override
+    public String toString() {
+        return "Mem{" +
+                "expr=" + expr +
+                '}';
+    }
 
     @Override
     public void canonicalize() {

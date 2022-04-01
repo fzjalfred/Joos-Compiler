@@ -41,6 +41,12 @@ public class Jump extends Statement {
         result = v.bind(result, v.visit(target));
         return result;
     }
+    @Override
+    public String toString() {
+        return "Jump{" +
+                "target=" + target +
+                '}';
+    }
 
     @Override
     public void canonicalize() {
