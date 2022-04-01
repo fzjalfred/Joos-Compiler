@@ -208,6 +208,8 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(ReturnStmt node) {
         if (node.getExpr() != null) {
             node.ir_node = new Return(node.getExpr().ir_node);
+        } else {
+            node.ir_node = new Return(new Const(0)); // dummy value
         }
     }
 

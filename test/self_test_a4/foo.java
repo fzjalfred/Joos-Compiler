@@ -3,11 +3,12 @@ public class foo{
 
     }
     public int bar(){
-        return 11;
+        return;
     }
 
     public int main(){
-        int a = bar();
+        bar();
+        int a = 10;
         int b = 5;
         {
             int c = 4;
