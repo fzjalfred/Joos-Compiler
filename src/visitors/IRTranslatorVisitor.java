@@ -84,33 +84,35 @@ public class IRTranslatorVisitor extends Visitor {
                 e1 = acs.getExpr().ir_node;
             }
             stmts.add(new Move(ta, e1));
-            // null check
-            Label null_exception_label = new Label("null_exception_label"+acs.hashCode());
-            Label ok_label = new Label("stmt_ok_label"+acs.hashCode());
-            stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, e1, new Const(0)), null_exception_label.name(), ok_label.name()));
-            stmts.add(null_exception_label);
-            stmts.add(new Exp(new Call(new Name("__exception"))));
-            stmts.add(ok_label);
+            // // null check
+            // Label null_exception_label = new Label("null_exception_label"+acs.hashCode());
+            // Label ok_label = new Label("stmt_ok_label"+acs.hashCode());
+            // stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, e1, new Const(0)), null_exception_label.name(), ok_label.name()));
+            // stmts.add(null_exception_label);
+            // stmts.add(new Exp(new Call(new Name("__exception"))));
+            // stmts.add(ok_label);
+
             Temp ti = new Temp("ti");
             stmts.add(new Move(ti, acs.getDimExpr().ir_node));
-            // bounds check
-            Label negative_index_exception = new Label("negative_index_exception"+acs.hashCode());
-            Label lower_bound_ok_label = new Label("lower_bound_ok_label"+acs.hashCode());
+            
+            // // bounds check
+            // Label negative_index_exception = new Label("negative_index_exception"+acs.hashCode());
+            // Label lower_bound_ok_label = new Label("lower_bound_ok_label"+acs.hashCode());
 
-            Label index_exception_label = new Label("index_exception_label"+acs.hashCode());
-            Label bound_ok_label = new Label("bound_ok_label"+acs.hashCode());
+            // Label index_exception_label = new Label("index_exception_label"+acs.hashCode());
+            // Label bound_ok_label = new Label("bound_ok_label"+acs.hashCode());
 
-            //check 0<=ti
-            stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
-            stmts.add(negative_index_exception);
-            stmts.add(new Exp(new Call(new Name("__exception"))));
-            stmts.add(lower_bound_ok_label);
+            // //check 0<=ti
+            // stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
+            // stmts.add(negative_index_exception);
+            // stmts.add(new Exp(new Call(new Name("__exception"))));
+            // stmts.add(lower_bound_ok_label);
 
-            //check ti<size
-            stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
-            stmts.add(index_exception_label);
-            stmts.add(new Exp(new Call(new Name("__exception"))));
-            stmts.add(bound_ok_label);
+            // //check ti<size
+            // stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
+            // stmts.add(index_exception_label);
+            // stmts.add(new Exp(new Call(new Name("__exception"))));
+            // stmts.add(bound_ok_label);
 
             Temp res = new Temp("res");
             stmts.add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4))))));
@@ -406,34 +408,35 @@ public class IRTranslatorVisitor extends Visitor {
         }
         stmts.add(new Move(ta, e1));
         
-        // null check
-        Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
-        Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
-        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, ta, new Const(0)), null_exception_label.name(), ok_label.name()));
-        stmts.add(null_exception_label);
-        stmts.add(new Exp(new Call(new Name("__exception"))));
-        stmts.add(ok_label);
+        // // null check
+        // Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
+        // Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
+        // stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, ta, new Const(0)), null_exception_label.name(), ok_label.name()));
+        // stmts.add(null_exception_label);
+        // stmts.add(new Exp(new Call(new Name("__exception"))));
+        // stmts.add(ok_label);
+
         Temp ti = new Temp("ti");
         stmts.add(new Move(ti, node.getDimExpr().ir_node));
         
-        // bounds check
-        Label negative_index_exception = new Label("negative_index_exception"+node.hashCode()+node.recursive_dectecter);
-        Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode()+node.recursive_dectecter);
+        // // bounds check
+        // Label negative_index_exception = new Label("negative_index_exception"+node.hashCode()+node.recursive_dectecter);
+        // Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode()+node.recursive_dectecter);
 
-        Label index_exception_label = new Label("index_exception_label"+node.hashCode()+node.recursive_dectecter);
-        Label bound_ok_label = new Label("bound_ok_label"+node.hashCode()+node.recursive_dectecter);
+        // Label index_exception_label = new Label("index_exception_label"+node.hashCode()+node.recursive_dectecter);
+        // Label bound_ok_label = new Label("bound_ok_label"+node.hashCode()+node.recursive_dectecter);
 
-        //check 0<=ti
-        stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
-        stmts.add(negative_index_exception);
-        stmts.add(new Exp(new Call(new Name("__exception"))));
-        stmts.add(lower_bound_ok_label);
+        // //check 0<=ti
+        // stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
+        // stmts.add(negative_index_exception);
+        // stmts.add(new Exp(new Call(new Name("__exception"))));
+        // stmts.add(lower_bound_ok_label);
 
-        //check ti<size
-        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
-        stmts.add(index_exception_label);
-        stmts.add(new Exp(new Call(new Name("__exception"))));
-        stmts.add(bound_ok_label);
+        // //check ti<size
+        // stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
+        // stmts.add(index_exception_label);
+        // stmts.add(new Exp(new Call(new Name("__exception"))));
+        // stmts.add(bound_ok_label);
 
         Temp res = new Temp("res");
         stmts.add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4))))));
@@ -448,13 +451,13 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(tn, node.getDimExpr().ir_node));
         
         
-        //check 0<=ti
-        Label negative_check = new Label("negative_check"+node.hashCode());
-        Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode());
-        stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), tn), lower_bound_ok_label.name(), negative_check.name()));
-        stmts.add(negative_check);
-        stmts.add(new Exp(new Call(new Name("__exception"))));
-        stmts.add(lower_bound_ok_label);
+        // //check 0<=ti
+        // Label negative_check = new Label("negative_check"+node.hashCode());
+        // Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode());
+        // stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), tn), lower_bound_ok_label.name(), negative_check.name()));
+        // stmts.add(negative_check);
+        // stmts.add(new Exp(new Call(new Name("__exception"))));
+        // stmts.add(lower_bound_ok_label);
 
         Temp tm = new Temp("tm");
         stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, new Const(4), tn)))));
