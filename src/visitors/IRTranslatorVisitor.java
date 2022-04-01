@@ -474,7 +474,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(clean);
         stmts.add(new Move(new Mem(cleaner), new Const(0)));
         stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, cleaner, new Const(4))));
-        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, cleaner, new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, tn, new Const(4)))), clean.name(), cleanup_done.name()));
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, cleaner, new BinOp(BinOp.OpType.ADD, tm, new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, tn, new Const(4))))), clean.name(), cleanup_done.name()));
         stmts.add(cleanup_done);
 
 
