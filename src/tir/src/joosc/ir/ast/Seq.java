@@ -1,8 +1,11 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.Tile;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,5 +126,12 @@ public class Seq extends Statement {
             stmts.addAll(statement.canonicalized_node.statements);
         }
         canonicalized_node = new Seq(stmts);
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Node> res = new ArrayList<Node>();
+        res.addAll(statements);
+        return new Pair<List<Node>, Tile>(res, v.unit());
     }
 }

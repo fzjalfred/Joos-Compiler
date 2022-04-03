@@ -1,5 +1,6 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.Register;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 
 /**
@@ -26,4 +27,6 @@ public abstract class Expr_c extends Node_c implements Expr {
     public int constant() {
         throw new UnsupportedOperationException();
     }
+
+    public Register res_register = null;
 }

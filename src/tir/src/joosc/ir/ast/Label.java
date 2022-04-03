@@ -1,6 +1,12 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.Tile;
 import tir.src.joosc.ir.visit.InsnMapsBuilder;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An intermediate representation for naming a memory address
@@ -41,5 +47,10 @@ public class Label extends Statement {
     @Override
     public void canonicalize() {
         canonicalized_node = new Seq(this);
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        return new Pair<List<Node>, Tile>(new ArrayList<Node>(), v.unit());
     }
 }

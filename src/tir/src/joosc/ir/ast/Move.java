@@ -1,7 +1,17 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.mov;
+import backend.asm.Code;
+import backend.asm.Operand;
+import backend.asm.Register;
+import backend.asm.Tile;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An intermediate representation for a move statement
@@ -82,5 +92,27 @@ public class Move extends Statement {
             canonicalized_node = e2_can;
         }
 
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Code> tileCodes = new ArrayList<Code>();
+        Operand operand2 = null;
+        if (src instanceof Const){
+            operand2 = new backend.asm.Const(((Const)src).value());
+        }   else if (src instanceof Temp){
+            operand2 = new Register(((Temp)src).name());
+        }
+        Operand operand1 = null;
+        if (target instanceof Temp){
+            operand1 = new Register(((Temp)target).name());
+            tileCodes.add(new mov(operand1, operand2));
+            List<Node> nodes = new ArrayList<Node>();
+            //nodes.add(target); NO need to visit these nodes
+            //nodes.add(src);
+            return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
+        }   else {
+            return null;        //TODO: now only support move to register, fixme
+        }
     }
 }

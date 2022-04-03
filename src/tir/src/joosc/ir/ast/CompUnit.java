@@ -1,10 +1,15 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.Tile;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,5 +77,14 @@ public class CompUnit extends Node_c {
     @Override
     public void canonicalize() {
         canonicalized_node = new Seq();
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Node> res = new ArrayList<Node>();
+        for (FuncDecl f : functions.values()){
+            res.add(f);
+        }
+        return new Pair<List<Node>, Tile>(res, v.unit());
     }
 }

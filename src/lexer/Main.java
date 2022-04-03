@@ -20,11 +20,7 @@ public class Main {
 		}
 		// IR interpreter demo
 		translator.canonicalize(compUnit);
-		{
-			Simulator sim = new Simulator(compUnit);
-			long result = sim.call("main");
-			System.out.println("main evaluates to " + result);
-		}
+		System.out.println(translator.tiling(compUnit));
 	}
 
 	static public void main(String argv[]) {
