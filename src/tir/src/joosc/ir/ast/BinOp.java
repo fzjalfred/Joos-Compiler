@@ -1,7 +1,13 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.*;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An intermediate representation for a binary operation
@@ -85,5 +91,28 @@ public class BinOp extends Expr_c {
         eq_can2.setLastStatement(new Exp(new BinOp(type, t1, eq_can2.getLastExpr())));
         eq_can1.addSeq(eq_can2);
         canonicalized_node = eq_can1;
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Code> codes = new ArrayList<Code>();
+        List<Node> nodes = new ArrayList<Node>();
+        if (left instanceof Temp){
+            if (right instanceof Temp){
+                codes.add(new lea(res_register, new lea.leaOp2(new Register(((Temp)left).name()), lea.OpType.ADD, new Register(((Temp)right).name()))));
+                return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
+            }   else if (right instanceof Const){
+                codes.add(new lea(res_register, new lea.leaOp2(new Register(((Temp)left).name()), lea.OpType.ADD, new backend.asm.Const(((Const)right).value()))));
+                return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
+            }
+        }
+        Register t1 = RegFactory.getRegister();
+        Register t2 = RegFactory.getRegister();
+        codes.add(new lea(res_register, new lea.leaOp2(t1, lea.OpType.ADD, t2)));
+        left.setResReg(t1);
+        right.setResReg(t2);
+        nodes.add(left);
+        nodes.add(right);
+        return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
     }
 }

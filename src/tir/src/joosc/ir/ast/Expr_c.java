@@ -29,4 +29,9 @@ public abstract class Expr_c extends Node_c implements Expr {
     }
 
     public Register res_register = null;
+
+    @Override
+    public void setResReg(Register t) {
+        res_register = t;
+    }
 }
