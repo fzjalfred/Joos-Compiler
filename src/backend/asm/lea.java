@@ -1,14 +1,18 @@
 package backend.asm;
 
+import tir.src.joosc.ir.ast.BinOp;
+
 public class lea extends BinaryOpCode{
     public enum OpType {
         ADD, SUB, MUL, DIV
     }
 
-    public static String OpToChar(OpType op){
+    public static String OpToChar(BinOp.OpType op){
         switch (op){
             case SUB: return "-";
             case ADD: return "+";
+            case MUL: return "*";
+            case DIV: return "/";
             default: return "";
         }
     }
@@ -27,20 +31,20 @@ public class lea extends BinaryOpCode{
         Register t2 = null;
         Const c1 = null;
         Const c2 = null;
-        OpType operator1 = null;
-        OpType operator2 = null;
+        BinOp.OpType operator1 = null;
+        BinOp.OpType operator2 = null;
 
         public leaOp2(Register t1){
             this.t1 = t1;
         }
 
-        public leaOp2(Register t1, OpType op, Register t2){
+        public leaOp2(Register t1, BinOp.OpType op, Register t2){
             this.t1 = t1;
             this.operator1 = op;
             this.t2 = t2;
         }
 
-        public leaOp2(Register t1, OpType op, Const c1){
+        public leaOp2(Register t1, BinOp.OpType op, Const c1){
             this.t1 = t1;
             this.operator1 = op;
             this.c1 = c1;

@@ -98,21 +98,21 @@ public class BinOp extends Expr_c {
         List<Code> codes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
         if (left instanceof Temp){
+            Register t1 = new Register(((Temp)left).name());
             if (right instanceof Temp){
-                codes.add(new lea(res_register, new lea.leaOp2(new Register(((Temp)left).name()), lea.OpType.ADD, new Register(((Temp)right).name()))));
+                codes.add(new lea(res_register, new lea.leaOp2(t1, type, new Register(((Temp)right).name()))));
                 return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
             }   else if (right instanceof Const){
-                codes.add(new lea(res_register, new lea.leaOp2(new Register(((Temp)left).name()), lea.OpType.ADD, new backend.asm.Const(((Const)right).value()))));
+                codes.add(new lea(res_register, new lea.leaOp2(t1, type, new backend.asm.Const(((Const)right).value()))));
+                return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
+            }   else {
+                Register t2 = RegFactory.getRegister();
+                codes.add(new lea(res_register, new lea.leaOp2(t1, type, t2)));
+                right.setResReg(t2);
+                nodes.add(right);
                 return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
             }
         }
-        Register t1 = RegFactory.getRegister();
-        Register t2 = RegFactory.getRegister();
-        codes.add(new lea(res_register, new lea.leaOp2(t1, lea.OpType.ADD, t2)));
-        left.setResReg(t1);
-        right.setResReg(t2);
-        nodes.add(left);
-        nodes.add(right);
-        return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
+        return null;
     }
 }

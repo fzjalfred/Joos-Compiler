@@ -6,6 +6,6 @@ public class RegFactory {
     public static Register getRegister(){
         Integer reg_id = cnt;
         cnt++;
-        return new Register("t" + reg_id.hashCode() + '_' +reg_id);
+        return new Register("t" + "_factoryAllocated_" +reg_id);
     }
 }
