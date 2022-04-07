@@ -46,7 +46,7 @@ public class FuncDecl extends Node_c {
         tileCodes.add(new label(l.name()));
         tileCodes.add(new push(Register.ebp));
         tileCodes.add(new mov(Register.ebp, Register.esp));
-        tileCodes.add(new sub(Register.esp, new Const(4*32))); // not sure
+        //tileCodes.add(new sub(Register.esp, new Const(4*32))); // not sure
         return new Tile(tileCodes);
     }
 

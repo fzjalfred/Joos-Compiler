@@ -32,28 +32,29 @@ public class lea extends BinaryOpCode{
         Const c1 = null;
         Const c2 = null;
         BinOp.OpType operator1 = null;
-        BinOp.OpType operator2 = null;
 
-        public leaOp2(Register t1){
-            this.t1 = t1;
-        }
 
-        public leaOp2(Register t1, BinOp.OpType op, Register t2){
-            this.t1 = t1;
+        public leaOp2(Operand t1, BinOp.OpType op, Operand t2){
+            if (t1 instanceof Register){
+                this.t1 = (Register)t1;
+            }   else {
+                this.c1 = (Const)t1;
+            }
+
             this.operator1 = op;
-            this.t2 = t2;
+
+            if (t2 instanceof Register){
+                this.t2 = (Register)t2;
+            }   else {
+                this.c2 = (Const)t2;
+            }
         }
 
-        public leaOp2(Register t1, BinOp.OpType op, Const c1){
-            this.t1 = t1;
-            this.operator1 = op;
-            this.c1 = c1;
-        }
 
 
         @Override
         public String toString() {
-            return "[ " + RegToStr(t1) + OpToChar(operator1) + ConstToStr(c1) + RegToStr(t2) + " ]";
+            return "[ " + RegToStr(t1) + ConstToStr(c1) + OpToChar(operator1) + ConstToStr(c2) + RegToStr(t2) + " ]";
         }
     }
     public lea(Operand op1, Operand op2){

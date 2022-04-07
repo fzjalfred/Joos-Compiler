@@ -36,7 +36,6 @@ public class Main {
 			typeChecker.check();
 			IRTranslator translator = new IRTranslator(env.compilationUnits);
 			translator.translate();
-			System.out.println(translator.mapping);
 			sim(translator, env);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -366,7 +366,6 @@ public class IRTranslatorVisitor extends Visitor {
         List <Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), true_label.name(), false_label.name());
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
-        System.out.println(thenStmt.ir_node);
         stmts.add(thenStmt.ir_node);
         stmts.add(false_label);
         stmts.add(elseStmt.ir_node);

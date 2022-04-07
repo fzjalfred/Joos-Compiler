@@ -93,26 +93,35 @@ public class BinOp extends Expr_c {
         canonicalized_node = eq_can1;
     }
 
+    void processOpright(List<Code> codes, List<Node> nodes,Operand t1, Node node){
+        if (node instanceof Temp){
+            codes.add(new lea(res_register, new lea.leaOp2(t1, type, new Register(((Temp)node).name()))));
+        }   else if (right instanceof Const){
+            codes.add(new lea(res_register, new lea.leaOp2(t1, type, new backend.asm.Const(((Const)right).value()))));
+        }   else {
+            Register t2 = RegFactory.getRegister();
+            codes.add(new lea(res_register, new lea.leaOp2(t1, type, t2)));
+            right.setResReg(t2);
+            nodes.add(right);
+        }
+    }
+
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Code> codes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
         if (left instanceof Temp){
             Register t1 = new Register(((Temp)left).name());
-            if (right instanceof Temp){
-                codes.add(new lea(res_register, new lea.leaOp2(t1, type, new Register(((Temp)right).name()))));
-                return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
-            }   else if (right instanceof Const){
-                codes.add(new lea(res_register, new lea.leaOp2(t1, type, new backend.asm.Const(((Const)right).value()))));
-                return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
-            }   else {
-                Register t2 = RegFactory.getRegister();
-                codes.add(new lea(res_register, new lea.leaOp2(t1, type, t2)));
-                right.setResReg(t2);
-                nodes.add(right);
-                return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
-            }
+            processOpright(codes, nodes, t1, right);
+        }   else if (left instanceof Const){
+            backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
+            processOpright(codes, nodes, t1, right);
+        }   else {
+            Register t1 = RegFactory.getRegister();
+            left.setResReg(t1);
+            nodes.add(left);
+            processOpright(codes, nodes, t1, right);
         }
-        return null;
+        return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
     }
 }
