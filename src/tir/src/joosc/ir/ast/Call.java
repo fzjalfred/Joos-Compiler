@@ -143,12 +143,14 @@ public class Call extends Expr_c {
             temp_list.add(t);
             index++;
         }
-
+        Call newCall = null;
         if (sys_flag) {
-            seq.addStatement(new Exp(new Call(target, temp_list)));
+            newCall = new Call(target, temp_list);
         } else {
-            seq.addStatement(new Exp(new Call(name_t, temp_list)));
+            newCall = new Call(name_t, temp_list);
         }
+        newCall.funcLabel = funcLabel;
+        seq.addStatement(new Exp(newCall));
 
         seq.addStatement(new Exp(new Temp(Configuration.ABSTRACT_RET)));
         canonicalized_node = seq;
