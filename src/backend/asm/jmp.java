@@ -2,7 +2,12 @@ package backend.asm;
 
 public class jmp extends UnaryOpCode{
 
-    public jmp(Operand operand){
-        super(operand);
+    public jmp(LabelOperand labelOp){
+        super(labelOp);
+    }
+
+    @Override
+    public String toString() {
+        return "jmp " + op;
     }
 }

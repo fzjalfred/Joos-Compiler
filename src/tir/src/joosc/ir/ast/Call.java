@@ -1,9 +1,13 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.*;
+import backend.asm.Const;
 import tir.src.joosc.ir.interpret.Configuration;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +18,7 @@ import java.util.List;
  * CALL(e_target, e_1, ..., e_n)
  */
 public class Call extends Expr_c {
+    public String funcLabel;
     protected Expr target;
     protected List<Expr> args;
 
@@ -147,5 +152,35 @@ public class Call extends Expr_c {
 
         seq.addStatement(new Exp(new Temp(Configuration.ABSTRACT_RET)));
         canonicalized_node = seq;
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        int argNum = args.size();
+
+        Tile res = v.unit();
+        for (Expr arg : args) {
+            // T[e]t
+            Register t = RegFactory.getRegister();
+            arg.setResReg(t);
+            Tile argTile = v.visit(arg);
+
+            // push
+            List<Code> argCodes = new ArrayList<Code>();
+            argCodes.add(new push(t));
+            Tile argRes = v.bind(argTile, new Tile(argCodes));
+
+            res = v.bind(argRes, res); // in reverse order
+        }
+        System.out.println(res);
+
+        List<Code> tileCodes = new ArrayList<Code>();
+        tileCodes.add(new call(new LabelOperand(funcLabel)));
+
+        Register t = RegFactory.getRegister();
+        tileCodes.add(new mov(t, Register.eax));
+        tileCodes.add(new add(Register.esp, new Const(4*argNum)));
+        res = v.bind(res, new Tile(tileCodes));
+        return new Pair<>(null, res);
     }
 }

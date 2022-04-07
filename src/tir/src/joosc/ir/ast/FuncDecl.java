@@ -1,6 +1,7 @@
 package tir.src.joosc.ir.ast;
 
-import backend.asm.Tile;
+import backend.asm.*;
+import backend.asm.Const;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.InsnMapsBuilder;
@@ -32,6 +33,29 @@ public class FuncDecl extends Node_c {
 
     public int getNumParams() {
         return numParams;
+    }
+
+    public Label removeFuncLabel(){
+        return ((Seq)body).removeFirst();
+    }
+
+    public Tile getPrologue(TilingVisitor v) {
+        List<Code> tileCodes = new ArrayList<Code>();
+
+        Label l = removeFuncLabel();
+        tileCodes.add(new label(l.name()));
+        tileCodes.add(new push(Register.ebp));
+        tileCodes.add(new mov(Register.ebp, Register.esp));
+        tileCodes.add(new sub(Register.esp, new Const(4*32))); // not sure
+        return new Tile(tileCodes);
+    }
+
+    public Tile getEpilogue(TilingVisitor v) {
+        List<Code> tileCodes = new ArrayList<Code>();
+        tileCodes.add(new mov(Register.esp, Register.ebp));
+        tileCodes.add(new pop(Register.ebp));
+        tileCodes.add(new ret());
+        return new Tile(tileCodes);
     }
 
     @Override

@@ -151,7 +151,7 @@ public class IRTranslatorVisitor extends Visitor {
             List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
             node.ir_node = new Call(funcAddr, exprList);
         }
-
+        ((Call)node.ir_node).funcLabel = ((MethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
     }
 
     public void visit(Block node){

@@ -12,12 +12,12 @@ public class Register extends Operand{
         return name;
     }
 
-    static Register eax = new Register("eax");
-    static Register ebx = new Register("ebx");
-    static Register ecx = new Register("ecx");
-    static Register edx = new Register("edx");
-    static Register esi = new Register("esi");
-    static Register edi = new Register("edi");
-    static Register ebp = new Register("ebp");
-    static Register esp = new Register("esp");
+    public static Register eax = new Register("eax");
+    public static Register ebx = new Register("ebx");
+    public static Register ecx = new Register("ecx");
+    public static Register edx = new Register("edx");
+    public static Register esi = new Register("esi");
+    public static Register edi = new Register("edi");
+    public static Register ebp = new Register("ebp");
+    public static Register esp = new Register("esp");
 }

@@ -58,6 +58,13 @@ public class Seq extends Statement {
         this.replaceParent = replaceParent;
     }
 
+    public Label removeFirst(){
+        assert statements.get(0) instanceof Label;
+        Label l = (Label) statements.get(0);
+        statements.remove(0);
+        return l;
+    }
+
     public List<Statement> stmts() {
         return statements;
     }
