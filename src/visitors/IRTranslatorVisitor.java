@@ -18,8 +18,14 @@ public class IRTranslatorVisitor extends Visitor {
     @Override
     public void visit(MethodDecl node) {
         List <Statement> stmts = new ArrayList<Statement>();
+        String name = "";
+        if (node.isTest()) {
+            name = node.getName();
+        } else {
+            name = node.getName() + "_" + node.hashCode();
+        }
         // create label
-        Label label = new Label(node.getName() + "_" + node.hashCode());
+        Label label = new Label(name);
         stmts.add(label);
         // move params
         if (node.getMethodHeader().ir_node != null) {
@@ -29,7 +35,7 @@ public class IRTranslatorVisitor extends Visitor {
 
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
-        node.funcDecl = new FuncDecl(node.getName()+ "_" + node.hashCode(), node.getMethodHeader().getMethodDeclarator().numParams(), body, new FuncDecl.Chunk());
+        node.funcDecl = new FuncDecl(name, node.getMethodHeader().getMethodDeclarator().numParams(), body, new FuncDecl.Chunk());
         mapping.put(node, node.funcDecl);
     }
 
@@ -139,7 +145,12 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(MethodInvocation node) {
-        String callingMethod = ((MethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
+        String callingMethod ="";
+        if (((MethodDecl)node.whichMethod).isTest()){
+            callingMethod = ((MethodDecl)node.whichMethod).getName();
+        } else {
+            callingMethod = ((MethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
+        }
         tir.src.joosc.ir.ast.Expr funcAddr = new Name(callingMethod);
         if(node.getArgumentList() != null) {
             List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;

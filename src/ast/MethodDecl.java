@@ -1,6 +1,7 @@
 package ast;
 
 import tir.src.joosc.ir.ast.FuncDecl;
+import utils.tools;
 import visitors.IRTranslatorVisitor;
 import visitors.TypeCheckVisitor;
 import visitors.UnreachableStmtVisitor;
@@ -16,6 +17,18 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
     public MethodDecl(List<ASTNode> children, String value){
         super(children, value);
         funcDecl = null;
+    }
+
+    public boolean isTest() {
+        String name = getName();
+        if (name.equals("test")) {
+            if (getParamType() == null) {
+                if (isStatic() && getReturnType()!= null && getReturnType().equals(tools.intType())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public MethodHeader getMethodHeader(){

@@ -13,6 +13,14 @@ public class Main {
 
 	static public DebugID id = DebugID.None;
 
+	static public void createAssembly(IRTranslator translator, CompUnit compUnit){
+		System.out.println("	global _start");
+		System.out.println("_start:");
+		System.out.println("call test");
+		System.out.println(); // get return value
+		System.out.println(translator.tiling(compUnit));
+	}
+
 	static public void sim(IRTranslator translator, RootEnvironment env){
 		CompUnit compUnit = new CompUnit("test");
 		for (FuncDecl funcDecl : translator.mapping.values()){
@@ -20,7 +28,7 @@ public class Main {
 		}
 		// IR interpreter demo
 		translator.canonicalize(compUnit);
-		System.out.println(translator.tiling(compUnit));
+		createAssembly(translator, compUnit);
 		System.out.println(compUnit.functions());
 	}
 

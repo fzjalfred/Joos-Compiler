@@ -60,6 +60,7 @@ public class FuncDecl extends Node_c {
         }
         return 0;
     }
+    public boolean isTest;
 
     public FuncDecl(String name, int numParams, Statement body) {
         this.name = name;

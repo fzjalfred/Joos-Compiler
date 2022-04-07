@@ -174,6 +174,7 @@ public class Call extends Expr_c {
 
             res = v.bind(argRes, res); // in reverse order
         }
+//        System.out.println(res);
 
         List<Code> tileCodes = new ArrayList<Code>();
         tileCodes.add(new call(new LabelOperand(funcLabel)));
