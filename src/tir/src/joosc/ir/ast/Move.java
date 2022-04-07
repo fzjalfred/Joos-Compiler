@@ -97,8 +97,10 @@ public class Move extends Statement {
         Operand operand2 = null;
         if (src instanceof Const){
             operand2 = new backend.asm.Const(((Const)src).value());
-        }   else if (src instanceof Temp){
-            operand2 = new Register(((Temp)src).name());
+        }   else if (src instanceof Temp) {
+            operand2 = new Register(((Temp) src).name());
+        }else if (src instanceof Name){
+            operand2 = new LabelOperand(((Name)src).name());
         }   else {
             Register srcReg = RegFactory.getRegister();
             operand2 = srcReg;

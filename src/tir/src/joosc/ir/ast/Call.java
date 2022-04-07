@@ -181,6 +181,6 @@ public class Call extends Expr_c {
         tileCodes.add(new mov(t, Register.eax));
         tileCodes.add(new add(Register.esp, new Const(4*argNum)));
         res = v.bind(res, new Tile(tileCodes));
-        return new Pair<>(null, res);
+        return new Pair<>(new ArrayList<Node>(), res);
     }
 }

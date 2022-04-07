@@ -1,8 +1,14 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.Code;
+import backend.asm.RegFactory;
+import backend.asm.Register;
+import backend.asm.Tile;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +68,17 @@ public class Exp extends Statement {
             stmts.add(stmts_e.get(i));
         }
         canonicalized_node = new Seq(stmts);
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Node> nodes = new ArrayList<Node>();
+
+        Register t = RegFactory.getRegister();
+        expr.setResReg(t);
+        nodes.add(expr);
+
+        return new Pair<>(nodes, v.unit());
     }
 
     @Override
