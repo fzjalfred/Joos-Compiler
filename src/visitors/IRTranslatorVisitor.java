@@ -32,7 +32,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
 
-        node.funcDecl = new FuncDecl(node.getName(), node.getMethodHeader().getMethodDeclarator().numParams(), body);
+        node.funcDecl = new FuncDecl(node.getName()+ "_" + node.hashCode(), node.getMethodHeader().getMethodDeclarator().numParams(), body);
         currFunc = node.funcDecl;
         mapping.put(node, node.funcDecl);
     }
@@ -143,7 +143,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(MethodInvocation node) {
-        tir.src.joosc.ir.ast.Expr funcAddr = new Name(node.getName().getValue());
+        String callingMethod = ((MethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
+        tir.src.joosc.ir.ast.Expr funcAddr = new Name(callingMethod);
         if(node.getArgumentList() != null) {
             List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
             node.ir_node = new Call(funcAddr, args);
@@ -151,7 +152,7 @@ public class IRTranslatorVisitor extends Visitor {
             List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
             node.ir_node = new Call(funcAddr, exprList);
         }
-        ((Call)node.ir_node).funcLabel = ((MethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
+        ((Call)node.ir_node).funcLabel = callingMethod;
     }
 
     public void visit(Block node){
