@@ -8,19 +8,71 @@ import tir.src.joosc.ir.visit.InsnMapsBuilder;
 import tir.src.joosc.ir.visit.TilingVisitor;
 import utils.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Array;
+import java.util.*;
 
 /** An IR function declaration */
 public class FuncDecl extends Node_c {
     private String name;
     public Statement body;
+
+    static public class Chunk{
+        public Set<String> vars;
+        public int size;
+        public Map<String, Integer> symtab;
+
+
+        public void processSymtab(){
+            int cnt = 1;
+            for (String name : vars){
+                symtab.put(name, cnt*4);
+                cnt++;
+            }
+            this.size = vars.size();
+        }
+
+        public Chunk(){
+            this.vars = new HashSet<String>();
+            for (String var : vars){
+                this.vars.add(var);
+            }
+            this.size = vars.size();
+            symtab = new HashMap<String, Integer>();
+        }
+
+        @Override
+        public String toString() {
+            return "Chunk{" +
+                    "vars=" + vars +
+                    ", size=" + size +
+                    ", symtab=" + symtab +
+                    '}';
+        }
+    }
+    public Chunk chunk = null;
     private int numParams;
+    private Map<String, Integer> argsOffset;
+
+
+    public int getOffset(String name){
+        if (chunk.symtab.containsKey(name)){
+            return -chunk.symtab.get(name);
+        }
+        return 0;
+    }
 
     public FuncDecl(String name, int numParams, Statement body) {
         this.name = name;
         this.body = body;
         this.numParams = numParams;
+        this.chunk = new Chunk();
+    }
+
+    public FuncDecl(String name, int numParams, Statement body, Chunk chunk) {
+        this.name = name;
+        this.body = body;
+        this.numParams = numParams;
+        this.chunk = new Chunk();
     }
 
     public String name() {
@@ -80,6 +132,7 @@ public class FuncDecl extends Node_c {
                 "name='" + name + '\'' +
                 ", body=" + body +
                 ", numParams=" + numParams +
+                ", chunk=" + chunk +
                 '}';
     }
 

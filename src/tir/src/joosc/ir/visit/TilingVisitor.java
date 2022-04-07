@@ -1,6 +1,7 @@
 package tir.src.joosc.ir.visit;
 
 import ast.MethodDecl;
+import backend.asm.Register;
 import backend.asm.Tile;
 import tir.src.joosc.ir.ast.FuncDecl;
 import tir.src.joosc.ir.ast.Node;
@@ -24,6 +25,7 @@ public class TilingVisitor extends AggregateVisitor<Tile>{
     @Override
     protected Tile override(Node parent, Node n) {
         if (n instanceof FuncDecl) {
+            Register.currFuncDecl = (FuncDecl)n;
             Tile pro = ((FuncDecl)n).getPrologue(this);
             Tile epi = ((FuncDecl)n).getEpilogue(this);
             Pair<List<Node>, Tile> res_pair = n.tiling(this);
@@ -32,6 +34,7 @@ public class TilingVisitor extends AggregateVisitor<Tile>{
                 res = bind(res, visit(node));
             }
             res = bind(res, epi);
+            ((FuncDecl)n).chunk.processSymtab();
             return res;
         } else {
 

@@ -21,6 +21,7 @@ public class Main {
 		// IR interpreter demo
 		translator.canonicalize(compUnit);
 		System.out.println(translator.tiling(compUnit));
+		System.out.println(compUnit.functions());
 	}
 
 	static public void main(String argv[]) {

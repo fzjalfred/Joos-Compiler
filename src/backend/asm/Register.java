@@ -1,10 +1,15 @@
 package backend.asm;
 
+import tir.src.joosc.ir.ast.FuncDecl;
+
 public class Register extends Operand{
     public String name;
-
+    static public FuncDecl currFuncDecl = null;
     public Register(String name){
         this.name = name;
+        if (currFuncDecl != null){
+            currFuncDecl.chunk.vars.add(name);
+        }
     }
 
     @Override

@@ -125,9 +125,6 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
                 if (node != null) node.accept(v);
             }
             v.visit(this);
-            if (getMethodBody() != null){
-//                iv.currFunc.body = getMethodBody().getBlock().ir_node; // set body of function
-            }
         }
     }
 }

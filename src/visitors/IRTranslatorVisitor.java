@@ -9,11 +9,9 @@ import tir.src.joosc.ir.interpret.Configuration;
 
 
 public class IRTranslatorVisitor extends Visitor {
-    public FuncDecl currFunc;
     public Map<MethodDecl, FuncDecl> mapping;
 
     public IRTranslatorVisitor(){
-        this.currFunc = null;
         mapping = new HashMap<MethodDecl, FuncDecl>();
     }
 
@@ -31,9 +29,7 @@ public class IRTranslatorVisitor extends Visitor {
 
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
-
-        node.funcDecl = new FuncDecl(node.getName()+ "_" + node.hashCode(), node.getMethodHeader().getMethodDeclarator().numParams(), body);
-        currFunc = node.funcDecl;
+        node.funcDecl = new FuncDecl(node.getName()+ "_" + node.hashCode(), node.getMethodHeader().getMethodDeclarator().numParams(), body, new FuncDecl.Chunk());
         mapping.put(node, node.funcDecl);
     }
 
