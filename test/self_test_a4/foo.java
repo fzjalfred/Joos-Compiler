@@ -1,13 +1,13 @@
 public class foo{
-    public foo(){
-        super();
+
+    public foo(){}
+    public static int blah(int a) {
+        return 3;
     }
-    public int bar(int c,int d){
-        return 10;
-    }
-    public void test(int a, int b){
-        int c = a+b;
-        bar(1,2);
-        int d = 0;
+    public static int test (){
+        int c = foo.blah(3);
+        int d = c + 4;
+        return d;
+
     }
 }

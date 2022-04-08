@@ -14,6 +14,11 @@ public class label extends Code{
 
     @Override
     public String toString() {
-        return name+":";
+        if (isFunctionDecl) {
+            return "global " + name + "\n" +
+                    name+":";
+        } else {
+            return name+":";
+        }
     }
 }

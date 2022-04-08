@@ -14,11 +14,21 @@ public class Main {
 	static public DebugID id = DebugID.None;
 
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit){
-		System.out.println("global _start");
-		System.out.println("_start:");
-		System.out.println("call test");
-		System.out.println(); // get return value
-		System.out.println(translator.tiling(compUnit));
+		try {
+			PrintWriter printWriter = new PrintWriter("output/test.s", "UTF-8");
+			printWriter.println("global _start");
+			printWriter.println("_start:");
+			printWriter.println("call test");
+			// get return
+			printWriter.println("mov ebx, eax");
+			printWriter.println("mov eax, 1");
+			printWriter.println("int 0x80");
+			printWriter.println(translator.tiling(compUnit));
+			printWriter.close();
+		} catch (IOException e1) {
+
+		}
+
 	}
 
 	static public void sim(IRTranslator translator, RootEnvironment env){
