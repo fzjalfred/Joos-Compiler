@@ -14,7 +14,7 @@ public class Main {
 	static public DebugID id = DebugID.None;
 
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit){
-		System.out.println("	global _start");
+		System.out.println("global _start");
 		System.out.println("_start:");
 		System.out.println("call test");
 		System.out.println(); // get return value

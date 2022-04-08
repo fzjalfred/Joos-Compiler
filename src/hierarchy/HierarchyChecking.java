@@ -4,6 +4,7 @@ import java.util.*;
 
 import java.io.*;
 import ast.*;
+import tir.src.joosc.ir.ast.Node;
 import type.*;
 import utils.*;
 import lexer.*;
@@ -643,8 +644,26 @@ public class HierarchyChecking {
 //        printDeclare();
 //        System.out.println("===============inherit=================");
 //        printInherit();
+        buildSubclasses();
         rebuildMaps();
         checkClassHierary(env);
+    }
+
+    public void buildSubclasses() {
+        for (ASTNode node : parentMap.keySet()){
+            if (node instanceof ClassDecl) {
+                ClassDecl decl = (ClassDecl) node;
+//                System.out.println(decl.getName());
+                for (ASTNode otherNode : parentMap.keySet()){
+                    if (!node.equals(otherNode) && otherNode instanceof ClassDecl
+                    && parentMap.get(otherNode).contains(node)) {
+                        decl.subclasses.add((ClassDecl) otherNode);
+//                        System.out.println(((ClassDecl)otherNode).getName());
+                    }
+                }
+//                System.out.println();
+            }
+        }
     }
 
     public void checkCompilationUnitScope(ScopeEnvironment env) throws Exception{

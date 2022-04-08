@@ -2,11 +2,13 @@ package ast;
 
 import visitors.Visitor;
 
+import java.util.ArrayList;
 import java.util.List;
 import utils.tools;
 
 public class ClassDecl extends TypeDecl{
     // children( modifiers ID Super Interface ClassBody)
+    public List<ClassDecl> subclasses = new ArrayList<ClassDecl>();
     public ClassDecl(List<ASTNode> children, String value){
         super(children, value);
     }

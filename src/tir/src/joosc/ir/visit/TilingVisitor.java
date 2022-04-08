@@ -40,8 +40,8 @@ public class TilingVisitor extends AggregateVisitor<Tile>{
 
             Pair<List<Node>, Tile> res_pair = n.tiling(this);
             Tile res = unit();
-           System.out.println("node: " + n);
-           System.out.println("result: " + res_pair);
+//           System.out.println("node: " + n);
+//           System.out.println("result: " + res_pair);
             for (Node node : res_pair.first){
                 res = bind(res, visit(node));
             }
