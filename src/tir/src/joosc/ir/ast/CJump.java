@@ -4,6 +4,11 @@ import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
+import backend.asm.*;
+import java.util.ArrayList;
+import java.util.List;
 /**
  * An intermediate representation for a conditional transfer of control
  * CJUMP(expr, trueLabel, falseLabel)
@@ -91,5 +96,29 @@ public class CJump extends Statement {
     @Override
     public void canonicalize() {
         canonicalized_node = new Seq(new CJump(cond, trueLabel), new Jump(new Name(falseLabel)));
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Code> tileCodes = new ArrayList<Code>();
+        List<Node> nodes = new ArrayList<Node>();
+        if (cond instanceof BinOp && ((BinOp)cond).opType() ==BinOp.OpType.EQ) {
+            Register left_reg = RegFactory.getRegister();
+            Register right_reg = RegFactory.getRegister(); 
+            ((BinOp)cond).left().setResReg(left_reg);
+            nodes.add(((BinOp)cond).left());
+            ((BinOp)cond).right().setResReg(right_reg);
+            nodes.add(((BinOp)cond).right());
+            tileCodes.add(new cmp(left_reg, right_reg));
+            tileCodes.add(new jcc(jcc.ccType.e, new LabelOperand(trueLabel)));
+            return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes)); 
+        } else {
+            Register cond_reg = RegFactory.getRegister();
+            nodes.add(cond);
+            cond.setResReg(cond_reg);
+            tileCodes.add(new test(cond_reg, cond_reg));
+            tileCodes.add(new jcc(jcc.ccType.nz, new LabelOperand(trueLabel)));
+            return new Pair<List<Node>,Tile>(nodes, new Tile(tileCodes));
+        }
     }
 }

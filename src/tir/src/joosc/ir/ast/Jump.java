@@ -3,6 +3,12 @@ package tir.src.joosc.ir.ast;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 
+
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
+import backend.asm.*;
+import java.util.ArrayList;
+import java.util.List;
 /**
  * An intermediate representation for a transfer of control
  */
@@ -51,5 +57,17 @@ public class Jump extends Statement {
     @Override
     public void canonicalize() {
         canonicalized_node = new Seq(this);
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Code> tileCodes = new ArrayList<Code>();
+        List<Node> nodes = new ArrayList<Node>();
+        if (target instanceof Temp) {
+            tileCodes.add(new jmp(new Register(((Temp)target).name())));
+        } else if (target instanceof Name) {
+            tileCodes.add(new jmp(new LabelOperand(((Name)target).name())));
+        }
+        return new Pair<List<Node>,Tile>(nodes, new Tile(tileCodes));
     }
 }

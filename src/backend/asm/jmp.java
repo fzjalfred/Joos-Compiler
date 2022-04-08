@@ -6,6 +6,10 @@ public class jmp extends UnaryOpCode{
         super(labelOp);
     }
 
+    public jmp(Register labelOp){
+        super(labelOp);
+    }
+
     @Override
     public String toString() {
         return "jmp " + op;

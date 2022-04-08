@@ -5,9 +5,12 @@ public class ifstmt {
         if (x == 1) {
             return false;
         }
-        if (x > 3 && x > 4 && x < 6) {
-            return true&&true;
+        if (x > 3) {
+            x = 4;
         }
+        // if (x > 3 && x > 4 && x < 6) {
+        //     return true&&true;
+        // }
         // if (!(x == 1)) {
         //     return 34;
         // }

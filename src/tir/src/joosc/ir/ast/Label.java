@@ -1,6 +1,6 @@
 package tir.src.joosc.ir.ast;
 
-import backend.asm.Tile;
+import backend.asm.*;
 import tir.src.joosc.ir.visit.InsnMapsBuilder;
 import tir.src.joosc.ir.visit.TilingVisitor;
 import utils.Pair;
@@ -51,6 +51,8 @@ public class Label extends Statement {
 
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
-        return new Pair<List<Node>, Tile>(new ArrayList<Node>(), v.unit()); //TODO
+        List<Code> tileCodes = new ArrayList<Code>();
+        tileCodes.add(new label(name));
+        return new Pair<List<Node>, Tile>(new ArrayList<Node>(), new Tile(tileCodes));
     }
 }
