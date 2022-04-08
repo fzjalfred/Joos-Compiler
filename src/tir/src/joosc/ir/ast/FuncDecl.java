@@ -56,8 +56,9 @@ public class FuncDecl extends Node_c {
 
     public int getOffset(String name){
         if (chunk.symtab.containsKey(name)){
-            return -chunk.symtab.get(name);
+            return chunk.symtab.get(name);
         }
+        System.out.println(name + " is not found");
         return 0;
     }
     public boolean isTest;

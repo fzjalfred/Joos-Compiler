@@ -1,6 +1,7 @@
 package backend.asm;
 
 import tir.src.joosc.ir.ast.BinOp;
+import tir.src.joosc.ir.ast.FuncDecl;
 
 public class mem extends Operand{
     public static String OpToChar(BinOp.OpType op){
@@ -63,6 +64,10 @@ public class mem extends Operand{
             return "[ " + RegToStr(t1) + ConstToStr(c1) + " ]";
         }
         return "[ " + RegToStr(t1) + ConstToStr(c1) + OpToChar(operator1) + ConstToStr(c2) + RegToStr(t2) + " ]";
+    }
+
+    public static mem genVarAccessMem(FuncDecl funcDecl, String name){
+        return new mem(Register.ebp, BinOp.OpType.SUB, new Const(funcDecl.getOffset(name)));
     }
 
 

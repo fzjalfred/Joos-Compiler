@@ -1,7 +1,7 @@
 package backend.asm;
 
 public abstract class UnaryOpCode extends Code{
-    Operand op;
+    public Operand op;
 
     public UnaryOpCode(Operand op){
         this.op = op;

@@ -16,7 +16,7 @@ public class Register extends Operand{
         }
     }
 
-    public boolean isAbstractRegister(Register t){
+    public static boolean  isAbstractRegister(Register t){
         return !sysRegs.contains(t);
     }
 

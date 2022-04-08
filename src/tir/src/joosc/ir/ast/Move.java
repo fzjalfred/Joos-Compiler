@@ -111,9 +111,12 @@ public class Move extends Statement {
                 return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
             }
             operand2 = new Register(((Temp) src).name());
-        }else if (src instanceof Name){
+        }   else if (src instanceof Name){
             operand2 = new LabelOperand(((Name)src).name());
-        }   else {
+        }   else if (src instanceof Mem){
+            operand2 = ((Mem)src).toAsmMem();
+        }
+            else {
             Register srcReg = RegFactory.getRegister();
             operand2 = srcReg;
             nodes.add(src);

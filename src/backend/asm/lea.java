@@ -1,6 +1,10 @@
 package backend.asm;
 
 import tir.src.joosc.ir.ast.BinOp;
+import tir.src.joosc.ir.ast.FuncDecl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class lea extends BinaryOpCode{
 
@@ -23,38 +27,39 @@ public class lea extends BinaryOpCode{
         if (c == null) return "";
         return c.toString();
     }
-    public static class leaOp2 extends Operand{
-        Register t1 = null;
-        Register t2 = null;
-        Const c1 = null;
-        Const c2 = null;
-        BinOp.OpType operator1 = null;
 
-
-        public leaOp2(Operand t1, BinOp.OpType op, Operand t2){
-            if (t1 instanceof Register){
-                this.t1 = (Register)t1;
-            }   else {
-                this.c1 = (Const)t1;
-            }
-
-            this.operator1 = op;
-
-            if (t2 instanceof Register){
-                this.t2 = (Register)t2;
-            }   else {
-                this.c2 = (Const)t2;
-            }
-        }
-
-
-
-        @Override
-        public String toString() {
-            return "[ " + RegToStr(t1) + ConstToStr(c1) + OpToChar(operator1) + ConstToStr(c2) + RegToStr(t2) + " ]";
-        }
-    }
     public lea(Operand op1, Operand op2){
         super(op1, op2);
+    }
+
+    @Override
+    public List<Code> regAllocate(FuncDecl funcDecl) {
+        List<Code> res = new ArrayList<Code>();
+        if (op1 instanceof Register){
+            String op1Name = ((Register)(op1)).name;
+            if (op2 instanceof Register && Register.isAbstractRegister((Register)op2)){
+                res.add(new mov(Register.edx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
+                op2 = Register.edx;
+            }   else if (op2 instanceof mem){
+                res.addAll(op2.allocateOperand(funcDecl));
+            }
+            if (Register.isAbstractRegister((Register)op1) ){
+                op1 = Register.ecx;
+                res.add(this);
+                res.add(new mov(mem.genVarAccessMem(funcDecl, op1Name), Register.ecx));
+            }   else {
+                res.add(this);
+            }
+        }   else if (op1 instanceof mem){
+            res.addAll(op1.allocateOperand(funcDecl));
+            if (op2 instanceof Register && Register.isAbstractRegister((Register)op2)){
+                res.add(new mov(Register.ecx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
+                op2 = Register.ecx;
+            }
+            res.add(this);
+        }   else {
+            return null;
+        }
+        return res;
     }
 }

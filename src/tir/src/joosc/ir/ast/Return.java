@@ -1,5 +1,6 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.RegFactory;
 import backend.asm.Register;
 import backend.asm.Tile;
 import backend.asm.mov;
@@ -70,7 +71,17 @@ public class Return extends Statement {
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Node> nodes = new ArrayList<Node>();
-        Tile codes = v.unit();;
+        Tile codes = v.unit();
+        if (ret instanceof Temp){
+            codes.codes.add(new mov(Register.eax, new Register(((Temp)ret).name())));
+        }   else if (ret instanceof Const){
+            codes.codes.add(new mov(Register.eax, new backend.asm.Const(((Const)ret).value())));
+        }   else {
+            Register t = RegFactory.getRegister();
+            ret.setResReg(t);
+            nodes.add(ret);
+            codes.codes.add(new mov(Register.eax, t));
+        }
         return new Pair<List<Node>, Tile>(nodes,codes);
     }
 }

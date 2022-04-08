@@ -187,7 +187,12 @@ public class Call extends Expr_c {
 //        System.out.println(res);
 
         List<Code> tileCodes = new ArrayList<Code>();
-        tileCodes.add(new call(new LabelOperand(funcLabel)));
+        if (target instanceof Temp){
+            tileCodes.add(new call(new Register(((Temp)target).name())));
+        }   else {
+            tileCodes.add(new call(new LabelOperand(((Name)target).name())));
+        }
+
 
         Register t = RegFactory.getRegister();
         tileCodes.add(new mov(t, Register.eax));
