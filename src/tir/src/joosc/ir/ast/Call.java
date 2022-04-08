@@ -166,14 +166,20 @@ public class Call extends Expr_c {
 
         Tile res = v.unit();
         for (Expr arg : args) {
-            // T[e]t
-            Register t = RegFactory.getRegister();
-            arg.setResReg(t);
-            Tile argTile = v.visit(arg);
-
-            // push
+            Tile argTile = v.unit();
             List<Code> argCodes = new ArrayList<Code>();
-            argCodes.add(new push(t));
+            if (arg instanceof Temp) {
+                argCodes.add(new push(new Register(((Temp)arg).name())));
+            } else {
+                // T[e]t
+                Register t = RegFactory.getRegister();
+                arg.setResReg(t);
+                argTile =  v.visit(arg);
+
+                // push
+                argCodes.add(new push(t));
+
+            }
             Tile argRes = v.bind(argTile, new Tile(argCodes));
 
             res = v.bind(argRes, res); // in reverse order
