@@ -1,9 +1,11 @@
 public class foo{
     public foo(){}
-    public void bar(int a, int b){}
-    public void main(){
-        bar(10, 20);
-        int a = 3;
-        int b = (a + 3) * 4 + (a+1) + (1+2);
+    public int bar(int c,int d){
+        return 10;
+    }
+    public void main(int a, int b){
+        int c = a+b;
+        bar(1,2);
+        int d = 0;
     }
 }

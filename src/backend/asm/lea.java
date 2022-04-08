@@ -3,9 +3,6 @@ package backend.asm;
 import tir.src.joosc.ir.ast.BinOp;
 
 public class lea extends BinaryOpCode{
-    public enum OpType {
-        ADD, SUB, MUL, DIV
-    }
 
     public static String OpToChar(BinOp.OpType op){
         switch (op){

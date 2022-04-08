@@ -90,6 +90,14 @@ public class Move extends Statement {
 
     }
 
+    Code processArg(Temp arg){
+        int argIdx = arg.name().charAt(arg.name().length()-1) - '0';
+        int paramNums = Register.currFuncDecl.getNumParams();
+        Operand operand1 = new Register(((Temp)target).name());
+        return new mov(operand1, new mem(Register.ebp, BinOp.OpType.ADD, new backend.asm.Const(4+4*(argIdx+1))));
+
+    }
+
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Code> tileCodes = new ArrayList<Code>();
@@ -98,6 +106,10 @@ public class Move extends Statement {
         if (src instanceof Const){
             operand2 = new backend.asm.Const(((Const)src).value());
         }   else if (src instanceof Temp) {
+            if (((Temp)src).name().contains("_ARG")){
+                tileCodes.add(processArg((Temp)src));
+                return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
+            }
             operand2 = new Register(((Temp) src).name());
         }else if (src instanceof Name){
             operand2 = new LabelOperand(((Name)src).name());
@@ -115,7 +127,12 @@ public class Move extends Statement {
             //nodes.add(target); NO need to visit these nodes
             //nodes.add(src);
             return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
-        }   else {
+        }   else if (target instanceof Mem){
+            operand1 = ((Mem)target).toAsmMem();
+            tileCodes.add(new mov(operand1, operand2));
+            return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
+        }
+            else {
             return null;        //TODO: now only support move to register, fixme
         }
     }

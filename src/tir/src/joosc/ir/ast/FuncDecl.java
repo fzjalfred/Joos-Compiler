@@ -96,7 +96,7 @@ public class FuncDecl extends Node_c {
         List<Code> tileCodes = new ArrayList<Code>();
 
         Label l = removeFuncLabel();
-        tileCodes.add(new label(l.name()));
+        tileCodes.add(new label(l.name(), true));
         tileCodes.add(new push(Register.ebp));
         tileCodes.add(new mov(Register.ebp, Register.esp));
         //tileCodes.add(new sub(Register.esp, new Const(4*32))); // not sure

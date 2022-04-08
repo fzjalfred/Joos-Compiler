@@ -2,6 +2,10 @@ package backend.asm;
 
 import tir.src.joosc.ir.ast.FuncDecl;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Arrays;
+
 public class Register extends Operand{
     public String name;
     static public FuncDecl currFuncDecl = null;
@@ -10,6 +14,10 @@ public class Register extends Operand{
         if (currFuncDecl != null){
             currFuncDecl.chunk.vars.add(name);
         }
+    }
+
+    public boolean isAbstractRegister(Register t){
+        return !sysRegs.contains(t);
     }
 
     @Override
@@ -25,4 +33,5 @@ public class Register extends Operand{
     public static Register edi = new Register("edi");
     public static Register ebp = new Register("ebp");
     public static Register esp = new Register("esp");
+    public static Set<Register> sysRegs = new HashSet<Register>(Arrays.asList(eax,ebx.ecx.edx.esi,edi,ebp,esp));
 }

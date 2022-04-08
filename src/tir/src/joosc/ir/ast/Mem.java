@@ -1,7 +1,16 @@
 package tir.src.joosc.ir.ast;
 
+import backend.asm.Register;
+import backend.asm.Tile;
+import backend.asm.mem;
+import backend.asm.mov;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
+import tir.src.joosc.ir.visit.TilingVisitor;
+import utils.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An intermediate representation for a memory location
@@ -54,5 +63,28 @@ public class Mem extends Expr_c {
     public void canonicalize() {
         canonicalized_node = new Seq(((Expr_c)(expr)).canonicalized_node.stmts());
         canonicalized_node.setLastStatement(new Exp(new Mem(canonicalized_node.getLastExpr())));
+    }
+
+    public mem toAsmMem(){
+        if (expr instanceof Temp){
+            return new mem(new Register(((Temp)expr).name()));
+        }   else if (expr instanceof BinOp){
+            BinOp binOp = (BinOp)expr;
+            if (binOp.left() instanceof Temp && binOp.right() instanceof Const){
+                return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(), new backend.asm.Const(((Const)binOp.right()).value()));
+            }   else if (binOp.left() instanceof Temp && binOp.right() instanceof Temp){
+                return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(),new Register(((Temp)binOp.left()).name()));
+            }
+
+        }
+        return null;
+    }
+
+    @Override
+    public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        List<Node>nodes = new ArrayList<Node>();
+        Tile t = v.unit();
+        t.codes.add(new mov(res_register, toAsmMem()));
+        return new Pair<List<Node>, Tile>(nodes, t);
     }
 }
