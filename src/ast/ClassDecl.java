@@ -9,6 +9,7 @@ import utils.tools;
 public class ClassDecl extends TypeDecl{
     // children( modifiers ID Super Interface ClassBody)
     public List<ClassDecl> subclasses = new ArrayList<ClassDecl>();
+    public ConstructorDecl supercall = null;
     public ClassDecl(List<ASTNode> children, String value){
         super(children, value);
     }

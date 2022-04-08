@@ -30,6 +30,13 @@ public class Main {
 		translator.canonicalize(compUnit);
 		createAssembly(translator, compUnit);
 		System.out.println(compUnit.functions());
+
+		// IR interpreter demo
+        {
+            Simulator sim = new Simulator(compUnit);
+            long result = sim.call("test");
+            System.out.println("test evaluates to " + result);
+        }
 	}
 
 	static public void main(String argv[]) {

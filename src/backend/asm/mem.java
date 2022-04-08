@@ -59,6 +59,9 @@ public class mem extends Operand{
 
     @Override
     public String toString() {
+        if (operator1 == null) {
+            return "[ " + RegToStr(t1) + ConstToStr(c1) + " ]";
+        }
         return "[ " + RegToStr(t1) + ConstToStr(c1) + OpToChar(operator1) + ConstToStr(c2) + RegToStr(t2) + " ]";
     }
 
