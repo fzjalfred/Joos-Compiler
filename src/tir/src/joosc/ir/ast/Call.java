@@ -57,12 +57,16 @@ public class Call extends Expr_c {
     private boolean isSyscall(Name name) {
         String name_str = name.name();
         if (name_str.equals("NATIVEjava.io.OutputStream.nativeWrite")) {
+            funcLabel = "NATIVEjava.io.OutputStream.nativeWrite";
             return true;
         } else if (name_str.equals("__malloc")) {
+            funcLabel = "__malloc";
             return true;
         } else if (name_str.equals("__debexit")) {
+            funcLabel = "__debexit";
             return true;
         } else if (name_str.equals("__exception")) {
+            funcLabel = "__exception";
             return true;
         }
         return false;
