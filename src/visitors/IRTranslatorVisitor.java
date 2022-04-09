@@ -281,10 +281,10 @@ public class IRTranslatorVisitor extends Visitor {
         List<Statement> stmts = new ArrayList<Statement>();
         if (expr.boolStruct != null && expr.boolStruct.bool == true){
             // C[true, lt, lf]
-            stmts.add(new Jump(new Temp(lt)));  
+            stmts.add(new Jump(new Name(lt)));
         } else if (expr.boolStruct != null && expr.boolStruct.bool == false) {
             // C[false, lt, lf]
-            stmts.add(new Jump(new Temp(lf)));  
+            stmts.add(new Jump(new Name(lf)));
         } else if (expr instanceof PrimaryNoArray && expr.getSingleChild() instanceof Expr) {
             return getConditionalIRNode(expr.getSingleChild(), lt, lf);
         } else if (expr instanceof UnaryExprNotPlusMinus && ((UnaryExprNotPlusMinus)expr).isNot()) {
