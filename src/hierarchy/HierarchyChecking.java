@@ -798,6 +798,10 @@ public class HierarchyChecking {
 
         ClassDecl classNode = (ClassDecl)found.first;
 
+        classDecl.parentClass = classNode;
+//        System.out.println("Parent: " + classNode.getName());
+//        System.out.println("Child: " + classDecl.getName());
+//        System.out.println();
         extendNodes.add(found);
         extendNodes.addAll(checkExtendNode(original, classNode, found.second, extendNodes));
 
@@ -997,6 +1001,12 @@ public class HierarchyChecking {
         for (ASTNode node: directParentMap.keySet()) {
             if (node != objectClass && directParentMap.get(node).size() == 0) {
                 directParentMap.get(node).add((Referenceable)objectClass);
+                if (node instanceof ClassDecl) {
+                    ((ClassDecl)node).parentClass = (ClassDecl) objectClass;
+//                    System.out.println("Parent: Object" );
+//                    System.out.println("Child: " + ((ClassDecl)node).getName());
+//                    System.out.println();
+                }
             }
         }
         for (ASTNode node : directParentMap.keySet()) {
