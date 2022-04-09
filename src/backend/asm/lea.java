@@ -50,14 +50,7 @@ public class lea extends BinaryOpCode{
             }   else {
                 res.add(this);
             }
-        }   else if (op1 instanceof mem){
-            res.addAll(op1.allocateOperand(funcDecl));
-            if (op2 instanceof Register && Register.isAbstractRegister((Register)op2)){
-                res.add(new mov(Register.ecx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
-                op2 = Register.ecx;
-            }
-            res.add(this);
-        }   else {
+        }    else {
             return null;
         }
         return res;

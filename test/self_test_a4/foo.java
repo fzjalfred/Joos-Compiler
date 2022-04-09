@@ -1,13 +1,15 @@
 public class foo{
 
     public foo(){}
-    public static int blah(int a) {
-        return 3;
-    }
+
     public static int test (){
-        int c = foo.blah(3);
-        int d = c + 4;
-        return d;
+        int d = 3;
+        if (d > 1){
+            int a = 1;
+        }   else {
+            int b = 2;
+        }
+        return 0;
 
     }
 }

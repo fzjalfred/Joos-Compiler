@@ -15,7 +15,7 @@ public class Main {
 
 	static public DebugID id = DebugID.None;
 
-	static public void createAssembly(IRTranslator translator, CompUnit compUnit){
+	static public void createAssembly(IRTranslator translator, CompUnit compUnit) throws FileNotFoundException, UnsupportedEncodingException {
 		try {
 			PrintWriter printWriter = new PrintWriter("output/test.s", "UTF-8");
 			printWriter.println("global _start");
@@ -31,12 +31,12 @@ public class Main {
 			printWriter.println(new Tile(registorAllocator.allocate()));
 			printWriter.close();
 		} catch (IOException e1) {
-
+			throw e1;
 		}
 
 	}
 
-	static public void sim(IRTranslator translator, RootEnvironment env){
+	static public void sim(IRTranslator translator, RootEnvironment env) throws FileNotFoundException, UnsupportedEncodingException {
 		CompUnit compUnit = new CompUnit("test");
 		for (FuncDecl funcDecl : translator.mapping.values()){
 			compUnit.appendFunc(funcDecl);
@@ -47,11 +47,11 @@ public class Main {
 		System.out.println(compUnit.functions());
 
 		// IR interpreter demo
-        {
+        /*{
             Simulator sim = new Simulator(compUnit);
             long result = sim.call("test");
             System.out.println("test evaluates to " + result);
-        }
+        }*/
 	}
 
 	static public void main(String argv[]) {
