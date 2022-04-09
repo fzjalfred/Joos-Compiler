@@ -102,7 +102,7 @@ public class CJump extends Statement {
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Code> tileCodes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
-        if (cond instanceof BinOp && ((BinOp)cond).opType() ==BinOp.OpType.EQ) {
+        if (cond instanceof BinOp) {
             Register left_reg = RegFactory.getRegister();
             Register right_reg = RegFactory.getRegister(); 
             ((BinOp)cond).left().setResReg(left_reg);
@@ -110,7 +110,32 @@ public class CJump extends Statement {
             ((BinOp)cond).right().setResReg(right_reg);
             nodes.add(((BinOp)cond).right());
             tileCodes.add(new cmp(left_reg, right_reg));
-            tileCodes.add(new jcc(jcc.ccType.e, new LabelOperand(trueLabel)));
+
+            // t1 == t2
+            if (((BinOp)cond).opType() == BinOp.OpType.EQ) {
+                tileCodes.add(new jcc(jcc.ccType.e, new LabelOperand(trueLabel)));
+            }
+            // t1 != t2
+            if (((BinOp)cond).opType() == BinOp.OpType.NEQ) {
+                tileCodes.add(new jcc(jcc.ccType.ne, new LabelOperand(trueLabel)));
+            }
+            // t1 > t2
+            if (((BinOp)cond).opType() == BinOp.OpType.GT) {
+                tileCodes.add(new jcc(jcc.ccType.g, new LabelOperand(trueLabel)));
+            }
+            // t1 >= t2
+            if (((BinOp)cond).opType() == BinOp.OpType.GEQ) {
+                tileCodes.add(new jcc(jcc.ccType.ge, new LabelOperand(trueLabel)));
+            }
+            // t1 < t2
+            if (((BinOp)cond).opType() == BinOp.OpType.LT) {
+                tileCodes.add(new jcc(jcc.ccType.l, new LabelOperand(trueLabel)));
+            }
+            // t1 <= t2
+            if (((BinOp)cond).opType() == BinOp.OpType.LEQ) {
+                tileCodes.add(new jcc(jcc.ccType.le, new LabelOperand(trueLabel)));
+            }
+            
             return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes)); 
         } else {
             Register cond_reg = RegFactory.getRegister();

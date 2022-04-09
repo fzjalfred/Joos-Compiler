@@ -7,7 +7,7 @@ import java.util.List;
 
 public class jcc extends UnaryOpCode{
     public enum ccType {
-        z("z"), e("e"), l("l"), nge("nge"), ge("ge"), nl("nl"), nz("nz");
+        g("g"), z("z"), e("e"), l("l"), le("le"), nge("nge"), ge("ge"), nl("nl"), nz("nz"), ne("ne");
         private String s;
         private ccType(String s) {
             this.s = s;

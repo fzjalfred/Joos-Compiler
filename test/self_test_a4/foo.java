@@ -4,10 +4,14 @@ public class foo{
 
     public static int test (){
         int d = 3;
-        if (d > 1){
+        // if (d > 1){
+        //     int a = 1;
+        // }
+        // if (1 > 1){
+        //     int a = 1;
+        // }
+        if (d < 1 && 2 > 1){
             int a = 1;
-        }   else {
-            int b = 2;
         }
         return 0;
 
