@@ -138,7 +138,30 @@ public class Seq extends Statement {
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Node> res = new ArrayList<Node>();
-        res.addAll(statements);
+        int index = 0;
+        List<Statement> newStmts = new ArrayList<Statement>();
+        boolean skipNext = false;
+        for (Statement statement : statements) {
+            if (skipNext) {
+                skipNext = false;
+                continue;
+            }
+            if (statement instanceof Exp) {
+                if (((Exp)statement).expr() instanceof Call) {
+                    Call call = (Call)((Exp)statement).expr();
+                    if (index + 1 < statements.size() && statements.get(index+1) instanceof Move) {
+                        Move move = (Move) statements.get(index+1);
+                        if (move.source() instanceof Temp && ((Temp)move.source()).name().equals("_RET")) {
+                            skipNext = true;
+                            call.returnTarget =(Temp)move.target();
+                        }
+                    }
+                }
+            }
+            newStmts.add(statement);
+            index++;
+        }
+        res.addAll(newStmts);
         return new Pair<List<Node>, Tile>(res, v.unit());
     }
 }

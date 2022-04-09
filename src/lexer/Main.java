@@ -3,6 +3,8 @@ import java.io.*;
 import java.util.*;
 
 import backend.IRTranslator;
+import backend.RegistorAllocator;
+import backend.asm.Tile;
 import type.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
@@ -23,7 +25,10 @@ public class Main {
 			printWriter.println("mov ebx, eax");
 			printWriter.println("mov eax, 1");
 			printWriter.println("int 0x80");
-			printWriter.println(translator.tiling(compUnit));
+			Tile t = translator.tiling(compUnit);
+			System.out.println(t);
+			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
+			printWriter.println(new Tile(registorAllocator.allocate()));
 			printWriter.close();
 		} catch (IOException e1) {
 

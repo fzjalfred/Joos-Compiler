@@ -21,6 +21,7 @@ public class Call extends Expr_c {
     public String funcLabel;
     protected Expr target;
     protected List<Expr> args;
+    public Temp returnTarget;
 
     /**
      *
@@ -194,8 +195,7 @@ public class Call extends Expr_c {
         }
 
 
-        Register t = RegFactory.getRegister();
-        tileCodes.add(new mov(t, Register.eax));
+        tileCodes.add(new mov(new Register(returnTarget.name()), Register.eax));
         tileCodes.add(new add(Register.esp, new Const(4*argNum)));
         res = v.bind(res, new Tile(tileCodes));
         return new Pair<>(new ArrayList<Node>(), res);
