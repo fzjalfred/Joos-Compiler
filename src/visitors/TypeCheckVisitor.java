@@ -9,6 +9,7 @@ import type.*;
 import utils.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -131,7 +132,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (currType instanceof PrimitiveType) return null;
             String str = names.get(idx);
             if (isLastIdx(idx, names.size()) && currType instanceof ClassOrInterfaceType){
-
                 ClassOrInterfaceType classType = (ClassOrInterfaceType)currType;
                 assert classType.typeDecl != null;
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
@@ -242,7 +242,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         //System.out.println(name.getValue());
         List<String> nameStrs = name.getFullName();
         Token classSimpleName = tools.simpleNameConstructor(nameStrs.get(0));
-        if (scopeEnvironment.lookupTypeDecl(classSimpleName) != null) return null;
         if (context.get(classSimpleName.value) != null) return null;
         Referenceable res = null;
 
@@ -637,15 +636,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     throw new SemanticError("Invalid operator for String between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
                 }
             }   else {
-                // System.out.println(node.children.get(0));
-                // System.out.print("isNumericType: ");
-                // System.out.println(t1 instanceof NumericType);
-                // System.out.println(t1 == null);
-                // System.out.println(((MethodInvocation)node.children.get(0)).getName().getValue());
-                // System.out.println(((PostFixExpr)node.children.get(0)).getName().getValue());
-                // System.out.println(node.children.get(2));
-                // System.out.print("isNumericType: ");
-                // System.out.println(t2 instanceof NumericType);
                 throw new SemanticError("Invalid AdditiveExpr between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
         }
@@ -670,15 +660,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     }
                 }
             } else {
-                // System.out.println(node.children.get(0));
-                // System.out.print("isNumericType: ");
-                // System.out.println(t1 instanceof NumericType);
-                // System.out.println(t1 == null);
-                // System.out.println(((MethodInvocation)node.children.get(0)).getName().getValue());
-                // System.out.println(((PostFixExpr)node.children.get(0)).getName().getValue());
-                // System.out.println(node.children.get(2));
-                // System.out.print("isNumericType: ");
-                // System.out.println(t2 instanceof NumericType);
                 
                 throw new SemanticError("Invalid MultiplicativeExpr between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -1204,17 +1185,110 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 node.whichMethod = (Callable)resMethod;
                 return;
             }
+            String methodNameStr = methodName.getValue();
+            String[] receiver_str = methodNameStr.split("\\.");
+            Expr receiver = null;
+            if (receiver_str.length == 1) {
+                receiver = new ThisLiteral(Arrays.asList(), "this");
+                if (containMap.containsKey(methodNameStr)){
+                    resMethod = tools.fetchMethod(containMap.get(methodNameStr), node.getArgumentTypeList());
+                    if (!checkStaticUse(resMethod)) throw new SemanticError("cannot use non-static method " + resMethod + " in static class member decl");
+                } // if
+            }   else {
+                String res = "";
+                for (int idx = 0; idx < receiver_str.length-1; idx++){
+                    res += receiver_str[idx];
+                    if (idx != receiver_str.length-2){
+                        res += '.';
+                    }
+                }
+                receiver = PostFixExpr.get(res, null);
+                env.ASTNodeToScopes.put(receiver, env.ASTNodeToScopes.get(node));
+                disAmbiguousNameField(((PostFixExpr)receiver).getName(), receiver, containMap);
+                String method = receiver_str[receiver_str.length-1];
+                if (receiver.type instanceof ClassOrInterfaceType){
+                    ClassOrInterfaceType classType = (ClassOrInterfaceType)receiver.type;
+                    containMap = hierarchyChecker.containMap.get(classType.typeDecl);
+                    if (containMap.containsKey(method)){
+                        resMethod = tools.fetchMethod(containMap.get(method),node.getArgumentTypeList());
+                        checkProtected(resMethod, classType.typeDecl);
+                        if (resMethod == null){
+                            resMethod = tools.fetchAbstractMethod(containMap.get(method), node.getArgumentTypeList());
+                            checkProtected(resMethod, classType.typeDecl);
+                            if (checkObjectStatic(resMethod)){
+                                throw new SemanticError("cannot read static method on Object " + classType);
+                            }
+                        }   else{
+                            checkProtected(resMethod, classType.typeDecl);
+                            if (checkObjectStatic(resMethod)){
+                                throw new SemanticError("cannot read static method on Object " + classType);
+                            }
+                        }
+                    } // if
+                }   else{
+                    throw new SemanticError("cannot call function " + method + " on non-class type");
+                }
+            }
+            node.receiver = receiver;
+        } /* if has name */   else {
+            Primary primary = node.getPrimary();
+            if (primary.type instanceof ClassOrInterfaceType){
+                TypeDecl typeDecl = ((ClassOrInterfaceType)primary.type).typeDecl;
+                containMap = hierarchyChecker.containMap.get(typeDecl);
+                if (containMap.containsKey(node.getID().value)){
+                    node.receiver = primary;
+                    resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
+                    checkProtected(resMethod, typeDecl);
+                } // if
+            }
+        } // general if
+        if (resMethod!= null){
+            /*if (resMethod instanceof MethodDecl){
+                System.out.println("method " + ((MethodDecl)resMethod).getName() + " has receiver " + node.receiver);
+            }*/
+            node.type = resMethod.getType();
+            node.whichMethod = (Callable)resMethod;
+            return;
+        }
+
+        throw new SemanticError("Cannot evaluate method invocation " + node.getName().getValue() + " " + node.getArgumentTypeList() + " find " + resMethod);
+    }
+
+
+    public void visit2(MethodInvocation node) {
+        Referenceable resMethod = null;
+        boolean isObject = false;
+        Map<String, List<ASTNode>> containMap = null;
+        /** decide which map to use*/
+        if (classBodyDecl instanceof FieldDecl){
+            containMap = hierarchyChecker.inheritMapRe.get(currTypeDecl);
+        }   else {
+            containMap = hierarchyChecker.containMap.get(currTypeDecl);
+        }
+
+        if (node.hasName()){
+            Map<String, List<ASTNode>> declareMap = hierarchyChecker.declareMapRe.get(currTypeDecl);
+            Name methodName = node.getName();
+            //ambiguousNameBaseCase(methodName.getFullName(), declareMap);
+            resMethod = findStaticMethodfix(env.ASTNodeToScopes.get(node), node.getName(), node.getArgumentTypeList());
+            if (resMethod!= null){
+                node.type = resMethod.getType();
+                node.whichMethod = (Callable)resMethod;
+                return;
+            }
 
             List<String> names = node.getName().getFullName();
             String nameStr = "";
             Type currType = null;
             Referenceable currRes = null;
+            Expr currExpr = null;
             int idx = 0;
             for (;idx < names.size();idx++){
                 String str = names.get(idx);
                 nameStr += str;
                 if (isLastIdx(idx, names.size())){  // check method case
                     if (containMap.containsKey(nameStr)){
+                        node.receiver = new ThisLiteral(null, "this");
                         resMethod = tools.fetchMethod(containMap.get(nameStr), node.getArgumentTypeList());
                         if (!checkStaticUse(resMethod)) throw new SemanticError("cannot use non-static method " + resMethod + " in static class member decl");
                         if (resMethod != null) break;
@@ -1226,6 +1300,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                         checkProtected(currRes, null);
                         currType = currRes.getType();
                         isObject = true;
+                        node.receiver = PostFixExpr.get(nameStr, currRes);
                         break;
                     }
                     // second check inherit map

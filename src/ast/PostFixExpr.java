@@ -2,7 +2,10 @@ package ast;
 
 import visitors.Visitor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import utils.tools;
 
 public class PostFixExpr extends UnaryExprNotPlusMinus{
 
@@ -44,5 +47,20 @@ public class PostFixExpr extends UnaryExprNotPlusMinus{
             if (node != null) node.accept(v);
         }
         v.visit(this);
+    }
+
+    static public PostFixExpr get(String name, Referenceable refer){
+        PostFixExpr res =  new PostFixExpr(new ArrayList<ASTNode>(Arrays.asList(tools.nameConstructor(name))), null);
+        res.refer = refer;
+        return res;
+    }
+
+    @Override
+    public String toString() {
+        if (hasName()){
+            return getName().getValue();
+        }   else {
+            return super.toString();
+        }
     }
 }
