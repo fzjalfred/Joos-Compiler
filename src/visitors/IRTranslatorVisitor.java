@@ -361,6 +361,7 @@ public class IRTranslatorVisitor extends Visitor {
         Label label = new Label("label_" + node.hashCode());
         Label true_label = new Label("true_"+node.hashCode());
         Label false_label = new Label("false_"+node.hashCode());
+        Label res_label = new Label("res_"+node.hashCode());
 
         Stmt thenStmt = (Stmt)node.getThenStmt();
         Stmt elseStmt = (Stmt)node.getElseStmt();
@@ -374,8 +375,10 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
         stmts.add(thenStmt.ir_node);
+        stmts.add(new Jump(new Name(res_label.name())));
         stmts.add(false_label);
         stmts.add(elseStmt.ir_node);
+        stmts.add(res_label);
 
         node.ir_node = new Seq(stmts);
     }
@@ -495,6 +498,100 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, tm, new Const(4*2))));
         //stmts.add(new Exp(new Call(new Name("__exception"))));
         node.ir_node = new ESeq(new Seq(stmts), res);
+    }
+
+    public void visit(ClassInstanceCreateExpr node) {
+        ConstructorDecl callingConstructor = (ConstructorDecl) node.callable;
+        ClassDecl initClass = callingConstructor.whichClass;
+
+        // calc heap size
+        int size = 4; // vtb addr
+        List <FieldDecl> fieldDecls = initClass.getAllFieldDecls();
+        size += fieldDecls.size() * 4; // add 4 * field num
+        List<Statement> stmts = new ArrayList<Statement>();
+
+        Temp heapStart = new Temp("heapStart_"+node.hashCode());
+        stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
+
+        int fieldOffset = 4;
+        for (FieldDecl fieldDecl : fieldDecls) {
+            initClass.fieldMap.put(fieldDecl, fieldOffset);
+            fieldOffset += 4;
+        }
+
+        // calc vtable size
+        List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
+
+        size = methodDecls.size() * 4;
+        stmts.add(new Move(new Mem(heapStart), new Call(new Name("__maloc"), new Const(size))));
+        Temp VThead = new Temp("VThead_" + node.hashCode());
+        stmts.add(new Move(VThead, new Mem(heapStart)));
+        int methodIndex = 1;
+        for (MethodDecl methodDecl : methodDecls) {
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodIndex * 4))), new Name(methodDecl.getName()+"_" + methodDecl.hashCode())));
+            initClass.methodMap.put(methodDecl, methodIndex * 4);
+            methodIndex++;
+        }
+
+        // calling constructor like method invocation
+        String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
+        tir.src.joosc.ir.ast.Expr consAddr = new Name(consName);
+        if (node.getArgumentList() != null) {
+            List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
+            stmts.add(new Exp(new Call(consAddr, args)));
+        } else {
+            List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+            stmts.add(new Exp(new Call(consAddr, exprList)));
+        }
+
+        node.ir_node = new ESeq(new Seq(stmts), heapStart);
+    }
+
+    public void visit(ConstructorDeclarator node) {
+        List <Statement> stmts = new ArrayList<Statement>();
+        if (node.hasParameterList()) {
+            ParameterList parameterList = node.getParameterList();
+            int index = 0;
+            for (Parameter p : parameterList.getParams()) {
+                stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+                index++;
+            }
+        }
+        node.ir_node = stmts;
+    }
+
+    public void visit(ConstructorBody node) {
+        List <Statement> stmts = new ArrayList<Statement>();
+        if (node.getBlockStmts() == null) {
+            node.ir_node = new Seq(stmts);
+            return;
+        }
+
+        for (ASTNode stmt : node.getBlockStmts().children) {
+            Stmt stmt1 = (Stmt) stmt;
+            stmts.add(stmt1.ir_node);
+        }
+        node.ir_node = new Seq(stmts);
+    }
+
+    public void visit(ConstructorDecl node) {
+        List <Statement> stmts = new ArrayList<Statement>();
+        String name = node.getName() + "_" + node.hashCode();
+
+        Label label = new Label(name);
+        stmts.add(label);
+
+        ConstructorDecl superCons = node.whichClass.supercall;
+        stmts.add(new Exp(new Call(new Name(superCons.getName() + "_" + superCons.hashCode()), new ArrayList<tir.src.joosc.ir.ast.Expr>())));
+        // move params
+        if (node.getConstructorDeclarator().ir_node != null) {
+            stmts.addAll(node.getConstructorDeclarator().ir_node);
+        }
+        Seq seq_node = node.getConstructorBody().ir_node;
+
+        stmts.add(seq_node);
+        Seq body = new Seq(stmts);
+        node.funcDecl = new FuncDecl(name, node.getConstructorDeclarator().numParams(), body, new FuncDecl.Chunk());
     }
 
 }
