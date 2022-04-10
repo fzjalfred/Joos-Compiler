@@ -4,8 +4,12 @@ import utils.tools;
 import visitors.Visitor;
 
 import java.util.List;
+import java.util.Map;
 
 public class InterfaceDecl extends TypeDecl {
+
+    public Map<String, List<ASTNode>> containMap = null;
+
     public InterfaceDecl(List<ASTNode> children, String value){
         super(children, value);
     }

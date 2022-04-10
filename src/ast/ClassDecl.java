@@ -18,6 +18,8 @@ public class ClassDecl extends TypeDecl{
     public Map<FieldDecl, Integer> fieldMap = new HashMap<FieldDecl, Integer>();
     public Map<MethodDecl, Integer> methodMap = new HashMap<MethodDecl, Integer>();
 
+    public Map<String, List<ASTNode>> containMap = null;
+
     public ClassDecl(List<ASTNode> children, String value){
         super(children, value);
     }
