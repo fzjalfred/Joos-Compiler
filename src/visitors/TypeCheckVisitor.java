@@ -1102,6 +1102,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 ((ClassDecl)((ClassOrInterfaceType)node.type).typeDecl).getModifiers().getModifiersSet().contains("abstract") ) {
                     throw new SemanticError("The type in a class instance creation expression must be a non-abstract class.");
                 }
+                ctorDecl.whichClass = classDecl;
                 node.callable = ctorDecl;
                 return;
             }

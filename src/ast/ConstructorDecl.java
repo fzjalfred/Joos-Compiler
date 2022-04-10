@@ -10,8 +10,10 @@ import dataflowAnalysis.CFG;
 import java.util.List;
 
 public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Callable{
+    public ClassDecl whichClass;
     public ConstructorDecl(List<ASTNode> children, String value){
         super(children, value);
+        whichClass = null;
     }
     public String getName(){
         return getConstructorDeclarator().getName();
