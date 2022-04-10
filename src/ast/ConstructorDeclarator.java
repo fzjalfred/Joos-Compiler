@@ -1,10 +1,12 @@
 package ast;
 
+import tir.src.joosc.ir.ast.Statement;
 import visitors.Visitor;
 
 import java.util.List;
 
 public class ConstructorDeclarator extends ASTNode {
+    public List<Statement> ir_node;
     public ConstructorDeclarator(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -14,6 +16,13 @@ public class ConstructorDeclarator extends ASTNode {
     public ParameterList getParameterList(){
         assert children.get(1) instanceof ParameterList;
         return (ParameterList)children.get(1);
+    }
+
+    public boolean hasParameterList(){
+        if (children.get(1) == null){
+            return false;
+        }
+        return true;
     }
 
     public List<Type> getParamType(){

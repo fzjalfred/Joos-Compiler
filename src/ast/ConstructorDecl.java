@@ -1,5 +1,7 @@
 package ast;
 
+import tir.src.joosc.ir.ast.FuncDecl;
+import visitors.IRTranslatorVisitor;
 import visitors.TypeCheckVisitor;
 import visitors.UnreachableStmtVisitor;
 import visitors.Visitor;
@@ -11,6 +13,7 @@ import java.util.List;
 
 public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Callable{
     public ClassDecl whichClass;
+    public FuncDecl funcDecl;
     public ConstructorDecl(List<ASTNode> children, String value){
         super(children, value);
         whichClass = null;
@@ -47,14 +50,22 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Cal
             visitor.context.entry("Method Parameter List");
             acceptMain(v);
             visitor.context.pop();
-        }   else if (v instanceof UnreachableStmtVisitor){
-            UnreachableStmtVisitor uv = (UnreachableStmtVisitor)v;
+        }   else if (v instanceof UnreachableStmtVisitor) {
+            UnreachableStmtVisitor uv = (UnreachableStmtVisitor) v;
             acceptMain(v);
-            if (uv.currVertex != null && uv.currVertex != uv.currCFG.START) uv.currCFG.setEdge(uv.currVertex, uv.currCFG.END);
-            for (CFG.Vertex i: uv.ifpaths) {
+            if (uv.currVertex != null && uv.currVertex != uv.currCFG.START)
+                uv.currCFG.setEdge(uv.currVertex, uv.currCFG.END);
+            for (CFG.Vertex i : uv.ifpaths) {
                 uv.currCFG.setEdge(i, uv.currCFG.END);
             }
             uv.ifpaths.clear();
+
+        } else if (v instanceof IRTranslatorVisitor){
+            IRTranslatorVisitor iv = (IRTranslatorVisitor)v;
+            for (ASTNode node: children){
+                if (node != null) node.accept(v);
+            }
+            v.visit(this);
         }   else{
             acceptMain(v);
         }
