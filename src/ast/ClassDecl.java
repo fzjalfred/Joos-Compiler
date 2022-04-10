@@ -3,7 +3,10 @@ package ast;
 import visitors.Visitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import utils.tools;
 
 public class ClassDecl extends TypeDecl{
@@ -11,6 +14,10 @@ public class ClassDecl extends TypeDecl{
     public List<ClassDecl> subclasses = new ArrayList<ClassDecl>();
     public ClassDecl parentClass = null;
     public ConstructorDecl supercall = null;
+
+    public Map<FieldDecl, Integer> fieldMap = new HashMap<FieldDecl, Integer>();
+    public Map<MethodDecl, Integer> methodMap = new HashMap<MethodDecl, Integer>();
+
     public ClassDecl(List<ASTNode> children, String value){
         super(children, value);
     }
@@ -25,6 +32,23 @@ public class ClassDecl extends TypeDecl{
         if (children.get(4) == null) return null;
         assert children.get(4).children.get(0) instanceof ClassBodyDecls;
         return (ClassBodyDecls)children.get(4).children.get(0);
+    }
+
+    public List<FieldDecl> getAllFieldDecls() {
+        if (parentClass != null) {
+            List <FieldDecl> res =  parentClass.getAllFieldDecls();
+            res.addAll(getAllFieldDecls());
+            return res;
+        }
+        return getFieldDecls();
+    }
+
+    public List<FieldDecl> getFieldDecls(){
+        return getClassBodyDecls().getFieldDecls();
+    }
+
+    public List<MethodDecl> getMethodDecls(){
+        return getClassBodyDecls().getMethodDecls();
     }
 
     public boolean isStatic() {

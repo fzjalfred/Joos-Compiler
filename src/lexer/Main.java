@@ -26,7 +26,7 @@ public class Main {
 			printWriter.println("mov eax, 1");
 			printWriter.println("int 0x80");
 			Tile t = translator.tiling(compUnit);
-			System.out.println(t);
+//			printWriter.println(t);
 			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
 			printWriter.println(new Tile(registorAllocator.allocate()));
 			printWriter.close();
