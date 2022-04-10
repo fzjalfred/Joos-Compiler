@@ -172,7 +172,7 @@ public class HierarchyChecking {
         }
         for (ASTNode T: containMap.keySet()) {
             if (T instanceof InterfaceDecl) {
-                ClassDecl class_decl = (ClassDecl)T;
+                InterfaceDecl class_decl = (InterfaceDecl)T;
                 class_decl.containMap = containMap.get(T);
             } else if (T instanceof ClassDecl) {
                 ClassDecl class_decl = (ClassDecl)T;
