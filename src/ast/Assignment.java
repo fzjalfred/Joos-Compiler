@@ -22,6 +22,10 @@ public class Assignment extends AssignmentExpr {
 
     @Override
     public void accept(Visitor v){
+        if (getAssignmentRight() instanceof ClassInstanceCreateExpr){
+            ClassInstanceCreateExpr classInstanceCreateExpr = (ClassInstanceCreateExpr)getAssignmentRight();
+            classInstanceCreateExpr.receiver = getAssignmentLeft();
+        }
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }

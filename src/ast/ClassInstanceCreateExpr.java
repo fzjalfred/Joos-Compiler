@@ -6,6 +6,7 @@ import java.util.List;
 
 public class ClassInstanceCreateExpr extends PrimaryNoArray {
     public Callable callable;
+    public Expr receiver;
     public ClassInstanceCreateExpr(List<ASTNode> children, String value){
         super(children, value);
         callable = null;
