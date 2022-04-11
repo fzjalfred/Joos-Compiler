@@ -6,13 +6,16 @@ import ast.Expr;
 import tir.src.joosc.ir.ast.*;
 import tir.src.joosc.ir.ast.Name;
 import tir.src.joosc.ir.interpret.Configuration;
+import type.RootEnvironment;
 
 
 public class IRTranslatorVisitor extends Visitor {
     public Map<MethodDecl, FuncDecl> mapping;
+    private RootEnvironment env;
 
-    public IRTranslatorVisitor(){
+    public IRTranslatorVisitor(RootEnvironment env){
         mapping = new HashMap<MethodDecl, FuncDecl>();
+        this.env = env;
     }
 
     @Override
@@ -180,6 +183,11 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(PostFixExpr node){
+        if (node.refer instanceof FieldDecl){
+            FieldDecl _field = (FieldDecl)node.refer;
+            ClassDecl targetClass = (ClassDecl) env.ASTNodeToScopes.get(_field).typeDecl;
+            int offset = targetClass.fieldMap.get(_field);
+        }
         node.ir_node = new Temp(node.getName().getValue());
     }
 

@@ -950,10 +950,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         isStatic = false;
         String constructor_name = node.getName();
         String class_name = "";
+        node.whichClass = (ClassDecl)env.ASTNodeToScopes.get(node).typeDecl;
         if (env.ASTNodeToScopes.get(node).typeDecl instanceof ClassDecl) {
             class_name = ((ClassDecl)env.ASTNodeToScopes.get(node).typeDecl).getName();
-        } else if (env.ASTNodeToScopes.get(node).typeDecl instanceof InterfaceDecl) {
-            class_name = ((InterfaceDecl)env.ASTNodeToScopes.get(node).typeDecl).getName();
         }
         if (!class_name.equals(constructor_name)){
             throw new SemanticError("constructor name \'"+ constructor_name +"\' differs in Class \'"+class_name +"\' .");
@@ -1102,7 +1101,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 ((ClassDecl)((ClassOrInterfaceType)node.type).typeDecl).getModifiers().getModifiersSet().contains("abstract") ) {
                     throw new SemanticError("The type in a class instance creation expression must be a non-abstract class.");
                 }
-                ctorDecl.whichClass = classDecl;
                 node.callable = ctorDecl;
                 return;
             }

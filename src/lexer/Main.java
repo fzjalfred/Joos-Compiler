@@ -65,7 +65,7 @@ public class Main {
 			nameDisamb.rootEnvironmentDisambiguation(env, false);
 			TypeChecker typeChecker = new TypeChecker(env, checker, nameDisamb);
 			typeChecker.check();
-			IRTranslator translator = new IRTranslator(env.compilationUnits);
+			IRTranslator translator = new IRTranslator(env.compilationUnits, env);
 			translator.translate();
 			sim(translator, env);
 		} catch (Exception e) {

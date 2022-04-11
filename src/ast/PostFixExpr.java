@@ -10,7 +10,7 @@ import utils.tools;
 public class PostFixExpr extends UnaryExprNotPlusMinus{
 
     public Referenceable refer;
-
+    public Expr receiver = null;
     public PostFixExpr(List<ASTNode> children, String value){
         super(children, value);
     }

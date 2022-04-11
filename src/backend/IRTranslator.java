@@ -8,6 +8,7 @@ import tir.src.joosc.ir.ast.FuncDecl;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
+import type.RootEnvironment;
 import visitors.IRTranslatorVisitor;
 
 import java.util.List;
@@ -16,16 +17,17 @@ import java.util.Map;
 public class IRTranslator {
     private List<CompilationUnit> comps;
     public Map<MethodDecl, FuncDecl> mapping;
-    public IRTranslator(List<CompilationUnit> comps){
+    IRTranslatorVisitor visitor;
+    public IRTranslator(List<CompilationUnit> comps, RootEnvironment env){
         this.comps = comps;
         mapping = null;
+        visitor = new IRTranslatorVisitor(env);
     }
 
     public void translate(){
-        IRTranslatorVisitor visitor = new IRTranslatorVisitor();
         for (CompilationUnit comp : comps){
-
             if (!comp.fileName.contains("stdlib")){
+                System.out.println(comp.fileName);
                 comp.accept(visitor);
             }
         }
