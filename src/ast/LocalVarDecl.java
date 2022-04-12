@@ -41,4 +41,9 @@ public class LocalVarDecl extends LocalVarDeclStmt implements Referenceable{
         }
 
     }
+
+    @Override
+    public String toString() {
+        return getVarDeclarators().getFirstName();
+    }
 }

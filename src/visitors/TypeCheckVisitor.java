@@ -9,6 +9,7 @@ import type.*;
 import utils.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -187,37 +188,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     }
 
 
-    /** helpers */
-    private Referenceable findStaticMethod(ScopeEnvironment scopeEnvironment, Name name, List<Type> types){
-        Referenceable res = env.lookup(name);
-        if (res instanceof MethodList){
-            MethodList methodList = (MethodList)res;
-            MethodDecl methodDecl = methodList.match(types);
-            if (methodDecl != null && tools.checkStatic(methodDecl.getMethodHeader().getModifiers()) ){
-                checkProtected(methodDecl, null);
-                return methodDecl;
-            }
-        }   else {
-            List<String> nameStrs = name.getFullName();
-            res = scopeEnvironment.lookupTypeDecl(tools.simpleNameConstructor(nameStrs.get(0)));
-            if (res != null){
-                TypeDecl typeDecl = (TypeDecl)res;
-                Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
-                if (name.children.size() == 2){
-                    MethodDecl methodDecl = tools.fetchMethod(contain.get(nameStrs.get(1)), types);
-                    checkProtected(methodDecl, null);
-                    if (tools.checkStatic(methodDecl.getMethodHeader().getModifiers())) return methodDecl;
-                }   else {
-                    FieldDecl fieldDecl = tools.fetchField(contain.get(nameStrs.get(1)));
-                    if (fieldDecl != null && tools.checkStatic(fieldDecl.getModifiers())){
-                        return evalMethod(fieldDecl.getType(), name, 2, types, false);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     private Referenceable fetchMethodOrAbsMethod(List<ASTNode> refers, List<Type> types){
         Referenceable res = null;
         res = tools.fetchMethod(refers, types);
@@ -273,26 +243,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 checkProtected(methodDecl, null);
                 if (methodDecl!=null) return methodDecl;
                 throw new SemanticError(name.getValue() + "is non static");
-            }   /*else if (res != null && res instanceof FieldDecl){
-                //System.out.println(qualifiedName.getValue());
-                FieldDecl fieldDecl = (FieldDecl)res;
-                if (tools.checkStatic(fieldDecl.getModifiers())){
-                    TypeDecl typeDecl = env.ASTNodeToScopes.get(fieldDecl).typeDecl;
-                    Map<String, List<ASTNode>> contain = hierarchyChecker.containMap.get(typeDecl);
-                    Referenceable methodDecl = fetchMethodOrAbsMethod(contain.get(method), types);
-                    if (methodDecl instanceof MethodDecl){
-                        MethodDecl methodDecl1 = (MethodDecl)methodDecl;
-                        if (tools.checkStatic(methodDecl1.getModifiers())) throw new SemanticError("cannot call static method: " + methodDecl1.getName() + " on instance " + qualifiedName.getValue());
-                    }   else if (methodDecl instanceof AbstractMethodDecl){
-                        AbstractMethodDecl methodDecl1 = (AbstractMethodDecl)methodDecl;
-                        if (tools.checkStatic(methodDecl1.getModifiers())) throw new SemanticError("cannot call static abstract method: " + methodDecl1.getName() + " on instance " + qualifiedName.getValue());
-                    }
-                    checkProtected(methodDecl, typeDecl);
-                    return methodDecl;
-                }   else {
-                    throw new SemanticError(qualifiedName.getValue() + " is non static in " + name.getValue());
-                }
-            }*/
+            }
         }
         return null;
     }
@@ -301,7 +252,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         //System.out.println(name.getValue());
         List<String> nameStrs = name.getFullName();
         Token classSimpleName = tools.simpleNameConstructor(nameStrs.get(0));
-        if (scopeEnvironment.lookupTypeDecl(classSimpleName) != null) return null;
+        //if (scopeEnvironment.lookupTypeDecl(classSimpleName) != null) return null;
         if (context.get(classSimpleName.value) != null) return null;
         Referenceable res = null;
         if (name.children.size() == 2){
@@ -336,7 +287,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         /** first check whether it's static */
         ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(node);
         Referenceable res = findStaticField(scopeEnvironment, name);
-        boolean isObject = true;
         if (res != null) {
             checkProtected(res, null);
             node.type = res.getType();
@@ -347,6 +297,8 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         List<String> names = name.getFullName();
         String nameStr = "";
         Type currType = null;
+        Referenceable first_reciever = null;
+        List<FieldDecl> fields = new ArrayList<FieldDecl>();
         int idx = 0;
         for (;idx < names.size();idx++){
             String str = names.get(idx);
@@ -358,6 +310,13 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 currType = currRes.getType();
                 checkProtected(currRes, null);
                 res = currRes;
+                if (currRes instanceof FieldDecl){
+                    first_reciever = new ThisLiteral(tools.empty(), "this");
+                    fields.add((FieldDecl)currRes);
+                }   else {
+                    first_reciever = currRes;
+                }
+
                 /** check static field access*/
                 //System.out.println(nameStr + " has decl "  + context.get(nameStr) + " scope find " + scopeEnvironment.lookup(tools.simpleNameConstructor(nameStr)));
                 if (!checkStaticUse(currRes)) throw new SemanticError("Cannot use non-static field " + nameStr + " in static class member decl");
@@ -366,22 +325,13 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
             // second check inherit map
             if (containMap.containsKey(nameStr)){
+                first_reciever = new ThisLiteral(tools.empty(), "this");
                 FieldDecl  field = tools.fetchField(containMap.get(nameStr));
                 if (field != null){
                     checkProtected(field, null);
                     currType = field.getType();
                     res = field;
-                    break;
-                }
-            }
-            // check first simple name
-            if (idx == 0){
-                Token simpleName = tools.simpleNameConstructor(str);
-                Referenceable refer = scopeEnvironment.lookupTypeDecl(simpleName);
-
-                if (refer != null && refer instanceof TypeDecl){
-                    currType = tools.getClassType(str, (TypeDecl)refer);
-                    isObject = false;
+                    fields.add(field);
                     break;
                 }
             }
@@ -396,6 +346,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 FieldDecl field = (FieldDecl)nameRefer;
                 currType = field.getType();
                 res = field;
+                first_reciever = field;
                 break;
             }
             nameStr += '.';
@@ -409,6 +360,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + name.getValue() + " cannot be resolved to type");
             String str = names.get(idx);
             if (currType instanceof ArrayType && str.equals("length")){
+                fields.add(new FieldDecl(tools.empty(), "length"));
                 nameStr += str;
                 currType = new NumericType(tools.empty(), "int");
                 nameStr += '.';
@@ -422,14 +374,12 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                 if (containMap.containsKey(str)){
                     FieldDecl  field = tools.fetchField(containMap.get(str));
-                    if (isObject &&  checkObjectStatic(field)){
+                    if (checkObjectStatic(field)){
                         throw new SemanticError("cannot read static field on Object " + field.getFirstVarName());
-                    }   else if (!isObject && !checkStaticUse(field)){
-                        throw new SemanticError("cannot use non-static field " + field.getFirstVarName() + " in static method");
                     }
                     if (field != null){
                         checkProtected(field, classType.typeDecl);
-                        isObject = true;
+                        fields.add(field);
                         nameStr += str;
                         res = field;
                         currType = field.getType();
@@ -445,9 +395,24 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
         if (res!= null){
             node.type = currType;
-            if (node instanceof PostFixExpr) ((PostFixExpr)node).refer = res;
-            if (node instanceof LHS) ((LHS)node).refer = res;
-            if (node instanceof ArrayAccess) ((ArrayAccess)node).refer = res;
+            if (node instanceof PostFixExpr){
+                PostFixExpr _postfixexpr = ((PostFixExpr)node);
+                _postfixexpr.refer = res;
+                _postfixexpr.first_receiver = first_reciever;
+                _postfixexpr.subfields = fields;
+            } else if (node instanceof LHS){
+                LHS _lhs = (LHS)node;
+                _lhs.refer = res;
+                _lhs.first_receiver = first_reciever;
+                _lhs.subfields = fields;
+            } else if (node instanceof ArrayAccess) {
+                ArrayAccess _arrayaccess = (ArrayAccess)node;
+                _arrayaccess.refer = res;
+                _arrayaccess.first_receiver = first_reciever;
+                _arrayaccess.subfields = fields;
+            }   else {
+                throw new SemanticError(node + " is none of postfix, lhs or arrayaccess");
+            }
         }   else {
             throw new SemanticError(nameStr + " cannot be resolved to type");
         }

@@ -2,14 +2,18 @@ package ast;
 
 import visitors.Visitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LHS extends Expr{
     public Referenceable refer = null;
     public boolean isAssignable = true;
+    public Referenceable first_receiver = null;
+    public List<FieldDecl> subfields = null;
 
     public LHS(List<ASTNode> children, String value){
         super(children, value);
+        subfields = new ArrayList<FieldDecl>();
     }
 
     public boolean hasName() {

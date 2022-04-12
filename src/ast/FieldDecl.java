@@ -56,4 +56,12 @@ public class FieldDecl extends ClassMemberDecl {
             ((TypeCheckVisitor)v).context.put(var, this);
         }
     }
+
+    @Override
+    public String toString() {
+        if (!value.equals("")){
+            return value;
+        }
+        return getFirstVarName();
+    }
 }

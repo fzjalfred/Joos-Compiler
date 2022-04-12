@@ -10,9 +10,11 @@ import utils.tools;
 public class PostFixExpr extends UnaryExprNotPlusMinus{
 
     public Referenceable refer;
-    public Expr receiver = null;
+    public Referenceable first_receiver = null;
+    public List<FieldDecl> subfields = null;
     public PostFixExpr(List<ASTNode> children, String value){
         super(children, value);
+        subfields = new ArrayList<FieldDecl>();
     }
 
     public Type getType() {

@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class ThisLiteral extends Literal {
+public class ThisLiteral extends Literal implements Referenceable {
     public ThisLiteral(List<ASTNode> children, String value){
         super(children, value);
     }

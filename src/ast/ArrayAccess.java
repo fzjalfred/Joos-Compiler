@@ -2,13 +2,17 @@ package ast;
 
 import visitors.Visitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayAccess extends PrimaryNoArray {
     public String recursive_dectecter = "";
     public Referenceable refer = null;
+    public Referenceable first_receiver = null;
+    public List<FieldDecl> subfields = null;
     public ArrayAccess(List<ASTNode> children, String value){
         super(children, value);
+        subfields = new ArrayList<FieldDecl>();
     }
 
     public boolean hasName() {
