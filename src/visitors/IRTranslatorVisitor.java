@@ -12,6 +12,37 @@ import type.RootEnvironment;
 public class IRTranslatorVisitor extends Visitor {
     public Map<MethodDecl, FuncDecl> mapping;
     private RootEnvironment env;
+    private FuncDecl currFunctionDecl;
+
+    /** return the memory address of the last field: u can decide to read or write */
+    public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
+        Temp res = null;
+        Seq fieldsReadCodes = new Seq();
+        if (first_receiver instanceof ThisLiteral){
+            res =  new Temp("this"); //fixme
+        }   else {
+            res = new Temp(first_receiver.toString());
+        }
+        if (fields.isEmpty()){
+            return res;
+        }   else {
+            Temp temp = res;
+            res = new Temp("fieldAccessRes");
+            fieldsReadCodes.stmts().add(new Move(res, temp));
+        }
+        for (int i = 0; i < fields.size(); i++){
+            FieldDecl f = fields.get(i);
+            ClassDecl classDecl = (ClassDecl) env.ASTNodeToScopes.get(f).typeDecl;
+            //System.out.println(classDecl);
+            System.out.println("field is " + f + " offset is " + classDecl.fieldMap.get(f));
+            if (i == fields.size()-1){
+                fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
+            }   else {
+                fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
+            }
+        }
+        return new ESeq(fieldsReadCodes, res);
+    }
 
     public IRTranslatorVisitor(RootEnvironment env){
         mapping = new HashMap<MethodDecl, FuncDecl>();
@@ -131,7 +162,19 @@ public class IRTranslatorVisitor extends Visitor {
 
         } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
-            node.ir_node = new Move(assignmentChild.getAssignmentLeft().ir_node, assignmentChild.getAssignmentRight().ir_node);
+            Expr_c right_res = null;
+            if (assignmentChild.getAssignmentRight() instanceof PostFixExpr && ((PostFixExpr)assignmentChild.getAssignmentRight()).refer instanceof FieldDecl){
+                right_res = new Mem(assignmentChild.getAssignmentRight().ir_node);
+            }   else {
+                right_res = assignmentChild.getAssignmentRight().ir_node;
+            }
+            Expr_c left_res = null;
+            if (assignmentChild.getAssignmentLeft().refer instanceof FieldDecl){
+                left_res = new Mem(assignmentChild.getAssignmentLeft().ir_node);
+            }   else {
+                left_res = assignmentChild.getAssignmentLeft().ir_node;
+            }
+            node.ir_node = new Move(left_res, right_res);
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
         }
@@ -143,7 +186,11 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(LHS node){
         if (node.hasName()){
-            node.ir_node = new Temp(node.getName().getValue());
+            if (node.refer instanceof FieldDecl){
+                node.ir_node = translateFieldAccess(node.first_receiver, node.subfields);
+            }   else {
+                node.ir_node = new Temp(node.getName().getValue());
+            }
         }
     }
 
@@ -184,11 +231,10 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(PostFixExpr node){
         if (node.refer instanceof FieldDecl){
-            FieldDecl _field = (FieldDecl)node.refer;
-            ClassDecl targetClass = (ClassDecl) env.ASTNodeToScopes.get(_field).typeDecl;
-            int offset = targetClass.fieldMap.get(_field);
+            node.ir_node = translateFieldAccess(node.first_receiver, node.subfields);
+        }   else {
+            node.ir_node = new Temp(node.getName().getValue());
         }
-        node.ir_node = new Temp(node.getName().getValue());
     }
 
     public void visit(NumericLiteral node){

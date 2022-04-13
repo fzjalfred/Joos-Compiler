@@ -35,4 +35,9 @@ public class ForInit extends Stmt implements Referenceable, AtomicStmt{
         }
         v.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return getVarDeclarator().getName();
+    }
 }

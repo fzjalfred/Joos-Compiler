@@ -26,4 +26,9 @@ public class Parameter extends ASTNode implements Referenceable {
         }
         v.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return getVarDeclaratorID().getName();
+    }
 }
