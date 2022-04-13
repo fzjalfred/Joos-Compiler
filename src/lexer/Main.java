@@ -28,6 +28,9 @@ public class Main {
 				printWriter.println("mov eax, 1");
 				printWriter.println("int 0x80");
 			}
+			for (String str : compUnit.externStrs){
+				printWriter.println("extern " + str);
+			}
 
 			Tile t = translator.tiling(compUnit);
 //			printWriter.println(t);
@@ -47,6 +50,7 @@ public class Main {
 			createAssembly(translator, compUnit, idx);
 			idx++;
 			System.out.println(compUnit.functions());
+			System.out.println("ext strs has " + compUnit.externStrs);
 		}
 		// IR interpreter demo
         /*{

@@ -2,10 +2,7 @@ package ast;
 
 import visitors.Visitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import utils.tools;
 
@@ -17,6 +14,7 @@ public class ClassDecl extends TypeDecl{
 
     public Map<FieldDecl, Integer> fieldMap = new HashMap<FieldDecl, Integer>();
     public Map<MethodDecl, Integer> methodMap = new HashMap<MethodDecl, Integer>();
+    public Set<MethodDecl> selfMethodMap = new HashSet<>();
 
     public Map<String, List<ASTNode>> containMap = null;
 

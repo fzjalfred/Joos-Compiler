@@ -7,10 +7,7 @@ import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
 import utils.Pair;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An intermediate representation for a compilation unit
@@ -18,15 +15,18 @@ import java.util.Map;
 public class CompUnit extends Node_c {
     private String name;
     private Map<String, FuncDecl> functions;
+    public Set<String> externStrs;
 
     public CompUnit(String name) {
         this.name = name;
         functions = new LinkedHashMap<>();
+        externStrs = new HashSet<String>();
     }
 
     public CompUnit(String name, Map<String, FuncDecl> functions) {
         this.name = name;
         this.functions = functions;
+        externStrs = new HashSet<String>();
     }
 
     public void appendFunc(FuncDecl func) {

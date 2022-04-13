@@ -600,7 +600,7 @@ public class IRTranslatorVisitor extends Visitor {
         // calc vtable size
         List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
 
-        size = methodDecls.size() * 4;
+        size = methodDecls.size() * 4 + 4;
         stmts.add(new Move(new Mem(heapStart), new Call(new Name("__malloc"), new Const(size))));
         Temp VThead = new Temp("VThead_" + node.hashCode());
         stmts.add(new Move(VThead, new Mem(heapStart)));
@@ -608,6 +608,7 @@ public class IRTranslatorVisitor extends Visitor {
 //        int methodIndex = 1;
         for (MethodDecl methodDecl : initClass.methodMap.keySet()) {
             String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+            if (!initClass.selfMethodMap.contains(methodDecl)) compUnit.externStrs.add(name);
             int methodOffset = initClass.methodMap.get(methodDecl);
             stmts.add(new Move(t, new Name(name)));
             stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), t));
