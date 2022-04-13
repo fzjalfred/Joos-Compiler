@@ -228,8 +228,10 @@ public class Call extends Expr_c {
         if (returnTarget != null) {
             tileCodes.add(new mov(new Register(returnTarget.name()), Register.eax));
         }
+        if (!sysflag) {
+            tileCodes.add(new add(Register.esp, new Const(4*argNum)));
+        }
 
-        tileCodes.add(new add(Register.esp, new Const(4*argNum)));
         res = v.bind(res, new Tile(tileCodes));
         return new Pair<>(new ArrayList<Node>(), res);
     }
