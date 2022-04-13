@@ -144,6 +144,7 @@ public class Seq extends Statement {
         for (Statement statement : statements) {
             if (skipNext) {
                 skipNext = false;
+                index++;
                 continue;
             }
             if (statement instanceof Exp) {
