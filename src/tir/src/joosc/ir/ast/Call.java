@@ -73,6 +73,23 @@ public class Call extends Expr_c {
         return false;
     }
 
+    private boolean isSyscall(String name_str) {
+        if (name_str.equals("NATIVEjava.io.OutputStream.nativeWrite")) {
+            funcLabel = "NATIVEjava.io.OutputStream.nativeWrite";
+            return true;
+        } else if (name_str.equals("__malloc")) {
+            funcLabel = "__malloc";
+            return true;
+        } else if (name_str.equals("__debexit")) {
+            funcLabel = "__debexit";
+            return true;
+        } else if (name_str.equals("__exception")) {
+            funcLabel = "__exception";
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String label() {
         return "CALL";
@@ -136,7 +153,6 @@ public class Call extends Expr_c {
             seq.addSeq(name_seq);
         }
 
-
         // Arguments
         int index = 0;
 
@@ -165,16 +181,30 @@ public class Call extends Expr_c {
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         int argNum = args.size();
+        boolean sysflag = false;
+        if (funcLabel != null && isSyscall(funcLabel)) {
+            sysflag = true;
+        }
 
         Tile res = v.unit();
         for (Expr arg : args) {
             Tile argTile = v.unit();
             List<Code> argCodes = new ArrayList<Code>();
             if (arg instanceof Temp) {
-                argCodes.add(new push(new Register(((Temp)arg).name())));
+                if (sysflag) {
+                    argCodes.add(new mov(Register.eax, new Register(((Temp)arg).name())));
+                }   else {
+                    argCodes.add(new push(new Register(((Temp)arg).name())));
+                }
             } else {
                 // T[e]t
-                Register t = RegFactory.getRegister();
+                Register t = null;
+                if (sysflag) {
+                    t = Register.eax;
+                } else {
+                    t = RegFactory.getRegister();
+                }
+
                 arg.setResReg(t);
                 argTile =  v.visit(arg);
 
