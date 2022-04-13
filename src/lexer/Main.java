@@ -15,17 +15,20 @@ public class Main {
 
 	static public DebugID id = DebugID.None;
 
-	static public void createAssembly(IRTranslator translator, CompUnit compUnit) throws FileNotFoundException, UnsupportedEncodingException {
+	static public void createAssembly(IRTranslator translator, CompUnit compUnit, int idx) throws FileNotFoundException, UnsupportedEncodingException {
 		try {
 			String filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + ".s";
 			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
-			printWriter.println("global _start");
-			printWriter.println("_start:");
-			printWriter.println("call test");
-			// get return
-			printWriter.println("mov ebx, eax");
-			printWriter.println("mov eax, 1");
-			printWriter.println("int 0x80");
+			if (idx == 0) {
+				printWriter.println("global _start");
+				printWriter.println("_start:");
+				printWriter.println("call test");
+				// get return
+				printWriter.println("mov ebx, eax");
+				printWriter.println("mov eax, 1");
+				printWriter.println("int 0x80");
+			}
+
 			Tile t = translator.tiling(compUnit);
 //			printWriter.println(t);
 			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
@@ -38,9 +41,11 @@ public class Main {
 	}
 
 	static public void sim(IRTranslator translator, RootEnvironment env) throws FileNotFoundException, UnsupportedEncodingException {
+		int idx = 0;
 		for (CompUnit compUnit : translator.ir_comps){
 			translator.canonicalize(compUnit);
-			createAssembly(translator, compUnit);
+			createAssembly(translator, compUnit, idx);
+			idx++;
 			System.out.println(compUnit.functions());
 		}
 		// IR interpreter demo

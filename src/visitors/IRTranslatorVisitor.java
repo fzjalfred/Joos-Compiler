@@ -604,11 +604,13 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(new Mem(heapStart), new Call(new Name("__malloc"), new Const(size))));
         Temp VThead = new Temp("VThead_" + node.hashCode());
         stmts.add(new Move(VThead, new Mem(heapStart)));
+        Temp t = new Temp("t_" + node.hashCode());
 //        int methodIndex = 1;
         for (MethodDecl methodDecl : initClass.methodMap.keySet()) {
             String name = methodDecl.getName() + "_" + methodDecl.hashCode();
             int methodOffset = initClass.methodMap.get(methodDecl);
-            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), new Name(name)));
+            stmts.add(new Move(t, new Name(name)));
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), t));
         }
 
         // calling constructor like method invocation
