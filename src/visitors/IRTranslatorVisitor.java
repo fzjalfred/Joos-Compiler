@@ -67,6 +67,10 @@ public class IRTranslatorVisitor extends Visitor {
         }
         Seq seq_node = (Seq)node.getMethodBody().getBlock().ir_node;
 
+        int paramNum = node.getMethodHeader().getMethodDeclarator().numParams();
+        if (!node.isStatic()) {
+            paramNum += 1;
+        }
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
         node.funcDecl = new FuncDecl(name, node.getMethodHeader().getMethodDeclarator().numParams(), body, new FuncDecl.Chunk());
@@ -79,6 +83,10 @@ public class IRTranslatorVisitor extends Visitor {
         if (methodDeclarator.hasParameterList()) {
             ParameterList parameterList = methodDeclarator.getParameterList();
             int index = 0;
+            if (!node.isStatic()) {
+                stmts.add(new Move(new Temp("receiver"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+                index++;
+            }
             for (Parameter p : parameterList.getParams()) {
                 // FIXME:: not sure about temp(arg)
                 stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));

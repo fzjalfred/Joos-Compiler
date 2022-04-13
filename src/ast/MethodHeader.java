@@ -21,6 +21,16 @@ public class MethodHeader extends ASTNode {
         assert children.get(2) instanceof MethodDeclarator;
         return (MethodDeclarator)children.get(2);
     }
+    public boolean isStatic() {
+        Modifiers modifiers = (Modifiers) children.get(0);
+
+        for (ASTNode modifier : modifiers.children) {
+            if (modifier.value.equals( "static")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Type getType(){
         if(children.get(1) instanceof Type){

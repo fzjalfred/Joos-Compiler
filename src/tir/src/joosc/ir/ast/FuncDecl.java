@@ -15,6 +15,7 @@ import java.util.*;
 public class FuncDecl extends Node_c {
     private String name;
     public Statement body;
+    public Temp receiver = new Temp("receiver");
 
     static public class Chunk{
         public Set<String> vars;
