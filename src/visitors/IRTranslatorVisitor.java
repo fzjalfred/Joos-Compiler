@@ -666,10 +666,12 @@ public class IRTranslatorVisitor extends Visitor {
         Label label = new Label(name);
         stmts.add(label);
         ConstructorDecl superCons = node.whichClass.supercall;
+        String superConsName = superCons.getName() + "_" + superCons.hashCode();
+        compUnit.externStrs.add(superConsName);
         if (superCons != null) {
             List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
             exprList.add(new Temp("_THIS"));
-            stmts.add(new Exp(new Call(new Name(superCons.getName() + "_" + superCons.hashCode()), exprList)));
+            stmts.add(new Exp(new Call(new Name(superConsName), exprList)));
         }
 
         // move params

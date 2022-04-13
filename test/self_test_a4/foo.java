@@ -4,7 +4,8 @@ public class foo{
     public int b = 10;
     public static int test (){
         foo f = new foo();
-        return 0;
+        f.b = 2;
+        return f.b;
 
     }
 }
