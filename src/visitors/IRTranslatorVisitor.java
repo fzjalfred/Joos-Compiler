@@ -598,7 +598,7 @@ public class IRTranslatorVisitor extends Visitor {
 //        }
 
         // calc vtable size
-        List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
+        List <MethodDecl> methodDecls = initClass.getMethodDecls();
 
         size = methodDecls.size() * 4 + 4;
         stmts.add(new Move(new Mem(heapStart), new Call(new Name("__malloc"), new Const(size))));
