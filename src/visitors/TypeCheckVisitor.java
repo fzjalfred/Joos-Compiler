@@ -1045,6 +1045,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         String field = node.getID().value;
         if (node.getPrimary().type instanceof ArrayType){
             if (field.equals("length")){
+                node.field = new FieldDecl(tools.empty(), "length");
                 node.type = tools.intType();
                 return;
             }
@@ -1053,6 +1054,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Map<String, List<ASTNode>> containMap = hierarchyChecker.containMap.get(classType.typeDecl);
             FieldDecl fieldDecl = tools.fetchField(containMap.get(field));
             if (fieldDecl != null){
+                node.field = fieldDecl;
                 node.type = fieldDecl.getType();
                 //tools.println("assign field access " + field + " to type: " + node.type, DebugID.zhenyan );
                 if (node.getPrimary() instanceof ThisLiteral && !checkStaticUse(fieldDecl)) throw new SemanticError("Cannot use non-static this." + field + " in static class body decl: " + classBodyDecl);

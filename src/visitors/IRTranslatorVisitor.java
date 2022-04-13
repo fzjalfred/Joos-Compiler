@@ -10,16 +10,15 @@ import type.RootEnvironment;
 
 
 public class IRTranslatorVisitor extends Visitor {
-    public Map<MethodDecl, FuncDecl> mapping;
+    public CompUnit compUnit;
     private RootEnvironment env;
-    private FuncDecl currFunctionDecl;
 
     /** return the memory address of the last field: u can decide to read or write */
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
         Temp res = null;
         Seq fieldsReadCodes = new Seq();
         if (first_receiver instanceof ThisLiteral){
-            res =  new Temp("this"); //fixme
+            res = new Temp("_THIS"); //fixme
         }   else {
             res = new Temp(first_receiver.toString());
         }
@@ -34,7 +33,7 @@ public class IRTranslatorVisitor extends Visitor {
             FieldDecl f = fields.get(i);
             ClassDecl classDecl = (ClassDecl) env.ASTNodeToScopes.get(f).typeDecl;
             //System.out.println(classDecl);
-            System.out.println("field is " + f + " offset is " + classDecl.fieldMap.get(f));
+            //System.out.println("field is " + f + " offset is " + classDecl.fieldMap.get(f));
             if (i == fields.size()-1){
                 fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
             }   else {
@@ -45,9 +44,13 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public IRTranslatorVisitor(RootEnvironment env){
-        mapping = new HashMap<MethodDecl, FuncDecl>();
         this.env = env;
     }
+
+    public void visit(CompilationUnit node) {
+        compUnit = new CompUnit(node.fileName);
+    }
+
 
     @Override
     public void visit(MethodDecl node) {
@@ -74,7 +77,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
         node.funcDecl = new FuncDecl(name, node.getMethodHeader().getMethodDeclarator().numParams(), body, new FuncDecl.Chunk());
-        mapping.put(node, node.funcDecl);
+        compUnit.appendFunc(node.funcDecl);
     }
 
     public void visit(MethodHeader node) {
@@ -84,7 +87,7 @@ public class IRTranslatorVisitor extends Visitor {
             ParameterList parameterList = methodDeclarator.getParameterList();
             int index = 0;
             if (!node.isStatic()) {
-                stmts.add(new Move(new Temp("receiver"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+                stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
                 index++;
             }
             for (Parameter p : parameterList.getParams()) {
@@ -171,7 +174,9 @@ public class IRTranslatorVisitor extends Visitor {
         } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
             Expr_c right_res = null;
+            System.out.println("right is " + assignmentChild.getAssignmentRight());
             if (assignmentChild.getAssignmentRight() instanceof PostFixExpr && ((PostFixExpr)assignmentChild.getAssignmentRight()).refer instanceof FieldDecl){
+                System.out.println("haha");
                 right_res = new Mem(assignmentChild.getAssignmentRight().ir_node);
             }   else {
                 right_res = assignmentChild.getAssignmentRight().ir_node;
@@ -190,6 +195,12 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(Assignment node){
         node.ir_node = node.getAssignmentRight().ir_node;
+    }
+
+    public void visit(FieldAccess node){
+        Primary receiver = node.getPrimary();
+        ClassDecl classDecl = (ClassDecl)((ClassOrInterfaceType)receiver.getType()).typeDecl;
+        node.ir_node = new Mem(new BinOp(BinOp.OpType.ADD, receiver.ir_node, new Const(classDecl.fieldMap.get(node.field))));
     }
 
     public void visit(LHS node){
@@ -234,7 +245,12 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(LocalVarDecl node){
-        node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), node.getVarDeclarators().getLastVarDeclarator().getExpr().ir_node);
+        Expr varDecl = node.getVarDeclarators().getLastVarDeclarator().getExpr();
+        if (varDecl instanceof PostFixExpr && ((PostFixExpr)varDecl).refer instanceof FieldDecl){
+            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), new Mem(varDecl.ir_node));
+        }   else {
+            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
+        }
     }
 
     public void visit(PostFixExpr node){

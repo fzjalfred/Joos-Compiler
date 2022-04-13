@@ -11,27 +11,29 @@ import tir.src.joosc.ir.visit.TilingVisitor;
 import type.RootEnvironment;
 import visitors.IRTranslatorVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class IRTranslator {
     private List<CompilationUnit> comps;
-    public Map<MethodDecl, FuncDecl> mapping;
+    public List<CompUnit> ir_comps;
     IRTranslatorVisitor visitor;
     public IRTranslator(List<CompilationUnit> comps, RootEnvironment env){
         this.comps = comps;
-        mapping = null;
+        ir_comps = new ArrayList<CompUnit>();
         visitor = new IRTranslatorVisitor(env);
     }
 
     public void translate(){
         for (CompilationUnit comp : comps){
-            if (!comp.fileName.contains("stdlib")){
+            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object")){
                 System.out.println(comp.fileName);
                 comp.accept(visitor);
+                ir_comps.add(visitor.compUnit);
             }
         }
-        mapping = visitor.mapping;
+
     }
 
     public void canonicalize(CompUnit compUnit){

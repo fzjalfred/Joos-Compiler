@@ -9,7 +9,7 @@ public class FieldAccess extends PrimaryNoArray {
     public FieldAccess(List<ASTNode> children, String value){
         super(children, value);
     }
-
+    public FieldDecl field;
     public Token getID(){
         assert children.get(1) instanceof Token;
         return (Token)children.get(1);

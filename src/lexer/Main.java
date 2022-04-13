@@ -17,7 +17,8 @@ public class Main {
 
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit) throws FileNotFoundException, UnsupportedEncodingException {
 		try {
-			PrintWriter printWriter = new PrintWriter("output/test.s", "UTF-8");
+			String filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + ".s";
+			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
 			printWriter.println("global _start");
 			printWriter.println("_start:");
 			printWriter.println("call test");
@@ -37,15 +38,11 @@ public class Main {
 	}
 
 	static public void sim(IRTranslator translator, RootEnvironment env) throws FileNotFoundException, UnsupportedEncodingException {
-		CompUnit compUnit = new CompUnit("test");
-		for (FuncDecl funcDecl : translator.mapping.values()){
-			compUnit.appendFunc(funcDecl);
+		for (CompUnit compUnit : translator.ir_comps){
+			translator.canonicalize(compUnit);
+			createAssembly(translator, compUnit);
+			System.out.println(compUnit.functions());
 		}
-		// IR interpreter demo
-		translator.canonicalize(compUnit);
-		createAssembly(translator, compUnit);
-		System.out.println(compUnit.functions());
-
 		// IR interpreter demo
         /*{
             Simulator sim = new Simulator(compUnit);
