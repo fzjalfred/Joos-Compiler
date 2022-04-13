@@ -55,7 +55,7 @@ public class ClassDecl extends TypeDecl{
         for (String key : containMap.keySet()) {
             List <ASTNode> nodes = containMap.get(key);
             for (ASTNode node : nodes) {
-                if (node instanceof MethodDecl) {
+                if (node instanceof MethodDecl && !((MethodDecl)node).isStatic()) {
                     methodDecls.add((MethodDecl) node);
                 }
             }

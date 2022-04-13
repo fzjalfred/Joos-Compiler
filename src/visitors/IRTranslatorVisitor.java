@@ -614,13 +614,16 @@ public class IRTranslatorVisitor extends Visitor {
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
         tir.src.joosc.ir.ast.Expr consAddr = new Name(consName);
+        List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+        exprList.add(new Temp("_THIS"));
         if (node.getArgumentList() != null) {
-            List<tir.src.joosc.ir.ast.Expr> args = node.getArgumentList().ir_node;
-            stmts.add(new Exp(new Call(consAddr, args)));
+            exprList.addAll(node.getArgumentList().ir_node);
+            stmts.add(new Exp(new Call(consAddr, exprList)));
         } else {
-            List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+
             stmts.add(new Exp(new Call(consAddr, exprList)));
         }
+        System.out.println(stmts);
         node.ir_node = new ESeq(new Seq(stmts), heapStart);
     }
 
@@ -629,6 +632,8 @@ public class IRTranslatorVisitor extends Visitor {
         if (node.hasParameterList()) {
             ParameterList parameterList = node.getParameterList();
             int index = 0;
+            stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+            index++;
             for (Parameter p : parameterList.getParams()) {
                 stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
                 index++;
@@ -657,9 +662,13 @@ public class IRTranslatorVisitor extends Visitor {
 
         Label label = new Label(name);
         stmts.add(label);
-
         ConstructorDecl superCons = node.whichClass.supercall;
-        stmts.add(new Exp(new Call(new Name(superCons.getName() + "_" + superCons.hashCode()), new ArrayList<tir.src.joosc.ir.ast.Expr>())));
+        if (superCons != null) {
+            List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+            exprList.add(new Temp("_THIS"));
+            stmts.add(new Exp(new Call(new Name(superCons.getName() + "_" + superCons.hashCode()), exprList)));
+        }
+
         // move params
         if (node.getConstructorDeclarator().ir_node != null) {
             stmts.addAll(node.getConstructorDeclarator().ir_node);
@@ -668,7 +677,11 @@ public class IRTranslatorVisitor extends Visitor {
 
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
-        node.funcDecl = new FuncDecl(name, node.getConstructorDeclarator().numParams(), body, new FuncDecl.Chunk());
+        node.funcDecl = new FuncDecl(name, node.getConstructorDeclarator().numParams()+1, body, new FuncDecl.Chunk());
+    }
+
+    public void visit(ThisLiteral node){
+        node.ir_node = new Temp("_THIS");
     }
 
 }
