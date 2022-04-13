@@ -601,7 +601,7 @@ public class IRTranslatorVisitor extends Visitor {
         List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
 
         size = methodDecls.size() * 4;
-        stmts.add(new Move(new Mem(heapStart), new Call(new Name("__maloc"), new Const(size))));
+        stmts.add(new Move(new Mem(heapStart), new Call(new Name("__malloc"), new Const(size))));
         Temp VThead = new Temp("VThead_" + node.hashCode());
         stmts.add(new Move(VThead, new Mem(heapStart)));
 //        int methodIndex = 1;
