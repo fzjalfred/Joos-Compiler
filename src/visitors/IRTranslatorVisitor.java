@@ -681,6 +681,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
         node.funcDecl = new FuncDecl(name, node.getConstructorDeclarator().numParams()+1, body, new FuncDecl.Chunk());
+        compUnit.appendFunc(node.funcDecl);
     }
 
     public void visit(ThisLiteral node){

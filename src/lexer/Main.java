@@ -19,7 +19,12 @@ public class Main {
 		try {
 			String filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + ".s";
 			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
+			for (String str : compUnit.externStrs){
+				if (!compUnit.functions().containsKey(str))printWriter.println("extern " + str);
+			}
 			if (idx == 0) {
+				printWriter.println("extern __malloc");
+				printWriter.println("extern NATIVEjava.io.OutputStream.nativeWrite");
 				printWriter.println("global _start");
 				printWriter.println("_start:");
 				printWriter.println("call test");
@@ -28,11 +33,9 @@ public class Main {
 				printWriter.println("mov eax, 1");
 				printWriter.println("int 0x80");
 			}
-			for (String str : compUnit.externStrs){
-				printWriter.println("extern " + str);
-			}
 
 			Tile t = translator.tiling(compUnit);
+			System.out.println(t);
 //			printWriter.println(t);
 			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
 			printWriter.println(new Tile(registorAllocator.allocate()));
