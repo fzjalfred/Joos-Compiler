@@ -17,9 +17,10 @@ public class ClassBodyDecls extends ASTNode{
             decls.add((FieldDecl) children.get(0));
         }
         if (children.size() > 1){
-            decls.addAll(((ClassBodyDecls)children.get(0)).getFieldDecls());
-            if (children.get(1) instanceof FieldDecl) {
-                decls.add((FieldDecl) children.get(1));
+            for (ASTNode node : children) {
+                if (node instanceof FieldDecl) {
+                    decls.add((FieldDecl) node);
+                }
             }
         }
         return decls;

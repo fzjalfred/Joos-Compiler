@@ -39,7 +39,7 @@ public class ClassDecl extends TypeDecl{
     public List<FieldDecl> getAllFieldDecls() {
         if (parentClass != null) {
             List <FieldDecl> res =  parentClass.getAllFieldDecls();
-            res.addAll(getAllFieldDecls());
+            res.addAll(getFieldDecls());
             return res;
         }
         return getFieldDecls();
@@ -50,7 +50,17 @@ public class ClassDecl extends TypeDecl{
     }
 
     public List<MethodDecl> getMethodDecls(){
-        return getClassBodyDecls().getMethodDecls();
+        List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
+
+        for (String key : containMap.keySet()) {
+            List <ASTNode> nodes = containMap.get(key);
+            for (ASTNode node : nodes) {
+                if (node instanceof MethodDecl) {
+                    methodDecls.add((MethodDecl) node);
+                }
+            }
+        }
+        return methodDecls;
     }
 
     public boolean isStatic() {

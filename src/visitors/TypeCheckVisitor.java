@@ -937,6 +937,21 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     /** TypeDecls */
     @Override
     public void visit(ClassDecl node) {
+        // field map
+        int fieldOffset = 4;
+        List <FieldDecl> fieldDecls = node.getAllFieldDecls();
+        for (FieldDecl fieldDecl : fieldDecls) {
+            node.fieldMap.put(fieldDecl, fieldOffset);
+            fieldOffset += 4;
+        }
+
+        // method map
+        List <MethodDecl> methodDecls = node.getMethodDecls();
+        int methodOffset = 4;
+        for (MethodDecl methodDecl : methodDecls) {
+            node.methodMap.put(methodDecl, methodOffset);
+            methodOffset += 4;
+        }
         currTypeDecl = node;
 
         /** check its super constructor */

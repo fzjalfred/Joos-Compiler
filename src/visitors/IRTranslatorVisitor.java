@@ -567,11 +567,11 @@ public class IRTranslatorVisitor extends Visitor {
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
 
-        int fieldOffset = 4;
-        for (FieldDecl fieldDecl : fieldDecls) {
-            initClass.fieldMap.put(fieldDecl, fieldOffset);
-            fieldOffset += 4;
-        }
+//        int fieldOffset = 4;
+//        for (FieldDecl fieldDecl : fieldDecls) {
+//            initClass.fieldMap.put(fieldDecl, fieldOffset);
+//            fieldOffset += 4;
+//        }
 
         // calc vtable size
         List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
@@ -580,11 +580,11 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(new Mem(heapStart), new Call(new Name("__maloc"), new Const(size))));
         Temp VThead = new Temp("VThead_" + node.hashCode());
         stmts.add(new Move(VThead, new Mem(heapStart)));
-        int methodIndex = 1;
-        for (MethodDecl methodDecl : methodDecls) {
-            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodIndex * 4))), new Name(methodDecl.getName()+"_" + methodDecl.hashCode())));
-            initClass.methodMap.put(methodDecl, methodIndex * 4);
-            methodIndex++;
+//        int methodIndex = 1;
+        for (MethodDecl methodDecl : initClass.methodMap.keySet()) {
+            String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+            int methodOffset = initClass.methodMap.get(methodDecl);
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), new Name(name)));
         }
 
         // calling constructor like method invocation
@@ -597,7 +597,6 @@ public class IRTranslatorVisitor extends Visitor {
             List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
             stmts.add(new Exp(new Call(consAddr, exprList)));
         }
-
         node.ir_node = new ESeq(new Seq(stmts), heapStart);
     }
 

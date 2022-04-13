@@ -155,6 +155,7 @@ public class Call extends Expr_c {
             newCall = new Call(name_t, temp_list);
         }
         newCall.funcLabel = funcLabel;
+        newCall.returnTarget = returnTarget;
         seq.addStatement(new Exp(newCall));
 
         seq.addStatement(new Exp(new Temp(Configuration.ABSTRACT_RET)));
@@ -194,8 +195,10 @@ public class Call extends Expr_c {
             tileCodes.add(new call(new LabelOperand(((Name)target).name())));
         }
 
+        if (returnTarget != null) {
+            tileCodes.add(new mov(new Register(returnTarget.name()), Register.eax));
+        }
 
-        tileCodes.add(new mov(new Register(returnTarget.name()), Register.eax));
         tileCodes.add(new add(Register.esp, new Const(4*argNum)));
         res = v.bind(res, new Tile(tileCodes));
         return new Pair<>(new ArrayList<Node>(), res);
