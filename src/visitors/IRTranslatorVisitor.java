@@ -83,13 +83,13 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(MethodHeader node) {
         List <Statement> stmts = new ArrayList<Statement>();
         MethodDeclarator methodDeclarator = node.getMethodDeclarator();
+        int index = 0;
+        if (!node.isStatic()) {
+            stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+            index++;
+        }
         if (methodDeclarator.hasParameterList()) {
             ParameterList parameterList = methodDeclarator.getParameterList();
-            int index = 0;
-            if (!node.isStatic()) {
-                stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
-                index++;
-            }
             for (Parameter p : parameterList.getParams()) {
                 // FIXME:: not sure about temp(arg)
                 stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
@@ -632,11 +632,11 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(ConstructorDeclarator node) {
         List <Statement> stmts = new ArrayList<Statement>();
+        int index = 0;
+        stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+        index++;
         if (node.hasParameterList()) {
             ParameterList parameterList = node.getParameterList();
-            int index = 0;
-            stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
-            index++;
             for (Parameter p : parameterList.getParams()) {
                 stmts.add(new Move(new Temp(p.getVarDeclaratorID().getName()), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
                 index++;
