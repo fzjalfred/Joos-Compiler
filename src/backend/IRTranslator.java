@@ -44,10 +44,10 @@ public class IRTranslator {
         cv.visit(compUnit);
         cv.processComp(compUnit);
         System.out.println("after canonicalize");
-        System.out.println(compUnit.functions().get("test"));
+        System.out.println(compUnit.functions());
         CheckCanonicalIRVisitor ckv = new CheckCanonicalIRVisitor();
         System.out.print("Canonical? ");
-        System.out.println(ckv.visit(compUnit.functions().get("test")));
+        System.out.println(ckv.visit(compUnit));
         System.out.println(ckv.offender);
     }
 

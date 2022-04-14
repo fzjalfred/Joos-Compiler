@@ -3,6 +3,7 @@ import java.util.*;
 
 import ast.*;
 import ast.Expr;
+import exception.SemanticError;
 import tir.src.joosc.ir.ast.*;
 import tir.src.joosc.ir.ast.Name;
 import tir.src.joosc.ir.interpret.Configuration;
@@ -194,6 +195,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     Expr_c fieldToExpr(Expr expr){
+        //if (expr.ir_node == null) throw new SemanticError("no ir node in " + expr);
         if (expr instanceof PostFixExpr && ((PostFixExpr)(expr)).refer instanceof FieldDecl){
             return new Mem(expr.ir_node);
         }

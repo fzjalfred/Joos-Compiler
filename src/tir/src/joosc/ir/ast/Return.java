@@ -67,12 +67,14 @@ public class Return extends Statement {
             Seq ret_can = new Seq(((Expr_c)ret).canonicalized_node.stmts());
             ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
             canonicalized_node = ret_can;
+        }   else {
+            canonicalized_node = new Seq();
         }
-        canonicalized_node = new Seq();
     }
 
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        System.out.println("haha");
         List<Node> nodes = new ArrayList<Node>();
         Tile codes = v.unit();
         if (ret instanceof Temp){

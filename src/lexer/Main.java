@@ -39,6 +39,9 @@ public class Main {
 //			printWriter.println(t);
 			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
 			printWriter.println(new Tile(registorAllocator.allocate()));
+			if (idx == 0){
+				printWriter.println("");
+			}
 			printWriter.close();
 		} catch (IOException e1) {
 			throw e1;
