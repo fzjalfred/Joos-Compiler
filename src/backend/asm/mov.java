@@ -10,7 +10,14 @@ public class mov extends BinaryOpCode{
     public mov(Operand op1, Operand op2){
         super(op1, op2);
     }
-
+    public String toString(){
+    	String wordsize = "";
+	if (op1 instanceof mem && op2 instanceof Const){
+		wordsize = "word";
+		return getClass().getSimpleName()+ " " + wordsize + " " + op1 + "," + op2;
+	}
+	return super.toString();
+    }
     @Override
     public List<Code> regAllocate(FuncDecl funcDecl) {
         List<Code> res = new ArrayList<Code>();
