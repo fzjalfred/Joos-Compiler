@@ -231,9 +231,6 @@ public class Call extends Expr_c {
         if (!sysflag) {
             tileCodes.add(new add(Register.esp, new Const(4*argNum)));
         }
-        System.out.println(funcLabel);
-        System.out.println(sysflag);
-        System.out.println(tileCodes);
 
         res = v.bind(res, new Tile(tileCodes));
         return new Pair<>(new ArrayList<Node>(), res);

@@ -174,9 +174,7 @@ public class IRTranslatorVisitor extends Visitor {
         } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
             Expr_c right_res = null;
-            System.out.println("right is " + assignmentChild.getAssignmentRight());
             if (assignmentChild.getAssignmentRight() instanceof PostFixExpr && ((PostFixExpr)assignmentChild.getAssignmentRight()).refer instanceof FieldDecl){
-                System.out.println("haha");
                 right_res = new Mem(assignmentChild.getAssignmentRight().ir_node);
             }   else {
                 right_res = assignmentChild.getAssignmentRight().ir_node;
@@ -628,7 +626,6 @@ public class IRTranslatorVisitor extends Visitor {
 
             stmts.add(new Exp(new Call(consAddr, exprList)));
         }
-        System.out.println(stmts);
         node.ir_node = new ESeq(new Seq(stmts), heapStart);
     }
 
