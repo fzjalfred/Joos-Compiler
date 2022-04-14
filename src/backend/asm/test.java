@@ -19,7 +19,7 @@ public class test extends BinaryOpCode{
                 res.add(new test(Register.edx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
                 op2 = Register.edx;
                 if (Register.isAbstractRegister((Register)op1) ){
-                    res.add(new test(mem.genVarAccessMem(funcDecl, op1Name), Register.edx));
+                    res.add(new mov(mem.genVarAccessMem(funcDecl, op1Name), Register.edx));
                     return res;
                 }
             }   else if (op2 instanceof mem){
@@ -28,7 +28,7 @@ public class test extends BinaryOpCode{
             if (Register.isAbstractRegister((Register)op1) ){
                 op1 = Register.ecx;
                 res.add(this);
-                res.add(new test(mem.genVarAccessMem(funcDecl, op1Name), Register.ecx));
+                res.add(new mov(mem.genVarAccessMem(funcDecl, op1Name), Register.ecx));
             }   else {
                 res.add(this);
             }

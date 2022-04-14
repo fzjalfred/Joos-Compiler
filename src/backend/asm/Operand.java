@@ -20,7 +20,7 @@ public abstract class Operand {
             mem _mem = (mem)this;
             if (_mem.t1 != null){
                 if (Register.isAbstractRegister(_mem.t1)){
-                    res.add(new mov(Register.ecx, new mem(Register.ebp, BinOp.OpType.SUB, new Const(funcDecl.getOffset(_mem.t1.name)))));
+                    res.add(new mov(Register.edx, new mem(Register.ebp, BinOp.OpType.SUB, new Const(funcDecl.getOffset(_mem.t1.name)))));
                     _mem.t1 = Register.edx;
                 }
                 if (_mem.t2 != null){
