@@ -193,6 +193,13 @@ public class IRTranslatorVisitor extends Visitor {
         }
     }
 
+    Expr_c fieldToExpr(Expr expr){
+        if (expr instanceof PostFixExpr && ((PostFixExpr)(expr)).refer instanceof FieldDecl){
+            return new Mem(expr.ir_node);
+        }
+        return expr.ir_node;
+    }
+
     public void visit(Assignment node){
         node.ir_node = node.getAssignmentRight().ir_node;
     }
@@ -266,10 +273,12 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(AdditiveExpr node){
+        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
+        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
         if (node.isPlusOperator()){
-            node.ir_node = new BinOp(BinOp.OpType.ADD, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.ADD, expr_c1, expr_c2);
         }   else {
-            node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.SUB, expr_c1, expr_c2);
         }
     }
 
@@ -282,18 +291,21 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(MultiplicativeExpr node){
+        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
+        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
         if (node.getOperator().equals("*")){
-            node.ir_node = new BinOp(BinOp.OpType.MUL,node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.MUL,expr_c1, expr_c2);
         }   else if (node.getOperator().equals("/")){
-            node.ir_node = new BinOp(BinOp.OpType.DIV,node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.DIV,expr_c1, expr_c2);
         }   else {
-            node.ir_node = new BinOp(BinOp.OpType.MOD,node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.MOD,expr_c1, expr_c2);
         }
     }
 
     public void visit(ReturnStmt node) {
+        Expr_c expr_c = fieldToExpr(node.getExpr());
         if (node.getExpr() != null) {
-            node.ir_node = new Return(node.getExpr().ir_node);
+            node.ir_node = new Return(expr_c);
         } else {
             node.ir_node = new Return(new Const(0)); // dummy value
         }
@@ -332,22 +344,26 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(EqualityExpr node) {
+        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
+        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
         if (node.getOperator().equals("==")) {
-            node.ir_node = new BinOp(BinOp.OpType.EQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.EQ, expr_c1, expr_c2);
         } else if (node.getOperator().equals("!=")) {
-            node.ir_node = new BinOp(BinOp.OpType.NEQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.NEQ, expr_c1, expr_c2);
         }
     }
 
     public void visit(RelationExpr node) {
+        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
+        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
         if (node.getOperator().equals(">")) {
-            node.ir_node = new BinOp(BinOp.OpType.GT, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.GT, expr_c1, expr_c2);
         } else if (node.getOperator().equals("<")) {
-            node.ir_node = new BinOp(BinOp.OpType.LT, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.LT, expr_c1, expr_c2);
         } else if (node.getOperator().equals(">=")) {
-            node.ir_node = new BinOp(BinOp.OpType.GEQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.GEQ, expr_c1, expr_c2);
         } else if (node.getOperator().equals("<=")) {
-            node.ir_node = new BinOp(BinOp.OpType.LEQ, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
+            node.ir_node = new BinOp(BinOp.OpType.LEQ, expr_c1, expr_c2);
         }
     }
 
@@ -357,6 +373,9 @@ public class IRTranslatorVisitor extends Visitor {
 
     public List<Statement> getConditionalIRNode(Expr expr, String lt, String lf) {
         List<Statement> stmts = new ArrayList<Statement>();
+        Expr_c expr_c = fieldToExpr(expr);
+        Expr_c expr_c1 = fieldToExpr(expr.getOperatorLeft());
+        Expr_c expr_c2 = fieldToExpr(expr.getOperatorRight());;
         if (expr.boolStruct != null && expr.boolStruct.bool == true){
             // C[true, lt, lf]
             stmts.add(new Jump(new Name(lt)));
@@ -370,27 +389,27 @@ public class IRTranslatorVisitor extends Visitor {
             
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals("<")) {
             stmts.add(new CJump(
-                new BinOp(BinOp.OpType.LT, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                new BinOp(BinOp.OpType.LT, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals(">")) {
             stmts.add(new CJump(
-                new BinOp(BinOp.OpType.GT, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                new BinOp(BinOp.OpType.GT, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals("<=")) {
             stmts.add(new CJump(
-                new BinOp(BinOp.OpType.LEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                new BinOp(BinOp.OpType.LEQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals(">=")) {
             stmts.add(new CJump(
-                new BinOp(BinOp.OpType.GEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                new BinOp(BinOp.OpType.GEQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("==")) {
             stmts.add(new CJump(
-                new BinOp(BinOp.OpType.EQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                new BinOp(BinOp.OpType.EQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("!=")) {
             stmts.add(new CJump(
-                new BinOp(BinOp.OpType.NEQ, expr.getOperatorLeft().ir_node, expr.getOperatorRight().ir_node),
+                new BinOp(BinOp.OpType.NEQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof ConditionalAndExpr){
             Label l = new Label("condAndlabel_" + expr.hashCode());
@@ -404,18 +423,20 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
         } else {
             //C[E[expr], lt, lf]
-            stmts.add(new CJump(expr.ir_node, lt, lf));
+            stmts.add(new CJump(expr_c, lt, lf));
         }
         
         return stmts;
     }
 
     public void visit(UnaryExpr node){
-        node.ir_node = new BinOp(BinOp.OpType.SUB, new Const(0), node.getUnaryExpr().ir_node);
+        Expr_c expr_c = fieldToExpr(node);
+        node.ir_node = new BinOp(BinOp.OpType.SUB, new Const(0),expr_c);
     }
 
     public void visit(UnaryExprNotPlusMinus node) {
-        node.ir_node = new BinOp(BinOp.OpType.XOR, new Const(1), node.getUnaryExpr().ir_node);
+        Expr_c expr_c = fieldToExpr(node);
+        node.ir_node = new BinOp(BinOp.OpType.XOR, new Const(1), expr_c);
     }
 
     public void visit(IfThenStmt node) {
