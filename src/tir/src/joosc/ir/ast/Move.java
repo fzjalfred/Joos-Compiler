@@ -82,10 +82,18 @@ public class Move extends Statement {
             e2_can.setLastStatement(new Move(new Mem(t1), e2_can.getLastExpr()));
             e1_can.addSeq(e2_can);
             canonicalized_node = e1_can;
-        } else {
+        } else if (target instanceof Temp){
             Seq e2_can = new Seq(((Expr_c)src).canonicalized_node.stmts());
             e2_can.setLastStatement(new Move(target, e2_can.getLastExpr()));
             canonicalized_node = e2_can;
+        }   else {
+            Seq e1_can = new Seq(((Expr_c)target).canonicalized_node.stmts());
+            Temp t1 = new Temp("t"+hashCode());
+            e1_can.setLastStatement(new Move(t1, e1_can.getLastExpr()));
+            Seq e2_can = new Seq(((Expr_c)src).canonicalized_node.stmts());
+            e2_can.setLastStatement(new Move(t1, e2_can.getLastExpr()));
+            e1_can.addSeq(e2_can);
+            canonicalized_node = e1_can;
         }
 
     }

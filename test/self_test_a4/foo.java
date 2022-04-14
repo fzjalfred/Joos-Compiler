@@ -1,12 +1,13 @@
 public class foo{
 
     public foo(){
-        this.b = 2;
     }
     public int b = 10;
     public foo field;
-    public int test (){
 
+    public static int test (){
+        foo f = new foo();
+        f.b = 2;
         return 0;
     }
 }

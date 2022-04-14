@@ -33,13 +33,15 @@ public class IRTranslatorVisitor extends Visitor {
         for (int i = 0; i < fields.size(); i++){
             FieldDecl f = fields.get(i);
             ClassDecl classDecl = (ClassDecl) env.ASTNodeToScopes.get(f).typeDecl;
-            // System.out.println(classDecl);
-            // System.out.println("field is " + f + " offset is " + classDecl.fieldMap.get(f));
+            if (i == fields.size()-1){
+                fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
+            }   else {
+                fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
+            }
 
-            fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
 
         }
-        return new ESeq(fieldsReadCodes, res);
+        return new ESeq(fieldsReadCodes, new Mem(res));
     }
 
     public IRTranslatorVisitor(RootEnvironment env){
@@ -173,9 +175,9 @@ public class IRTranslatorVisitor extends Visitor {
         } else if (child instanceof Assignment){
 
             Assignment assignmentChild = (Assignment)child;
-            Expr_c right_res = null;
-            right_res = assignmentChild.getAssignmentRight().ir_node;
+            Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
             Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
+            System.out.println("left has " + left_res + " right has " + right_res);
             node.ir_node = new Move(left_res, right_res);
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
