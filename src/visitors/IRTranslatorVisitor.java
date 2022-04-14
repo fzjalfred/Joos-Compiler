@@ -334,7 +334,7 @@ public class IRTranslatorVisitor extends Visitor {
         Label true_label = new Label("true_"+node.hashCode());
         Label false_label = new Label("false_"+node.hashCode());
 
-        stmts.add(new Move(temp, new Const(0)));
+        stmts.add(new Move(temp, new Const(1)));
         stmts.add(new CJump(node.getOperatorLeft().ir_node, true_label.name(), false_label.name()));
         stmts.add(false_label);
         stmts.add(new Move(temp, node.getOperatorRight().ir_node));
