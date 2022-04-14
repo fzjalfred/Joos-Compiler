@@ -35,11 +35,9 @@ public class IRTranslatorVisitor extends Visitor {
             ClassDecl classDecl = (ClassDecl) env.ASTNodeToScopes.get(f).typeDecl;
             // System.out.println(classDecl);
             // System.out.println("field is " + f + " offset is " + classDecl.fieldMap.get(f));
-            if (i == fields.size()-1){
-                fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
-            }   else {
-                fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
-            }
+
+            fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
+
         }
         return new ESeq(fieldsReadCodes, res);
     }
@@ -173,40 +171,24 @@ public class IRTranslatorVisitor extends Visitor {
             node.ir_node = new Seq(stmts);
 
         } else if (child instanceof Assignment){
+
             Assignment assignmentChild = (Assignment)child;
-            System.out.println("left is " + assignmentChild.getAssignmentLeft().ir_node);
-            System.out.println("right is " + assignmentChild.getAssignmentRight().ir_node);
             Expr_c right_res = null;
-            if (assignmentChild.getAssignmentRight() instanceof PostFixExpr && ((PostFixExpr)assignmentChild.getAssignmentRight()).refer instanceof FieldDecl){
-                right_res = new Mem(assignmentChild.getAssignmentRight().ir_node);
-            }   else {
-                right_res = assignmentChild.getAssignmentRight().ir_node;
-            }
-            Expr_c left_res = null;
-            if (assignmentChild.getAssignmentLeft().refer instanceof FieldDecl){
-                left_res = new Mem(assignmentChild.getAssignmentLeft().ir_node);
-            }   else {
-                left_res = assignmentChild.getAssignmentLeft().ir_node;
-            }
+            right_res = assignmentChild.getAssignmentRight().ir_node;
+            Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
             node.ir_node = new Move(left_res, right_res);
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
         }
     }
 
-    Expr_c fieldToExpr(Expr expr){
-        //if (expr.ir_node == null) throw new SemanticError("no ir node in " + expr);
-        if (expr instanceof PostFixExpr && ((PostFixExpr)(expr)).refer instanceof FieldDecl){
-            return new Mem(expr.ir_node);
-        }
-        return expr.ir_node;
-    }
 
     public void visit(Assignment node){
         node.ir_node = node.getAssignmentRight().ir_node;
     }
 
     public void visit(FieldAccess node){
+        System.out.println(node.getPrimary() + " is field access");
         Primary receiver = node.getPrimary();
         ClassDecl classDecl = (ClassDecl)((ClassOrInterfaceType)receiver.getType()).typeDecl;
         node.ir_node = new Mem(new BinOp(BinOp.OpType.ADD, receiver.ir_node, new Const(classDecl.fieldMap.get(node.field))));
@@ -219,6 +201,8 @@ public class IRTranslatorVisitor extends Visitor {
             }   else {
                 node.ir_node = new Temp(node.getName().getValue());
             }
+        }   else {
+            node.ir_node = node.getExpr().ir_node;
         }
     }
 
@@ -272,11 +256,7 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(LocalVarDecl node){
         Expr varDecl = node.getVarDeclarators().getLastVarDeclarator().getExpr();
-        if (varDecl instanceof PostFixExpr && ((PostFixExpr)varDecl).refer instanceof FieldDecl){
-            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), new Mem(varDecl.ir_node));
-        }   else {
-            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
-        }
+        node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
     }
 
     public void visit(PostFixExpr node){
@@ -292,8 +272,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(AdditiveExpr node){
-        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
-        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
+        Expr_c expr_c1 = node.getOperatorLeft().ir_node;
+        Expr_c expr_c2 = node.getOperatorRight().ir_node;;
         if (node.isPlusOperator()){
             node.ir_node = new BinOp(BinOp.OpType.ADD, expr_c1, expr_c2);
         }   else {
@@ -310,8 +290,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(MultiplicativeExpr node){
-        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
-        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
+        Expr_c expr_c1 = node.getOperatorLeft().ir_node;
+        Expr_c expr_c2 = node.getOperatorRight().ir_node;;
         if (node.getOperator().equals("*")){
             node.ir_node = new BinOp(BinOp.OpType.MUL,expr_c1, expr_c2);
         }   else if (node.getOperator().equals("/")){
@@ -322,7 +302,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ReturnStmt node) {
-        Expr_c expr_c = fieldToExpr(node.getExpr());
+        Expr_c expr_c = node.getExpr().ir_node;
         if (node.getExpr() != null) {
             node.ir_node = new Return(expr_c);
         } else {
@@ -363,8 +343,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(EqualityExpr node) {
-        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
-        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
+        Expr_c expr_c1 = node.getOperatorLeft().ir_node;
+        Expr_c expr_c2 = node.getOperatorRight().ir_node;
         if (node.getOperator().equals("==")) {
             node.ir_node = new BinOp(BinOp.OpType.EQ, expr_c1, expr_c2);
         } else if (node.getOperator().equals("!=")) {
@@ -373,8 +353,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(RelationExpr node) {
-        Expr_c expr_c1 = fieldToExpr(node.getOperatorLeft());
-        Expr_c expr_c2 = fieldToExpr(node.getOperatorRight());;
+        Expr_c expr_c1 = node.getOperatorLeft().ir_node;
+        Expr_c expr_c2 = node.getOperatorRight().ir_node;;
         if (node.getOperator().equals(">")) {
             node.ir_node = new BinOp(BinOp.OpType.GT, expr_c1, expr_c2);
         } else if (node.getOperator().equals("<")) {
@@ -392,9 +372,9 @@ public class IRTranslatorVisitor extends Visitor {
 
     public List<Statement> getConditionalIRNode(Expr expr, String lt, String lf) {
         List<Statement> stmts = new ArrayList<Statement>();
-        Expr_c expr_c = fieldToExpr(expr);
-        Expr_c expr_c1 = fieldToExpr(expr.getOperatorLeft());
-        Expr_c expr_c2 = fieldToExpr(expr.getOperatorRight());;
+        Expr_c expr_c = expr.ir_node;
+        Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+        Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
         if (expr.boolStruct != null && expr.boolStruct.bool == true){
             // C[true, lt, lf]
             stmts.add(new Jump(new Name(lt)));
@@ -449,12 +429,12 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(UnaryExpr node){
-        Expr_c expr_c = fieldToExpr(node);
+        Expr_c expr_c = node.ir_node;
         node.ir_node = new BinOp(BinOp.OpType.SUB, new Const(0),expr_c);
     }
 
     public void visit(UnaryExprNotPlusMinus node) {
-        Expr_c expr_c = fieldToExpr(node);
+        Expr_c expr_c = node.ir_node;
         node.ir_node = new BinOp(BinOp.OpType.XOR, new Const(1), expr_c);
     }
 
