@@ -25,7 +25,7 @@ public abstract class Operand {
                 }
                 if (_mem.t2 != null){
                     if (Register.isAbstractRegister(_mem.t2)){
-                        res.add(new mov(Register.edx, new mem(Register.ebp, BinOp.OpType.SUB, new Const(funcDecl.getOffset(_mem.t2.name)))));
+                        res.add(new mov(Register.eax, new mem(Register.ebp, BinOp.OpType.SUB, new Const(funcDecl.getOffset(_mem.t2.name)))));
                         _mem.t2 = Register.eax;
                     }
                 }

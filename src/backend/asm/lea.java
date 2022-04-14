@@ -14,7 +14,9 @@ public class lea extends BinaryOpCode{
             case ADD: return "+";
             case MUL: return "*";
             case DIV: return "/";
-            default: return "";
+            default: {
+                return "+";
+            }
         }
     }
 

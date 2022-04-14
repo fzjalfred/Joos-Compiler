@@ -10,7 +10,7 @@ public class mem extends Operand{
             case ADD: return "+";
             case MUL: return "*";
             case DIV: return "/";
-            default: return "";
+            default: return "+"; // for now fixme
         }
     }
 
