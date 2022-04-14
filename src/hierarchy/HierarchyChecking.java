@@ -75,6 +75,7 @@ public class HierarchyChecking {
         }
         inheritMapRe = new HashMap<ASTNode, Map<String, List<ASTNode>>>();
         for(ASTNode T: inheritMap.keySet()) {
+            Integer itable_offset_counter = 0;
             Map<String, List<ASTNode>> inclass_map = new HashMap<String, List<ASTNode>>();
             for (Referenceable l: inheritMap.get(T)) {
                 if (l instanceof MethodList){
@@ -90,6 +91,18 @@ public class HierarchyChecking {
                         method_lst_buff.add(single);
                     }
                     inclass_map.put(((AbstractMethodList)l).getSimpleName(), method_lst_buff);
+                    
+                    // interfaceMethodMap has all interface's method for itable.
+                    for (ASTNode i:method_lst_buff) {
+                        if (T instanceof ClassDecl) {
+                            ClassDecl class_decl = (ClassDecl)T;
+                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter++);
+                        } else if (T instanceof InterfaceDecl) {
+                            InterfaceDecl class_decl = (InterfaceDecl)T;
+                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter++);
+                        }
+                    }
+                    
                 }
                 if (l instanceof FieldDecl){
                     List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();
@@ -170,6 +183,7 @@ public class HierarchyChecking {
             }
             containMap.put(T, inclass_map);
         }
+        // class containMap has all implemented methods including parents'method replacement.
         for (ASTNode T: containMap.keySet()) {
             if (T instanceof InterfaceDecl) {
                 InterfaceDecl class_decl = (InterfaceDecl)T;
@@ -179,6 +193,8 @@ public class HierarchyChecking {
                 class_decl.containMap = containMap.get(T);
             }
         }
+
+        // interfaceMethodMap creation is in inheritMapRe!!!
     }
 
 

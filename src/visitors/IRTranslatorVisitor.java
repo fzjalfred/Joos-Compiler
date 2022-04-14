@@ -642,6 +642,7 @@ public class IRTranslatorVisitor extends Visitor {
             }
         }
 
+        // class's CDV
         // calc vtable size
         List <MethodDecl> methodDecls = initClass.getMethodDecls();
 
@@ -660,6 +661,21 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.add(new Move(t, new Name(name)));
             stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), t));
         }
+
+        // class's IDV
+        // find all interface methods
+        Map<AbstractMethodDecl, Integer> methods_in_itable = initClass.interfaceMethodMap;
+        ClassDecl parentInterfaceMethod_iterater = initClass.parentClass;
+        while(parentInterfaceMethod_iterater != null) {
+            methods_in_itable.putAll(parentInterfaceMethod_iterater.interfaceMethodMap);
+            parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
+        }
+        System.out.println("TESTING HERE!!!");
+        for (AbstractMethodDecl method: methods_in_itable.keySet()) {
+            System.out.println(method.getName());
+        }
+        // calc itable size
+        size = 4+(int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();

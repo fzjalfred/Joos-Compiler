@@ -4,11 +4,12 @@ import utils.tools;
 import visitors.Visitor;
 
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InterfaceDecl extends TypeDecl {
 
     public Map<String, List<ASTNode>> containMap = null;
+    public Map<AbstractMethodDecl, Integer> interfaceMethodMap = new HashMap<AbstractMethodDecl, Integer>();
 
     public InterfaceDecl(List<ASTNode> children, String value){
         super(children, value);

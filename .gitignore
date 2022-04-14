@@ -15,7 +15,5 @@ src/lexer/Lexer.java~
 src/lexer/parser.java
 tmp.out
 test.out
-output/
-build/
 ./build/*
 ./output/*
