@@ -38,7 +38,7 @@ public class lea extends BinaryOpCode{
         if (op1 instanceof Register){
             String op1Name = ((Register)(op1)).name;
             if (op2 instanceof Register && Register.isAbstractRegister((Register)op2)){
-                res.add(new mov(Register.edx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
+                res.add(new lea(Register.edx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
                 op2 = Register.edx;
             }   else if (op2 instanceof mem){
                 res.addAll(op2.allocateOperand(funcDecl));
@@ -46,7 +46,7 @@ public class lea extends BinaryOpCode{
             if (Register.isAbstractRegister((Register)op1) ){
                 op1 = Register.ecx;
                 res.add(this);
-                res.add(new mov(mem.genVarAccessMem(funcDecl, op1Name), Register.ecx));
+                res.add(new lea(mem.genVarAccessMem(funcDecl, op1Name), Register.ecx));
             }   else {
                 res.add(this);
             }
