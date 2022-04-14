@@ -173,6 +173,8 @@ public class IRTranslatorVisitor extends Visitor {
 
         } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
+            System.out.println("left is " + assignmentChild.getAssignmentLeft().ir_node);
+            System.out.println("right is " + assignmentChild.getAssignmentRight().ir_node);
             Expr_c right_res = null;
             if (assignmentChild.getAssignmentRight() instanceof PostFixExpr && ((PostFixExpr)assignmentChild.getAssignmentRight()).refer instanceof FieldDecl){
                 right_res = new Mem(assignmentChild.getAssignmentRight().ir_node);
