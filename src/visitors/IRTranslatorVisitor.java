@@ -77,7 +77,7 @@ public class IRTranslatorVisitor extends Visitor {
         }
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
-        node.funcDecl = new FuncDecl(name, node.getMethodHeader().getMethodDeclarator().numParams(), body, new FuncDecl.Chunk());
+        node.funcDecl = new FuncDecl(name, paramNum, body, new FuncDecl.Chunk());
         compUnit.appendFunc(node.funcDecl);
     }
 
@@ -218,12 +218,7 @@ public class IRTranslatorVisitor extends Visitor {
         }
         // arguments 
         tir.src.joosc.ir.ast.Expr funcAddr = null;
-        List<tir.src.joosc.ir.ast.Expr> args = null;
-        if(node.getArgumentList() != null) {
-            args = node.getArgumentList().ir_node;
-        } else {
-            args = new ArrayList<tir.src.joosc.ir.ast.Expr>();
-        }
+        List<tir.src.joosc.ir.ast.Expr> args = new ArrayList<tir.src.joosc.ir.ast.Expr>();
         //function_addr
         Expr_c vtable = null;
         if (((MethodDecl)node.whichMethod).getModifiers().getModifiersSet().contains("static")) {
@@ -231,13 +226,21 @@ public class IRTranslatorVisitor extends Visitor {
         } else if (node.hasName()) {
            // System.out.println(node);
             if (node.receiver instanceof ThisLiteral){
-                vtable = new Mem(new Temp("_THIS"));
+                Temp _this = new Temp("_THIS");
+                args.add(_this);
+                vtable = new Mem(_this);
             }   else {
-               PostFixExpr _receiver = (PostFixExpr)node.receiver;
-                vtable = new Mem(translateFieldAccess(_receiver.first_receiver, _receiver.subfields));
+                PostFixExpr _receiver = (PostFixExpr)node.receiver;
+                Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
+                args.add(_receiver_code);
+                vtable = new Mem(_receiver_code);
             }
         } else {
+            args.add(node.getPrimary().ir_node);
             vtable = new Mem(node.getPrimary().ir_node);
+        }
+        if(node.getArgumentList() != null) {
+            args.addAll(node.getArgumentList().ir_node);
         }
         ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
         int offset = classDecl.methodMap.get(method_decl);
@@ -445,12 +448,12 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(UnaryExpr node){
         Expr_c expr_c = node.ir_node;
-        node.ir_node = new BinOp(BinOp.OpType.SUB, new Const(0),expr_c);
+        node.ir_node = new BinOp(BinOp.OpType.SUB,expr_c, new Const(0));
     }
 
     public void visit(UnaryExprNotPlusMinus node) {
         Expr_c expr_c = node.ir_node;
-        node.ir_node = new BinOp(BinOp.OpType.XOR, new Const(1), expr_c);
+        node.ir_node = new BinOp(BinOp.OpType.XOR, expr_c, new Const(1));
     }
 
     public void visit(IfThenStmt node) {
@@ -556,7 +559,7 @@ public class IRTranslatorVisitor extends Visitor {
          Label bound_ok_label = new Label("bound_ok_label"+node.hashCode()+node.recursive_dectecter);
 
         // //check 0<=ti
-         stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), ti), lower_bound_ok_label.name(), negative_index_exception.name()));
+         stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ,ti, new Const(0)), lower_bound_ok_label.name(), negative_index_exception.name()));
          stmts.add(negative_index_exception);
          stmts.add(new Exp(new Call(new Name("__exception"))));
          stmts.add(lower_bound_ok_label);
@@ -583,20 +586,20 @@ public class IRTranslatorVisitor extends Visitor {
          //check 0<=ti
          Label negative_check = new Label("negative_check"+node.hashCode());
          Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode());
-         stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, new Const(0), tn), lower_bound_ok_label.name(), negative_check.name()));
+         stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, tn, new Const(0)), lower_bound_ok_label.name(), negative_check.name()));
          stmts.add(negative_check);
          stmts.add(new Exp(new Call(new Name("__exception"))));
          stmts.add(lower_bound_ok_label);
 
         Temp tm = new Temp("tm");
-        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, new Const(4), tn)))));
+        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(4*2)))));
         stmts.add(new Move(new Mem(tm), tn));
         //TODO dispatch vector
         //stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), ...));
 
         // loop to clear memory locations.
         Temp cleaner = new Temp("cleaner");
-        stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, new Const(4*2), tm)));
+        stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, tm, new Const(4*2))));
 
         Label clean = new Label("clean"+node.hashCode());
         Label cleanup_done = new Label("cleanup_done"+node.hashCode());

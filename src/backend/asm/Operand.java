@@ -30,9 +30,10 @@ public abstract class Operand {
                     }
                 }
             }   else {
-                return null;    // mem case t1 is null
+                return res;
             }
         }   else { // Const
+            System.out.println(this + "visited const");
             return null;
         }
         return res;
