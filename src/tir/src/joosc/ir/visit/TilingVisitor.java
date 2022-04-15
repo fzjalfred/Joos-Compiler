@@ -27,13 +27,11 @@ public class TilingVisitor extends AggregateVisitor<Tile>{
         if (n instanceof FuncDecl) {
             Register.currFuncDecl = (FuncDecl)n;
             Tile pro = ((FuncDecl)n).getPrologue(this);
-            Tile epi = ((FuncDecl)n).getEpilogue(this);
             Pair<List<Node>, Tile> res_pair = n.tiling(this);
             Tile res = pro;
             for (Node node : res_pair.first){
                 res = bind(res, visit(node));
             }
-            res = bind(res, epi);
             ((FuncDecl)n).chunk.processSymtab();
             return res;
         } else {

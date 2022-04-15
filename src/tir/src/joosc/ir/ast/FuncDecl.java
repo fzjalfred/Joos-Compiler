@@ -105,7 +105,7 @@ public class FuncDecl extends Node_c {
         return new Tile(tileCodes);
     }
 
-    public Tile getEpilogue(TilingVisitor v) {
+    public static Tile getEpilogue(TilingVisitor v) {
         List<Code> tileCodes = new ArrayList<Code>();
         tileCodes.add(new mov(Register.esp, Register.ebp));
         tileCodes.add(new pop(Register.ebp));

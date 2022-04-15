@@ -74,7 +74,6 @@ public class Return extends Statement {
 
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
-        System.out.println("haha");
         List<Node> nodes = new ArrayList<Node>();
         Tile codes = v.unit();
         if (ret instanceof Temp){
@@ -87,6 +86,7 @@ public class Return extends Statement {
             nodes.add(ret);
             codes.codes.add(new mov(Register.eax, t));
         }
+        codes.codes.addAll(FuncDecl.getEpilogue(v).codes);
         return new Pair<List<Node>, Tile>(nodes,codes);
     }
 }

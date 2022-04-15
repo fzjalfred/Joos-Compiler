@@ -141,7 +141,13 @@ public class Seq extends Statement {
         int index = 0;
         List<Statement> newStmts = new ArrayList<Statement>();
         boolean skipNext = false;
-        for (Statement statement : statements) {
+        Tile restile = null;
+        for (int i = 0; i < stmts().size(); i++) {
+            Statement statement = stmts().get(i);
+            if (i == stmts().size()-1){
+                if (!(statement instanceof Return)) restile = FuncDecl.getEpilogue(v);
+                else restile = v.unit();
+            }
             if (skipNext) {
                 skipNext = false;
                 index++;
@@ -165,6 +171,6 @@ public class Seq extends Statement {
             index++;
         }
         res.addAll(newStmts);
-        return new Pair<List<Node>, Tile>(res, v.unit());
+        return new Pair<List<Node>, Tile>(res, restile);
     }
 }
