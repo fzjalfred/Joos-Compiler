@@ -5,9 +5,8 @@ public class foo{
     public int b = 10;
     public foo field;
 
-    public static int test (){
-        foo f = new foo();
-        f.b = 2;
-        return 0;
+    public static boolean test (){
+        boolean a = (1 == 2);
+        return a;
     }
 }

@@ -22,6 +22,9 @@ public class BinOp extends Expr_c {
         ADD, SUB, MUL, DIV, MOD, AND, OR, XOR, LSHIFT, RSHIFT, ARSHIFT,
         EQ, NEQ, LT, GT, LEQ, GEQ
     }
+    public boolean isComparsionOp(OpType op){
+        return (op == OpType.EQ || op == OpType.NEQ || op == OpType.LT || op == OpType.GT || op == OpType.LEQ || op == OpType.GEQ);
+    }
 
     private OpType type;
     private Expr left, right;
@@ -105,23 +108,67 @@ public class BinOp extends Expr_c {
             nodes.add(right);
         }
     }
+    setcc genSetInst(OpType type, Register res){
+        if (type == OpType.EQ) return new setcc(setcc.ccType.e, res);
+        if (type == OpType.NEQ) return new setcc(setcc.ccType.ne, res);
+        if (type == OpType.LEQ) return new setcc(setcc.ccType.le, res);
+        if (type == OpType.GEQ) return new setcc(setcc.ccType.ge, res);
+        if (type == OpType.GT) return new setcc(setcc.ccType.g, res);
+        if (type == OpType.LT) return new setcc(setcc.ccType.l, res);
+        return null;
+    }
+
+    void processOprightCmp(List<Code> codes, List<Node> nodes,Operand t1, Node node){
+        if (node instanceof Temp){
+            Register reg2 = new Register(((Temp)node).name());
+            codes.add(new cmp(t1, reg2));
+            codes.add(genSetInst(type, res_register));
+        }   else if (right instanceof Const){
+            backend.asm.Const c2 = new backend.asm.Const(((Const)right).value());
+            codes.add(new cmp(t1, c2));
+            codes.add(genSetInst(type, res_register));
+        }   else {
+            Register reg2 = RegFactory.getRegister();
+            codes.add(new cmp(t1, reg2));
+            codes.add(genSetInst(type, res_register));
+            right.setResReg(reg2);
+            nodes.add(right);
+        }
+    }
 
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Code> codes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
-        if (left instanceof Temp){
-            Register t1 = new Register(((Temp)left).name());
-            processOpright(codes, nodes, t1, right);
-        }   else if (left instanceof Const){
-            backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
-            processOpright(codes, nodes, t1, right);
+        if (isComparsionOp(type)){
+            codes.add(new xor(res_register, res_register));
+            if (left instanceof Temp){
+                Register t1 = new Register(((Temp)left).name());
+                processOprightCmp(codes, nodes, t1, right);
+            }   else if (left instanceof Const){
+                backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
+                processOprightCmp(codes, nodes, t1, right);
+            }   else {
+                Register t1 = RegFactory.getRegister();
+                left.setResReg(t1);
+                nodes.add(left);
+                processOprightCmp(codes, nodes, t1, right);
+            }
         }   else {
-            Register t1 = RegFactory.getRegister();
-            left.setResReg(t1);
-            nodes.add(left);
-            processOpright(codes, nodes, t1, right);
+            if (left instanceof Temp){
+                Register t1 = new Register(((Temp)left).name());
+                processOpright(codes, nodes, t1, right);
+            }   else if (left instanceof Const){
+                backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
+                processOpright(codes, nodes, t1, right);
+            }   else {
+                Register t1 = RegFactory.getRegister();
+                left.setResReg(t1);
+                nodes.add(left);
+                processOpright(codes, nodes, t1, right);
+            }
         }
+
         return new Pair<List<Node>, Tile>(nodes, new Tile(codes));
     }
 }
