@@ -1,7 +1,8 @@
 public class method {
     public method() {}
-    public int foo() {
-        this.bar();
+    public static int foo() {
+         method m = new method();
+        m.bar();
         return 0;
     }
     public void bar() {}

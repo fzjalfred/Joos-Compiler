@@ -224,22 +224,24 @@ public class IRTranslatorVisitor extends Visitor {
         } else {
             args = new ArrayList<tir.src.joosc.ir.ast.Expr>();
         }
-
         //function_addr
+        Expr_c vtable = null;
         if (((MethodDecl)node.whichMethod).getModifiers().getModifiersSet().contains("static")) {
             funcAddr = new Name(callingMethod);
         } else if (node.hasName()) {
-            System.out.println(node);
-            Expr_c vtable = new Mem(translateFieldAccess(node.first_receiver, node.subfields));
-            ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
-            int offset = classDecl.methodMap.get(method_decl);
-            funcAddr = new BinOp(BinOp.OpType.ADD, vtable, new Const(offset*4));
+           // System.out.println(node);
+            if (node.receiver instanceof ThisLiteral){
+                vtable = new Mem(new Temp("_THIS"));
+            }   else {
+               PostFixExpr _receiver = (PostFixExpr)node.receiver;
+                vtable = new Mem(translateFieldAccess(_receiver.first_receiver, _receiver.subfields));
+            }
         } else {
-            Expr_c vtable = new Mem(node.getPrimary().ir_node);
-            ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
-            int offset = classDecl.methodMap.get(method_decl);
-            funcAddr = new BinOp(BinOp.OpType.ADD, vtable, new Const(offset*4));
+            vtable = new Mem(node.getPrimary().ir_node);
         }
+        ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
+        int offset = classDecl.methodMap.get(method_decl);
+        funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, vtable, new Const(offset)));
         node.ir_node = new Call(funcAddr, args);
         ((Call)node.ir_node).funcLabel = callingMethod;
     }
