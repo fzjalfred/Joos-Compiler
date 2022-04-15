@@ -102,7 +102,12 @@ public class BinOp extends Expr_c {
 
     void processOpright(List<Code> codes, List<Node> nodes,Operand t1, Node node){
         if (node instanceof Temp){
-            codes.add(new lea(res_register, new mem(t1, type, new Register(((Temp)node).name()))));
+            if (type == OpType.MUL && t1 instanceof Register){
+                codes.add(new mov(res_register, t1));
+                codes.add(new mul(res_register, new Register(((Temp)node).name())));
+            }   else {
+                codes.add(new lea(res_register, new mem(t1, type, new Register(((Temp)node).name()))));
+            }
         }   else if (right instanceof Const){
             codes.add(new lea(res_register, new mem(t1, type, new backend.asm.Const(((Const)right).value()))));
         }   else {
