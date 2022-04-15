@@ -967,7 +967,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     ConstructorDecl construct = (ConstructorDecl)i;
                     if (construct.getConstructorDeclarator().numParams() == 0) {
                         hasSuperConstructor = true;
-                        node.supercall = construct;
+                        // must be direct parent supercall
+                        if (node.parentClass == (ClassDecl)superclass) {
+                            node.supercall = construct;
+                        }
                     }
                 }
             }

@@ -670,10 +670,6 @@ public class IRTranslatorVisitor extends Visitor {
             methods_in_itable.putAll(parentInterfaceMethod_iterater.interfaceMethodMap);
             parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
         }
-        System.out.println("TESTING HERE!!!");
-        for (AbstractMethodDecl method: methods_in_itable.keySet()) {
-            System.out.println(method.getName());
-        }
         // calc itable size
         size = 4+(int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
 
