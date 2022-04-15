@@ -376,8 +376,6 @@ public class IRTranslatorVisitor extends Visitor {
     public List<Statement> getConditionalIRNode(Expr expr, String lt, String lf) {
         List<Statement> stmts = new ArrayList<Statement>();
         Expr_c expr_c = expr.ir_node;
-        Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
-        Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
         if (expr.boolStruct != null && expr.boolStruct.bool == true){
             // C[true, lt, lf]
             stmts.add(new Jump(new Name(lt)));
@@ -390,35 +388,47 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.addAll(getConditionalIRNode(((UnaryExprNotPlusMinus)expr).getUnaryExpr(), lf, lt));
             
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals("<")) {
+            Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+            Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.LT, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals(">")) {
+            Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+            Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.GT, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals("<=")) {
+            Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+            Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.LEQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof RelationExpr && ((RelationExpr)expr).getOperator().equals(">=")) {
+            Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+            Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.GEQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("==")) {
+            Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+            Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.EQ, expr_c1,expr_c2),
                 lt, lf));
         } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("!=")) {
+            Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
+            Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.NEQ, expr_c1,expr_c2),
                 lt, lf));
-        } else if (expr instanceof ConditionalAndExpr){
+        } else if (expr instanceof ConditionalAndExpr && expr.children.size() == 2){
             Label l = new Label("condAndlabel_" + expr.hashCode());
             stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), l.name(), lf));
             stmts.add(l);
             stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
-        } else if (expr instanceof ConditionalOrExpr) {
+        } else if (expr instanceof ConditionalOrExpr && expr.children.size() == 2) {
             Label l = new Label("condOrlabel_" + expr.hashCode());
             stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), lt, l.name()));
             stmts.add(l);

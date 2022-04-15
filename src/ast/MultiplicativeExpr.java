@@ -10,8 +10,10 @@ public class MultiplicativeExpr extends AdditiveExpr {
     }
 
     public String getOperator() {
-        assert children.size() == 3;
-        return children.get(1).value;
+        if (children.size() == 3){
+            return children.get(1).value;
+        }
+        return "";
     }
 
     @Override
