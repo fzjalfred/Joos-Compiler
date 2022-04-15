@@ -655,7 +655,7 @@ public class IRTranslatorVisitor extends Visitor {
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
         tir.src.joosc.ir.ast.Expr consAddr = new Name(consName);
         List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
-        exprList.add(new Temp("_THIS"));
+        exprList.add(heapStart);
         if (node.getArgumentList() != null) {
             exprList.addAll(node.getArgumentList().ir_node);
             stmts.add(new Exp(new Call(consAddr, exprList)));
