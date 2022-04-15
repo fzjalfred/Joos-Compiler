@@ -1,9 +1,7 @@
 package tir.src.joosc.ir.ast;
 
-import backend.asm.Register;
-import backend.asm.Tile;
-import backend.asm.mem;
-import backend.asm.mov;
+import backend.asm.*;
+import exception.BackendError;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
@@ -74,10 +72,15 @@ public class Mem extends Expr_c {
                 return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(), new backend.asm.Const(((Const)binOp.right()).value()));
             }   else if (binOp.left() instanceof Temp && binOp.right() instanceof Temp){
                 return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(),new Register(((Temp)binOp.left()).name()));
+            }   else if (binOp.left() instanceof Temp && binOp.right() instanceof BinOp){
+                BinOp _binop = (BinOp)binOp.right();
+                Register reg1 = new Register(((Temp)binOp.left()).name());
+                Register reg2 = new Register(((Temp)(_binop.left())).name());
+                backend.asm.Const c3 =  new backend.asm.Const(((Const)(_binop.right())).value());
+                return new mem(reg1, binOp.opType(), reg2,_binop.opType(), c3, null, null);
             }
-
         }
-        return null;
+        throw new BackendError("unknown toAsmMem" + this);
     }
 
     @Override

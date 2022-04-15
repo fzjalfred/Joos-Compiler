@@ -1,6 +1,7 @@
 package tir.src.joosc.ir.ast;
 
 import backend.asm.Tile;
+import exception.BackendError;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
@@ -81,6 +82,7 @@ public class CompUnit extends Node_c {
 
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
+        BackendError.currFile = name;
         List<Node> res = new ArrayList<Node>();
         for (FuncDecl f : functions.values()){
             res.add(f);

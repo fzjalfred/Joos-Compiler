@@ -132,6 +132,9 @@ public class Move extends Statement {
             operand2 = new LabelOperand(((Name)src).name());
         }   else if (src instanceof Mem){
             operand2 = ((Mem)src).toAsmMem();
+            if (operand2 == null){
+                System.out.println("array test: " + src);
+            }
         }
             else {
             Register srcReg = RegFactory.getRegister();
