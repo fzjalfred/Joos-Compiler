@@ -1,5 +1,6 @@
 package backend.asm;
 
+import tir.src.joosc.ir.ast.BinOp;
 import tir.src.joosc.ir.ast.FuncDecl;
 
 import java.util.ArrayList;
@@ -32,8 +33,10 @@ public class setcc extends UnaryOpCode{
     public List<Code> regAllocate(FuncDecl funcDecl) {
         List<Code> res = new ArrayList<Code>();
         if (op instanceof Register && Register.isAbstractRegister((Register)op)){
-            res.add(new mov(Register.ecx, mem.genVarAccessMem(funcDecl, ((Register)op).name)));
-            res.add(new setcc(cc, Register.ecx));
+            Register _reg = (Register)op;
+            int offset =funcDecl.getOffset(_reg.name);
+            res.add(new setcc(cc, Register.ecx.l));
+            res.add(new mov(new mem(Register.ebp, BinOp.OpType.SUB, new Const(offset)), Register.ecx));
             return res;
         }
         res.add(this);
