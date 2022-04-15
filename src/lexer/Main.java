@@ -22,9 +22,11 @@ public class Main {
 			for (String str : compUnit.externStrs){
 				if (!compUnit.functions().containsKey(str))printWriter.println("extern " + str);
 			}
+			printWriter.println("extern __malloc");
+			printWriter.println("extern __exception");
+			printWriter.println("extern __debexit");
+			printWriter.println("extern NATIVEjava.io.OutputStream.nativeWrite");
 			if (idx == 0) {
-				printWriter.println("extern __malloc");
-				printWriter.println("extern NATIVEjava.io.OutputStream.nativeWrite");
 				printWriter.println("global _start");
 				printWriter.println("_start:");
 				printWriter.println("call test");

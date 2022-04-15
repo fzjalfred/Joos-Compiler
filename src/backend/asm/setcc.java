@@ -6,7 +6,7 @@ import tir.src.joosc.ir.ast.FuncDecl;
 import java.util.ArrayList;
 import java.util.List;
 
-public class setcc extends UnaryOpCode{
+public class setcc extends UnaryOpCodeS{
     public enum ccType {
         g("g"), z("z"), e("e"), l("l"), le("le"), nge("nge"), ge("ge"), nl("nl"), nz("nz"), ne("ne");
         private String s;
