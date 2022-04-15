@@ -1,5 +1,6 @@
 package ast;
 
+import visitors.IRTranslatorVisitor;
 import visitors.Visitor;
 
 import java.util.List;
@@ -19,6 +20,19 @@ public class ClassInstanceCreateExpr extends PrimaryNoArray {
 
     @Override
     public void accept(Visitor v){
+
+        if (v instanceof IRTranslatorVisitor) {
+            ConstructorDecl callingConstructor = (ConstructorDecl)callable;
+            ClassDecl initClass = callingConstructor.whichClass;
+            for (FieldDecl fieldDecl : initClass.fieldMap.keySet()) {
+                if (fieldDecl.hasRight()){
+                    Expr expr = fieldDecl.getExpr();
+                    if (expr.ir_node == null) {
+                        expr.accept(v);
+                    }
+                }
+            }
+        }
         for (ASTNode node: children){
             if (node != null) node.accept(v);
         }

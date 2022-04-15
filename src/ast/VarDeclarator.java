@@ -17,6 +17,13 @@ public class VarDeclarator extends ASTNode{
         return (VarDeclaratorID)children.get(0);
     }
 
+    public boolean hasExpr(){
+        if (children.get(1) == null) {
+            return false;
+        }
+        return true;
+    }
+
     public Expr getExpr() {
         assert children.get(1) instanceof Expr;
         return (Expr) children.get(1);

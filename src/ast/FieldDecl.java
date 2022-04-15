@@ -1,5 +1,6 @@
 package ast;
 
+import visitors.IRTranslatorVisitor;
 import visitors.TypeCheckVisitor;
 import visitors.Visitor;
 
@@ -12,6 +13,18 @@ public class FieldDecl extends ClassMemberDecl {
     public List<String> getName(){
         VarDeclarators varDeclarators = getVarDeclarators();
         return varDeclarators.getName();
+    }
+
+    public boolean hasRight() {
+        VarDeclarators varDeclarators = getVarDeclarators();
+        VarDeclarator varDeclarator = (VarDeclarator) varDeclarators.children.get(0);
+        return varDeclarator.hasExpr();
+    }
+
+    public Expr getExpr() {
+        VarDeclarators varDeclarators = getVarDeclarators();
+        VarDeclarator varDeclarator = (VarDeclarator) varDeclarators.children.get(0);
+        return varDeclarator.getExpr();
     }
 
     public String getFirstVarName(){

@@ -229,6 +229,7 @@ public class IRTranslatorVisitor extends Visitor {
         if (((MethodDecl)node.whichMethod).getModifiers().getModifiersSet().contains("static")) {
             funcAddr = new Name(callingMethod);
         } else if (node.hasName()) {
+            System.out.println(node);
             Expr_c vtable = new Mem(translateFieldAccess(node.first_receiver, node.subfields));
             ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
             int offset = classDecl.methodMap.get(method_decl);
@@ -618,6 +619,18 @@ public class IRTranslatorVisitor extends Visitor {
 //            initClass.fieldMap.put(fieldDecl, fieldOffset);
 //            fieldOffset += 4;
 //        }
+        for (FieldDecl fieldDecl : initClass.fieldMap.keySet()) {
+            int fieldOffset = initClass.fieldMap.get(fieldDecl);
+            if (fieldDecl.hasRight()) {
+                Expr expr = fieldDecl.getExpr();
+                if (expr.ir_node == null) {
+                    System.out.println("bug");
+                }
+                stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), expr.ir_node));
+            } else {
+                stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), new Const(0)));
+            }
+        }
 
         // calc vtable size
         List <MethodDecl> methodDecls = initClass.getMethodDecls();
