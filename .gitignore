@@ -15,5 +15,3 @@ src/lexer/Lexer.java~
 src/lexer/parser.java
 tmp.out
 test.out
-./build/*
-./output/*
