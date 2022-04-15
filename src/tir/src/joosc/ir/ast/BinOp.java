@@ -26,6 +26,10 @@ public class BinOp extends Expr_c {
         return (op == OpType.EQ || op == OpType.NEQ || op == OpType.LT || op == OpType.GT || op == OpType.LEQ || op == OpType.GEQ);
     }
 
+    public boolean isLogicOp(OpType op){
+        return (op == OpType.AND || op == OpType.OR || op == OpType.XOR);
+    }
+
     private OpType type;
     private Expr left, right;
 
@@ -108,6 +112,7 @@ public class BinOp extends Expr_c {
             nodes.add(right);
         }
     }
+
     setcc genSetInst(OpType type, Register res){
         if (type == OpType.EQ) return new setcc(setcc.ccType.e, res);
         if (type == OpType.NEQ) return new setcc(setcc.ccType.ne, res);
@@ -115,6 +120,13 @@ public class BinOp extends Expr_c {
         if (type == OpType.GEQ) return new setcc(setcc.ccType.ge, res);
         if (type == OpType.GT) return new setcc(setcc.ccType.g, res);
         if (type == OpType.LT) return new setcc(setcc.ccType.l, res);
+        return null;
+    }
+
+    Code genLogicInst(OpType type, Register dest, Operand src){
+        if (type == OpType.AND) return new and(dest, src);
+        if (type == OpType.OR) return new or(dest, src);
+        if (type == OpType.XOR) return new xor(dest, src);
         return null;
     }
 
@@ -131,6 +143,24 @@ public class BinOp extends Expr_c {
             Register reg2 = RegFactory.getRegister();
             codes.add(new cmp(t1, reg2));
             codes.add(genSetInst(type, res_register));
+            right.setResReg(reg2);
+            nodes.add(right);
+        }
+    }
+
+    void processOprightLogic(List<Code> codes, List<Node> nodes,Operand t1, Node node){
+        if (node instanceof Temp){
+            Register reg2 = new Register(((Temp)node).name());
+            codes.add(new mov(res_register, t1));
+            codes.add(genLogicInst(type, res_register, reg2));
+        }   else if (right instanceof Const){
+            backend.asm.Const c2 = new backend.asm.Const(((Const)right).value());
+            codes.add(new mov(res_register, t1));
+            codes.add(genLogicInst(type, res_register, c2));
+        }   else {
+            Register reg2 = RegFactory.getRegister();
+            codes.add(new mov(res_register, t1));
+            codes.add(genLogicInst(type, res_register, reg2));
             right.setResReg(reg2);
             nodes.add(right);
         }
@@ -154,7 +184,20 @@ public class BinOp extends Expr_c {
                 nodes.add(left);
                 processOprightCmp(codes, nodes, t1, right);
             }
-        }   else {
+        }   else if (isLogicOp(type)){
+            if (left instanceof Temp){
+                Register t1 = new Register(((Temp)left).name());
+                processOprightLogic(codes, nodes, t1, right);
+            }   else if (left instanceof Const){
+                backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
+                processOprightLogic(codes, nodes, t1, right);
+            }   else {
+                Register t1 = RegFactory.getRegister();
+                left.setResReg(t1);
+                nodes.add(left);
+                processOprightLogic(codes, nodes, t1, right);
+            }
+        } else {
             if (left instanceof Temp){
                 Register t1 = new Register(((Temp)left).name());
                 processOpright(codes, nodes, t1, right);
