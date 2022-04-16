@@ -1,5 +1,6 @@
 package tir.src.joosc.ir.ast;
 
+import ast.AbstractMethodDecl;
 import ast.ClassDecl;
 import ast.MethodDecl;
 import ast.TypeDecl;
@@ -35,6 +36,30 @@ public class CompUnit extends Node_c {
                 String name = methodDecl.getName() + "_" + methodDecl.hashCode();
                 if (!classDecl.selfMethodMap.contains(methodDecl)) this.externStrs.add(name);
                 int idx = classDecl.methodMap.get(methodDecl) / 4;
+                codes[idx] = new dcc(dcc.ccType.d, new LabelOperand(name));
+            }
+            return new ArrayList<Code>(Arrays.asList(codes));
+        }   else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Code> constructItable(){
+        if (oriType instanceof ClassDecl){
+            ClassDecl classDecl = (ClassDecl)oriType;
+            Map<AbstractMethodDecl, Integer> methods_in_itable = classDecl.interfaceMethodMap;
+            ClassDecl parentInterfaceMethod_iterater = classDecl.parentClass;
+            while(parentInterfaceMethod_iterater != null) {
+                methods_in_itable.putAll(parentInterfaceMethod_iterater.interfaceMethodMap);
+                parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
+            }
+            // calc itable size
+            //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
+            int size = 4*methods_in_itable.size();
+            Code[] codes = new Code[size];
+            for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
+                String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+                int idx = methods_in_itable.get(methodDecl)/4;
                 codes[idx] = new dcc(dcc.ccType.d, new LabelOperand(name));
             }
             return new ArrayList<Code>(Arrays.asList(codes));
