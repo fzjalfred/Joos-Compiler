@@ -55,7 +55,7 @@ public class CompUnit extends Node_c {
             }
             // calc itable size
             //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
-            int size = 4*methods_in_itable.size();
+            int size = methods_in_itable.size();
             Code[] codes = new Code[size];
             for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
                 String name = methodDecl.getName() + "_" + methodDecl.hashCode();
