@@ -65,7 +65,13 @@ public class Return extends Statement {
     public void canonicalize() {
         if (ret != null) {
             Seq ret_can = new Seq(((Expr_c)ret).canonicalized_node.stmts());
-            ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
+            if (ret instanceof Call){
+                Temp temp = new Temp("return_temp");
+                ret_can.setLastStatement(new Move(temp,ret_can.getLastExpr() ));
+                ret_can.addStatement(new Return(temp));
+            }   else {
+                ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
+            }
             canonicalized_node = ret_can;
         }   else {
             canonicalized_node = new Seq();
