@@ -29,14 +29,15 @@ public class CompUnit extends Node_c {
     public List<Code> constructVtable(){
         if (oriType instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)oriType;
-            List<Code> res = new ArrayList<>();
-            res.add(new dcc(dcc.ccType.d, new LabelOperand(classDecl.getName() + "_ITABLE")));
+            Code[] codes = new Code[classDecl.methodMap.size()+1];
+            codes[0] = new dcc(dcc.ccType.d, new LabelOperand(classDecl.getName() + "_ITABLE"));
             for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {
                 String name = methodDecl.getName() + "_" + methodDecl.hashCode();
                 if (!classDecl.selfMethodMap.contains(methodDecl)) this.externStrs.add(name);
-                res.add(new dcc(dcc.ccType.d, new LabelOperand(name)));
+                int idx = classDecl.methodMap.get(methodDecl) / 4;
+                codes[idx] = new dcc(dcc.ccType.d, new LabelOperand(name));
             }
-            return res;
+            return new ArrayList<Code>(Arrays.asList(codes));
         }   else {
             return new ArrayList<>();
         }
