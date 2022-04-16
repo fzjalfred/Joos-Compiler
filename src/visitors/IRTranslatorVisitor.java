@@ -225,6 +225,9 @@ public class IRTranslatorVisitor extends Visitor {
         Expr_c vtable = null;
         if (((MethodDecl)node.whichMethod).getModifiers().getModifiersSet().contains("static")) {
             funcAddr = new Name(callingMethod);
+            node.ir_node = new Call(funcAddr, args);
+            ((Call)node.ir_node).funcLabel = callingMethod;
+            return;
         } else if (node.hasName()) {
            // System.out.println(node);
             if (node.receiver instanceof ThisLiteral){
