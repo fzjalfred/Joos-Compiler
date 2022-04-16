@@ -49,14 +49,15 @@ public class EnvironmentBuilder {
         packageScope.childScopes.put(c, compliationScope);
         TypeDecls typeDecls = c.getTypeDecls();
         if (typeDecls != null){
-            processTypeDecls(compliationScope, typeDecls);
+            processTypeDecls(compliationScope, typeDecls, c);
         }
     }
 
 
-    public static void processTypeDecls(ScopeEnvironment env, TypeDecls typeDecls) throws SemanticError{
+    public static void processTypeDecls(ScopeEnvironment env, TypeDecls typeDecls, CompilationUnit c) throws SemanticError{
         for (ASTNode node : typeDecls.children){
             assert node instanceof TypeDecl;
+            c.selfDecl = (TypeDecl)node;
             processTypeDecl(env, (TypeDecl)node);
         }
     }

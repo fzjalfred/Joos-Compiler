@@ -4,15 +4,12 @@ import java.util.*;
 
 import backend.IRTranslator;
 import backend.RegistorAllocator;
-import backend.asm.LabelOperand;
-import backend.asm.Tile;
+import backend.asm.*;
 import type.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
 import tir.src.joosc.ir.interpret.*;
 import tir.src.joosc.ir.ast.*;
-import backend.asm.label;
-import backend.asm.dcc;
 
 public class Main {
 
@@ -22,10 +19,10 @@ public class Main {
 		try {
 			String filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + ".s";
 			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
+			printWriter.println("section .text");
 			for (String str : compUnit.externStrs){
 				if (!compUnit.functions().containsKey(str))printWriter.println("extern " + str);
 			}
-			printWriter.println("section .text");
 			printWriter.println("extern __malloc");
 			printWriter.println("extern __exception");
 			printWriter.println("extern __debexit");
@@ -50,6 +47,12 @@ public class Main {
 			for (String s : compUnit.stringLiteralToLabel.keySet()){
 				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)) + " " + new dcc(dcc.ccType.b, new LabelOperand( s )));
 			}
+			List<Code> vtable = compUnit.constructVtable();
+			printWriter.println(new label(compUnit.oriType.getName()+"_VTABLE"));
+			for (Code code : vtable){
+				printWriter.println(code);
+			}
+			printWriter.println(new label(compUnit.oriType.getName()+"_ITABLE"));
 			printWriter.close();
 		} catch (IOException e1) {
 			throw e1;

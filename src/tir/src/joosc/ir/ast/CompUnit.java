@@ -1,6 +1,12 @@
 package tir.src.joosc.ir.ast;
 
+import ast.ClassDecl;
+import ast.MethodDecl;
+import ast.TypeDecl;
+import backend.asm.Code;
+import backend.asm.LabelOperand;
 import backend.asm.Tile;
+import backend.asm.dcc;
 import exception.BackendError;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
@@ -18,6 +24,22 @@ public class CompUnit extends Node_c {
     private Map<String, FuncDecl> functions;
     public Map<String, String> stringLiteralToLabel;
     public Set<String> externStrs;
+    public TypeDecl oriType;
+
+    public List<Code> constructVtable(){
+        if (oriType instanceof ClassDecl){
+            ClassDecl classDecl = (ClassDecl)oriType;
+            List<Code> res = new ArrayList<>();
+            res.add(new dcc(dcc.ccType.d, new LabelOperand(classDecl.getName() + "_ITABLE")));
+            for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {
+                String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+                res.add(new dcc(dcc.ccType.d, new LabelOperand(name)));
+            }
+            return res;
+        }   else {
+            return new ArrayList<>();
+        }
+    }
 
     public CompUnit(String name) {
         this.name = name;

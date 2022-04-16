@@ -50,6 +50,7 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(CompilationUnit node) {
         compUnit = new CompUnit(node.fileName);
+        compUnit.oriType = node.selfDecl;
     }
 
     public void visit(StringLiteral node){
@@ -654,7 +655,9 @@ public class IRTranslatorVisitor extends Visitor {
 
         // class's CDV
         // calc vtable size
-        List <MethodDecl> methodDecls = initClass.getMethodDecls();
+
+        stmts.add(new Move(new Mem(heapStart), new Name(compUnit.oriType.getName()+ "_VTABLE")));
+        /*List <MethodDecl> methodDecls = initClass.getMethodDecls();
 
         size = methodDecls.size() * 4 + 4;
         Temp reg = new Temp("blah_"+node.hashCode());
@@ -694,7 +697,7 @@ public class IRTranslatorVisitor extends Visitor {
             int methodOffset = methods_in_itable.get(methodDecl);
             stmts.add(new Move(t, new Name(name)));
             stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(methodOffset))), t));
-        }
+        }*/
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();

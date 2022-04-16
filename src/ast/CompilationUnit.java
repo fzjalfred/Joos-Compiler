@@ -27,6 +27,7 @@ public class CompilationUnit extends ASTNode implements Referenceable{
     }
 
     public String fileName = "";
+    public TypeDecl selfDecl = null;
 
     @Override
     public void accept(Visitor v){

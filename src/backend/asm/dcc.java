@@ -2,7 +2,7 @@ package backend.asm;
 
 public class dcc extends Code{
     public enum ccType {
-        w("w"), d("w"), b("b");
+        w("w"), d("d"), b("b");
         private String s;
         private ccType(String s) {
             this.s = s;
