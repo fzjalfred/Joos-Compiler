@@ -17,6 +17,7 @@ public class Main {
 
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit, int idx) throws FileNotFoundException, UnsupportedEncodingException {
 		try {
+			List<Code> vtable = compUnit.constructVtable();
 			String filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + ".s";
 			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
 			printWriter.println("section .text");
@@ -47,11 +48,12 @@ public class Main {
 			for (String s : compUnit.stringLiteralToLabel.keySet()){
 				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)) + " " + new dcc(dcc.ccType.b, new LabelOperand( s )));
 			}
-			List<Code> vtable = compUnit.constructVtable();
+			/**Vtable */
 			printWriter.println(new label(compUnit.oriType.getName()+"_VTABLE"));
 			for (Code code : vtable){
 				printWriter.println(code);
 			}
+			/**Itable */
 			printWriter.println(new label(compUnit.oriType.getName()+"_ITABLE"));
 			printWriter.close();
 		} catch (IOException e1) {

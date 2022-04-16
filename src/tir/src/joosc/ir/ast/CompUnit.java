@@ -33,6 +33,7 @@ public class CompUnit extends Node_c {
             res.add(new dcc(dcc.ccType.d, new LabelOperand(classDecl.getName() + "_ITABLE")));
             for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {
                 String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+                if (!classDecl.selfMethodMap.contains(methodDecl)) this.externStrs.add(name);
                 res.add(new dcc(dcc.ccType.d, new LabelOperand(name)));
             }
             return res;
