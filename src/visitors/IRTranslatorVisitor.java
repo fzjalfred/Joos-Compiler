@@ -433,12 +433,12 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(UnaryExpr node){
-        Expr_c expr_c = node.ir_node;
-        node.ir_node = new BinOp(BinOp.OpType.SUB,expr_c, new Const(0));
+        Expr_c expr_c = node.getUnaryExpr().ir_node;
+        node.ir_node = new BinOp(BinOp.OpType.SUB,new Const(0), expr_c);
     }
 
     public void visit(UnaryExprNotPlusMinus node) {
-        Expr_c expr_c = node.ir_node;
+        Expr_c expr_c = node.getUnaryExpr().ir_node;
         node.ir_node = new BinOp(BinOp.OpType.XOR, expr_c, new Const(1));
     }
 
