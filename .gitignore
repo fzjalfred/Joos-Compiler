@@ -13,5 +13,6 @@ lib/lexer.jar
 src/lexer/Lexer.java
 src/lexer/Lexer.java~
 src/lexer/parser.java
+src/lexer/sym.java
 tmp.out
 test.out

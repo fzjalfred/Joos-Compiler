@@ -104,7 +104,10 @@ public class BinOp extends Expr_c {
         if (node instanceof Temp){
             if (type == OpType.MUL && t1 instanceof Register){
                 codes.add(new mov(res_register, t1));
-                codes.add(new mul(res_register, new Register(((Temp)node).name())));
+                codes.add(new imul(res_register, new Register(((Temp)node).name())));
+            }   else if (type == OpType.DIV && t1 instanceof Register){
+                codes.add(new mov(res_register, t1));
+                codes.add(new idiv(res_register, new Register(((Temp)node).name())));
             }   else {
                 codes.add(new lea(res_register, new mem(t1, type, new Register(((Temp)node).name()))));
             }
