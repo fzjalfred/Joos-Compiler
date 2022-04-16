@@ -35,7 +35,7 @@ public class TypeChecker {
         checkTypeRules();
         checkUnreachableStmts();
         checkWorkList();
-        nameDisambiguation.rootEnvironmentDisambiguation(env, true);
+//        nameDisambiguation.rootEnvironmentDisambiguation(env, true);
         //TODO: extra 8 rules
     }
 

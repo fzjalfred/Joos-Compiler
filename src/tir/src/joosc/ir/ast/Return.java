@@ -4,6 +4,7 @@ import backend.asm.RegFactory;
 import backend.asm.Register;
 import backend.asm.Tile;
 import backend.asm.mov;
+import tir.src.joosc.ir.interpret.Configuration;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
@@ -65,13 +66,7 @@ public class Return extends Statement {
     public void canonicalize() {
         if (ret != null) {
             Seq ret_can = new Seq(((Expr_c)ret).canonicalized_node.stmts());
-            if (ret instanceof Call){
-                Temp temp = new Temp("return_temp");
-                ret_can.setLastStatement(new Move(temp,ret_can.getLastExpr() ));
-                ret_can.addStatement(new Return(temp));
-            }   else {
-                ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
-            }
+            ret_can.setLastStatement(new Return(ret_can.getLastExpr()));
             canonicalized_node = ret_can;
         }   else {
             canonicalized_node = new Seq();
@@ -83,7 +78,7 @@ public class Return extends Statement {
         List<Node> nodes = new ArrayList<Node>();
         Tile codes = v.unit();
         if (ret instanceof Temp){
-            codes.codes.add(new mov(Register.eax, new Register(((Temp)ret).name())));
+            if (!((Temp)ret).name().equals(Configuration.ABSTRACT_RET)) codes.codes.add(new mov(Register.eax, new Register(((Temp)ret).name())));
         }   else if (ret instanceof Const){
             codes.codes.add(new mov(Register.eax, new backend.asm.Const(((Const)ret).value())));
         }   else {

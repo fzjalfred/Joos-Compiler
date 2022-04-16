@@ -1,6 +1,8 @@
 package backend.asm;
 
 import tir.src.joosc.ir.ast.FuncDecl;
+import tir.src.joosc.ir.ast.Temp;
+import tir.src.joosc.ir.interpret.Configuration;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +16,7 @@ public class Register extends Operand{
     public Register x;
     public Register(String name){
         this.name = name;
+
         if (currFuncDecl != null){
             currFuncDecl.chunk.vars.add(name);
         }
@@ -23,7 +26,9 @@ public class Register extends Operand{
     }
 
     public Register(String name, String lstr, String hstr, String xstr){
+
         this.name = name;
+
         if (currFuncDecl != null){
             currFuncDecl.chunk.vars.add(name);
         }
@@ -50,4 +55,9 @@ public class Register extends Operand{
     public static Register ebp = new Register("ebp");
     public static Register esp = new Register("esp");
     public static Set<Register> sysRegs = new HashSet<Register>(Arrays.asList(eax,ebx.ecx.edx.esi,edi,ebp,esp));
+
+    public static Register tempToReg(Temp t){
+        if (t.name().equals(Configuration.ABSTRACT_RET)) return eax;
+        return new Register(t.name());
+    }
 }

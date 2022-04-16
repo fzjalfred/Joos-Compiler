@@ -104,12 +104,12 @@ public class BinOp extends Expr_c {
         if (node instanceof Temp){
             if (type == OpType.MUL && t1 instanceof Register){
                 codes.add(new mov(res_register, t1));
-                codes.add(new imul(res_register, new Register(((Temp)node).name())));
+                codes.add(new imul(res_register, Register.tempToReg((Temp)node)));
             }   else if (type == OpType.DIV && t1 instanceof Register){
                 codes.add(new mov(res_register, t1));
-                codes.add(new idiv(res_register, new Register(((Temp)node).name())));
+                codes.add(new idiv(res_register, Register.tempToReg((Temp)node)));
             }   else {
-                codes.add(new lea(res_register, new mem(t1, type, new Register(((Temp)node).name()))));
+                codes.add(new lea(res_register, new mem(t1, type, Register.tempToReg((Temp)node))));
             }
         }   else if (right instanceof Const){
             codes.add(new lea(res_register, new mem(t1, type, new backend.asm.Const(((Const)right).value()))));
@@ -140,7 +140,7 @@ public class BinOp extends Expr_c {
 
     void processOprightCmp(List<Code> codes, List<Node> nodes,Operand t1, Node node){
         if (node instanceof Temp){
-            Register reg2 = new Register(((Temp)node).name());
+            Register reg2 = Register.tempToReg((Temp)node);
             codes.add(new cmp(t1, reg2));
             codes.add(genSetInst(type, res_register));
         }   else if (right instanceof Const){
@@ -158,7 +158,7 @@ public class BinOp extends Expr_c {
 
     void processOprightLogic(List<Code> codes, List<Node> nodes,Operand t1, Node node){
         if (node instanceof Temp){
-            Register reg2 = new Register(((Temp)node).name());
+            Register reg2 = Register.tempToReg((Temp)node);
             codes.add(new mov(res_register, t1));
             codes.add(genLogicInst(type, res_register, reg2));
         }   else if (right instanceof Const){
@@ -181,7 +181,7 @@ public class BinOp extends Expr_c {
         if (isComparsionOp(type)){
             codes.add(new xor(res_register, res_register));
             if (left instanceof Temp){
-                Register t1 = new Register(((Temp)left).name());
+                Register t1 = Register.tempToReg((Temp)left);
                 processOprightCmp(codes, nodes, t1, right);
             }   else if (left instanceof Const){
                 backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
@@ -194,7 +194,7 @@ public class BinOp extends Expr_c {
             }
         }   else if (isLogicOp(type)){
             if (left instanceof Temp){
-                Register t1 = new Register(((Temp)left).name());
+                Register t1 = Register.tempToReg((Temp)left);
                 processOprightLogic(codes, nodes, t1, right);
             }   else if (left instanceof Const){
                 backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
@@ -207,7 +207,7 @@ public class BinOp extends Expr_c {
             }
         } else {
             if (left instanceof Temp){
-                Register t1 = new Register(((Temp)left).name());
+                Register t1 = Register.tempToReg((Temp)left);
                 processOpright(codes, nodes, t1, right);
             }   else if (left instanceof Const){
                 backend.asm.Const t1 = new backend.asm.Const(((Const)left).value());
