@@ -55,7 +55,10 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(StringLiteral node){
         String labelName = "StringLiteral"+ "_" + node.hashCode();
         if (!compUnit.stringLiteralToLabel.containsKey(node.value)){
+            //System.out.println(node.value + " is not in " + compUnit.stringLiteralToLabel);
             compUnit.stringLiteralToLabel.put(node.value, labelName);
+        }   else {
+            labelName = compUnit.stringLiteralToLabel.get(node.value);
         }
         node.ir_node = new Name(labelName);
     }
