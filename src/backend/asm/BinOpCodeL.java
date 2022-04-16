@@ -16,7 +16,7 @@ public class BinOpCodeL extends BinaryOpCode {
     public List<Code> regAllocate(FuncDecl funcDecl) {
         List<Code> res = new ArrayList<Code>();
         if (op1 instanceof Register){
-            String op1Name = ((Register)(op1)).name;
+            res.addAll(op1.allocateOperand(funcDecl));
             if (op2 instanceof Register && Register.isAbstractRegister((Register)op2)){
                 res.add(new mov(Register.edx, mem.genVarAccessMem(funcDecl, ((Register)op2).name)));
                 op2 = Register.edx;
