@@ -1,5 +1,8 @@
 public class main {
     public main() {
-        A a = new A();
+        interface1 testin1 = null;
+        testin1 = new A();
+        //testin1.myA()e;
+        testin1.setX();
     }
 }

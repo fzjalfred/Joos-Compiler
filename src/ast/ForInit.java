@@ -38,6 +38,6 @@ public class ForInit extends Stmt implements Referenceable, AtomicStmt{
 
     @Override
     public String toString() {
-        return getVarDeclarator().getName();
+        return super.toString();
     }
 }

@@ -210,6 +210,8 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(MethodInvocation node) {
         String callingMethod ="";
+        // TODO interface abstract method
+        // System.out.println(node.whichMethod);
         MethodDecl method_decl = (MethodDecl)node.whichMethod;
         if (((MethodDecl)node.whichMethod).isTest()){
             callingMethod = ((MethodDecl)node.whichMethod).getName();
@@ -676,7 +678,20 @@ public class IRTranslatorVisitor extends Visitor {
             parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
         }
         // calc itable size
-        size = 4+(int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
+        //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
+        size = 4*methods_in_itable.size();
+        Temp itable_reg = new Temp("itableStart_"+node.hashCode());
+        stmts.add(new Move(itable_reg, new Call(new Name("__malloc"), new Const(size))));
+        // stmts.add(new Move(itable_reg, new BinOp(BinOp.OpType.ADD, itable_reg, new Const(4)))); // first block is for bitmask
+        stmts.add(new Move(new Mem(VThead), itable_reg));
+        
+        // add methods to itable
+        for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
+            String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+            int methodOffset = methods_in_itable.get(methodDecl);
+            stmts.add(new Move(t, new Name(name)));
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(methodOffset))), t));
+        }
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();

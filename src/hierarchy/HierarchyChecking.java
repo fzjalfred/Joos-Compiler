@@ -96,10 +96,12 @@ public class HierarchyChecking {
                     for (ASTNode i:method_lst_buff) {
                         if (T instanceof ClassDecl) {
                             ClassDecl class_decl = (ClassDecl)T;
-                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter++);
+                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
+                            itable_offset_counter+=4;
                         } else if (T instanceof InterfaceDecl) {
                             InterfaceDecl class_decl = (InterfaceDecl)T;
-                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter++);
+                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
+                            itable_offset_counter+=4;
                         }
                     }
                     
