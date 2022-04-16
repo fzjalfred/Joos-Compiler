@@ -46,12 +46,9 @@ public class Name extends Expr_c {
 
     @Override
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
-        // List<Code> tileCodes = new ArrayList<Code>();
-        // List<Node> nodes = new ArrayList<Node>();
-        
-        // tileCodes.add(new jmp(new LabelOperand(name)));
-        
-        // return new Pair<List<Node>,Tile>(nodes, new Tile(tileCodes));
-        return null;
+         List<Code> tileCodes = new ArrayList<Code>();
+         List<Node> nodes = new ArrayList<Node>();
+         tileCodes.add(new mov(res_register, new LabelOperand(name)));
+         return new Pair<List<Node>,Tile>(nodes, new Tile(tileCodes));
     }
 }

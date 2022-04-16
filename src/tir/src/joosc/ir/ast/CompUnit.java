@@ -16,18 +16,21 @@ import java.util.*;
 public class CompUnit extends Node_c {
     private String name;
     private Map<String, FuncDecl> functions;
+    public Map<String, String> stringLiteralToLabel;
     public Set<String> externStrs;
 
     public CompUnit(String name) {
         this.name = name;
         functions = new LinkedHashMap<>();
         externStrs = new HashSet<String>();
+        stringLiteralToLabel = new HashMap<>();
     }
 
     public CompUnit(String name, Map<String, FuncDecl> functions) {
         this.name = name;
         this.functions = functions;
         externStrs = new HashSet<String>();
+        stringLiteralToLabel = new HashMap<>();
     }
 
     public void appendFunc(FuncDecl func) {

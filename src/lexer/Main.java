@@ -4,12 +4,15 @@ import java.util.*;
 
 import backend.IRTranslator;
 import backend.RegistorAllocator;
+import backend.asm.LabelOperand;
 import backend.asm.Tile;
 import type.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
 import tir.src.joosc.ir.interpret.*;
 import tir.src.joosc.ir.ast.*;
+import backend.asm.label;
+import backend.asm.dcc;
 
 public class Main {
 
@@ -22,6 +25,7 @@ public class Main {
 			for (String str : compUnit.externStrs){
 				if (!compUnit.functions().containsKey(str))printWriter.println("extern " + str);
 			}
+			printWriter.println("section .text");
 			printWriter.println("extern __malloc");
 			printWriter.println("extern __exception");
 			printWriter.println("extern __debexit");
@@ -41,8 +45,10 @@ public class Main {
 //			printWriter.println(t);
 			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
 			printWriter.println(new Tile(registorAllocator.allocate()));
-			if (idx == 0){
-				printWriter.println("");
+			printWriter.println("section .data");
+			/** String literals */
+			for (String s : compUnit.stringLiteralToLabel.keySet()){
+				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)) + " " + new dcc(dcc.ccType.b, new LabelOperand( s )));
 			}
 			printWriter.close();
 		} catch (IOException e1) {

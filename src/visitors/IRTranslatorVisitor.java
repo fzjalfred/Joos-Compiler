@@ -52,6 +52,14 @@ public class IRTranslatorVisitor extends Visitor {
         compUnit = new CompUnit(node.fileName);
     }
 
+    public void visit(StringLiteral node){
+        String labelName = "StringLiteral"+ "_" + node.hashCode();
+        if (!compUnit.stringLiteralToLabel.containsKey(node.value)){
+            compUnit.stringLiteralToLabel.put(node.value, labelName);
+        }
+        node.ir_node = new Name(labelName);
+    }
+
 
     @Override
     public void visit(MethodDecl node) {
