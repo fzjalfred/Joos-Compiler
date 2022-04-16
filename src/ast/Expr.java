@@ -5,6 +5,7 @@ import tir.src.joosc.ir.ast.*;
 import java.util.List;
 
 public class Expr extends ASTNode {
+    public String recursive_dectecter = "";
     public Expr(List<ASTNode> children, String value){
         super(children, value);
     }

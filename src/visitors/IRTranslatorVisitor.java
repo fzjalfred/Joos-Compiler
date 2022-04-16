@@ -133,12 +133,7 @@ public class IRTranslatorVisitor extends Visitor {
             }
             stmts.add(new Move(ta, e1));
             // // null check
-             Label null_exception_label = new Label("null_exception_label"+acs.hashCode());
-             Label ok_label = new Label("stmt_ok_label"+acs.hashCode());
-             stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, e1, new Const(0)), null_exception_label.name(), ok_label.name()));
-             stmts.add(null_exception_label);
-             stmts.add(new Exp(new Call(new Name("__exception"))));
-             stmts.add(ok_label);
+            nullcheck(stmts, acs, ta);
 
             Temp ti = new Temp("ti");
             stmts.add(new Move(ti, acs.getDimExpr().ir_node));
@@ -533,6 +528,15 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = node.getSingleChild().ir_node;
     }
 
+    public void nullcheck(List<Statement> stmts, Expr node, Expr_c expr_c){
+        Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
+        Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, expr_c, new Const(0)), null_exception_label.name(), ok_label.name()));
+        stmts.add(null_exception_label);
+        stmts.add(new Exp(new Call(new Name("__exception"))));
+        stmts.add(ok_label);
+    }
+
     public void visit(ArrayAccess node){
         List <Statement> stmts = new ArrayList<Statement>();
         Temp ta = new Temp("ta");
@@ -546,12 +550,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(ta, e1));
         
         // // null check
-         Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
-         Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
-         stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, ta, new Const(0)), null_exception_label.name(), ok_label.name()));
-         stmts.add(null_exception_label);
-         stmts.add(new Exp(new Call(new Name("__exception"))));
-         stmts.add(ok_label);
+        nullcheck(stmts, node, ta);
 
         Temp ti = new Temp("ti");
         stmts.add(new Move(ti, node.getDimExpr().ir_node));
@@ -564,7 +563,7 @@ public class IRTranslatorVisitor extends Visitor {
          Label bound_ok_label = new Label("bound_ok_label"+node.hashCode()+node.recursive_dectecter);
 
         // //check 0<=ti
-         stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ,ti, new Const(0)), lower_bound_ok_label.name(), negative_index_exception.name()));
+         stmts.add(new CJump(new BinOp(BinOp.OpType.GEQ,ti, new Const(0)), lower_bound_ok_label.name(), negative_index_exception.name()));
          stmts.add(negative_index_exception);
          stmts.add(new Exp(new Call(new Name("__exception"))));
          stmts.add(lower_bound_ok_label);
@@ -591,7 +590,7 @@ public class IRTranslatorVisitor extends Visitor {
          //check 0<=ti
          Label negative_check = new Label("negative_check"+node.hashCode());
          Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode());
-         stmts.add(new CJump(new BinOp(BinOp.OpType.LEQ, tn, new Const(0)), lower_bound_ok_label.name(), negative_check.name()));
+         stmts.add(new CJump(new BinOp(BinOp.OpType.GEQ, tn,new Const(0)), lower_bound_ok_label.name(), negative_check.name()));
          stmts.add(negative_check);
          stmts.add(new Exp(new Call(new Name("__exception"))));
          stmts.add(lower_bound_ok_label);
