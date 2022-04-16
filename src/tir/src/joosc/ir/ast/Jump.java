@@ -56,7 +56,9 @@ public class Jump extends Statement {
 
     @Override
     public void canonicalize() {
-        canonicalized_node = new Seq(this);
+        Seq res  = new Seq(((Expr_c)target).canonicalized_node.stmts());
+        res.setLastStatement(new Jump(res.getLastExpr()));
+        canonicalized_node = res;
     }
 
     @Override

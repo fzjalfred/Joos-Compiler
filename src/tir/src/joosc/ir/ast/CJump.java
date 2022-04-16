@@ -95,7 +95,10 @@ public class CJump extends Statement {
 
     @Override
     public void canonicalize() {
-        canonicalized_node = new Seq(new CJump(cond, trueLabel), new Jump(new Name(falseLabel)));
+        Seq res  = new Seq(((Expr_c)cond).canonicalized_node.stmts());
+        res.setLastStatement(new CJump(res.getLastExpr(), trueLabel));
+        res.addStatement(new Jump(new Name(falseLabel)));
+        canonicalized_node = res;
     }
 
     @Override
