@@ -574,18 +574,11 @@ public class IRTranslatorVisitor extends Visitor {
         List<Statement> conditional_stmts = getConditionalIRNode(node.getExpr(), true_label.name(), false_label.name());
 
         List<Statement> stmts = new ArrayList<Statement>();
-
         BlockStmt whileStmt = node.getStmt();
-        List <Statement> seq_stmts = new ArrayList<Statement>();
-        for (ASTNode stmt: whileStmt.children){
-            Stmt stmt1 = (Stmt)stmt;
-            seq_stmts.add(stmt1.ir_node);
-        }
-
         stmts.add(label);
         stmts.addAll(conditional_stmts);
         stmts.add(true_label);
-        stmts.add(new Seq(seq_stmts));
+        stmts.add(((Stmt)(whileStmt)).ir_node);
         stmts.add(new Jump(new Name(label.name())));
         stmts.add(false_label);
 
