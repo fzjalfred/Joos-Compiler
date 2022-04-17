@@ -232,4 +232,10 @@ public class tools {
     public static String getItable(ClassDecl classDecl){
         return  classDecl.getName() + "_ITABLE";
     }
+
+    static int labelOffset = 0;
+    public static int getLabelOffset(){
+        labelOffset++;
+        return labelOffset;
+    }
 }
