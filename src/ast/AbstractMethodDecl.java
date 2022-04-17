@@ -4,7 +4,9 @@ import visitors.TypeCheckVisitor;
 import visitors.Visitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AbstractMethodDecl extends InterfaceMemberDecl implements Callable{
     public AbstractMethodDecl(List<ASTNode> children, String value){

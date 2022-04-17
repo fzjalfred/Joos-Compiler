@@ -277,44 +277,54 @@ public class IRTranslatorVisitor extends Visitor {
                 args.add(node.getPrimary().ir_node);
                 vtable = new Mem(node.getPrimary().ir_node);
             }
+            if(node.getArgumentList() != null) {
+                args.addAll(node.getArgumentList().ir_node);
+            }
             ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
             int offset = classDecl.methodMap.get(method_decl);
             funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, vtable, new Const(offset)));
+            node.ir_node = new Call(funcAddr, args);
+            ((Call)node.ir_node).funcLabel = callingMethod;
         } else if (node.whichMethod instanceof AbstractMethodDecl) {
+            
             AbstractMethodDecl interface_method = (AbstractMethodDecl)node.whichMethod;
-            Expr_c itable = null;
-            callingMethod = ((AbstractMethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
+            Expr_c vtable = null;
+            List <Statement> stmts = new ArrayList<Statement>();
             // search itable and find method decl
             // case: this.x
             if (node.hasName()) {
                 if (node.receiver instanceof ThisLiteral){
                     Temp _this = new Temp("_THIS");
                     args.add(_this);
-                    itable = new Mem(_this);
+                    vtable = new Mem(_this);
                 }   else {
                     PostFixExpr _receiver = (PostFixExpr)node.receiver;
                     Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
                     args.add(_receiver_code);
-                    itable = new Mem(_receiver_code);
+                    vtable = new Mem(_receiver_code);
                 }
             } else {
                 args.add(node.getPrimary().ir_node);
-                itable = new Mem(node.getPrimary().ir_node);
+                vtable = new Mem(node.getPrimary().ir_node);
             }
-            InterfaceDecl classDecl = (InterfaceDecl)env.ASTNodeToScopes.get(interface_method).typeDecl;
+            if(node.getArgumentList() != null) {
+                args.addAll(node.getArgumentList().ir_node);
+            }
+            Expr_c itable = new Mem(vtable);
+            //InterfaceDecl classDecl = (InterfaceDecl)env.ASTNodeToScopes.get(interface_method).typeDecl;
+            Temp bitmask = new Temp("bitmask_"+node.hashCode());
+            stmts.add(new Move(bitmask, new BinOp(BinOp.OpType.SUB, itable, new Const(4))));
+            Temp tset = new Temp("itable_offset_"+node.hashCode());
+            stmts.add(new Move(tset, new BinOp(BinOp.OpType.AND, new Const(node.hashCode()), bitmask)));
+            
+            node.ir_node = new ESeq(new Seq(stmts), new Call(new Mem(new BinOp(BinOp.OpType.ADD, vtable, tset)), args));
+            
+            System.out.println("======invocation=======");
+            System.out.println(interface_method.getName()+interface_method.hashCode());
             System.out.println("=======================");
-            System.out.println(interface_method.getName());
-            System.out.println(classDecl.getName());
-            int offset = classDecl.interfaceMethodMap.get(interface_method);
-            funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, itable, new Const(offset)));
+            //int offset = classDecl.interfaceMethodMap.get(interface_method);
+            
         }
-        
-        if(node.getArgumentList() != null) {
-            args.addAll(node.getArgumentList().ir_node);
-        }
-        
-        node.ir_node = new Call(funcAddr, args);
-        ((Call)node.ir_node).funcLabel = callingMethod;
     }
 
     public void visit(Block node){
@@ -738,6 +748,7 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), t));
         }
 
+        
         // class's IDV
         // find all interface methods
         Map<AbstractMethodDecl, Integer> methods_in_itable = initClass.interfaceMethodMap;
@@ -747,27 +758,40 @@ public class IRTranslatorVisitor extends Visitor {
             parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
         }
         // calc itable size
-        //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
-        size = 4*methods_in_itable.size();
+        int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
+        size = 4*N+4;
+        int bitmask = methods_in_itable.size() - 1;
         Temp itable_reg = new Temp("itableStart_"+node.hashCode());
         stmts.add(new Move(itable_reg, new Call(new Name("__malloc"), new Const(size))));
-        // stmts.add(new Move(itable_reg, new BinOp(BinOp.OpType.ADD, itable_reg, new Const(4)))); // first block is for bitmask
+
+        stmts.add(new Move(new Mem(itable_reg), new Const(bitmask)));
+        stmts.add(new Move(itable_reg, new BinOp(BinOp.OpType.ADD, itable_reg, new Const(4)))); // first block is for bitmask
+
         stmts.add(new Move(new Mem(VThead), itable_reg));
         
+        System.out.println("method_size: "+ methods_in_itable.size());
         // add methods to itable
         for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
             String name = null;
             for (MethodDecl vtable_method : initClass.methodMap.keySet()) {
                 if (tools.get_sig(itable_method, env).equals(tools.get_sig(vtable_method, env)) ) {
-                    name = vtable_method.getName() + "_" + vtable_method.hashCode();
-                    break;
+                    name = vtable_method.getName() + "_" + vtable_method.hashCode(); // vtable method label
+                    int itable_offset = itable_method.hashCode()%bitmask;
+                    
+
+                    assert name != null;
+                    int vtable_offset = initClass.methodMap.get(vtable_method);
+                    stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(itable_offset))), new Const(vtable_offset)));
+
+                    System.out.println("=========linked_method========");
+                    System.out.println("initClass: "+initClass.getName());
+                    System.out.println(itable_method.getName()+itable_method.hashCode());
+                    System.out.println(itable_offset);
+                    System.out.println("==============================");
                 }
             } // done the linking.
-            assert name != null;
-            int methodOffset = methods_in_itable.get(itable_method);
-            stmts.add(new Move(t, new Name(name)));
-            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(methodOffset))), t));
         }
+        
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
