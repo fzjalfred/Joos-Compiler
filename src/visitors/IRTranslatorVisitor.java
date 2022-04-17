@@ -84,12 +84,13 @@ public class IRTranslatorVisitor extends Visitor {
             forCond = node.getForExpr().ir_node;
         }
         res.stmts().add(new CJump(forCond, "ForLoopNext_" + node.hashCode(), "ForLoopEnd_" + node.hashCode()));
-        if (node.getForUpdate() != null){
+         res.stmts().add(nextLabel);
+	if (node.getForUpdate() != null){
             res.stmts().add(node.getForUpdate().ir_node);
         }
-        res.stmts().add(nextLabel);
         res.stmts().add(((Stmt) node.getBlockStmt()).ir_node);
-        res.stmts().add(endLabel);
+        res.stmts().add(new Jump(new Name("ForLoopBegin_" + node.hashCode())));
+	res.stmts().add(endLabel);
         node.ir_node = res;
     }
 
