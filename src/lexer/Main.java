@@ -2,6 +2,7 @@ package lexer;
 import java.io.*;
 import java.util.*;
 
+import ast.ClassDecl;
 import backend.IRTranslator;
 import backend.RegistorAllocator;
 import backend.asm.*;
@@ -15,6 +16,10 @@ public class Main {
 
 	static public DebugID id = DebugID.None;
 
+	static public void writeLabel(PrintWriter w, String l){
+		w.println("global " + l);
+		w.println(new label(l));
+	}
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit, int idx) throws FileNotFoundException, UnsupportedEncodingException {
 		try {
 			List<Code> vtable = compUnit.constructVtable();
@@ -50,12 +55,12 @@ public class Main {
 				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)) + " " + new dcc(dcc.ccType.b, new LabelOperand( s )));
 			}
 			/**Vtable */
-			printWriter.println(new label(compUnit.oriType.getName()+"_VTABLE"));
+			writeLabel(printWriter, tools.getVtable((ClassDecl) compUnit.oriType));
 			for (Code code : vtable){
 				printWriter.println(code);
 			}
 			/**Itable */
-			printWriter.println(new label(compUnit.oriType.getName()+"_ITABLE"));
+			writeLabel(printWriter, tools.getItable((ClassDecl) compUnit.oriType));
 			for (Code code : itable){
 				printWriter.println(code);
 			}

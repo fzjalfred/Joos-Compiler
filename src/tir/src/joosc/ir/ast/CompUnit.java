@@ -33,7 +33,10 @@ public class CompUnit extends Node_c {
             ClassDecl classDecl = (ClassDecl)oriType;
             Code[] codes = new Code[classDecl.methodMap.size()+2];
             codes[0] = new dcc(dcc.ccType.d, new LabelOperand(tools.getItable(classDecl)));
-            if (classDecl.parentClass != null) codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass)));
+            if (classDecl.parentClass != null) {
+                codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass)));
+                externStrs.add(tools.getVtable(classDecl.parentClass));
+            }
             else codes[1] = new dcc(dcc.ccType.d, new LabelOperand("0"));
             for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {
                 String name = methodDecl.getName() + "_" + methodDecl.hashCode();
