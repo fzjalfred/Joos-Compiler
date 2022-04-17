@@ -13,7 +13,7 @@ public class mov extends BinaryOpCode{
     public String toString(){
     	String wordsize = "";
 	if (op1 instanceof mem && (op2 instanceof Const || op2 instanceof LabelOperand)){
-		wordsize = "word";
+		wordsize = "dword";
 		return getClass().getSimpleName()+ " " + wordsize + " " + op1 + "," + op2;
 	}
 	return super.toString();

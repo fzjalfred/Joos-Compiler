@@ -80,10 +80,10 @@ public class IRTranslatorVisitor extends Visitor {
             conditional_stmts.addAll(getConditionalIRNode(node.getForExpr(), nextLabel.name(), endLabel.name()));
         }
         res.stmts().addAll(conditional_stmts);
+        res.stmts().add(nextLabel);
         if (node.getForUpdate() != null){
             res.stmts().add(node.getForUpdate().ir_node);
         }
-        res.stmts().add(nextLabel);
         res.stmts().add(((Stmt) node.getBlockStmt()).ir_node);
         res.stmts().add(new Jump(new Name(beginLabel.name())));
         res.stmts().add(endLabel);
