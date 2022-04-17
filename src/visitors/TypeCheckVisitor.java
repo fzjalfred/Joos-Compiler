@@ -947,7 +947,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
         // method map
         List <MethodDecl> methodDecls = node.getMethodDecls();
-        int methodOffset = 4;
+        int methodOffset = 8;
         for (MethodDecl methodDecl : methodDecls) {
             node.methodMap.put(methodDecl, methodOffset);
             methodOffset += 4;

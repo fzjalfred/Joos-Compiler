@@ -1,6 +1,7 @@
 package tir.src.joosc.ir.ast;
 
 import backend.asm.*;
+import exception.BackendError;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;

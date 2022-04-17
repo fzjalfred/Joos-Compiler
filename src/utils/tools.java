@@ -224,4 +224,12 @@ public class tools {
             return get_sig((AbstractMethodDecl)method_decl, env);
         }
     }
+
+    public static String getVtable(ClassDecl classDecl){
+        return  classDecl.getName() + "_VTABLE";
+    }
+
+    public static String getItable(ClassDecl classDecl){
+        return  classDecl.getName() + "_ITABLE";
+    }
 }

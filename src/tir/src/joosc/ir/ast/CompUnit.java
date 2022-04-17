@@ -14,6 +14,7 @@ import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
 import utils.Pair;
+import utils.tools;
 
 import java.util.*;
 
@@ -30,8 +31,10 @@ public class CompUnit extends Node_c {
     public List<Code> constructVtable(){
         if (oriType instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)oriType;
-            Code[] codes = new Code[classDecl.methodMap.size()+1];
-            codes[0] = new dcc(dcc.ccType.d, new LabelOperand(classDecl.getName() + "_ITABLE"));
+            Code[] codes = new Code[classDecl.methodMap.size()+2];
+            codes[0] = new dcc(dcc.ccType.d, new LabelOperand(tools.getItable(classDecl)));
+            if (classDecl.parentClass != null) codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass)));
+            else codes[1] = new dcc(dcc.ccType.d, new LabelOperand("0"));
             for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {
                 String name = methodDecl.getName() + "_" + methodDecl.hashCode();
                 if (!classDecl.selfMethodMap.contains(methodDecl)) this.externStrs.add(name);

@@ -44,9 +44,46 @@ public class IRTranslatorVisitor extends Visitor {
         }
         return new ESeq(fieldsReadCodes, new Mem(res));
     }
+    public tir.src.joosc.ir.ast.Expr instanceOfTestGeneral(Expr expr, ReferenceType type){
+        if (type instanceof ClassOrInterfaceType) {
+            ClassDecl classDecl = (ClassDecl) ((ClassOrInterfaceType) type).typeDecl;
+            if (classDecl.parentClass == null) return new Const(1); // type is Object
+            else if (expr.type instanceof PrimitiveType) return new Const(0);
+            else if (expr.type instanceof ArrayType) return new Const(0);
+            else return instanceOfTest(expr.ir_node, classDecl);
+        }   else {
+            ArrayType arrayType = (ArrayType)type;
+            if (arrayType.equals(expr.type)) return new Const(1);
+            return new Const(0);
+        }
+    }
 
-    public List<Stmt> instanceOfTest(Expr_c testee){
-        return null;
+    public tir.src.joosc.ir.ast.Expr instanceOfTest(Expr_c testee, ClassDecl type){
+        List<Statement> stmts = new ArrayList<>();
+        Temp head = new Temp("head");
+        Const zeroConst = new Const(0);
+        stmts.add(new Move(head , new Mem(testee)));
+        Temp res = new Temp("res");
+        stmts.add(new Move(res , zeroConst));
+        Label targetClassVtable = new Label(tools.getVtable(type));
+        Label loopLabel = new Label("loopLabel_" + type.hashCode());
+        Label trueLabel = new Label("trueLabel_" + type.hashCode());
+        Label successLabel = new Label("successLabel_" + type.hashCode());
+        Label failLabel = new Label("failLabel_" + type.hashCode());
+        Label endLabel = new Label("endLabel_" + type.hashCode());
+        stmts.add(loopLabel);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, head, zeroConst), trueLabel.name(), endLabel.name()));
+        stmts.add(trueLabel);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, head, new Name(targetClassVtable.name())), successLabel.name(), failLabel.name()));
+        stmts.add(successLabel);
+        stmts.add(new Move(res, new Const(1)));
+        stmts.add(new Jump(new Name(endLabel.name())));
+        stmts.add(failLabel);
+        stmts.add(new Move(head, new Mem(new BinOp(BinOp.OpType.ADD, head, new Const(4)))));
+        stmts.add(new Jump(new Name(loopLabel.name())));
+        stmts.add(endLabel);
+
+        return new ESeq(new Seq(stmts), res);
     }
 
     public IRTranslatorVisitor(RootEnvironment env){
@@ -448,15 +485,23 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(RelationExpr node) {
         Expr_c expr_c1 = node.getOperatorLeft().ir_node;
-        Expr_c expr_c2 = node.getOperatorRight().ir_node;;
         if (node.getOperator().equals(">")) {
+            Expr_c expr_c2 = node.getOperatorRight().ir_node;;
             node.ir_node = new BinOp(BinOp.OpType.GT, expr_c1, expr_c2);
         } else if (node.getOperator().equals("<")) {
+            Expr_c expr_c2 = node.getOperatorRight().ir_node;;
             node.ir_node = new BinOp(BinOp.OpType.LT, expr_c1, expr_c2);
         } else if (node.getOperator().equals(">=")) {
+            Expr_c expr_c2 = node.getOperatorRight().ir_node;;
             node.ir_node = new BinOp(BinOp.OpType.GEQ, expr_c1, expr_c2);
         } else if (node.getOperator().equals("<=")) {
+            Expr_c expr_c2 = node.getOperatorRight().ir_node;;
             node.ir_node = new BinOp(BinOp.OpType.LEQ, expr_c1, expr_c2);
+        } else { // TODO: array type
+            ReferenceType type = (ReferenceType) node.getisInstanceOfRight();
+            if (type instanceof ClassOrInterfaceType){
+                node.ir_node = (Expr_c) instanceOfTestGeneral(node.getOperatorLeft(), (ReferenceType)node.getisInstanceOfRight());
+            }
         }
     }
 
