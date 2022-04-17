@@ -8,6 +8,7 @@ import tir.src.joosc.ir.ast.*;
 import tir.src.joosc.ir.ast.Name;
 import tir.src.joosc.ir.interpret.Configuration;
 import type.RootEnvironment;
+import utils.*;
 
 
 public class IRTranslatorVisitor extends Visitor {
@@ -205,44 +206,77 @@ public class IRTranslatorVisitor extends Visitor {
         String callingMethod ="";
         // TODO interface abstract method
         // System.out.println(node.whichMethod);
-        MethodDecl method_decl = (MethodDecl)node.whichMethod;
-        if (((MethodDecl)node.whichMethod).isTest()){
-            callingMethod = ((MethodDecl)node.whichMethod).getName();
-        } else {
-            callingMethod = ((MethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
-        }
-        // arguments 
         tir.src.joosc.ir.ast.Expr funcAddr = null;
+        // arguments
         List<tir.src.joosc.ir.ast.Expr> args = new ArrayList<tir.src.joosc.ir.ast.Expr>();
-        //function_addr
-        Expr_c vtable = null;
-        if (((MethodDecl)node.whichMethod).getModifiers().getModifiersSet().contains("static")) {
-            funcAddr = new Name(callingMethod);
-            node.ir_node = new Call(funcAddr, args);
-            ((Call)node.ir_node).funcLabel = callingMethod;
-            return;
-        } else if (node.hasName()) {
-           // System.out.println(node);
-            if (node.receiver instanceof ThisLiteral){
-                Temp _this = new Temp("_THIS");
-                args.add(_this);
-                vtable = new Mem(_this);
-            }   else {
-                PostFixExpr _receiver = (PostFixExpr)node.receiver;
-                Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
-                args.add(_receiver_code);
-                vtable = new Mem(_receiver_code);
+
+        MethodDecl method_decl = null;
+        if (node.whichMethod instanceof MethodDecl) {
+            //function_addr
+            Expr_c vtable = null;
+            method_decl = (MethodDecl)node.whichMethod;
+            if ((method_decl).isTest()){
+                callingMethod = (method_decl).getName();
+            } else {
+                callingMethod = (method_decl).getName() + "_"+ node.whichMethod.hashCode();
             }
-        } else {
-            args.add(node.getPrimary().ir_node);
-            vtable = new Mem(node.getPrimary().ir_node);
+            if (method_decl != null && (method_decl).getModifiers().getModifiersSet().contains("static")) {
+                funcAddr = new Name(callingMethod);
+                node.ir_node = new Call(funcAddr, args);
+                ((Call)node.ir_node).funcLabel = callingMethod;
+                return;
+            } else if (node.hasName()) {
+               // System.out.println(node);
+                if (node.receiver instanceof ThisLiteral){
+                    Temp _this = new Temp("_THIS");
+                    args.add(_this);
+                    vtable = new Mem(_this);
+                }   else {
+                    PostFixExpr _receiver = (PostFixExpr)node.receiver;
+                    Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
+                    args.add(_receiver_code);
+                    vtable = new Mem(_receiver_code);
+                }
+            } else {
+                args.add(node.getPrimary().ir_node);
+                vtable = new Mem(node.getPrimary().ir_node);
+            }
+            ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
+            int offset = classDecl.methodMap.get(method_decl);
+            funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, vtable, new Const(offset)));
+        } else if (node.whichMethod instanceof AbstractMethodDecl) {
+            AbstractMethodDecl interface_method = (AbstractMethodDecl)node.whichMethod;
+            Expr_c itable = null;
+            callingMethod = ((AbstractMethodDecl)node.whichMethod).getName() + "_"+ node.whichMethod.hashCode();
+            // search itable and find method decl
+            // case: this.x
+            if (node.hasName()) {
+                if (node.receiver instanceof ThisLiteral){
+                    Temp _this = new Temp("_THIS");
+                    args.add(_this);
+                    itable = new Mem(_this);
+                }   else {
+                    PostFixExpr _receiver = (PostFixExpr)node.receiver;
+                    Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
+                    args.add(_receiver_code);
+                    itable = new Mem(_receiver_code);
+                }
+            } else {
+                args.add(node.getPrimary().ir_node);
+                itable = new Mem(node.getPrimary().ir_node);
+            }
+            InterfaceDecl classDecl = (InterfaceDecl)env.ASTNodeToScopes.get(interface_method).typeDecl;
+            System.out.println("=======================");
+            System.out.println(interface_method.getName());
+            System.out.println(classDecl.getName());
+            int offset = classDecl.interfaceMethodMap.get(interface_method);
+            funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, itable, new Const(offset)));
         }
+        
         if(node.getArgumentList() != null) {
             args.addAll(node.getArgumentList().ir_node);
         }
-        ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
-        int offset = classDecl.methodMap.get(method_decl);
-        funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, vtable, new Const(offset)));
+        
         node.ir_node = new Call(funcAddr, args);
         ((Call)node.ir_node).funcLabel = callingMethod;
     }
@@ -657,7 +691,7 @@ public class IRTranslatorVisitor extends Visitor {
         // calc vtable size
 
         stmts.add(new Move(new Mem(heapStart), new Name(compUnit.oriType.getName()+ "_VTABLE")));
-        /*List <MethodDecl> methodDecls = initClass.getMethodDecls();
+        List <MethodDecl> methodDecls = initClass.getMethodDecls();
 
         size = methodDecls.size() * 4 + 4;
         Temp reg = new Temp("blah_"+node.hashCode());
@@ -692,12 +726,19 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(new Mem(VThead), itable_reg));
         
         // add methods to itable
-        for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
-            String name = methodDecl.getName() + "_" + methodDecl.hashCode();
-            int methodOffset = methods_in_itable.get(methodDecl);
+        for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
+            String name = null;
+            for (MethodDecl vtable_method : initClass.methodMap.keySet()) {
+                if (tools.get_sig(itable_method, env).equals(tools.get_sig(vtable_method, env)) ) {
+                    name = vtable_method.getName() + "_" + vtable_method.hashCode();
+                    break;
+                }
+            } // done the linking.
+            assert name != null;
+            int methodOffset = methods_in_itable.get(itable_method);
             stmts.add(new Move(t, new Name(name)));
             stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(methodOffset))), t));
-        }*/
+        }
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();

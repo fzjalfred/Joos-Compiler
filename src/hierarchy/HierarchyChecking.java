@@ -93,17 +93,17 @@ public class HierarchyChecking {
                     inclass_map.put(((AbstractMethodList)l).getSimpleName(), method_lst_buff);
                     
                     // interfaceMethodMap has all interface's method for itable.
-                    for (ASTNode i:method_lst_buff) {
-                        if (T instanceof ClassDecl) {
-                            ClassDecl class_decl = (ClassDecl)T;
-                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
-                            itable_offset_counter+=4;
-                        } else if (T instanceof InterfaceDecl) {
-                            InterfaceDecl class_decl = (InterfaceDecl)T;
-                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
-                            itable_offset_counter+=4;
-                        }
-                    }
+                    // for (ASTNode i:method_lst_buff) {
+                    //     if (T instanceof ClassDecl) {
+                    //         ClassDecl class_decl = (ClassDecl)T;
+                    //         class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
+                    //         itable_offset_counter+=4;
+                    //     } else if (T instanceof InterfaceDecl) {
+                    //         InterfaceDecl class_decl = (InterfaceDecl)T;
+                    //         class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
+                    //         itable_offset_counter+=4;
+                    //     }
+                    // }
                     
                 }
                 if (l instanceof FieldDecl){
@@ -185,11 +185,24 @@ public class HierarchyChecking {
             }
             containMap.put(T, inclass_map);
         }
+
+        Integer itable_offset_counter = 0;
         // class containMap has all implemented methods including parents'method replacement.
         for (ASTNode T: containMap.keySet()) {
             if (T instanceof InterfaceDecl) {
                 InterfaceDecl class_decl = (InterfaceDecl)T;
                 class_decl.containMap = containMap.get(T);
+                // interfaceMethodMap
+                for (String method_name: containMap.get(T).keySet()) {
+                    List<ASTNode> methods = containMap.get(T).get(method_name);
+                    for (ASTNode i: methods) {
+                        if (i instanceof AbstractMethodDecl) {
+                            System.out.println( "interface: "+((InterfaceDecl)class_decl).getName());
+                            System.out.println( "AbstractMehod: "+((AbstractMethodDecl)i).getName());
+                            class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, itable_offset_counter);
+                        }
+                    }
+                }
             } else if (T instanceof ClassDecl) {
                 ClassDecl class_decl = (ClassDecl)T;
                 class_decl.containMap = containMap.get(T);

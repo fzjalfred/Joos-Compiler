@@ -161,4 +161,67 @@ public class tools {
     public static FieldDecl arrayLen(){
         return new FieldDecl(empty(), "length");
     }
+
+    
+    public static List<String> get_sig(MethodDecl method_decl, RootEnvironment env){
+        List<String> res = new ArrayList<String>();
+        // MethodDecl ->MethodHeader->method_declarator->ID->value
+        res.add(method_decl.children.get(0).children.get(2).children.get(0).value);
+        if (method_decl.children.get(0).children.get(2).children.get(1) == null) {
+            return res;
+        }
+        // ->method_header->method_declarator->parameter_list
+        ParameterList parameter_list = (ParameterList)method_decl.children.get(0).children.get(2).children.get(1);
+        List<Parameter> paras = parameter_list.getParams();
+        for (Parameter i: paras) {
+            if (i.getType() instanceof ClassOrInterfaceType) {
+                Referenceable class_decl_of_param = ((ClassOrInterfaceType)i.getType()).typeDecl;
+                String qualified_name = "";
+                if (class_decl_of_param instanceof ClassDecl) {
+                    qualified_name = get_class_qualifed_name((ClassDecl)class_decl_of_param, env);
+                }
+                if (class_decl_of_param instanceof InterfaceDecl) {
+                    qualified_name = get_class_qualifed_name((InterfaceDecl)class_decl_of_param, env);
+                }
+                res.add(qualified_name);
+            } else {
+                res.add(i.children.get(0).toString());
+            }
+        }
+        return res;
+    }
+    public static List<String> get_sig(AbstractMethodDecl method_decl, RootEnvironment env){
+        List<String> res = new ArrayList<String>();
+        // MethodDecl->method_declarator->ID->value
+        res.add(method_decl.children.get(2).children.get(0).value);
+        if (method_decl.children.get(2).children.get(1) == null) {
+            return res;
+        }
+        //->method_declarator->parameter_list
+        ParameterList parameter_list = (ParameterList)method_decl.children.get(2).children.get(1);
+        List<Parameter> paras = parameter_list.getParams();
+        for (Parameter i: paras) {
+            if (i.getType() instanceof ClassOrInterfaceType) {
+                Referenceable class_decl_of_param = ((ClassOrInterfaceType)i.getType()).typeDecl;
+                String qualified_name = "";
+                if (class_decl_of_param instanceof ClassDecl) {
+                    qualified_name = get_class_qualifed_name((ClassDecl)class_decl_of_param, env);
+                }
+                if (class_decl_of_param instanceof InterfaceDecl) {
+                    qualified_name = get_class_qualifed_name((InterfaceDecl)class_decl_of_param, env);
+                }
+                res.add(qualified_name);
+            } else {
+                res.add(i.children.get(0).toString());
+            }
+        }
+        return res;
+    }
+    public static List<String> get_sig(ASTNode method_decl, RootEnvironment env){
+        if (method_decl instanceof MethodDecl) {
+            return get_sig((MethodDecl)method_decl, env);
+        } else {
+            return get_sig((AbstractMethodDecl)method_decl, env);
+        }
+    }
 }
