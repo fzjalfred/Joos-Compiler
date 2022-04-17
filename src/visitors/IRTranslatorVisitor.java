@@ -45,6 +45,10 @@ public class IRTranslatorVisitor extends Visitor {
         return new ESeq(fieldsReadCodes, new Mem(res));
     }
 
+    public List<Stmt> instanceOfTest(Expr_c testee){
+        return null;
+    }
+
     public IRTranslatorVisitor(RootEnvironment env){
         this.env = env;
     }
@@ -52,6 +56,10 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(CompilationUnit node) {
         compUnit = new CompUnit(node.fileName);
         compUnit.oriType = node.selfDecl;
+    }
+
+    public void visit(NullLiteral node){
+        node.ir_node = new Const(0);
     }
 
 
