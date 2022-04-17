@@ -783,7 +783,7 @@ public class IRTranslatorVisitor extends Visitor {
         // calc vtable size
 
         stmts.add(new Move(new Mem(heapStart), new Name(compUnit.oriType.getName()+ "_VTABLE")));
-        List <MethodDecl> methodDecls = initClass.getMethodDecls();
+        /*List <MethodDecl> methodDecls = initClass.getMethodDecls();
 
         size = methodDecls.size() * 4 + 4;
         Temp reg = new Temp("blah_"+node.hashCode());
@@ -801,7 +801,6 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), t));
         }
 
-        
         // class's IDV
         // find all interface methods
         Map<AbstractMethodDecl, Integer> methods_in_itable = initClass.interfaceMethodMap;
@@ -811,40 +810,20 @@ public class IRTranslatorVisitor extends Visitor {
             parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
         }
         // calc itable size
-        int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
-        size = 4*N+4;
-        int bitmask = methods_in_itable.size() - 1;
+        //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
+        size = 4*methods_in_itable.size();
         Temp itable_reg = new Temp("itableStart_"+node.hashCode());
         stmts.add(new Move(itable_reg, new Call(new Name("__malloc"), new Const(size))));
-
-        stmts.add(new Move(new Mem(itable_reg), new Const(bitmask)));
-        stmts.add(new Move(itable_reg, new BinOp(BinOp.OpType.ADD, itable_reg, new Const(4)))); // first block is for bitmask
-
+        // stmts.add(new Move(itable_reg, new BinOp(BinOp.OpType.ADD, itable_reg, new Const(4)))); // first block is for bitmask
         stmts.add(new Move(new Mem(VThead), itable_reg));
-        
-        System.out.println("method_size: "+ methods_in_itable.size());
+
         // add methods to itable
-        for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
-            String name = null;
-            for (MethodDecl vtable_method : initClass.methodMap.keySet()) {
-                if (tools.get_sig(itable_method, env).equals(tools.get_sig(vtable_method, env)) ) {
-                    name = vtable_method.getName() + "_" + vtable_method.hashCode(); // vtable method label
-                    int itable_offset = itable_method.hashCode()%bitmask;
-                    
-
-                    assert name != null;
-                    int vtable_offset = initClass.methodMap.get(vtable_method);
-                    stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(itable_offset))), new Const(vtable_offset)));
-
-                    System.out.println("=========linked_method========");
-                    System.out.println("initClass: "+initClass.getName());
-                    System.out.println(itable_method.getName()+itable_method.hashCode());
-                    System.out.println(itable_offset);
-                    System.out.println("==============================");
-                }
-            } // done the linking.
-        }
-        
+        for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
+            String name = methodDecl.getName() + "_" + methodDecl.hashCode();
+            int methodOffset = methods_in_itable.get(methodDecl);
+            stmts.add(new Move(t, new Name(name)));
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(methodOffset))), t));
+        }*/
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
