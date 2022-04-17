@@ -54,11 +54,6 @@ public class IRTranslatorVisitor extends Visitor {
         compUnit.oriType = node.selfDecl;
     }
 
-    public void visit(VarDeclarator node){
-        Expr_c expr = node.getExpr().ir_node;
-        Temp var = new Temp(node.getVarDeclaratorID().getName());
-
-    }
 
     public void visit(ForInit node){
         Expr_c expr = node.getVarDeclarator().getExpr().ir_node;
@@ -80,17 +75,18 @@ public class IRTranslatorVisitor extends Visitor {
         }
         res.stmts().add(beginLabel);
         Expr_c forCond = new Const(1);
+        List<Statement> conditional_stmts = new ArrayList<>();
         if (node.getForExpr() != null){
-            forCond = node.getForExpr().ir_node;
+            conditional_stmts.addAll(getConditionalIRNode(node.getForExpr(), nextLabel.name(), endLabel.name()));
         }
-        res.stmts().add(new CJump(forCond, "ForLoopNext_" + node.hashCode(), "ForLoopEnd_" + node.hashCode()));
-         res.stmts().add(nextLabel);
-	if (node.getForUpdate() != null){
+        res.stmts().addAll(conditional_stmts);
+        if (node.getForUpdate() != null){
             res.stmts().add(node.getForUpdate().ir_node);
         }
+        res.stmts().add(nextLabel);
         res.stmts().add(((Stmt) node.getBlockStmt()).ir_node);
-        res.stmts().add(new Jump(new Name("ForLoopBegin_" + node.hashCode())));
-	res.stmts().add(endLabel);
+        res.stmts().add(new Jump(new Name(beginLabel.name())));
+        res.stmts().add(endLabel);
         node.ir_node = res;
     }
 
