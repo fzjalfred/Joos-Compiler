@@ -16,4 +16,8 @@ public class ForUpdate extends Stmt implements AtomicStmt{
         }
         v.visit(this);
     }
+
+    public Stmt getStmt(){
+        return (Stmt)children.get(0);
+    }
 }

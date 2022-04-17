@@ -54,6 +54,45 @@ public class IRTranslatorVisitor extends Visitor {
         compUnit.oriType = node.selfDecl;
     }
 
+    public void visit(VarDeclarator node){
+        Expr_c expr = node.getExpr().ir_node;
+        Temp var = new Temp(node.getVarDeclaratorID().getName());
+
+    }
+
+    public void visit(ForInit node){
+        Expr_c expr = node.getVarDeclarator().getExpr().ir_node;
+        Temp var = new Temp(node.getVarDeclarator().getVarDeclaratorID().getName());
+        node.ir_node = new Move(var, expr);
+    }
+
+    public void visit(ForUpdate node){
+        node.ir_node = node.getStmt().ir_node;
+    }
+
+    public void visit(ForStmt node){
+        Seq res = new Seq();
+        Label beginLabel = new Label("ForLoopBegin_" + node.hashCode());
+        Label nextLabel = new Label("ForLoopNext_" + node.hashCode());
+        Label endLabel = new Label("ForLoopEnd_" + node.hashCode());
+        if (node.getForInit() != null){
+            res.stmts().add(node.getForInit().ir_node);
+        }
+        res.stmts().add(beginLabel);
+        Expr_c forCond = new Const(1);
+        if (node.getForExpr() != null){
+            forCond = node.getForExpr().ir_node;
+        }
+        res.stmts().add(new CJump(forCond, "ForLoopNext_" + node.hashCode(), "ForLoopEnd_" + node.hashCode()));
+        if (node.getForUpdate() != null){
+            res.stmts().add(node.getForUpdate().ir_node);
+        }
+        res.stmts().add(nextLabel);
+        res.stmts().add(((Stmt) node.getBlockStmt()).ir_node);
+        res.stmts().add(endLabel);
+        node.ir_node = res;
+    }
+
     public void visit(StringLiteral node){
         String labelName = "StringLiteral"+ "_" + node.hashCode();
         if (!compUnit.stringLiteralToLabel.containsKey(node.value)){
@@ -815,5 +854,7 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(ThisLiteral node){
         node.ir_node = new Temp("_THIS");
     }
+
+
 
 }
