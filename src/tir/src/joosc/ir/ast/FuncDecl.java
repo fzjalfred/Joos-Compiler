@@ -2,6 +2,7 @@ package tir.src.joosc.ir.ast;
 
 import backend.asm.*;
 import backend.asm.Const;
+import exception.BackendError;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.InsnMapsBuilder;
@@ -59,8 +60,7 @@ public class FuncDecl extends Node_c {
         if (chunk.symtab.containsKey(name)){
             return chunk.symtab.get(name);
         }
-        System.out.println(name + " is not found");
-        return 0;
+        throw new BackendError("offset of " + name + " in " + this + " is not found");
     }
     public boolean isTest;
 

@@ -266,7 +266,6 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(FieldAccess node){
-        System.out.println(node.getPrimary() + " is field access");
         Primary receiver = node.getPrimary();
         ClassDecl classDecl = (ClassDecl)((ClassOrInterfaceType)receiver.getType()).typeDecl;
         node.ir_node = new Mem(new BinOp(BinOp.OpType.ADD, receiver.ir_node, new Const(classDecl.fieldMap.get(node.field))));

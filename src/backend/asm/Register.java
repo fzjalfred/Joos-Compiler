@@ -54,7 +54,7 @@ public class Register extends Operand{
     public static Register edi = new Register("edi");
     public static Register ebp = new Register("ebp");
     public static Register esp = new Register("esp");
-    public static Set<Register> sysRegs = new HashSet<Register>(Arrays.asList(eax,ebx.ecx.edx.esi,edi,ebp,esp));
+    public static Set<Register> sysRegs = new HashSet<Register>(Arrays.asList(eax,ebx,ecx,edx,esi,edi,ebp,esp));
 
     public static Register tempToReg(Temp t){
         if (t.name().equals(Configuration.ABSTRACT_RET)) return eax;

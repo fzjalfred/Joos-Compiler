@@ -1,7 +1,7 @@
 package backend.asm;
 
-public class idiv extends BinOpCodeS{
-    public idiv(Operand op1, Operand op2){
-        super(op1, op2);
+public class idiv extends UnaryOpCodeL{
+    public idiv(Operand op1){
+        super(op1);
     }
 }

@@ -106,18 +106,27 @@ public class BinOp extends Expr_c {
             codes.add(new mov(res_register, t1));
             codes.add(new imul(res_register, t2));
         }   else if (type == OpType.DIV && t1 instanceof Register){
-            codes.add(new mov(res_register, t1));
-            codes.add(new idiv(res_register, t2));
-        }   else if (type == OpType.MOD && t1 instanceof Register && t2 instanceof Register){
-            codes.add(new dec(t2));
-            codes.add(new mov(res_register, t1));
-            codes.add(new and(res_register, t2));
-        }   else if (type == OpType.MOD && t1 instanceof Register && t2 instanceof backend.asm.Const){
-            Register tmp = new Register("tmp_mod");
-            codes.add(new mov(tmp, t2));
-            codes.add(new dec(tmp));
-            codes.add(new mov(res_register, t1));
-            codes.add(new and(res_register, tmp));
+            if (t2 instanceof Register){
+                codes.add(new mov(Register.eax, t1));
+                codes.add(new idiv(t2));
+            }   else {
+                codes.add(new mov(Register.eax, t1));
+                Register tmp = new Register("tmp_div");
+                codes.add(new mov(tmp, t2));
+                codes.add(new idiv(tmp));
+            }
+            codes.add(new mov(res_register, Register.eax));
+        }   else if (type == OpType.MOD && t1 instanceof Register){
+            if (t2 instanceof Register){
+                codes.add(new mov(Register.eax, t1));
+                codes.add(new idiv(t2));
+            }   else {
+                codes.add(new mov(Register.eax, t1));
+                Register tmp = new Register("tmp_mod");
+                codes.add(new mov(tmp, t2));
+                codes.add(new idiv(tmp));
+            }
+            codes.add(new mov(res_register, Register.edx));
         }   else if (type == OpType.ADD){
             codes.add(new lea(res_register, new mem(t1, type, t2)));
         }   else if (type == OpType.SUB){
