@@ -20,7 +20,7 @@ public class IRTranslatorVisitor extends Visitor {
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
         Temp res = null;
         Seq fieldsReadCodes = new Seq();
-        System.out.println("first reciever is " + first_receiver + " next fields is " +fields);
+
         if (first_receiver instanceof ThisLiteral){
             res = new Temp("_THIS"); //fixme
         }   else {
@@ -129,10 +129,10 @@ public class IRTranslatorVisitor extends Visitor {
         }
         res.stmts().addAll(conditional_stmts);
         res.stmts().add(nextLabel);
+        res.stmts().add(((Stmt) node.getBlockStmt()).ir_node);
         if (node.getForUpdate() != null){
             res.stmts().add(node.getForUpdate().ir_node);
         }
-        res.stmts().add(((Stmt) node.getBlockStmt()).ir_node);
         res.stmts().add(new Jump(new Name(beginLabel.name())));
         res.stmts().add(endLabel);
         node.ir_node = res;
@@ -238,7 +238,6 @@ public class IRTranslatorVisitor extends Visitor {
             Assignment assignmentChild = (Assignment)child;
             Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
             Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
-            System.out.println("left has " + left_res + " right has " + right_res);
             node.ir_node = new Move(left_res, right_res);
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);

@@ -7,7 +7,6 @@ import java.util.List;
 
 public class ArrayAccess extends PrimaryNoArray {
 
-    public List<FieldDecl> subfields = null;
     public ArrayAccess(List<ASTNode> children, String value){
         super(children, value);
         subfields = new ArrayList<FieldDecl>();
