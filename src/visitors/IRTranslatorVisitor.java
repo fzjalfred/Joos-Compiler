@@ -3,6 +3,7 @@ import java.util.*;
 
 import ast.*;
 import ast.Expr;
+import exception.BackendError;
 import exception.SemanticError;
 import tir.src.joosc.ir.ast.*;
 import tir.src.joosc.ir.ast.Name;
@@ -144,6 +145,21 @@ public class IRTranslatorVisitor extends Visitor {
             labelName = compUnit.stringLiteralToLabel.get(node.value);
         }
         node.ir_node = new Name(labelName);
+    }
+
+    public void visit(CastExpr node){
+        if (node.type instanceof ReferenceType){
+            ReferenceType referenceType = (ReferenceType)node.type;
+            Expr_c right = node.getOperatorRight().ir_node;
+            List<Statement> codes = new ArrayList<>();
+            Label trueLabel = new Label("TrueLabel_" +node.hashCode());
+            codes.add(new CJump(instanceOfTestGeneral(node.getOperatorRight(), referenceType), trueLabel.name()));
+            codes.add(new Exp(new Call(new Name("__exception"))));
+            codes.add(trueLabel);
+            node.ir_node = new ESeq(new Seq(codes), right);
+        }   else {
+            throw new BackendError("Cast primitive not implemented yet");
+        }
     }
 
 
@@ -655,10 +671,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void nullcheck(List<Statement> stmts, Expr node, Expr_c expr_c){
-        Label null_exception_label = new Label("null_exception_label"+node.hashCode()+node.recursive_dectecter);
         Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
-        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, expr_c, new Const(0)), null_exception_label.name(), ok_label.name()));
-        stmts.add(null_exception_label);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.NEQ, expr_c, new Const(0)), ok_label.name()));
         stmts.add(new Exp(new Call(new Name("__exception"))));
         stmts.add(ok_label);
     }
