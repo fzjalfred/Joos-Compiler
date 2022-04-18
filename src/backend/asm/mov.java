@@ -1,5 +1,6 @@
 package backend.asm;
 
+import tir.src.joosc.ir.ast.Expr_c;
 import tir.src.joosc.ir.ast.FuncDecl;
 
 import java.util.ArrayList;
@@ -10,13 +11,36 @@ public class mov extends BinaryOpCode{
     public mov(Operand op1, Operand op2){
         super(op1, op2);
     }
+    public mov(Operand op1, Operand op2, Expr_c.DataType type){
+        super(op1, op2);
+        this.size = ToSize(type);
+    }
+
+    public enum Size {
+        Byte("byte"), Word("word"), Dword("dword");
+        private String s;
+        private Size(String s) {
+            this.s = s;
+        }
+        @Override
+        public String toString() {
+            return s;
+        }
+    }
+
+    private Size size = Size.Dword;
+
+    public static Size ToSize(Expr_c.DataType type){
+        switch (type){
+            case Byte: return Size.Byte;
+            case Word: return Size.Word;
+            case Dword: return Size.Dword;
+        }
+        return Size.Dword;
+    }
+
     public String toString(){
-    	String wordsize = "";
-	if (op1 instanceof mem && (op2 instanceof Const || op2 instanceof LabelOperand)){
-		wordsize = "dword";
-		return getClass().getSimpleName()+ " " + wordsize + " " + op1 + "," + op2;
-	}
-	return super.toString();
+		return getClass().getSimpleName()+ " " + size + " " + op1 + "," + op2;
     }
     @Override
     public List<Code> regAllocate(FuncDecl funcDecl) {

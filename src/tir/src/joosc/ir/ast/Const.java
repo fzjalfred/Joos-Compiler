@@ -23,6 +23,11 @@ public class Const extends Expr_c {
         this.value = value;
     }
 
+    public Const(int value, DataType type) {
+        this.type = type;
+        this.value = value;
+    }
+
     public int value() {
         return value;
     }

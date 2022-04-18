@@ -32,6 +32,11 @@ public class Temp extends Expr_c {
         return "TEMP(" + name + ")";
     }
 
+    public Temp(String name, DataType type) {
+        this.type = type;
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Temp{" +

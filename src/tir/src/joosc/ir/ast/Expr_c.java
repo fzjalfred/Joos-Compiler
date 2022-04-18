@@ -7,6 +7,10 @@ import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
  * An intermediate representation for expressions
  */
 public abstract class Expr_c extends Node_c implements Expr {
+    public DataType type = DataType.Dword;
+    public enum DataType {
+        Byte, Word, Dword
+    }
     @Override
     public CheckCanonicalIRVisitor checkCanonicalEnter(
             CheckCanonicalIRVisitor v) {

@@ -121,14 +121,17 @@ public class Move extends Statement {
         List<Code> tileCodes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
         Operand operand2 = null;
+        Expr_c.DataType type = Expr_c.DataType.Dword;
         if (src instanceof Const){
             operand2 = new backend.asm.Const(((Const)src).value());
+            type = ((Const) src).type;
         }   else if (src instanceof Temp) {
             if (((Temp)src).name().contains("_ARG")){
                 tileCodes.add(processArg((Temp)src));
                 return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
             }
             operand2 = new Register(((Temp) src).name());
+            type = ((Temp) src).type;
         }   else if (src instanceof Name){
             operand2 = new LabelOperand(((Name)src).name());
         }   else if (src instanceof Mem){
@@ -146,7 +149,7 @@ public class Move extends Statement {
         Operand operand1 = null;
         if (target instanceof Temp){
             operand1 = new Register(((Temp)target).name());
-            tileCodes.add(new mov(operand1, operand2));
+            tileCodes.add(new mov(operand1, operand2, type));
 
             //nodes.add(target); NO need to visit these nodes
             //nodes.add(src);

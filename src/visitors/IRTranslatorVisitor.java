@@ -113,6 +113,11 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = node.getStmt().ir_node;
     }
 
+    public void visit(CharLiteral node) {
+        char c = node.value.charAt(1);
+        node.ir_node = new Const(Character.getNumericValue(c), Expr_c.DataType.Word);
+    }
+
     public void visit(ForStmt node){
         Seq res = new Seq();
         Label beginLabel = new Label("ForLoopBegin_" + node.hashCode());
@@ -149,6 +154,16 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = new Name(labelName);
     }
 
+    Expr_c.DataType getIRDataType(PrimitiveType t){
+        if (t.value.equals("bool") || t.value.equals("byte")){
+            return Expr_c.DataType.Byte;
+        }   else if (t.value.equals("short") || t.value.equals("char")) {
+            return Expr_c.DataType.Word;
+        }   else {
+            return Expr_c.DataType.Dword;
+        }
+    }
+
     public void visit(CastExpr node){
         if (node.type instanceof ReferenceType){
             ReferenceType referenceType = (ReferenceType)node.type;
@@ -160,7 +175,8 @@ public class IRTranslatorVisitor extends Visitor {
             codes.add(trueLabel);
             node.ir_node = new ESeq(new Seq(codes), right);
         }   else {
-            throw new BackendError("Cast primitive not implemented yet");
+            Temp newTemp = new Temp("castTemp", getIRDataType((PrimitiveType)node.type));
+            node.ir_node = new ESeq(new Move(newTemp, node.getOperatorRight().ir_node), newTemp);
         }
     }
 
@@ -375,7 +391,11 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(LocalVarDecl node){
         Expr varDecl = node.getVarDeclarators().getLastVarDeclarator().getExpr();
-        node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
+        if (node.getType() instanceof PrimitiveType){
+            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName(), getIRDataType((PrimitiveType)node.getType())), varDecl.ir_node);
+        }   else {
+            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
+        }
     }
 
     public void visit(PostFixExpr node){
