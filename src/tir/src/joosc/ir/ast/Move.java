@@ -123,6 +123,11 @@ public class Move extends Statement {
         Operand operand2 = null;
         Expr_c.DataType type = Expr_c.DataType.Dword;
         if (src instanceof Const){
+            if (((Const)src).value() == 0 && target instanceof Temp){
+                Operand operand1 = new Register(((Temp)target).name());
+                tileCodes.add(new xor(operand1, operand1));
+                return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
+            }
             operand2 = new backend.asm.Const(((Const)src).value());
             type = ((Const) src).type;
         }   else if (src instanceof Temp) {

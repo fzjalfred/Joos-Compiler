@@ -176,7 +176,7 @@ public class IRTranslatorVisitor extends Visitor {
             node.ir_node = new ESeq(new Seq(codes), right);
         }   else {
             Temp newTemp = new Temp("castTemp", getIRDataType((PrimitiveType)node.type));
-            node.ir_node = new ESeq(new Move(newTemp, node.getOperatorRight().ir_node), newTemp);
+            node.ir_node = new ESeq(new Seq(new Move(newTemp, new Const(0)),new Move(newTemp, node.getOperatorRight().ir_node)), newTemp);
         }
     }
 
@@ -392,7 +392,9 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(LocalVarDecl node){
         Expr varDecl = node.getVarDeclarators().getLastVarDeclarator().getExpr();
         if (node.getType() instanceof PrimitiveType){
-            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName(), getIRDataType((PrimitiveType)node.getType())), varDecl.ir_node);
+            Temp res = new Temp(node.getVarDeclarators().getFirstName(), getIRDataType((PrimitiveType)node.getType()));
+            node.ir_node = new Move(res, new Const(0));
+            node.ir_node = new Move(res, varDecl.ir_node);
         }   else {
             node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
         }
@@ -777,9 +779,21 @@ public class IRTranslatorVisitor extends Visitor {
             if (fieldDecl.hasRight()) {
                 Expr expr = fieldDecl.getExpr();
                 if (expr.ir_node == null) {
-                    System.out.println("bug");
+                    throw new BackendError("field decl not visited");
                 }
-                stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), expr.ir_node));
+                if (fieldDecl.getType() instanceof PrimitiveType){
+                    Expr_c.DataType type = getIRDataType((PrimitiveType)fieldDecl.getType());
+                    if (type == Expr_c.DataType.Word || type == Expr_c.DataType.Byte){
+                        Temp fieldInitTemp = new Temp("fieldInitTemp", type);
+                        stmts.add(new Move(fieldInitTemp, new Const(0)));
+                        stmts.add(new Move(fieldInitTemp, expr.ir_node));
+                        stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), fieldInitTemp));
+                    }   else {
+                        stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), expr.ir_node));
+                    }
+                }   else {
+                    stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), expr.ir_node));
+                }
             } else {
                 stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, heapStart, new Const(fieldOffset))), new Const(0)));
             }
