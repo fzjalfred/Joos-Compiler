@@ -1,6 +1,6 @@
 package backend.asm;
 
-public abstract class NoOpCode {
+public abstract class NoOpCode extends Code {
 
     @Override
     public String toString() {

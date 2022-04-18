@@ -108,23 +108,27 @@ public class BinOp extends Expr_c {
         }   else if (type == OpType.DIV && t1 instanceof Register){
             if (t2 instanceof Register){
                 codes.add(new mov(Register.eax, t1));
+		codes.add(new cdq());
                 codes.add(new idiv(t2));
             }   else {
                 codes.add(new mov(Register.eax, t1));
                 Register tmp = new Register("tmp_div");
                 codes.add(new mov(tmp, t2));
-                codes.add(new idiv(tmp));
+                codes.add(new cdq());
+	       	codes.add(new idiv(tmp));
             }
             codes.add(new mov(res_register, Register.eax));
         }   else if (type == OpType.MOD && t1 instanceof Register){
             if (t2 instanceof Register){
                 codes.add(new mov(Register.eax, t1));
-                codes.add(new idiv(t2));
+                codes.add(new cdq());
+	       	codes.add(new idiv(t2));
             }   else {
                 codes.add(new mov(Register.eax, t1));
                 Register tmp = new Register("tmp_mod");
                 codes.add(new mov(tmp, t2));
-                codes.add(new idiv(tmp));
+                codes.add(new cdq());
+		codes.add(new idiv(tmp));
             }
             codes.add(new mov(res_register, Register.edx));
         }   else if (type == OpType.ADD){

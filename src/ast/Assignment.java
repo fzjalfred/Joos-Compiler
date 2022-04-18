@@ -26,7 +26,8 @@ public class Assignment extends AssignmentExpr {
             ClassInstanceCreateExpr classInstanceCreateExpr = (ClassInstanceCreateExpr)getAssignmentRight();
             classInstanceCreateExpr.receiver = getAssignmentLeft();
         }
-        for (ASTNode node: children){
+        for (int i = children.size()-1; i >= 0; i--){
+	    ASTNode node = children.get(i);
             if (node != null) node.accept(v);
         }
         v.visit(this);
