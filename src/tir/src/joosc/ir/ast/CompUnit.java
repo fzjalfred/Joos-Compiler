@@ -61,12 +61,19 @@ public class CompUnit extends Node_c {
             }
             // calc itable size
             //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
-            int size = methods_in_itable.size();
+            int bitmask = methods_in_itable.size() - 1;
+            int size = methods_in_itable.size() + 1;
             Code[] codes = new Code[size];
-            for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
-                String name = methodDecl.getName() + "_" + methodDecl.hashCode();
-                int idx = methods_in_itable.get(methodDecl)/4;
-                codes[idx] = new dcc(dcc.ccType.d, new LabelOperand(name));
+            for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
+                for (MethodDecl vtable_method : classDecl.methodMap.keySet()) {
+                    if (itable_method.getName().equals(vtable_method.getName()) && 
+                    ( (itable_method.getParamType() == null && vtable_method.getParamType() == null)||itable_method.getParamType().equals(vtable_method.getParamType())) ) {
+                        String name = itable_method.getName() + "_" + itable_method.hashCode();
+                        int itable_offset = itable_method.hashCode()%bitmask;
+                        int idx = classDecl.methodMap.get(vtable_method)/4 + 1;
+                        codes[itable_offset] = new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(idx)));
+                    }
+                }
             }
             return new ArrayList<Code>(Arrays.asList(codes));
         }   else {

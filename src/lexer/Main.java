@@ -54,16 +54,19 @@ public class Main {
 			for (String s : compUnit.stringLiteralToLabel.keySet()){
 				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)) + " " + new dcc(dcc.ccType.b, new LabelOperand( s )));
 			}
-			/**Vtable */
-			writeLabel(printWriter, tools.getVtable((ClassDecl) compUnit.oriType));
-			for (Code code : vtable){
-				printWriter.println(code);
+			if (compUnit.oriType instanceof ClassDecl) {
+				/**Vtable */
+				writeLabel(printWriter, tools.getVtable((ClassDecl) compUnit.oriType));
+				for (Code code : vtable){
+					printWriter.println(code);
+				}
+				/**Itable */
+				writeLabel(printWriter, tools.getItable((ClassDecl) compUnit.oriType));
+				for (Code code : itable){
+					printWriter.println(code);
+				}
 			}
-			/**Itable */
-			writeLabel(printWriter, tools.getItable((ClassDecl) compUnit.oriType));
-			for (Code code : itable){
-				printWriter.println(code);
-			}
+			
 			printWriter.close();
 		} catch (IOException e1) {
 			throw e1;

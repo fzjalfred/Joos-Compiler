@@ -355,7 +355,9 @@ public class IRTranslatorVisitor extends Visitor {
             if(node.getArgumentList() != null) {
                 args.addAll(node.getArgumentList().ir_node);
             }
-            Expr_c itable = new Mem(vtable);
+            Temp vtable_addr = new Temp("vtable_addr_"+node.hashCode());
+            stmts.add(new Move(vtable_addr, vtable));
+            Expr_c itable = new Mem(vtable_addr);
             //InterfaceDecl classDecl = (InterfaceDecl)env.ASTNodeToScopes.get(interface_method).typeDecl;
             Temp bitmask = new Temp("bitmask_"+node.hashCode());
             stmts.add(new Move(bitmask, new BinOp(BinOp.OpType.SUB, itable, new Const(4))));
