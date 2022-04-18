@@ -690,7 +690,8 @@ public class IRTranslatorVisitor extends Visitor {
         boundcheck(stmts, node, ta, ti);
 
         Temp res = new Temp("res");
-        node.ir_node = new ESeq(new Seq(stmts), new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4)))));
+        stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4)))));
+        node.ir_node = new ESeq(new Seq(stmts), new Mem(res));
 
     }
 
