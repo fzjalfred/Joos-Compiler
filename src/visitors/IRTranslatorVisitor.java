@@ -801,50 +801,10 @@ public class IRTranslatorVisitor extends Visitor {
         // calc vtable size
         compUnit.externStrs.add(tools.getVtable(initClass));
         stmts.add(new Move(new Mem(heapStart), new Name(tools.getVtable(initClass))));
-        /*List <MethodDecl> methodDecls = initClass.getMethodDecls();
-
-        size = methodDecls.size() * 4 + 4;
-        Temp reg = new Temp("blah_"+node.hashCode());
-        stmts.add(new Move(reg, new Call(new Name("__malloc"), new Const(size))));
-        stmts.add(new Move(new Mem(heapStart), reg));
-        Temp VThead = new Temp("VThead_" + node.hashCode());
-        stmts.add(new Move(VThead, new Mem(heapStart)));
-        Temp t = new Temp("t_" + node.hashCode());
-//        int methodIndex = 1;
-        for (MethodDecl methodDecl : initClass.methodMap.keySet()) {
-            String name = methodDecl.getName() + "_" + methodDecl.hashCode();
-            if (!initClass.selfMethodMap.contains(methodDecl)) compUnit.externStrs.add(name);
-            int methodOffset = initClass.methodMap.get(methodDecl);
-            stmts.add(new Move(t, new Name(name)));
-            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, VThead, new Const(methodOffset))), t));
-        }
-
-        // class's IDV
-        // find all interface methods
-        Map<AbstractMethodDecl, Integer> methods_in_itable = initClass.interfaceMethodMap;
-        ClassDecl parentInterfaceMethod_iterater = initClass.parentClass;
-        while(parentInterfaceMethod_iterater != null) {
-            methods_in_itable.putAll(parentInterfaceMethod_iterater.interfaceMethodMap);
-            parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
-        }
-        // calc itable size
-        //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
-        size = 4*methods_in_itable.size();
-        Temp itable_reg = new Temp("itableStart_"+node.hashCode());
-        stmts.add(new Move(itable_reg, new Call(new Name("__malloc"), new Const(size))));
-        // stmts.add(new Move(itable_reg, new BinOp(BinOp.OpType.ADD, itable_reg, new Const(4)))); // first block is for bitmask
-        stmts.add(new Move(new Mem(VThead), itable_reg));
-
-        // add methods to itable
-        for (AbstractMethodDecl methodDecl: methods_in_itable.keySet()) {
-            String name = methodDecl.getName() + "_" + methodDecl.hashCode();
-            int methodOffset = methods_in_itable.get(methodDecl);
-            stmts.add(new Move(t, new Name(name)));
-            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, itable_reg, new Const(methodOffset))), t));
-        }*/
 
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
+        compUnit.externStrs.add(consName);
         tir.src.joosc.ir.ast.Expr consAddr = new Name(consName);
         List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
         exprList.add(heapStart);
