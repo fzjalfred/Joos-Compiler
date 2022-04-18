@@ -20,6 +20,7 @@ public class IRTranslatorVisitor extends Visitor {
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
         Temp res = null;
         Seq fieldsReadCodes = new Seq();
+
         if (first_receiver instanceof ThisLiteral){
             res = new Temp("_THIS"); //fixme
         }   else {
@@ -704,7 +705,7 @@ public class IRTranslatorVisitor extends Visitor {
         Temp ta = new Temp("ta");
         tir.src.joosc.ir.ast.Expr e1 = null;
         if (node.hasName()) {
-            e1 = new Temp(node.getName().getValue());
+            e1 = translateFieldAccess(node.first_receiver, node.subfields);
         } else {
             node.recursive_dectecter += "recursive_layer_";
             e1 = node.getExpr().ir_node;

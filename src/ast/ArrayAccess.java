@@ -7,8 +7,6 @@ import java.util.List;
 
 public class ArrayAccess extends PrimaryNoArray {
 
-    public Referenceable refer = null;
-    public Referenceable first_receiver = null;
     public List<FieldDecl> subfields = null;
     public ArrayAccess(List<ASTNode> children, String value){
         super(children, value);

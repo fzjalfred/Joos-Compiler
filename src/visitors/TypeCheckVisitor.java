@@ -284,6 +284,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     }
 
     private void disAmbiguousNameField(Name name, Expr node, Map<String, List<ASTNode>> containMap){
+        System.out.println("node is  " + node.getClass().getSimpleName());
         /** first check whether it's static */
         ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(node);
         Referenceable res = findStaticField(scopeEnvironment, name);
@@ -405,12 +406,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 _lhs.refer = res;
                 _lhs.first_receiver = first_reciever;
                 _lhs.subfields = fields;
-            } else if (node instanceof ArrayAccess) {
-                ArrayAccess _arrayaccess = (ArrayAccess)node;
-                _arrayaccess.refer = res;
-                _arrayaccess.first_receiver = first_reciever;
-                _arrayaccess.subfields = fields;
-            }   else {
+            } else {
                 throw new SemanticError(node + " is none of postfix, lhs or arrayaccess");
             }
         }   else {
@@ -527,6 +523,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     public void visit(ArrayAccess node) {
         Type e1Type = null;
         if (node.hasName()){
+            System.out.println("haha");
             Map<String, List<ASTNode>> map = null;
             if (classBodyDecl instanceof FieldDecl){
                 map = hierarchyChecker.inheritMapRe.get(currTypeDecl);
