@@ -14,6 +14,7 @@ done
 cd output
 FILES=($(ls *.s))
 
+cp ../stdlib/5.0/runtime.s .
 for file in "${FILES[@]}"
 do
   /u/cs444/bin/nasm -O1 -f elf -g -F dwarf $file
