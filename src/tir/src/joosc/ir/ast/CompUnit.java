@@ -4,6 +4,7 @@ import ast.AbstractMethodDecl;
 import ast.ClassDecl;
 import ast.MethodDecl;
 import ast.TypeDecl;
+import backend.asm.nop;
 import backend.asm.Code;
 import backend.asm.LabelOperand;
 import backend.asm.Tile;
@@ -64,6 +65,9 @@ public class CompUnit extends Node_c {
             int bitmask = methods_in_itable.size() - 1;
             int size = methods_in_itable.size() + 1;
             Code[] codes = new Code[size];
+            for (int i = 0; i < size; i++) {
+                codes[i] = new nop();
+            }
             for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
                 for (MethodDecl vtable_method : classDecl.methodMap.keySet()) {
                     if (itable_method.getName().equals(vtable_method.getName()) && 
