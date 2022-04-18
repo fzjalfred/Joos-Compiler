@@ -284,7 +284,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     }
 
     private void disAmbiguousNameField(Name name, Expr node, Map<String, List<ASTNode>> containMap){
-        System.out.println("node is  " + node.getClass().getSimpleName());
         /** first check whether it's static */
         ScopeEnvironment scopeEnvironment = env.ASTNodeToScopes.get(node);
         Referenceable res = findStaticField(scopeEnvironment, name);

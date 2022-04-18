@@ -27,6 +27,7 @@ public class CompUnit extends Node_c {
     private Map<String, FuncDecl> functions;
     public Map<String, String> stringLiteralToLabel;
     public Set<String> externStrs;
+    public Set<String> definedLabels;
     public TypeDecl oriType;
 
     public List<Code> constructVtable(){
@@ -34,6 +35,8 @@ public class CompUnit extends Node_c {
             ClassDecl classDecl = (ClassDecl)oriType;
             Code[] codes = new Code[classDecl.methodMap.size()+2];
             codes[0] = new dcc(dcc.ccType.d, new LabelOperand(tools.getItable(classDecl)));
+            definedLabels.add(tools.getItable(classDecl));
+            definedLabels.add(tools.getVtable(classDecl));
             if (classDecl.parentClass != null) {
                 codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass)));
                 externStrs.add(tools.getVtable(classDecl.parentClass));
@@ -90,6 +93,7 @@ public class CompUnit extends Node_c {
         functions = new LinkedHashMap<>();
         externStrs = new HashSet<String>();
         stringLiteralToLabel = new HashMap<>();
+        definedLabels = new HashSet<>();
     }
 
     public CompUnit(String name, Map<String, FuncDecl> functions) {
@@ -97,6 +101,7 @@ public class CompUnit extends Node_c {
         this.functions = functions;
         externStrs = new HashSet<String>();
         stringLiteralToLabel = new HashMap<>();
+        definedLabels = new HashSet<>();
     }
 
     public void appendFunc(FuncDecl func) {

@@ -20,7 +20,7 @@ public class IRTranslatorVisitor extends Visitor {
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
         Temp res = null;
         Seq fieldsReadCodes = new Seq();
-
+        System.out.println("first reciever is " + first_receiver + " next fields is " +fields);
         if (first_receiver instanceof ThisLiteral){
             res = new Temp("_THIS"); //fixme
         }   else {
@@ -176,6 +176,7 @@ public class IRTranslatorVisitor extends Visitor {
         }
         // create label
         Label label = new Label(name);
+        compUnit.definedLabels.add(label.name());
         stmts.add(label);
         // move params
         if (node.getMethodHeader().ir_node != null) {
@@ -230,40 +231,7 @@ public class IRTranslatorVisitor extends Visitor {
         Expr child = node.getExpr();
         if (child instanceof Assignment && ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr() instanceof ArrayAccess) {
             ArrayAccess acs = (ArrayAccess) ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr();
-            
-            // depth first
-            for (ASTNode c: acs.children) {
-                c.accept(this);
-            }
-            ((Assignment)child).getAssignmentRight().accept(this);
-
-            List <Statement> stmts = new ArrayList<Statement>();
-            Temp ta = new Temp("ta");
-            tir.src.joosc.ir.ast.Expr e1 = null;
-            if (acs.hasName()) {
-                e1 = new Temp(acs.getName().getValue());
-            } else {
-                e1 = acs.getExpr().ir_node;
-            }
-            stmts.add(new Move(ta, e1));
-            // // null check
-            nullcheck(stmts, acs, ta);
-
-            Temp ti = new Temp("ti");
-            stmts.add(new Move(ti, acs.getDimExpr().ir_node));
-            
-            // // bounds check
-            boundcheck(stmts, acs, ta, ti);
-
-            Temp res = new Temp("res");
-            stmts.add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4))))));
-            acs.ir_node = new ESeq(new Seq(stmts), res);
-            
-            // array assignment
-            Temp te = new Temp("te");
-            stmts.add(new Move(te, ((Assignment)child).getAssignmentRight().ir_node));
-            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, new Const(4), ti))), te));
-            node.ir_node = new Seq(stmts);
+            node.ir_node = new Move(acs.ir_node, ((Assignment)child).getAssignmentRight().ir_node);
 
         } else if (child instanceof Assignment){
 
@@ -722,8 +690,7 @@ public class IRTranslatorVisitor extends Visitor {
         boundcheck(stmts, node, ta, ti);
 
         Temp res = new Temp("res");
-        stmts.add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4))))));
-        node.ir_node = new ESeq(new Seq(stmts), res);
+        node.ir_node = new ESeq(new Seq(stmts), new Mem(new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4)))));
 
     }
 
@@ -851,7 +818,7 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(ConstructorDecl node) {
         List <Statement> stmts = new ArrayList<Statement>();
         String name = node.getName() + "_" + node.hashCode();
-
+        compUnit.definedLabels.add(name);
         Label label = new Label(name);
         stmts.add(label);
 

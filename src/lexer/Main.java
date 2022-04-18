@@ -28,7 +28,9 @@ public class Main {
 			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
 			printWriter.println("section .text");
 			for (String str : compUnit.externStrs){
-				if (!compUnit.functions().containsKey(str))printWriter.println("extern " + str);
+				if (!compUnit.definedLabels.contains(str)) {
+					printWriter.println("extern " + str);
+				}
 			}
 			printWriter.println("extern __malloc");
 			printWriter.println("extern __exception");
