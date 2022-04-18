@@ -60,6 +60,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public tir.src.joosc.ir.ast.Expr instanceOfTest(Expr_c testee, ClassDecl type){
+        compUnit.externStrs.add(tools.getVtable(type));
         List<Statement> stmts = new ArrayList<>();
         Temp head = new Temp("head");
         Const zeroConst = new Const(0);
@@ -318,6 +319,7 @@ public class IRTranslatorVisitor extends Visitor {
                 callingMethod = (method_decl).getName() + "_"+ node.whichMethod.hashCode();
             }
             if (method_decl != null && (method_decl).getModifiers().getModifiersSet().contains("static")) {
+                compUnit.externStrs.add(callingMethod);
                 funcAddr = new Name(callingMethod);
                 node.ir_node = new Call(funcAddr, args);
                 ((Call)node.ir_node).funcLabel = callingMethod;
@@ -797,8 +799,8 @@ public class IRTranslatorVisitor extends Visitor {
 
         // class's CDV
         // calc vtable size
-
-        stmts.add(new Move(new Mem(heapStart), new Name(compUnit.oriType.getName()+ "_VTABLE")));
+        compUnit.externStrs.add(tools.getVtable(initClass));
+        stmts.add(new Move(new Mem(heapStart), new Name(tools.getVtable(initClass))));
         /*List <MethodDecl> methodDecls = initClass.getMethodDecls();
 
         size = methodDecls.size() * 4 + 4;
