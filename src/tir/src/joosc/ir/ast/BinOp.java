@@ -1,6 +1,7 @@
 package tir.src.joosc.ir.ast;
 
 import backend.asm.*;
+import exception.BackendError;
 import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
@@ -100,22 +101,31 @@ public class BinOp extends Expr_c {
         canonicalized_node = eq_can1;
     }
 
+    void processOprightOperand(List<Code> codes,Operand t1, Operand t2){
+        if (type == OpType.MUL && t1 instanceof Register){
+            codes.add(new mov(res_register, t1));
+            codes.add(new imul(res_register, t2));
+        }   else if (type == OpType.DIV && t1 instanceof Register){
+            codes.add(new mov(res_register, t1));
+            codes.add(new idiv(res_register, t2));
+        }   else if (type == OpType.ADD){
+            codes.add(new lea(res_register, new mem(t1, type, t2)));
+        }   else if (type == OpType.SUB){
+            codes.add(new mov(res_register, t1));
+            codes.add(new sub(res_register, t2));
+        }   else {
+            throw new BackendError("not suportted tiling for " + this );
+        }
+    }
+
     void processOpright(List<Code> codes, List<Node> nodes,Operand t1, Node node){
         if (node instanceof Temp){
-            if (type == OpType.MUL && t1 instanceof Register){
-                codes.add(new mov(res_register, t1));
-                codes.add(new imul(res_register, Register.tempToReg((Temp)node)));
-            }   else if (type == OpType.DIV && t1 instanceof Register){
-                codes.add(new mov(res_register, t1));
-                codes.add(new idiv(res_register, Register.tempToReg((Temp)node)));
-            }   else {
-                codes.add(new lea(res_register, new mem(t1, type, Register.tempToReg((Temp)node))));
-            }
+            processOprightOperand(codes, t1, Register.tempToReg((Temp)node));
         }   else if (right instanceof Const){
-            codes.add(new lea(res_register, new mem(t1, type, new backend.asm.Const(((Const)right).value()))));
+            processOprightOperand(codes, t1, new backend.asm.Const(((Const)right).value()));
         }   else {
             Register t2 = RegFactory.getRegister();
-            codes.add(new lea(res_register, new mem(t1, type, t2)));
+            processOprightOperand(codes, t1, t2);
             right.setResReg(t2);
             nodes.add(right);
         }

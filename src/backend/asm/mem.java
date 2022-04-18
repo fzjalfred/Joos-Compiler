@@ -1,5 +1,6 @@
 package backend.asm;
 
+import exception.BackendError;
 import tir.src.joosc.ir.ast.BinOp;
 import tir.src.joosc.ir.ast.FuncDecl;
 
@@ -39,9 +40,8 @@ public class mem extends Operand{
         if (t1 instanceof Register){
             this.t1 = (Register)t1;
         }   else {
-            this.c1 = (Const)t1;
+            throw new BackendError("cannot have address of non-reg");
         }
-
         this.operator1 = op;
 
         if (t2 instanceof Register){
@@ -55,7 +55,7 @@ public class mem extends Operand{
         if (t1 instanceof Register){
             this.t1 = (Register)t1;
         }   else {
-            this.c1 = (Const)t1;
+            throw new BackendError("cannot have address of non-reg");
         }
 
         this.operator1 = op;
