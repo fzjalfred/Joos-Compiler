@@ -430,13 +430,18 @@ public class IRTranslatorVisitor extends Visitor {
         }
     }
 
+    public Seq divisionByZeroCheck(Expr_c expr){
+        Label label1 = new Label("DivisionByZeroFalse_" + tools.getLabelOffset());
+        return new Seq(new CJump(expr, label1.name()), new Exp(new Call(new Name("__exception" ))), label1);
+    }
+
     public void visit(MultiplicativeExpr node){
         Expr_c expr_c1 = node.getOperatorLeft().ir_node;
         Expr_c expr_c2 = node.getOperatorRight().ir_node;;
         if (node.getOperator().equals("*")){
             node.ir_node = new BinOp(BinOp.OpType.MUL,expr_c1, expr_c2);
         }   else if (node.getOperator().equals("/")){
-            node.ir_node = new BinOp(BinOp.OpType.DIV,expr_c1, expr_c2);
+            node.ir_node = new ESeq(divisionByZeroCheck(expr_c2), new BinOp(BinOp.OpType.DIV,expr_c1, expr_c2));
         }   else {
             node.ir_node = new BinOp(BinOp.OpType.MOD,expr_c1, expr_c2);
         }
