@@ -97,7 +97,7 @@ public class CJump extends Statement {
     public void canonicalize() {
         Seq res  = new Seq(((Expr_c)cond).canonicalized_node.stmts());
         res.setLastStatement(new CJump(res.getLastExpr(), trueLabel));
-        res.addStatement(new Jump(new Name(falseLabel)));
+        if (falseLabel != null)  res.addStatement(new Jump(new Name(falseLabel)));
         canonicalized_node = res;
     }
 
