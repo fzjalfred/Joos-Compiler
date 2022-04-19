@@ -9,6 +9,7 @@ import tir.src.joosc.ir.ast.*;
 import tir.src.joosc.ir.ast.Name;
 import tir.src.joosc.ir.interpret.Configuration;
 import type.RootEnvironment;
+import type.ScopeEnvironment;
 import utils.*;
 
 
@@ -35,9 +36,15 @@ public class IRTranslatorVisitor extends Visitor {
         }
         for (int i = 0; i < fields.size(); i++){
             FieldDecl f = fields.get(i);
-            ClassDecl classDecl = (ClassDecl) env.ASTNodeToScopes.get(f).typeDecl;
+            ClassDecl classDecl = null;
+            ScopeEnvironment scopeEnvironment =  env.ASTNodeToScopes.get(f);
+            if (scopeEnvironment != null){
+                classDecl = (ClassDecl)scopeEnvironment.typeDecl;
+            }
             if (i == fields.size()-1){
-                fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
+                if (f.value.equals("length")){
+                    fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.SUB,res,  new Const(8))));
+                }   else fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
             }   else {
                 fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
             }
@@ -739,7 +746,8 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(4*2)))));
         stmts.add(new Move(new Mem(tm), tn));
         //TODO dispatch vector
-        //stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), ...));
+        stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), new Name("Object_VTABLE")));
+        compUnit.externStrs.add("Object_VTABLE");
 
         // loop to clear memory locations.
         Temp cleaner = new Temp("cleaner");

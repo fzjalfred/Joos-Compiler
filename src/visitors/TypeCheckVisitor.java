@@ -356,7 +356,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         /** process remaining name */
         if (!isLastIdx(idx, names.size())) nameStr += '.';
         idx++;
-        System.out.println("curr type is " + currType + " name is " + name.getValue());
         for (; idx < names.size(); idx++){
             if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + name.getValue() + " cannot be resolved to type");
             String str = names.get(idx);
@@ -396,7 +395,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
         if (res!= null){
             node.type = currType;
-            System.out.println(" first rec is " + first_reciever + " fields are " + fields);
             if (node instanceof PostFixExpr){
                 PostFixExpr _postfixexpr = ((PostFixExpr)node);
                 _postfixexpr.refer = res;
@@ -524,7 +522,6 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     public void visit(ArrayAccess node) {
         Type e1Type = null;
         if (node.hasName()){
-            System.out.println("haha");
             Map<String, List<ASTNode>> map = null;
             if (classBodyDecl instanceof FieldDecl){
                 map = hierarchyChecker.inheritMapRe.get(currTypeDecl);
