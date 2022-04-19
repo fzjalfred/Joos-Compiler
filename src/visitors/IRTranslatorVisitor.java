@@ -813,11 +813,14 @@ public class IRTranslatorVisitor extends Visitor {
 
         // class's CDV
         // calc vtable size
-        System.out.println("==DEBUG==CDV=========");
+        //System.out.println("==DEBUG==CDV=========");
         compUnit.externStrs.add(tools.getVtable(initClass));
         stmts.add(new Move(new Mem(heapStart), new Name(tools.getVtable(initClass))));
+
+
         Temp vtable_addr = new Temp("vtable_addr_create_"+node.hashCode());
         stmts.add(new Move(vtable_addr, new Mem(heapStart)));
+        compUnit.externStrs.add(tools.getItable(initClass));
         stmts.add(new Move(new Mem(vtable_addr), new Name(tools.getItable(initClass))));
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
