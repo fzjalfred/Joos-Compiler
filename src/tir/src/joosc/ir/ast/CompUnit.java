@@ -29,6 +29,7 @@ public class CompUnit extends Node_c {
     public Set<String> externStrs;
     public Set<String> definedLabels;
     public TypeDecl oriType;
+    public Map<AbstractMethodDecl, Integer> interfaceMethodMap = null;
 
     public List<Code> constructVtable(){
         if (oriType instanceof ClassDecl){
@@ -58,31 +59,48 @@ public class CompUnit extends Node_c {
         if (oriType instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)oriType;
             Map<AbstractMethodDecl, Integer> methods_in_itable = classDecl.interfaceMethodMap;
+            
             ClassDecl parentInterfaceMethod_iterater = classDecl.parentClass;
             while(parentInterfaceMethod_iterater != null) {
-                methods_in_itable.putAll(parentInterfaceMethod_iterater.interfaceMethodMap);
+                for (AbstractMethodDecl collision_method: parentInterfaceMethod_iterater.interfaceMethodMap.keySet()) {
+                    methods_in_itable.put(collision_method, classDecl.itable_offset_counter);
+                    classDecl.itable_offset_counter+=4;
+                }
+                //methods_in_itable.putAll(parentInterfaceMethod_iterater.interfaceMethodMap);
                 parentInterfaceMethod_iterater = parentInterfaceMethod_iterater.parentClass;
             }
+            this.interfaceMethodMap = methods_in_itable;
             // calc itable size
-            //int N = (int)Math.ceil(Math.log(methods_in_itable.size())/Math.log(2));
-            int bitmask = methods_in_itable.size() - 1;
-            int size = methods_in_itable.size() + 1;
+            int N = methods_in_itable.size();
+            int bitmask = (int)Math.pow(2, N)-2;
+            int size = 1;
+            if (bitmask > 0) {
+                size = bitmask+2;
+            }
             Code[] codes = new Code[size];
             codes[0] = new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(bitmask)));
             for (int i = 1; i < size; i++) {
-                codes[i] = new nop();
+                codes[i] = new dcc(dcc.ccType.d, new LabelOperand("-1"));
             }
+            // System.out.println("======create=======");
+
+            
             for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
+                
                 for (MethodDecl vtable_method : classDecl.methodMap.keySet()) {
                     if (itable_method.getName().equals(vtable_method.getName()) && 
                     ( (itable_method.getParamType() == null && vtable_method.getParamType() == null)||itable_method.getParamType().equals(vtable_method.getParamType())) ) {
                         String name = itable_method.getName() + "_" + itable_method.hashCode();
-                        int itable_offset = itable_method.hashCode()%bitmask + 1;
-                        int idx = classDecl.methodMap.get(vtable_method)/4 + 1;
+                        int itable_offset = (itable_method.getName().hashCode()&bitmask) + 1;
+                        // System.out.println(itable_method.getName());
+                        // System.out.println(itable_method.getName().hashCode());
+                        // System.out.println("offset:"+itable_offset);
+                        int idx = classDecl.methodMap.get(vtable_method);
                         codes[itable_offset] = new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(idx)));
                     }
                 }
             }
+            // System.out.println("=======================");
             return new ArrayList<Code>(Arrays.asList(codes));
         }   else {
             return new ArrayList<>();

@@ -365,18 +365,23 @@ public class IRTranslatorVisitor extends Visitor {
             }
             Temp vtable_addr = new Temp("vtable_addr_"+node.hashCode());
             stmts.add(new Move(vtable_addr, vtable));
-            Expr_c itable = new Mem(vtable_addr);
+            Temp itable_addr = new Temp("itable_addr_"+node.hashCode());
+            stmts.add(new Move(itable_addr, new Mem(vtable_addr)));
             //InterfaceDecl classDecl = (InterfaceDecl)env.ASTNodeToScopes.get(interface_method).typeDecl;
             Temp bitmask = new Temp("bitmask_"+node.hashCode());
-            stmts.add(new Move(bitmask, new BinOp(BinOp.OpType.ADD, itable, new Const(4))));
+            stmts.add(new Move(bitmask, new Mem(itable_addr)));
             Temp tset = new Temp("itable_offset_"+node.hashCode());
-            stmts.add(new Move(tset, new BinOp(BinOp.OpType.AND, new BinOp(BinOp.OpType.ADD, new Const(node.hashCode()), new Const(4)) , bitmask)));
+            stmts.add(new Move(tset, new BinOp(BinOp.OpType.AND, new Const(interface_method.getName().hashCode()), bitmask)));
+            stmts.add(new Move(tset, new BinOp(BinOp.OpType.MUL, tset, new Const(4))));
+            stmts.add(new Move(tset, new BinOp(BinOp.OpType.ADD, tset, new Const(4))));
+            Temp index_vtable = new Temp("vtable_index_"+node.hashCode());
+            stmts.add(new Move(index_vtable, new Mem(new BinOp(BinOp.OpType.ADD, itable_addr, tset))));
+            node.ir_node = new ESeq(new Seq(stmts), new Call(new Mem(new BinOp(BinOp.OpType.ADD, vtable_addr, index_vtable) ), args));
             
-            node.ir_node = new ESeq(new Seq(stmts), new Call(new Mem(new BinOp(BinOp.OpType.ADD, vtable, tset)), args));
-            
-            System.out.println("======invocation=======");
-            System.out.println(interface_method.getName()+interface_method.hashCode());
-            System.out.println("=======================");
+            // System.out.println("======invocation=======");
+            // System.out.println(interface_method.getName()+interface_method.hashCode());
+            // System.out.println(interface_method.getName().hashCode());
+            // System.out.println("=======================");
             //int offset = classDecl.interfaceMethodMap.get(interface_method);
             
         }

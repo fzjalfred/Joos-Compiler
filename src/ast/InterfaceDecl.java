@@ -10,6 +10,7 @@ public class InterfaceDecl extends TypeDecl {
 
     public Map<String, List<ASTNode>> containMap = null;
     public Map<AbstractMethodDecl, Integer> interfaceMethodMap = new HashMap<AbstractMethodDecl, Integer>();
+    public Integer itable_offset_counter = 0;
 
     public InterfaceDecl(List<ASTNode> children, String value){
         super(children, value);

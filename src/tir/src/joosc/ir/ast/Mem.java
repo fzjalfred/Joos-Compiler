@@ -71,7 +71,7 @@ public class Mem extends Expr_c {
             if (binOp.left() instanceof Temp && binOp.right() instanceof Const){
                 return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(), new backend.asm.Const(((Const)binOp.right()).value()));
             }   else if (binOp.left() instanceof Temp && binOp.right() instanceof Temp){
-                return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(),new Register(((Temp)binOp.left()).name()));
+                return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(),new Register(((Temp)binOp.right()).name()));
             }   else if (binOp.left() instanceof Temp && binOp.right() instanceof BinOp){
                 BinOp _binop = (BinOp)binOp.right();
                 Register reg1 = new Register(((Temp)binOp.left()).name());

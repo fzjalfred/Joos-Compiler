@@ -15,6 +15,7 @@ public class ClassDecl extends TypeDecl{
     public Map<FieldDecl, Integer> fieldMap = new HashMap<FieldDecl, Integer>();
     public Map<MethodDecl, Integer> methodMap = new HashMap<MethodDecl, Integer>();
     public Map<AbstractMethodDecl, Integer> interfaceMethodMap = new HashMap<AbstractMethodDecl, Integer>();
+    public Integer itable_offset_counter = 0;
     public Set<MethodDecl> selfMethodMap = new HashSet<>();
 
     public Map<String, List<ASTNode>> containMap = null;
