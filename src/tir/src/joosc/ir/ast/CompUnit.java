@@ -14,6 +14,7 @@ import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
+import type.RootEnvironment;
 import utils.Pair;
 import utils.tools;
 
@@ -29,18 +30,19 @@ public class CompUnit extends Node_c {
     public Set<String> externStrs;
     public Set<String> definedLabels;
     public TypeDecl oriType;
+    public RootEnvironment env;
     public Map<AbstractMethodDecl, Integer> interfaceMethodMap = null;
 
     public List<Code> constructVtable(){
         if (oriType instanceof ClassDecl){
             ClassDecl classDecl = (ClassDecl)oriType;
             Code[] codes = new Code[classDecl.methodMap.size()+2];
-            codes[0] = new dcc(dcc.ccType.d, new LabelOperand(tools.getItable(classDecl)));
-            definedLabels.add(tools.getItable(classDecl));
-            definedLabels.add(tools.getVtable(classDecl));
+            codes[0] = new dcc(dcc.ccType.d, new LabelOperand(tools.getItable(classDecl, env)));
+            definedLabels.add(tools.getItable(classDecl, env));
+            definedLabels.add(tools.getVtable(classDecl, env));
             if (classDecl.parentClass != null) {
-                codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass)));
-                externStrs.add(tools.getVtable(classDecl.parentClass));
+                codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass, env)));
+                externStrs.add(tools.getVtable(classDecl.parentClass, env));
             }
             else codes[1] = new dcc(dcc.ccType.d, new LabelOperand("0"));
             for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {

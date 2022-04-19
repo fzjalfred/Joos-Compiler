@@ -16,6 +16,7 @@ import utils.*;
 public class IRTranslatorVisitor extends Visitor {
     public CompUnit compUnit;
     private RootEnvironment env;
+    private ClassDecl ObjectDecl;
 
     /** return the memory address of the last field: u can decide to read or write */
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
@@ -68,14 +69,14 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public tir.src.joosc.ir.ast.Expr instanceOfTest(Expr_c testee, ClassDecl type){
-        compUnit.externStrs.add(tools.getVtable(type));
+        compUnit.externStrs.add(tools.getVtable(type, env));
         List<Statement> stmts = new ArrayList<>();
         Temp head = new Temp("head");
         Const zeroConst = new Const(0);
         stmts.add(new Move(head , new Mem(testee)));
         Temp res = new Temp("res");
         stmts.add(new Move(res , zeroConst));
-        Label targetClassVtable = new Label(tools.getVtable(type));
+        Label targetClassVtable = new Label(tools.getVtable(type, env));
         Label loopLabel = new Label("loopLabel_" + tools.getLabelOffset());
         Label trueLabel = new Label("trueLabel_" + tools.getLabelOffset());
         Label successLabel = new Label("successLabel_" + tools.getLabelOffset());
@@ -98,11 +99,13 @@ public class IRTranslatorVisitor extends Visitor {
 
     public IRTranslatorVisitor(RootEnvironment env){
         this.env = env;
+        ObjectDecl = (ClassDecl)env.lookup(tools.nameConstructor("java.lang.Object"));
     }
 
     public void visit(CompilationUnit node) {
         compUnit = new CompUnit(node.fileName);
         compUnit.oriType = node.selfDecl;
+        compUnit.env = env;
     }
 
     public void visit(NullLiteral node){
@@ -254,14 +257,14 @@ public class IRTranslatorVisitor extends Visitor {
         Expr child = node.getExpr();
         if (child instanceof Assignment && ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr() instanceof ArrayAccess) {
             ArrayAccess acs = (ArrayAccess) ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr();
-            node.ir_node = new Move(acs.ir_node, ((Assignment)child).getAssignmentRight().ir_node);
-
+            Temp right = new Temp("right");
+            node.ir_node = new Seq(new Move(right, ((Assignment)child).getAssignmentRight().ir_node),new Move(acs.ir_node, right));
         } else if (child instanceof Assignment){
-
             Assignment assignmentChild = (Assignment)child;
             Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
+            Temp right = new Temp("right");
             Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
-            node.ir_node = new Move(left_res, right_res);
+            node.ir_node = new Seq(new Move(right, right_res),new Move(left_res, right));
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
         }
@@ -751,8 +754,8 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(4*2)))));
         stmts.add(new Move(new Mem(tm), tn));
         //TODO dispatch vector
-        stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), new Name("Object_VTABLE")));
-        compUnit.externStrs.add("Object_VTABLE");
+        stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), new Name(tools.getVtable(ObjectDecl, env))));
+        compUnit.externStrs.add(tools.getVtable(ObjectDecl, env));
 
         // loop to clear memory locations.
         Temp cleaner = new Temp("cleaner");
@@ -819,14 +822,14 @@ public class IRTranslatorVisitor extends Visitor {
         // class's CDV
         // calc vtable size
         //System.out.println("==DEBUG==CDV=========");
-        compUnit.externStrs.add(tools.getVtable(initClass));
-        stmts.add(new Move(new Mem(heapStart), new Name(tools.getVtable(initClass))));
+        compUnit.externStrs.add(tools.getVtable(initClass, env));
+        stmts.add(new Move(new Mem(heapStart), new Name(tools.getVtable(initClass, env))));
 
 
         Temp vtable_addr = new Temp("vtable_addr_create_"+node.hashCode());
         stmts.add(new Move(vtable_addr, new Mem(heapStart)));
-        compUnit.externStrs.add(tools.getItable(initClass));
-        stmts.add(new Move(new Mem(vtable_addr), new Name(tools.getItable(initClass))));
+        compUnit.externStrs.add(tools.getItable(initClass, env));
+        stmts.add(new Move(new Mem(vtable_addr), new Name(tools.getItable(initClass, env))));
         // calling constructor like method invocation
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
         compUnit.externStrs.add(consName);

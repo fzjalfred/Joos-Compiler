@@ -225,12 +225,14 @@ public class tools {
         }
     }
 
-    public static String getVtable(ClassDecl classDecl){
-        return  classDecl.getName() + "_VTABLE";
+    public static String getVtable(ClassDecl classDecl, RootEnvironment env){
+        String prefix = env.ASTNodeToScopes.get(classDecl).packageName;
+        return  prefix + '.' + classDecl.getName() + "_VTABLE";
     }
 
-    public static String getItable(ClassDecl classDecl){
-        return  classDecl.getName() + "_ITABLE";
+    public static String getItable(ClassDecl classDecl, RootEnvironment env){
+        String prefix = env.ASTNodeToScopes.get(classDecl).packageName;
+        return  prefix + '.' + classDecl.getName() + "_ITABLE";
     }
 
     static int labelOffset = 0;

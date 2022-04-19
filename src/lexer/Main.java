@@ -58,12 +58,12 @@ public class Main {
 			}
 			if (compUnit.oriType instanceof ClassDecl) {
 				/**Vtable */
-				writeLabel(printWriter, tools.getVtable((ClassDecl) compUnit.oriType));
+				writeLabel(printWriter, tools.getVtable((ClassDecl) compUnit.oriType, compUnit.env));
 				for (Code code : vtable){
 					printWriter.println(code);
 				}
 				/**Itable */
-				writeLabel(printWriter, tools.getItable((ClassDecl) compUnit.oriType));
+				writeLabel(printWriter, tools.getItable((ClassDecl) compUnit.oriType, compUnit.env));
 				for (Code code : itable){
 					printWriter.println(code);
 				}
