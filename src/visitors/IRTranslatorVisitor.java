@@ -257,14 +257,12 @@ public class IRTranslatorVisitor extends Visitor {
         Expr child = node.getExpr();
         if (child instanceof Assignment && ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr() instanceof ArrayAccess) {
             ArrayAccess acs = (ArrayAccess) ((LHS) (((Assignment)child).getAssignmentLeft())).getExpr();
-            Temp right = new Temp("right");
-            node.ir_node = new Seq(new Move(right, ((Assignment)child).getAssignmentRight().ir_node),new Move(acs.ir_node, right));
+            node.ir_node = new Move(acs.ir_node, ((Assignment)child).getAssignmentRight().ir_node );
         } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
             Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
-            Temp right = new Temp("right");
             Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
-            node.ir_node = new Seq(new Move(right, right_res),new Move(left_res, right));
+            node.ir_node = new Move(left_res, right_res);
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
         }
@@ -272,7 +270,10 @@ public class IRTranslatorVisitor extends Visitor {
 
 
     public void visit(Assignment node){
-        node.ir_node = node.getAssignmentRight().ir_node;
+    Temp res = new Temp("assignRes_"+node.hashCode());
+    Seq codes = new Seq(new Move(res, node.getAssignmentRight().ir_node), new Move(node.getAssignmentLeft().ir_node, res));	            
+    node.ir_node = new ESeq(codes,res);
+    
     }
 
     public void visit(FieldAccess node){
