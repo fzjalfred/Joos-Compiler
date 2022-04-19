@@ -327,11 +327,19 @@ public class IRTranslatorVisitor extends Visitor {
                     PostFixExpr _receiver = (PostFixExpr)node.receiver;
                     Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
                     args.add(_receiver_code);
-                    vtable = new Mem(_receiver_code);
+                    if (((PostFixExpr) node.receiver).getType() instanceof ArrayType ){
+                        vtable = new Mem(new BinOp(BinOp.OpType.SUB,_receiver_code, new Const(4)));
+                    }   else {
+                        vtable = new Mem(_receiver_code);
+                    }
                 }
             } else {
                 args.add(node.getPrimary().ir_node);
-                vtable = new Mem(node.getPrimary().ir_node);
+                if (node.getPrimary().getType() instanceof ArrayType){
+                    vtable = new Mem(node.getPrimary().ir_node);
+                }   else {
+                    vtable = new Mem(node.getPrimary().ir_node);
+                }
             }
             if(node.getArgumentList() != null) {
                 args.addAll(node.getArgumentList().ir_node);

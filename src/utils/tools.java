@@ -227,11 +227,13 @@ public class tools {
 
     public static String getVtable(ClassDecl classDecl, RootEnvironment env){
         String prefix = env.ASTNodeToScopes.get(classDecl).packageName;
+        if (prefix.equals("")) return  classDecl.getName() + "_VTABLE";
         return  prefix + '.' + classDecl.getName() + "_VTABLE";
     }
 
     public static String getItable(ClassDecl classDecl, RootEnvironment env){
         String prefix = env.ASTNodeToScopes.get(classDecl).packageName;
+        if (prefix.equals("")) return  classDecl.getName() + "_ITABLE";
         return  prefix + '.' + classDecl.getName() + "_ITABLE";
     }
 

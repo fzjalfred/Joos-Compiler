@@ -1204,7 +1204,26 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                             }
                         }
                     } // if
-                }   else{
+                }   else if (receiver.type instanceof ArrayType){
+                    ClassDecl objectDecl = (ClassDecl) env.lookup(tools.nameConstructor("java.lang.Object"));
+                    containMap = hierarchyChecker.containMap.get(objectDecl);
+                    if (containMap.containsKey(method)){
+                        resMethod = tools.fetchMethod(containMap.get(method),node.getArgumentTypeList());
+                        checkProtected(resMethod, objectDecl);
+                        if (resMethod == null){
+                            resMethod = tools.fetchAbstractMethod(containMap.get(method), node.getArgumentTypeList());
+                            checkProtected(resMethod, objectDecl);
+                            if (checkObjectStatic(resMethod)){
+                                throw new SemanticError("cannot read static method on Object " + objectDecl);
+                            }
+                        }   else{
+                            checkProtected(resMethod, objectDecl);
+                            if (checkObjectStatic(resMethod)){
+                                throw new SemanticError("cannot read static method on Object " + objectDecl);
+                            }
+                        }
+                    } // if
+                }  else{
                     throw new SemanticError("cannot call function " + method + " on non-class type");
                 }
             }
