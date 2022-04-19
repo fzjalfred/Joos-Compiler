@@ -317,7 +317,10 @@ public class IRTranslatorVisitor extends Visitor {
                 callingMethod = (method_decl).getName() + "_"+ node.whichMethod.hashCode();
             }
             if (method_decl != null && (method_decl).getModifiers().getModifiersSet().contains("static")) {
-                compUnit.externStrs.add(callingMethod);
+                if(node.getArgumentList() != null) {
+		  args.addAll(node.getArgumentList().ir_node);
+		}
+		compUnit.externStrs.add(callingMethod);
                 funcAddr = new Name(callingMethod);
                 node.ir_node = new Call(funcAddr, args);
                 ((Call)node.ir_node).funcLabel = callingMethod;
