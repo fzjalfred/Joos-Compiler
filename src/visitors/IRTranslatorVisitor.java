@@ -368,9 +368,9 @@ public class IRTranslatorVisitor extends Visitor {
             Expr_c itable = new Mem(vtable_addr);
             //InterfaceDecl classDecl = (InterfaceDecl)env.ASTNodeToScopes.get(interface_method).typeDecl;
             Temp bitmask = new Temp("bitmask_"+node.hashCode());
-            stmts.add(new Move(bitmask, new BinOp(BinOp.OpType.SUB, itable, new Const(4))));
+            stmts.add(new Move(bitmask, new BinOp(BinOp.OpType.ADD, itable, new Const(4))));
             Temp tset = new Temp("itable_offset_"+node.hashCode());
-            stmts.add(new Move(tset, new BinOp(BinOp.OpType.AND, new Const(node.hashCode()), bitmask)));
+            stmts.add(new Move(tset, new BinOp(BinOp.OpType.AND, new BinOp(BinOp.OpType.ADD, new Const(node.hashCode()), new Const(4)) , bitmask)));
             
             node.ir_node = new ESeq(new Seq(stmts), new Call(new Mem(new BinOp(BinOp.OpType.ADD, vtable, tset)), args));
             

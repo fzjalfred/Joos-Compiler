@@ -68,7 +68,8 @@ public class CompUnit extends Node_c {
             int bitmask = methods_in_itable.size() - 1;
             int size = methods_in_itable.size() + 1;
             Code[] codes = new Code[size];
-            for (int i = 0; i < size; i++) {
+            codes[0] = new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(bitmask)));
+            for (int i = 1; i < size; i++) {
                 codes[i] = new nop();
             }
             for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
@@ -76,7 +77,7 @@ public class CompUnit extends Node_c {
                     if (itable_method.getName().equals(vtable_method.getName()) && 
                     ( (itable_method.getParamType() == null && vtable_method.getParamType() == null)||itable_method.getParamType().equals(vtable_method.getParamType())) ) {
                         String name = itable_method.getName() + "_" + itable_method.hashCode();
-                        int itable_offset = itable_method.hashCode()%bitmask;
+                        int itable_offset = itable_method.hashCode()%bitmask + 1;
                         int idx = classDecl.methodMap.get(vtable_method)/4 + 1;
                         codes[itable_offset] = new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(idx)));
                     }
