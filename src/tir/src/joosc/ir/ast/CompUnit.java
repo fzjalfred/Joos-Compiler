@@ -83,7 +83,17 @@ public class CompUnit extends Node_c {
                 codes[i] = new dcc(dcc.ccType.d, new LabelOperand("-1"));
             }
             // System.out.println("======create=======");
-
+            Set<Integer> hash_buffer = new HashSet<Integer>();
+            while (hash_buffer.size()<N) {
+                for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
+                    int itable_offset = (itable_method.getName().hashCode()&bitmask) + 1;
+                    if (hash_buffer.contains(itable_offset)) {
+                        hash_buffer.clear();
+                        bitmask+=1;
+                    }
+                    hash_buffer.add(itable_offset);
+                }
+            }
             
             for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
                 
