@@ -1,4 +1,5 @@
 public class instanceA extends instanceB implements interface1 {
+    public int x = -1;
     public instanceA() {}
     public void setX() {
         this.x = 1;
