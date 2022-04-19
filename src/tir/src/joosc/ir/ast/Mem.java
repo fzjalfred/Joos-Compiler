@@ -65,17 +65,17 @@ public class Mem extends Expr_c {
 
     public mem toAsmMem(){
         if (expr instanceof Temp){
-            return new mem(new Register(((Temp)expr).name()));
+            return new mem(Register.tempToReg((Temp)expr));
         }   else if (expr instanceof BinOp){
             BinOp binOp = (BinOp)expr;
             if (binOp.left() instanceof Temp && binOp.right() instanceof Const){
-                return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(), new backend.asm.Const(((Const)binOp.right()).value()));
+                return new mem(Register.tempToReg(((Temp)binOp.left())), binOp.opType(), new backend.asm.Const(((Const)binOp.right()).value()));
             }   else if (binOp.left() instanceof Temp && binOp.right() instanceof Temp){
-                return new mem(new Register(((Temp)binOp.left()).name()), binOp.opType(),new Register(((Temp)binOp.right()).name()));
+                return new mem(Register.tempToReg(((Temp)binOp.left())), binOp.opType(),Register.tempToReg(((Temp)binOp.right())));
             }   else if (binOp.left() instanceof Temp && binOp.right() instanceof BinOp){
                 BinOp _binop = (BinOp)binOp.right();
-                Register reg1 = new Register(((Temp)binOp.left()).name());
-                Register reg2 = new Register(((Temp)(_binop.left())).name());
+                Register reg1 = Register.tempToReg(((Temp)binOp.left()));
+                Register reg2 = Register.tempToReg(((Temp)_binop.left()));
                 backend.asm.Const c3 =  new backend.asm.Const(((Const)(_binop.right())).value());
                 return new mem(reg1, binOp.opType(), reg2,_binop.opType(), c3, null, null);
             }

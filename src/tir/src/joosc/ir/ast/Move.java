@@ -111,7 +111,7 @@ public class Move extends Statement {
     Code processArg(Temp arg){
         int argIdx = arg.name().charAt(arg.name().length()-1) - '0';
         int paramNums = Register.currFuncDecl.getNumParams();
-        Operand operand1 = new Register(((Temp)target).name());
+        Operand operand1 = Register.tempToReg((Temp)target);
         return new mov(operand1, new mem(Register.ebp, BinOp.OpType.ADD, new backend.asm.Const(4+4*(argIdx+1))));
 
     }
@@ -124,7 +124,7 @@ public class Move extends Statement {
         Expr_c.DataType type = Expr_c.DataType.Dword;
         if (src instanceof Const){
             if (((Const)src).value() == 0 && target instanceof Temp){
-                Operand operand1 = new Register(((Temp)target).name());
+                Operand operand1 = Register.tempToReg((Temp)target);
                 tileCodes.add(new xor(operand1, operand1));
                 return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
             }
@@ -135,7 +135,7 @@ public class Move extends Statement {
                 tileCodes.add(processArg((Temp)src));
                 return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
             }
-            operand2 = new Register(((Temp) src).name());
+            operand2 = Register.tempToReg((Temp)src);
             type = ((Temp) src).type;
         }   else if (src instanceof Name){
             operand2 = new LabelOperand(((Name)src).name());
@@ -153,7 +153,7 @@ public class Move extends Statement {
         }
         Operand operand1 = null;
         if (target instanceof Temp){
-            operand1 = new Register(((Temp)target).name());
+            operand1 = Register.tempToReg((Temp)target);
             tileCodes.add(new mov(operand1, operand2, type));
 
             //nodes.add(target); NO need to visit these nodes

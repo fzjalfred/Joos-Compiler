@@ -53,7 +53,7 @@ public class Temp extends Expr_c {
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Node> nodes = new ArrayList<Node>();
         Tile codes = v.unit();
-        codes.codes.add(new mov(res_register, new Register(name)));
+        codes.codes.add(new mov(res_register, Register.tempToReg(this)));
         return new Pair<List<Node>, Tile>(nodes,codes);
     }
 }

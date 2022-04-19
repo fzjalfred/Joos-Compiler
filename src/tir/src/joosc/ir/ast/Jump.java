@@ -66,7 +66,7 @@ public class Jump extends Statement {
         List<Code> tileCodes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
         if (target instanceof Temp) {
-            tileCodes.add(new jmp(new Register(((Temp)target).name())));
+            tileCodes.add(new jmp(Register.tempToReg((Temp)target)));
         } else if (target instanceof Name) {
             tileCodes.add(new jmp(new LabelOperand(((Name)target).name())));
         }

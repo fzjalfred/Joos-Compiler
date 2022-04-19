@@ -192,9 +192,9 @@ public class Call extends Expr_c {
             List<Code> argCodes = new ArrayList<Code>();
             if (arg instanceof Temp) {
                 if (sysflag) {
-                    argCodes.add(new mov(Register.eax, new Register(((Temp)arg).name())));
+                    argCodes.add(new mov(Register.eax, Register.tempToReg((Temp)arg)));
                 }   else {
-                    argCodes.add(new push(new Register(((Temp)arg).name())));
+                    argCodes.add(new push(Register.tempToReg((Temp)arg)));
                 }
             } else {
                 // T[e]t
@@ -220,13 +220,13 @@ public class Call extends Expr_c {
 
         List<Code> tileCodes = new ArrayList<Code>();
         if (target instanceof Temp){
-            tileCodes.add(new call(new Register(((Temp)target).name())));
+            tileCodes.add(new call(Register.tempToReg((Temp)target)));
         }   else {
             tileCodes.add(new call(new LabelOperand(((Name)target).name())));
         }
 
         if (returnTarget != null) {
-            tileCodes.add(new mov(new Register(returnTarget.name()), Register.eax));
+            tileCodes.add(new mov(Register.tempToReg((Temp)returnTarget), Register.eax));
         }
         if (!sysflag) {
             tileCodes.add(new add(Register.esp, new Const(4*argNum)));
