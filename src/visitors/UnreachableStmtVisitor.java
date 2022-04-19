@@ -137,7 +137,10 @@ public class UnreachableStmtVisitor extends Visitor{
 
         // add ConditionalStmt
         Expr expr = node.getForExpr();
-        expr.accept(this);
+        if (expr != null) {
+            expr.accept(this);
+        }
+        
         if (expr.boolStruct != null && !expr.boolStruct.bool) throw new SemanticError("unreachable stmts " + node.getBlockStmt() + " in for(;false;)");
         ConditionalStmt conditionalStmt = new ConditionalStmt(expr);
         CFG.Vertex conditionVertex = currCFG.addVertex(conditionalStmt, currVertex, ifpaths);
@@ -145,9 +148,11 @@ public class UnreachableStmtVisitor extends Visitor{
         currVertex = conditionVertex; 
 
         /** build edges from forExpr to stmts */
+        if (node.getBlockStmt() != null)
         node.getBlockStmt().accept(this);
 
         // add ForUpdate
+        if (node.getForUpdate() != null)
         node.getForUpdate().accept(this);
 
         currCFG.setEdge(currVertex, conditionVertex);

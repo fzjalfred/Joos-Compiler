@@ -114,9 +114,14 @@ public class IRTranslatorVisitor extends Visitor {
 
 
     public void visit(ForInit node){
-        Expr_c expr = node.getVarDeclarator().getExpr().ir_node;
-        Temp var = new Temp(node.getVarDeclarator().getVarDeclaratorID().getName());
-        node.ir_node = new Move(var, expr);
+        if (node.getVarDeclarator()!=null) {
+            Expr_c expr = node.getVarDeclarator().getExpr().ir_node;
+            Temp var = new Temp(node.getVarDeclarator().getVarDeclaratorID().getName());
+            node.ir_node = new Move(var, expr);
+        } else {
+            node.ir_node = ((StmtExpr)node.children.get(0)).ir_node;
+        }
+        
     }
 
     public void visit(ForUpdate node){
