@@ -54,7 +54,10 @@ public class Main {
 			printWriter.println("section .data");
 			/** String literals */
 			for (String s : compUnit.stringLiteralToLabel.keySet()){
-				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)) + " " + new dcc(dcc.ccType.b, new LabelOperand( s )));
+				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)));
+				ClassDecl StringDecl = (ClassDecl) compUnit.env.lookup(tools.nameConstructor("java.lang.String"));
+				//printWriter.println(new dcc(dcc.ccType.w, new LabelOperand(tools.getVtable(StringDecl, compUnit.env))));
+				printWriter.println(new dcc(dcc.ccType.b, new LabelOperand( s )));
 			}
 			if (compUnit.oriType instanceof ClassDecl) {
 				/**Vtable */
@@ -82,8 +85,6 @@ public class Main {
 			translator.canonicalize(compUnit);
 			createAssembly(translator, compUnit, idx);
 			idx++;
-			System.out.println(compUnit.functions());
-			System.out.println("ext strs has " + compUnit.externStrs);
 		}
 		// IR interpreter demo
         /*{

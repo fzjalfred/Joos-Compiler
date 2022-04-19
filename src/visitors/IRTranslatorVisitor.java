@@ -138,7 +138,7 @@ public class IRTranslatorVisitor extends Visitor {
         Label beginLabel = new Label("ForLoopBegin_" + node.hashCode());
         Label nextLabel = new Label("ForLoopNext_" + node.hashCode());
         Label endLabel = new Label("ForLoopEnd_" + node.hashCode());
-        if (node.getForInit() != null){
+        if (node.getForInit() != null && node.getForInit().ir_node != null){
             res.stmts().add(node.getForInit().ir_node);
         }
         res.stmts().add(beginLabel);
@@ -180,7 +180,9 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(CastExpr node){
-        if (node.type instanceof ReferenceType){
+        if (node.type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)(node.type)).typeDecl == ObjectDecl && node.getOperatorRight().type instanceof ArrayType){
+            node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorRight().ir_node, new Const(4));
+        } else if (node.type instanceof ReferenceType){
             ReferenceType referenceType = (ReferenceType)node.type;
             Expr_c right = node.getOperatorRight().ir_node;
             List<Statement> codes = new ArrayList<>();
@@ -444,7 +446,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(NumericLiteral node){
-        node.ir_node = new Const(node.integer_value.intValue());
+        node.ir_node = new Const(Integer.parseInt(node.value));
     }
 
     public void visit(AdditiveExpr node){
@@ -772,7 +774,7 @@ public class IRTranslatorVisitor extends Visitor {
          stmts.add(lower_bound_ok_label);
 
         Temp tm = new Temp("tm");
-        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(4*2)))));
+        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(8)))));
         stmts.add(new Move(new Mem(tm), tn));
         //TODO dispatch vector
         stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), new Name(tools.getVtable(ObjectDecl, env))));
