@@ -93,9 +93,12 @@ public class HierarchyChecking {
                     inclass_map.put(((AbstractMethodList)l).getSimpleName(), method_lst_buff);
                     
                     // interfaceMethodMap has all interface's method for itable.
+                    System.out.println("======= interfaceMethodMap put ======");
+                    System.out.println(((ClassDecl)T).getName());
                     for (ASTNode i:method_lst_buff) {
                         if (T instanceof ClassDecl) {
                             ClassDecl class_decl = (ClassDecl)T;
+                            System.out.println(((AbstractMethodDecl)i).getName());
                             class_decl.interfaceMethodMap.put((AbstractMethodDecl)i, class_decl.itable_offset_counter);
                             class_decl.itable_offset_counter+=4;
                         } else if (T instanceof InterfaceDecl) {
@@ -104,7 +107,7 @@ public class HierarchyChecking {
                             class_decl.itable_offset_counter+=4;
                         }
                     }
-                    
+                    System.out.println("===================================");
                 }
                 if (l instanceof FieldDecl){
                     List<ASTNode> method_lst_buff = new ArrayList<ASTNode> ();

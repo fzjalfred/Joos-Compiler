@@ -2,6 +2,7 @@ package tir.src.joosc.ir.ast;
 
 import ast.AbstractMethodDecl;
 import ast.ClassDecl;
+import ast.InterfaceDecl;
 import ast.MethodDecl;
 import ast.TypeDecl;
 import backend.asm.nop;
@@ -85,7 +86,7 @@ public class CompUnit extends Node_c {
             for (int i = 1; i < size; i++) {
                 codes[i] = new dcc(dcc.ccType.d, new LabelOperand("-1"));
             }
-            // System.out.println("======create=======");
+            System.out.println("======create=======");
             Set<Integer> hash_buffer = new HashSet<Integer>();
             while (hash_buffer.size()<N) {
                 for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
@@ -98,6 +99,8 @@ public class CompUnit extends Node_c {
                 }
             }
             
+            System.out.println("curObject: "+(classDecl).getName());
+            System.out.println("methods_in_itable: "+methods_in_itable.size());
             for (AbstractMethodDecl itable_method: methods_in_itable.keySet()) {
                 
                 for (MethodDecl vtable_method : classDecl.methodMap.keySet()) {
@@ -105,15 +108,15 @@ public class CompUnit extends Node_c {
                     ( (itable_method.getParamType() == null && vtable_method.getParamType() == null)||itable_method.getParamType().equals(vtable_method.getParamType())) ) {
                         String name = itable_method.getName() + "_" + itable_method.hashCode();
                         int itable_offset = (itable_method.getName().hashCode()&bitmask) + 1;
-                        // System.out.println(itable_method.getName());
-                        // System.out.println(itable_method.getName().hashCode());
-                        // System.out.println("offset:"+itable_offset);
+                        
+                        System.out.println(itable_method.getName());
+                        System.out.println("offset:"+itable_offset);
                         int idx = classDecl.methodMap.get(vtable_method);
                         codes[itable_offset] = new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(idx)));
                     }
                 }
             }
-            // System.out.println("=======================");
+            System.out.println("=======================");
             return new ArrayList<Code>(Arrays.asList(codes));
         }   else {
             return new ArrayList<>();
