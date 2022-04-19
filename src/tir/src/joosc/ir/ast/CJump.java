@@ -105,9 +105,7 @@ public class CJump extends Statement {
     public Pair<List<Node>, Tile> tiling(TilingVisitor v) {
         List<Code> tileCodes = new ArrayList<Code>();
         List<Node> nodes = new ArrayList<Node>();
-        if (cond instanceof BinOp && ((BinOp)cond).opType() == BinOp.OpType.ADD
-        && ((BinOp)cond).opType() == BinOp.OpType.SUB && ((BinOp)cond).opType() == BinOp.OpType.MUL
-        && ((BinOp)cond).opType() == BinOp.OpType.DIV && ((BinOp)cond).opType() == BinOp.OpType.MOD) {
+        if (cond instanceof BinOp && ((BinOp)cond).isComparsionOp(((BinOp)cond).opType())) {
             Register left_reg = RegFactory.getRegister();
             Register right_reg = RegFactory.getRegister(); 
             ((BinOp)cond).left().setResReg(left_reg);
