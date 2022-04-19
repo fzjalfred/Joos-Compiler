@@ -278,8 +278,12 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(FieldAccess node){
         Primary receiver = node.getPrimary();
-        ClassDecl classDecl = (ClassDecl)((ClassOrInterfaceType)receiver.getType()).typeDecl;
-        node.ir_node = new Mem(new BinOp(BinOp.OpType.ADD, receiver.ir_node, new Const(classDecl.fieldMap.get(node.field))));
+    	if (receiver.getType() instanceof ArrayType){
+		            node.ir_node = new Mem(new BinOp(BinOp.OpType.SUB, receiver.ir_node, new Const(8)));
+			            }   else {
+					                ClassDecl classDecl = (ClassDecl)((ClassOrInterfaceType)receiver.getType()).typeDecl;
+							            node.ir_node = new Mem(new BinOp(BinOp.OpType.ADD, receiver.ir_node, new Const(classDecl.fieldMap.get(node.field))));
+								            }
     }
 
     public void visit(LHS node){
