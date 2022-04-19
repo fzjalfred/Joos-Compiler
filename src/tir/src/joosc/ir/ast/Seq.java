@@ -161,7 +161,7 @@ public class Seq extends Statement {
                         if (move.source() instanceof Temp && ((Temp)move.source()).name().equals("_RET")) {
                             skipNext = true;
                             if (call.returnTarget == null) {
-                                call.returnTarget =(Temp)move.target();
+                                call.returnTarget =move.target();
                             }
                         }
                     }

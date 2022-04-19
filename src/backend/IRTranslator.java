@@ -27,7 +27,7 @@ public class IRTranslator {
 
     public void translate(){
         for (CompilationUnit comp : comps){
-            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object")){
+            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String")){
                 System.out.println(comp.fileName);
                 comp.accept(visitor);
                 ir_comps.add(visitor.compUnit);

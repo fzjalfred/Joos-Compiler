@@ -21,7 +21,7 @@ public class Call extends Expr_c {
     public String funcLabel;
     protected Expr target;
     protected List<Expr> args;
-    public Temp returnTarget;
+    public Expr returnTarget;
 
     /**
      *
@@ -226,7 +226,12 @@ public class Call extends Expr_c {
         }
 
         if (returnTarget != null) {
-            tileCodes.add(new mov(Register.tempToReg((Temp)returnTarget), Register.eax));
+            if (returnTarget instanceof Temp) {
+                tileCodes.add(new mov(Register.tempToReg((Temp)returnTarget), Register.eax));
+            } else if (returnTarget instanceof Mem) {
+                tileCodes.add(new mov(((Mem)returnTarget).toAsmMem(), Register.eax));
+            }
+
         }
         if (!sysflag) {
             tileCodes.add(new add(Register.esp, new Const(4*argNum)));
