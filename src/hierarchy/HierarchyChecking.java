@@ -678,7 +678,7 @@ public class HierarchyChecking {
             }
         }
         createParentMap();
-        printParent();
+//        printParent();
         createInheritanceMap();
 //        System.out.println("===============direct parent====================");
 //        printDirectParent();
@@ -1043,7 +1043,7 @@ public class HierarchyChecking {
 
     public void createParentMap() {
         for (ASTNode node: directParentMap.keySet()) {
-            if (node != objectClass && directParentMap.get(node).size() == 0) {
+            if (node != objectClass && directParentMap.get(node).size() == 0 && node instanceof ClassDecl) {
                 directParentMap.get(node).add((Referenceable)objectClass);
                 if (node instanceof ClassDecl) {
                     ((ClassDecl)node).parentClass = (ClassDecl) objectClass;
@@ -1154,7 +1154,6 @@ public class HierarchyChecking {
 //            System.out.println("class");
 //            System.out.println(node);
             for (Referenceable parentNode: parentMap.get(node)) {
-                if (node instanceof InterfaceDecl && parentNode instanceof ClassDecl && ((ClassDecl)parentNode).getName().equals("Object")) continue;
 //                System.out.println(parentNode);
                 List<Referenceable> adding = new ArrayList<Referenceable>();
                 for (Referenceable ref : declareMap.get((ASTNode)parentNode)){
@@ -1266,7 +1265,7 @@ public class HierarchyChecking {
                         if (method.isAbstract()) {
                             continue;
                         } else if (abstractMethod.isPublic() && method.isProtected()) {
-                            //throw new Exception("Public method is replaced by protected because of abstract "+ abstractMethod.getName() + " " + method.getName());
+                            throw new Exception("Public method is replaced by protected because of abstract "+ abstractMethod.getName() + " " + method.getName());
                         }
 
                         if (!get_type(abstractMethod).equals(get_type(method)) ) {
