@@ -6,8 +6,8 @@ public class Amain {
         //testin1.myA()e;
         testin1.setX();
 
-        instanceA testA2 = new instanceA();
-        testA2.setX();
-        return 52;
+        // instanceA testA2 = new instanceA();
+        // testA2.setX();
+        return testin1.x;
     }
 }
