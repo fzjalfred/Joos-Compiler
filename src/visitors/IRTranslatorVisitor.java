@@ -796,7 +796,8 @@ public class IRTranslatorVisitor extends Visitor {
 
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
-
+	Temp thisTemp = new Temp("_THIS");
+	stmts.add(new Move(thisTemp, heapStart));
 //        int fieldOffset = 4;
 //        for (FieldDecl fieldDecl : fieldDecls) {
 //            initClass.fieldMap.put(fieldDecl, fieldOffset);
