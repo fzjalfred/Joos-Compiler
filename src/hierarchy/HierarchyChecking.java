@@ -675,6 +675,7 @@ public class HierarchyChecking {
             }
         }
         createParentMap();
+        printParent();
         createInheritanceMap();
 //        System.out.println("===============direct parent====================");
 //        printDirectParent();
@@ -1150,6 +1151,7 @@ public class HierarchyChecking {
 //            System.out.println("class");
 //            System.out.println(node);
             for (Referenceable parentNode: parentMap.get(node)) {
+                if (node instanceof InterfaceDecl && parentNode instanceof ClassDecl && ((ClassDecl)parentNode).getName().equals("Object")) continue;
 //                System.out.println(parentNode);
                 List<Referenceable> adding = new ArrayList<Referenceable>();
                 for (Referenceable ref : declareMap.get((ASTNode)parentNode)){
