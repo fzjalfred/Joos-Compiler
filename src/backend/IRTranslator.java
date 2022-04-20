@@ -52,15 +52,24 @@ public class IRTranslator {
     }
 
     public void translate(){
+        List<FieldDecl> fieldDecls = new ArrayList<>();
+        int index = 0;
         for (CompilationUnit comp : comps){
             if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String") || comp.fileName.contains("Arrays") ){
 //                System.out.println(comp.fileName);
                 comp.accept(visitor);
                 ir_comps.add(visitor.compUnit);
+                if (index != 0) {
+                    fieldDecls.addAll(visitor.compUnit.staticFields);
+                }
             }
+            index++;
         }
         FuncDecl staticInit = createStaticFieldInit();
         ir_comps.get(0).appendFunc(staticInit);
+        for (FieldDecl fieldDecl : fieldDecls) {
+            ir_comps.get(0).externStrs.add(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
+        }
 
     }
 

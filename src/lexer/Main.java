@@ -93,6 +93,7 @@ public class Main {
 
 			/** static field*/
 			for (FieldDecl fieldDecl : compUnit.staticFields) {
+				printWriter.println("global " + fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
 				printWriter.println(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode()+":");
 				if (fieldDecl.hasRight() && fieldDecl.getExpr().ir_node instanceof tir.src.joosc.ir.ast.Const) {
 					tir.src.joosc.ir.ast.Const fieldConst = (tir.src.joosc.ir.ast.Const) fieldDecl.getExpr().ir_node;
