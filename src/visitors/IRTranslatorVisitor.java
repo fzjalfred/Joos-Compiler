@@ -365,9 +365,8 @@ public class IRTranslatorVisitor extends Visitor {
                     if (_receiver.refer instanceof FieldDecl && ((FieldDecl)(_receiver.refer)).isStatic()){
                         Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                         FieldDecl _field = (FieldDecl)(_receiver.refer);
-                        _receiver_code = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), new Mem(resTemp));
+                        _receiver_code = new ESeq(new Move(resTemp, new Mem(new Name((_field.getFirstVarName() + "_" + _field.hashCode())))), resTemp);
                     }   else {
-
                         _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
                     }
                     args.add(_receiver_code);
