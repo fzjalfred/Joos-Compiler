@@ -171,7 +171,8 @@ public class IRTranslatorVisitor extends Visitor {
         }   else {
             labelName = compUnit.stringLiteralToLabel.get(node.value);
         }
-        node.ir_node = new Name(labelName);
+        Temp strTemp = new Temp("static_tmp_" + node.hashCode());
+        node.ir_node = new ESeq(new Move(strTemp, new Name(labelName)), strTemp);
     }
 
     Expr_c.DataType getIRDataType(PrimitiveType t){
@@ -356,7 +357,7 @@ public class IRTranslatorVisitor extends Visitor {
             } else {
                 args.add(node.getPrimary().ir_node);
                 if (node.getPrimary().getType() instanceof ArrayType){
-                    vtable = new Mem(node.getPrimary().ir_node);
+                    vtable = new Mem(new BinOp(BinOp.OpType.SUB,node.getPrimary().ir_node, new Const(4)));
                 }   else {
                     vtable = new Mem(node.getPrimary().ir_node);
                 }

@@ -63,7 +63,7 @@ public class Mem extends Expr_c {
         canonicalized_node.setLastStatement(new Exp(new Mem(canonicalized_node.getLastExpr())));
     }
 
-    public mem toAsmMem(){
+    public Operand toAsmMem(){
         if (expr instanceof Temp){
             return new mem(Register.tempToReg((Temp)expr));
         }   else if (expr instanceof BinOp){
@@ -78,6 +78,8 @@ public class Mem extends Expr_c {
                 Register reg2 = Register.tempToReg(((Temp)_binop.left()));
                 backend.asm.Const c3 =  new backend.asm.Const(((Const)(_binop.right())).value());
                 return new mem(reg1, binOp.opType(), reg2,_binop.opType(), c3, null, null);
+            }   else if (expr instanceof Name){
+                return new LabelOperand(((Name)expr).name());
             }
         }
         throw new BackendError("unknown toAsmMem" + this);
