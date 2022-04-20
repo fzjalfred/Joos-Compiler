@@ -142,7 +142,7 @@ public class Move extends Statement {
         }   else if (src instanceof Mem){
             operand2 = ((Mem)src).toAsmMem();
             if (operand2 == null){
-                System.out.println("array test: " + src);
+                throw new BackendError("operand 2 is null");
             }
         }
             else {
@@ -161,7 +161,13 @@ public class Move extends Statement {
             return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
         }   else if (target instanceof Mem){
             operand1 = ((Mem)target).toAsmMem();
-            tileCodes.add(new mov(operand1, operand2));
+            if (src instanceof Mem){
+                Register mov_tmp = Register.tempToReg(new Temp("mov_tmp"));
+                tileCodes.add(new mov(mov_tmp, operand2));
+                tileCodes.add(new mov(operand1, mov_tmp));
+            }   else {
+                tileCodes.add(new mov(operand1, operand2));
+            }
             return new Pair<List<Node>, Tile>(nodes, new Tile(tileCodes));
         }
             else {
