@@ -360,7 +360,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (currType instanceof PrimitiveType) throw new SemanticError(nameStr.substring(0, nameStr.length()-1)+ " has been inferred to type " + currType + "; so " + name.getValue() + " cannot be resolved to type");
             String str = names.get(idx);
             if (currType instanceof ArrayType && str.equals("length")){
-                fields.add(new FieldDecl(tools.empty(), "length"));
+                fields.add(new FieldDecl(tools.list(new Modifiers(tools.list(new Token(1,"public")), "")), "length"));
                 nameStr += str;
                 currType = new NumericType(tools.empty(), "int");
                 nameStr += '.';
@@ -1043,7 +1043,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         String field = node.getID().value;
         if (node.getPrimary().type instanceof ArrayType){
             if (field.equals("length")){
-                node.field = new FieldDecl(tools.empty(), "length");
+                node.field = new FieldDecl(tools.list(new Modifiers(tools.list(new Token(1,"public")), "")), "length");
                 node.type = tools.intType();
                 return;
             }

@@ -43,8 +43,9 @@ public class FieldDecl extends ClassMemberDecl {
     }
 
     public boolean isStatic() {
+        if (children.size() == 0) return false;
         Modifiers modifiers = (Modifiers) children.get(0);
-
+        if (modifiers == null) return false;
         for (ASTNode modifier : modifiers.children) {
             if (modifier.value.equals("static")) {
                 return true;

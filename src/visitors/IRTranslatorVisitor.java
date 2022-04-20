@@ -302,7 +302,7 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(LHS node){
         if (node.hasName()){
             if (node.refer instanceof FieldDecl){
-                if (((FieldDecl)(node.refer)).getModifiers().getModifiersSet().contains("static")){
+                if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
                     Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                     FieldDecl _field = (FieldDecl)(node.refer);
                     node.ir_node = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
@@ -353,12 +353,13 @@ public class IRTranslatorVisitor extends Visitor {
                 }   else {
                     PostFixExpr _receiver = (PostFixExpr)node.receiver;
                     Expr_c _receiver_code = null;
-                    if (((FieldDecl)(_receiver.refer)).getModifiers().getModifiersSet().contains("static")){
+                    if (_receiver.refer instanceof FieldDecl && ((FieldDecl)(_receiver.refer)).isStatic()){
                         Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                         FieldDecl _field = (FieldDecl)(_receiver.refer);
                         _receiver_code = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
                     }   else {
-                        _receiver_code = translateFieldAccess(node.first_receiver, node.subfields);
+
+                        _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
                     }
                     args.add(_receiver_code);
                     if (((PostFixExpr) node.receiver).getType() instanceof ArrayType ){
@@ -371,7 +372,7 @@ public class IRTranslatorVisitor extends Visitor {
                 args.add(node.getPrimary().ir_node);
                 if (node.getPrimary().getType() instanceof ArrayType){
                     vtable = new Mem(new BinOp(BinOp.OpType.SUB,node.getPrimary().ir_node, new Const(4)));
-                }   else {
+                }   else  {
                     vtable = new Mem(node.getPrimary().ir_node);
                 }
             }
@@ -457,8 +458,10 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(PostFixExpr node){
+        //System.out.println(node.refer);
+
         if (node.refer instanceof FieldDecl){
-            if (((FieldDecl)(node.refer)).getModifiers().getModifiersSet().contains("static")){
+            if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
                 Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                 FieldDecl _field = (FieldDecl)(node.refer);
                 node.ir_node = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
@@ -761,7 +764,7 @@ public class IRTranslatorVisitor extends Visitor {
         Temp ta = new Temp("ta");
         tir.src.joosc.ir.ast.Expr e1 = null;
         if (node.hasName()) {
-            if (((FieldDecl)(node.refer)).getModifiers().getModifiersSet().contains("static")){
+            if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
                 Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                 FieldDecl _field = (FieldDecl)(node.refer);
                 e1 = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
