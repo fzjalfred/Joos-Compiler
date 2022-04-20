@@ -310,6 +310,14 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         for (;idx < names.size();idx++){
             String str = names.get(idx);
             nameStr += str;
+            Referenceable staticRes = findStaticField(scopeEnvironment, tools.nameConstructor(nameStr));
+            if (staticRes != null){
+                currType = staticRes.getType();
+                res = staticRes;
+                first_reciever = res;
+                break;
+            }
+
             Referenceable currRes = context.get(nameStr);
             //tools.println("look up field" + nameStr + " get " + currType, DebugID.zhenyan);
             if (currRes != null) {

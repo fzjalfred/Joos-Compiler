@@ -22,9 +22,14 @@ public class IRTranslatorVisitor extends Visitor {
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
         Temp res = null;
         Seq fieldsReadCodes = new Seq();
-
+        boolean isStatic = false;
         if (first_receiver instanceof ThisLiteral){
             res = new Temp("_THIS"); //fixme
+        }   else if (first_receiver instanceof FieldDecl && ((FieldDecl)first_receiver).isStatic()){
+            isStatic = true;
+            FieldDecl _field = (FieldDecl)first_receiver;
+            res = new Temp("staticAccessRes_" + first_receiver.hashCode());
+            fieldsReadCodes.stmts().add(new Move(res, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))));
         }   else {
             res = new Temp(first_receiver.toString());
         }
@@ -33,7 +38,11 @@ public class IRTranslatorVisitor extends Visitor {
         }   else {
             Temp temp = res;
             res = new Temp("fieldAccessRes");
-            fieldsReadCodes.stmts().add(new Move(res, temp));
+            if (isStatic){
+                fieldsReadCodes.stmts().add(new Move(res, new Mem(temp)));
+            }   else {
+                fieldsReadCodes.stmts().add(new Move(res, temp));
+            }
         }
         for (int i = 0; i < fields.size(); i++){
             FieldDecl f = fields.get(i);
