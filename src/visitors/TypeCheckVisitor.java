@@ -289,6 +289,13 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         Referenceable res = findStaticField(scopeEnvironment, name);
         if (res != null) {
             checkProtected(res, null);
+            if (node instanceof PostFixExpr){
+                PostFixExpr _postfixexpr = ((PostFixExpr)node);
+                _postfixexpr.refer = res;
+            } else if (node instanceof LHS){
+                LHS _lhs = (LHS)node;
+                _lhs.refer = res;
+            }
             node.type = res.getType();
             return;
         }
