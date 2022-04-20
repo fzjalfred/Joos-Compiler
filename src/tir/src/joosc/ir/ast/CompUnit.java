@@ -78,7 +78,7 @@ public class CompUnit extends Node_c {
             int N = methods_in_itable.size();
             int bitmask = (int)Math.pow(2, N)-2;
             int size = 1;
-            if (bitmask > 0) {
+            if (bitmask >= 0) {
                 size = bitmask+2;
             }
             Code[] codes = new Code[size];
@@ -108,7 +108,8 @@ public class CompUnit extends Node_c {
                     ( (itable_method.getParamType() == null && vtable_method.getParamType() == null)||itable_method.getParamType().equals(vtable_method.getParamType())) ) {
                         String name = itable_method.getName() + "_" + itable_method.hashCode();
                         int itable_offset = (itable_method.getName().hashCode()&bitmask) + 1;
-                        
+                        System.out.println("bitmask: " + bitmask);
+                        System.out.println("size: " + size);
                         System.out.println(itable_method.getName());
                         System.out.println("offset:"+itable_offset);
                         int idx = classDecl.methodMap.get(vtable_method);
