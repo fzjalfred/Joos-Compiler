@@ -4,7 +4,7 @@ public class StringTest{
     }
 
     public static int test(){
-        String s = "haha";
-        return s.length();
+        if ("haha".equals("haha")) return 1;
+        return 0;
     }
 }

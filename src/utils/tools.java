@@ -4,6 +4,7 @@ import java.util.*;
 import lexer.*;
 import type.RootEnvironment;
 import type.ScopeEnvironment;
+import visitors.TypeCheckVisitor;
 
 public class tools {
 
@@ -63,6 +64,16 @@ public class tools {
         return m.getModifiersSet().contains("static");
     }
 
+    public static boolean compTypeListEqualAssignable(List<Type> list1, List<Type>list2, TypeCheckVisitor v){
+        tools.println("matching " + list1 + " to " + list2, DebugID.zhenyan );
+        if (list1 == null && list2 == null) return true;
+        if (list1 == null || list2 == null) return false;
+        if (list1.size() != list2.size()) return false;
+        for (int idx = 0; idx< list1.size(); idx++){
+            if (!v.isAssignable(list1.get(idx), list2.get(idx), v.env)) return false;
+        }
+        return true;
+    }
 
     public static boolean compTypeListEqual(List<Type> list1, List<Type>list2){
         tools.println("matching " + list1 + " to " + list2, DebugID.zhenyan );
@@ -94,7 +105,7 @@ public class tools {
         return null;
     }
 
-    public static MethodDecl fetchMethod(List<ASTNode> refers, List<Type> argTypes){
+    public static MethodDecl fetchMethod(List<ASTNode> refers, List<Type> argTypes, TypeCheckVisitor v){
 
         for (ASTNode refer : refers){
             if (refer instanceof MethodDecl){
@@ -104,15 +115,31 @@ public class tools {
                 }
             }
         }
+        for (ASTNode refer : refers){
+            if (refer instanceof MethodDecl){
+                MethodDecl method = (MethodDecl)refer;
+                if (compTypeListEqualAssignable(method.getParamType(), argTypes, v)){
+                    return method;
+                }
+            }
+        }
         return null;
     }
 
-    public static AbstractMethodDecl fetchAbstractMethod(List<ASTNode> refers, List<Type> argTypes){
+    public static AbstractMethodDecl fetchAbstractMethod(List<ASTNode> refers, List<Type> argTypes, TypeCheckVisitor v){
 
         for (ASTNode refer : refers){
             if (refer instanceof AbstractMethodDecl){
                 AbstractMethodDecl method = (AbstractMethodDecl)refer;
                 if (compTypeListEqual(method.getParamType(), argTypes)){
+                    return method;
+                }
+            }
+        }
+        for (ASTNode refer : refers){
+            if (refer instanceof AbstractMethodDecl){
+                AbstractMethodDecl method = (AbstractMethodDecl)refer;
+                if (compTypeListEqualAssignable(method.getParamType(), argTypes, v)){
                     return method;
                 }
             }

@@ -137,10 +137,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 assert classType.typeDecl != null;
                 containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                 if (containMap.containsKey(str)){
-                    resMethod = tools.fetchMethod(containMap.get(str),types);
+                    resMethod = tools.fetchMethod(containMap.get(str),types,this);
                     checkProtected(resMethod, classType.typeDecl);
                     if (resMethod == null){
-                        resMethod = tools.fetchAbstractMethod(containMap.get(str), types);
+                        resMethod = tools.fetchAbstractMethod(containMap.get(str), types, this);
                         if (isObject) checkProtected(resMethod, classType.typeDecl);
                         else checkProtected(resMethod, null);
                         if (isObject &&  checkObjectStatic(resMethod)){
@@ -190,8 +190,8 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
     private Referenceable fetchMethodOrAbsMethod(List<ASTNode> refers, List<Type> types){
         Referenceable res = null;
-        res = tools.fetchMethod(refers, types);
-        if (res == null) res = tools.fetchAbstractMethod(refers, types);
+        res = tools.fetchMethod(refers, types, this);
+        if (res == null) res = tools.fetchAbstractMethod(refers, types, this);
         return res;
     }
 
@@ -1170,7 +1170,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (receiver_str.length == 1) {
                 receiver = new ThisLiteral(Arrays.asList(), "this");
                 if (containMap.containsKey(methodNameStr)){
-                    resMethod = tools.fetchMethod(containMap.get(methodNameStr), node.getArgumentTypeList());
+                    resMethod = tools.fetchMethod(containMap.get(methodNameStr), node.getArgumentTypeList(), this);
                     if (!checkStaticUse(resMethod)) throw new SemanticError("cannot use non-static method " + resMethod + " in static class member decl");
                 } // if
             }   else {
@@ -1189,10 +1189,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     ClassOrInterfaceType classType = (ClassOrInterfaceType)receiver.type;
                     containMap = hierarchyChecker.containMap.get(classType.typeDecl);
                     if (containMap.containsKey(method)){
-                        resMethod = tools.fetchMethod(containMap.get(method),node.getArgumentTypeList());
+                        resMethod = tools.fetchMethod(containMap.get(method),node.getArgumentTypeList(), this);
                         checkProtected(resMethod, classType.typeDecl);
                         if (resMethod == null){
-                            resMethod = tools.fetchAbstractMethod(containMap.get(method), node.getArgumentTypeList());
+                            resMethod = tools.fetchAbstractMethod(containMap.get(method), node.getArgumentTypeList(), this);
                             checkProtected(resMethod, classType.typeDecl);
                             if (checkObjectStatic(resMethod)){
                                 throw new SemanticError("cannot read static method on Object " + classType);
@@ -1208,10 +1208,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     ClassDecl objectDecl = (ClassDecl) env.lookup(tools.nameConstructor("java.lang.Object"));
                     containMap = hierarchyChecker.containMap.get(objectDecl);
                     if (containMap.containsKey(method)){
-                        resMethod = tools.fetchMethod(containMap.get(method),node.getArgumentTypeList());
+                        resMethod = tools.fetchMethod(containMap.get(method),node.getArgumentTypeList(), this);
                         checkProtected(resMethod, objectDecl);
                         if (resMethod == null){
-                            resMethod = tools.fetchAbstractMethod(containMap.get(method), node.getArgumentTypeList());
+                            resMethod = tools.fetchAbstractMethod(containMap.get(method), node.getArgumentTypeList(), this);
                             checkProtected(resMethod, objectDecl);
                             if (checkObjectStatic(resMethod)){
                                 throw new SemanticError("cannot read static method on Object " + objectDecl);
@@ -1235,17 +1235,17 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 containMap = hierarchyChecker.containMap.get(typeDecl);
                 if (containMap.containsKey(node.getID().value)){
                     node.receiver = primary;
-                    resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
+                    resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList(), this);
                     checkProtected(resMethod, typeDecl);
                 } // if
             }   else if (primary.type instanceof ArrayType){
                 ClassDecl objectDecl = (ClassDecl) env.lookup(tools.nameConstructor("java.lang.Object"));
                 containMap = hierarchyChecker.containMap.get(objectDecl);
                 if (containMap.containsKey(node.getID().value)){
-                    resMethod = tools.fetchMethod(containMap.get(node.getID().value),node.getArgumentTypeList());
+                    resMethod = tools.fetchMethod(containMap.get(node.getID().value),node.getArgumentTypeList(), this);
                     checkProtected(resMethod, objectDecl);
                     if (resMethod == null){
-                        resMethod = tools.fetchAbstractMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
+                        resMethod = tools.fetchAbstractMethod(containMap.get(node.getID().value), node.getArgumentTypeList(), this);
                         checkProtected(resMethod, objectDecl);
                         if (checkObjectStatic(resMethod)){
                             throw new SemanticError("cannot read static method on Object " + objectDecl);
@@ -1306,7 +1306,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 if (isLastIdx(idx, names.size())){  // check method case
                     if (containMap.containsKey(nameStr)){
                         node.receiver = new ThisLiteral(null, "this");
-                        resMethod = tools.fetchMethod(containMap.get(nameStr), node.getArgumentTypeList());
+                        resMethod = tools.fetchMethod(containMap.get(nameStr), node.getArgumentTypeList(), this);
                         if (!checkStaticUse(resMethod)) throw new SemanticError("cannot use non-static method " + resMethod + " in static class member decl");
                         if (resMethod != null) break;
                     } // if
@@ -1367,7 +1367,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 TypeDecl typeDecl = ((ClassOrInterfaceType)primary.type).typeDecl;
                 containMap = hierarchyChecker.containMap.get(typeDecl);
                 if (containMap.containsKey(node.getID().value)){
-                    resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
+                    resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList(), this);
                     checkProtected(resMethod, typeDecl);
                 } // if
             }

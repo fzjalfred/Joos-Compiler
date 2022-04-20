@@ -763,13 +763,13 @@ primary_no_new_array ::= literal:e {:RESULT = e;:}
                          | array_access:e {:RESULT = e;:};
 
 
-numeric_literal ::= INTGERLITERAL:e {:RESULT = new NumericLiteral(list(), e.value);:};
-bool_literal    ::= TRUELITERAL:e {:RESULT = new BoolLiteral(list(), e.value);:}
-                 | FALSELITERAL:e {:RESULT = new BoolLiteral(list(), e.value);:};
-string_literal ::= STRINGLITERAL:e {:RESULT = new StringLiteral(list(), e.value);:};
-char_literal ::= CHARLITERAL:e {:RESULT = new CharLiteral(list(), e.value);:};
-null_literal ::= NULLLITERAL:e {:RESULT = new NullLiteral(list(), e.value);:};
-this_literal ::= THISLITERAL:e {:RESULT = new ThisLiteral(list(), e.value);:};
+numeric_literal ::= INTGERLITERAL:e {:RESULT = new NumericLiteral(list(null), e.value);:};
+bool_literal    ::= TRUELITERAL:e {:RESULT = new BoolLiteral(list(null), e.value);:}
+                 | FALSELITERAL:e {:RESULT = new BoolLiteral(list(null), e.value);:};
+string_literal ::= STRINGLITERAL:e {:RESULT = new StringLiteral(list(null), e.value);:};
+char_literal ::= CHARLITERAL:e {:RESULT = new CharLiteral(list(null), e.value);:};
+null_literal ::= NULLLITERAL:e {:RESULT = new NullLiteral(list(null), e.value);:};
+this_literal ::= THISLITERAL:e {:RESULT = new ThisLiteral(list(null), e.value);:};
 
 
 literal ::= numeric_literal:e {:RESULT = e;:}
