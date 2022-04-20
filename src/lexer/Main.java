@@ -30,13 +30,13 @@ public class Main {
 		ClassDecl ObjectDecl = (ClassDecl)env.lookup(tools.nameConstructor("java.lang.Object"));
 		/** label: vtable  */
 		writer.println(strLabel);
-		writer.println(new dcc(dcc.ccType.w, new LabelOperand(tools.getVtable(StringDecl, env))));
-		writer.println(new dcc(dcc.ccType.w, new LabelOperand( charListLabel.name )));
-		writer.println(new dcc(dcc.ccType.w, new Const(realStr.length())));
-		writer.println(new dcc(dcc.ccType.w, new LabelOperand(tools.getVtable(ObjectDecl, env))));
+		writer.println(new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(StringDecl, env))));
+		writer.println(new dcc(dcc.ccType.d, new LabelOperand( charListLabel.name )));
+		writer.println(new dcc(dcc.ccType.d, new Const(realStr.length())));
+		writer.println(new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(ObjectDecl, env))));
 		writer.println(charListLabel);
 		for (int i = 0; i < realStr.length(); i++){
-			writer.println(new dcc(dcc.ccType.w, new Const(realStr.charAt(i))));
+			writer.println(new dcc(dcc.ccType.d, new Const(realStr.charAt(i))));
 		}
 	}
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit, int idx) throws FileNotFoundException, UnsupportedEncodingException {
