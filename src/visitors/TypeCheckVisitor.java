@@ -1238,6 +1238,25 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     resMethod = tools.fetchMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
                     checkProtected(resMethod, typeDecl);
                 } // if
+            }   else if (primary.type instanceof ArrayType){
+                ClassDecl objectDecl = (ClassDecl) env.lookup(tools.nameConstructor("java.lang.Object"));
+                containMap = hierarchyChecker.containMap.get(objectDecl);
+                if (containMap.containsKey(node.getID().value)){
+                    resMethod = tools.fetchMethod(containMap.get(node.getID().value),node.getArgumentTypeList());
+                    checkProtected(resMethod, objectDecl);
+                    if (resMethod == null){
+                        resMethod = tools.fetchAbstractMethod(containMap.get(node.getID().value), node.getArgumentTypeList());
+                        checkProtected(resMethod, objectDecl);
+                        if (checkObjectStatic(resMethod)){
+                            throw new SemanticError("cannot read static method on Object " + objectDecl);
+                        }
+                    }   else{
+                        checkProtected(resMethod, objectDecl);
+                        if (checkObjectStatic(resMethod)){
+                            throw new SemanticError("cannot read static method on Object " + objectDecl);
+                        }
+                    }
+                } // if
             }
         } // general if
         if (resMethod!= null){
