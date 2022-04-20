@@ -6,6 +6,7 @@ import ast.ClassDecl;
 import backend.IRTranslator;
 import backend.RegistorAllocator;
 import backend.asm.*;
+import backend.asm.Const;
 import type.*;
 import utils.*;
 import hierarchy.HierarchyChecking;
@@ -19,6 +20,24 @@ public class Main {
 	static public void writeLabel(PrintWriter w, String l){
 		w.println("global " + l);
 		w.println(new label(l));
+	}
+
+	static public void writeString(String s, label strLabel, PrintWriter writer, RootEnvironment env){
+
+		String realStr = s.substring(1, s.length()-1);
+		label charListLabel = new label(strLabel.name + "_CHARS_" + strLabel.hashCode());
+		ClassDecl StringDecl = (ClassDecl)env.lookup(tools.nameConstructor("java.lang.String"));
+		ClassDecl ObjectDecl = (ClassDecl)env.lookup(tools.nameConstructor("java.lang.Object"));
+		/** label: vtable  */
+		writer.println(strLabel);
+		writer.println(new dcc(dcc.ccType.w, new LabelOperand(tools.getVtable(StringDecl, env))));
+		writer.println(new dcc(dcc.ccType.w, new LabelOperand( charListLabel.name )));
+		writer.println(new dcc(dcc.ccType.w, new Const(realStr.length())));
+		writer.println(new dcc(dcc.ccType.w, new LabelOperand(tools.getVtable(ObjectDecl, env))));
+		writer.println(charListLabel);
+		for (int i = 0; i < realStr.length(); i++){
+			writer.println(new dcc(dcc.ccType.w, new Const(realStr.charAt(i))));
+		}
 	}
 	static public void createAssembly(IRTranslator translator, CompUnit compUnit, int idx) throws FileNotFoundException, UnsupportedEncodingException {
 		try {
@@ -54,10 +73,7 @@ public class Main {
 			printWriter.println("section .data");
 			/** String literals */
 			for (String s : compUnit.stringLiteralToLabel.keySet()){
-				printWriter.println(new label(compUnit.stringLiteralToLabel.get(s)));
-				ClassDecl StringDecl = (ClassDecl) compUnit.env.lookup(tools.nameConstructor("java.lang.String"));
-				//printWriter.println(new dcc(dcc.ccType.w, new LabelOperand(tools.getVtable(StringDecl, compUnit.env))));
-				printWriter.println(new dcc(dcc.ccType.b, new LabelOperand( s )));
+				writeString(s, new label(compUnit.stringLiteralToLabel.get(s)), printWriter, compUnit.env);
 			}
 			if (compUnit.oriType instanceof ClassDecl) {
 				/**Vtable */

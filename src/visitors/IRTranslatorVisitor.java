@@ -67,6 +67,11 @@ public class IRTranslatorVisitor extends Visitor {
             return new Const(0);
         }
     }
+    public tir.src.joosc.ir.ast.Expr instanceOfTestObjToArr(Expr_c testee, ArrayType type){
+        
+        return null;
+    }
+
 
     public tir.src.joosc.ir.ast.Expr instanceOfTest(Expr_c testee, ClassDecl type){
         compUnit.externStrs.add(tools.getVtable(type, env));

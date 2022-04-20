@@ -36,7 +36,7 @@ public class CompUnit extends Node_c {
 
     public List<Code> constructVtable(){
         if (oriType instanceof ClassDecl){
-            //externStrs.add(tools.getVtable((ClassDecl)env.lookup(tools.nameConstructor("java.lang.String")),env));
+            externStrs.add(tools.getVtable((ClassDecl)env.lookup(tools.nameConstructor("java.lang.String")),env));
             ClassDecl classDecl = (ClassDecl)oriType;
             Code[] codes = new Code[classDecl.methodMap.size()+2];
             codes[0] = new dcc(dcc.ccType.d, new LabelOperand(tools.getItable(classDecl, env)));

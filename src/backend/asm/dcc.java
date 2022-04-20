@@ -13,9 +13,9 @@ public class dcc extends Code{
         }
     }
 
-    public LabelOperand labelOperand;
+    public Operand labelOperand;
     public ccType type;
-    public dcc(ccType type, LabelOperand labelOperand){
+    public dcc(ccType type, Operand labelOperand){
         this.type = type;
         this.labelOperand = labelOperand;
     }
