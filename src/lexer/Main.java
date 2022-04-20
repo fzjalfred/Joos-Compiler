@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.*;
 
 import ast.ClassDecl;
+import ast.FieldDecl;
 import backend.IRTranslator;
 import backend.RegistorAllocator;
 import backend.asm.*;
@@ -56,8 +57,10 @@ public class Main {
 			printWriter.println("extern __debexit");
 			printWriter.println("extern NATIVEjava.io.OutputStream.nativeWrite");
 			if (idx == 0) {
+
 				printWriter.println("global _start");
 				printWriter.println("_start:");
+				printWriter.println("call staticInit");
 				printWriter.println("call test");
 				// get return
 				printWriter.println("mov ebx, eax");
@@ -66,7 +69,7 @@ public class Main {
 			}
 
 			Tile t = translator.tiling(compUnit);
-			System.out.println(t);
+//			System.out.println(t);
 //			printWriter.println(t);
 			RegistorAllocator registorAllocator = new RegistorAllocator(true, t.codes,compUnit);
 			printWriter.println(new Tile(registorAllocator.allocate()));
@@ -85,6 +88,17 @@ public class Main {
 				writeLabel(printWriter, tools.getItable((ClassDecl) compUnit.oriType, compUnit.env));
 				for (Code code : itable){
 					printWriter.println(code);
+				}
+			}
+
+			/** static field*/
+			for (FieldDecl fieldDecl : compUnit.staticFields) {
+				printWriter.println(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
+				if (fieldDecl.hasRight() && fieldDecl.getExpr().ir_node instanceof tir.src.joosc.ir.ast.Const) {
+					tir.src.joosc.ir.ast.Const fieldConst = (tir.src.joosc.ir.ast.Const) fieldDecl.getExpr().ir_node;
+					printWriter.println(new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(fieldConst.value()))));
+				} else {
+					printWriter.println(new dcc(dcc.ccType.d, new LabelOperand("0")));
 				}
 			}
 			

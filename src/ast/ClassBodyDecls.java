@@ -2,6 +2,7 @@ package ast;
 
 import visitors.Visitor;
 
+import java.lang.reflect.Field;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +12,28 @@ public class ClassBodyDecls extends ASTNode{
         super(children, value);
     }
 
-    public List<FieldDecl> getFieldDecls(){
+    public List<FieldDecl> getNonStaticFieldDecls(){
         List<FieldDecl> decls = new ArrayList<FieldDecl>();
-        if (children.size() == 1 && children.get(0) instanceof FieldDecl){
-            decls.add((FieldDecl) children.get(0));
+        if (children.size() == 0) {
+            return decls;
         }
-        if (children.size() > 1){
-            for (ASTNode node : children) {
-                if (node instanceof FieldDecl) {
-                    decls.add((FieldDecl) node);
-                }
+
+        for (ASTNode node : children) {
+            if (node instanceof FieldDecl && !(((FieldDecl)node).isStatic())) {
+                decls.add((FieldDecl) node);
+            }
+        }
+        return decls;
+    }
+
+    public List<FieldDecl> getStaticFieldDecls(){
+        List<FieldDecl> decls = new ArrayList<FieldDecl>();
+        if (children.size() == 0) {
+            return decls;
+        }
+        for (ASTNode node : children) {
+            if (node instanceof FieldDecl && ((FieldDecl)node).isStatic()){
+                decls.add((FieldDecl) node);
             }
         }
         return decls;

@@ -35,7 +35,7 @@ public class TilingVisitor extends AggregateVisitor<Tile>{
             ((FuncDecl)n).chunk.processSymtab();
             return res;
         } else {
-            System.out.println(n);
+            //System.out.println(n);
             Pair<List<Node>, Tile> res_pair = n.tiling(this);
             Tile res = unit();
 //           System.out.println("node: " + n);

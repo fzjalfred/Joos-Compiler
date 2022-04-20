@@ -1,5 +1,8 @@
 package ast;
 
+import backend.IRTranslator;
+import tir.src.joosc.ir.ast.Exp;
+import visitors.IRTranslatorVisitor;
 import visitors.Visitor;
 
 import java.util.*;
@@ -36,18 +39,23 @@ public class ClassDecl extends TypeDecl{
         return (ClassBodyDecls)children.get(4).children.get(0);
     }
 
-    public List<FieldDecl> getAllFieldDecls() {
+    public List<FieldDecl> getAllNonStaticFieldDecls() {
         if (parentClass != null) {
-            List <FieldDecl> res =  parentClass.getAllFieldDecls();
-            res.addAll(getFieldDecls());
+            List <FieldDecl> res =  parentClass.getAllNonStaticFieldDecls();
+            res.addAll(getNonStaticFieldDecls());
             return res;
         }
-        return getFieldDecls();
+        return getNonStaticFieldDecls();
     }
 
-    public List<FieldDecl> getFieldDecls(){
-        return getClassBodyDecls().getFieldDecls();
+    public List<FieldDecl> getNonStaticFieldDecls(){
+        return getClassBodyDecls().getNonStaticFieldDecls();
     }
+
+    public List<FieldDecl> getStaticFieldDecls(){
+        return getClassBodyDecls().getStaticFieldDecls();
+    }
+
 
     public List<MethodDecl> getMethodDecls(){
         List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
@@ -76,6 +84,15 @@ public class ClassDecl extends TypeDecl{
 
     @Override
     public void accept(Visitor v){
+        List<FieldDecl> staticFields = getStaticFieldDecls();
+        for (FieldDecl fieldDecl : staticFields) {
+            if (fieldDecl.hasRight()) {
+                Expr expr = fieldDecl.getExpr();
+                if (expr.ir_node == null) {
+                    expr.accept(v);
+                }
+            }
+        }
         v.visit(this);
         for (ASTNode node: children){
             if (node != null) node.accept(v);

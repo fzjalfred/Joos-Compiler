@@ -135,7 +135,7 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(CharLiteral node) {
         char c = node.value.charAt(1);
-        node.ir_node = new Const(Character.getNumericValue(c), Expr_c.DataType.Word);
+        node.ir_node = new Const((int)c, Expr_c.DataType.Word);
     }
 
     public void visit(ForStmt node){
@@ -836,19 +836,15 @@ public class IRTranslatorVisitor extends Visitor {
 
         // calc heap size
         int size = 4; // vtb addr
-        List <FieldDecl> fieldDecls = initClass.getAllFieldDecls();
+        List <FieldDecl> fieldDecls = initClass.getAllNonStaticFieldDecls();
         size += fieldDecls.size() * 4; // add 4 * field num
         List<Statement> stmts = new ArrayList<Statement>();
 
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
-	Temp thisTemp = new Temp("_THIS");
-	stmts.add(new Move(thisTemp, heapStart));
-//        int fieldOffset = 4;
-//        for (FieldDecl fieldDecl : fieldDecls) {
-//            initClass.fieldMap.put(fieldDecl, fieldOffset);
-//            fieldOffset += 4;
-//        }
+	    Temp thisTemp = new Temp("_THIS");
+	    stmts.add(new Move(thisTemp, heapStart));
+
         for (FieldDecl fieldDecl : initClass.fieldMap.keySet()) {
             int fieldOffset = initClass.fieldMap.get(fieldDecl);
             if (fieldDecl.hasRight()) {
@@ -960,6 +956,10 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(ThisLiteral node){
         node.ir_node = new Temp("_THIS");
+    }
+
+    public void visit(ClassDecl node) {
+        compUnit.staticFields.addAll(node.getStaticFieldDecls());
     }
 
 

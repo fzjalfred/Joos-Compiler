@@ -934,7 +934,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
     public void visit(ClassDecl node) {
         // field map
         int fieldOffset = 4;
-        List <FieldDecl> fieldDecls = node.getAllFieldDecls();
+        List <FieldDecl> fieldDecls = node.getAllNonStaticFieldDecls();
         for (FieldDecl fieldDecl : fieldDecls) {
             node.fieldMap.put(fieldDecl, fieldOffset);
             fieldOffset += 4;
