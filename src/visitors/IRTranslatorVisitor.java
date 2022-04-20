@@ -305,7 +305,7 @@ public class IRTranslatorVisitor extends Visitor {
                 if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
                     Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                     FieldDecl _field = (FieldDecl)(node.refer);
-                    node.ir_node = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
+                    node.ir_node = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), new Name(resTemp.name()));
                 }   else {
                     node.ir_node = translateFieldAccess(node.first_receiver, node.subfields);
                 }
@@ -356,7 +356,7 @@ public class IRTranslatorVisitor extends Visitor {
                     if (_receiver.refer instanceof FieldDecl && ((FieldDecl)(_receiver.refer)).isStatic()){
                         Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                         FieldDecl _field = (FieldDecl)(_receiver.refer);
-                        _receiver_code = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
+                        _receiver_code = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), new Name(resTemp.name()));
                     }   else {
 
                         _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
@@ -464,7 +464,7 @@ public class IRTranslatorVisitor extends Visitor {
             if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
                 Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                 FieldDecl _field = (FieldDecl)(node.refer);
-                node.ir_node = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
+                node.ir_node = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), new Name(resTemp.name()));
             }   else {
                 node.ir_node = translateFieldAccess(node.first_receiver, node.subfields);
             }
@@ -767,7 +767,7 @@ public class IRTranslatorVisitor extends Visitor {
             if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
                 Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
                 FieldDecl _field = (FieldDecl)(node.refer);
-                e1 = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), resTemp);
+                e1 = new ESeq(new Move(resTemp, new Name((_field.getFirstVarName() + "_" + _field.hashCode()))), new Name(resTemp.name()));
             }   else {
                 e1 = translateFieldAccess(node.first_receiver, node.subfields);
             }
