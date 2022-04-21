@@ -57,7 +57,6 @@ public class Main {
 			printWriter.println("extern __debexit");
 			printWriter.println("extern NATIVEjava.io.OutputStream.nativeWrite");
 			if (idx == 0) {
-
 				printWriter.println("global _start");
 				printWriter.println("_start:");
 				printWriter.println("call staticInit");

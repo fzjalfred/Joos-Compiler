@@ -514,7 +514,16 @@ public class IRTranslatorVisitor extends Visitor {
             node.ir_node = new Move(res, new Const(0));
             node.ir_node = new Move(res, varDecl.ir_node);
         }   else {
-            node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
+            if (node.getType() instanceof ClassOrInterfaceType && node.getVarDeclarators().getLastVarDeclarator().getExpr().type instanceof ArrayType){
+                TypeDecl decl = ((ClassOrInterfaceType)node.getType()).typeDecl;
+                if (decl != ObjectDecl) throw new BackendError("cannot assign arr type to non-Object type");
+                Expr_c right_res = node.getVarDeclarators().getLastVarDeclarator().getExpr().ir_node;
+                Expr_c left_res = new Temp(node.getVarDeclarators().getFirstName());
+                Temp tmp = new Temp("assArr_"+node.hashCode());
+                node.ir_node = new Seq(new Move(tmp, right_res), new Move(left_res, new BinOp(BinOp.OpType.SUB, tmp, new Const(8))));
+            }   else {
+                node.ir_node = new Move(new Temp(node.getVarDeclarators().getFirstName()), varDecl.ir_node);
+            }
         }
     }
 
