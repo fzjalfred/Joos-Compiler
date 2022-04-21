@@ -60,7 +60,14 @@ public class Mem extends Expr_c {
     @Override
     public void canonicalize() {
         canonicalized_node = new Seq(((Expr_c)(expr)).canonicalized_node.stmts());
-        canonicalized_node.setLastStatement(new Exp(new Mem(canonicalized_node.getLastExpr())));
+        if (canonicalized_node.getLastExpr() instanceof Mem){
+            Temp temp = new Temp("tmp_" + this.hashCode());
+            canonicalized_node.setLastStatement(new Move(temp, canonicalized_node.getLastExpr()));
+            canonicalized_node.addStatement(new Exp(new Mem(temp)));
+        }   else {
+            canonicalized_node.setLastStatement(new Exp(new Mem(canonicalized_node.getLastExpr())));
+        }
+
     }
 
     public Operand toAsmMem(){

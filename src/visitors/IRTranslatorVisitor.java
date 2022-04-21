@@ -53,7 +53,7 @@ public class IRTranslatorVisitor extends Visitor {
             }
             if (i == fields.size()-1){
                 if (f.value.equals("length")){
-                    fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.SUB,res,  new Const(8))));
+                    fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.SUB,res,  new Const(12))));
                 }   else fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f)))));
             }   else {
                 fieldsReadCodes.stmts().add(new Move(res, new Mem(new BinOp(BinOp.OpType.ADD,res,  new Const(classDecl.fieldMap.get(f))))));
@@ -63,13 +63,13 @@ public class IRTranslatorVisitor extends Visitor {
         }
         return new ESeq(fieldsReadCodes, new Mem(res));
     }
-    public tir.src.joosc.ir.ast.Expr instanceOfTestGeneral(Expr expr, ReferenceType type){
+    public tir.src.joosc.ir.ast.Expr instanceOfTestGeneral(Expr expr, ReferenceType type, Expr_c ir){
         if (type instanceof ClassOrInterfaceType) {
             ClassDecl classDecl = (ClassDecl) ((ClassOrInterfaceType) type).typeDecl;
             if (classDecl.parentClass == null) return new Const(1); // type is Object
             else if (expr.type instanceof PrimitiveType) return new Const(0);
             else if (expr.type instanceof ArrayType) return new Const(0);
-            else return instanceOfTest(expr.ir_node, classDecl);
+            else return instanceOfTest(ir, classDecl);
         }   else {
             ArrayType arrayType = (ArrayType)type;
             if (arrayType.equals(expr.type)) return new Const(1);
@@ -235,7 +235,7 @@ public class IRTranslatorVisitor extends Visitor {
             List<Statement> codes = new ArrayList<>();
             codes.add(new Move(right, node.getOperatorRight().ir_node));
             Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-            codes.add(new CJump(instanceOfTestGeneral(node.getOperatorRight(), referenceType), trueLabel.name()));
+            codes.add(new CJump(instanceOfTestGeneral(node.getOperatorRight(), referenceType, right), trueLabel.name()));
             codes.add(new Exp(new Call(new Name("__exception"))));
             codes.add(trueLabel);
             node.ir_node = new ESeq(new Seq(codes), right);
@@ -405,7 +405,7 @@ public class IRTranslatorVisitor extends Visitor {
                     }
                     args.add(_receiver_code);
                     if (((PostFixExpr) node.receiver).getType() instanceof ArrayType ){
-                        vtable = new Mem(new BinOp(BinOp.OpType.SUB,_receiver_code, new Const(4)));
+                        vtable = new Mem(new BinOp(BinOp.OpType.SUB,_receiver_code, new Const(8)));
                     }   else {
                         vtable = new Mem(_receiver_code);
                     }
@@ -413,7 +413,7 @@ public class IRTranslatorVisitor extends Visitor {
             } else {
                 args.add(node.getPrimary().ir_node);
                 if (node.getPrimary().getType() instanceof ArrayType){
-                    vtable = new Mem(new BinOp(BinOp.OpType.SUB,node.getPrimary().ir_node, new Const(4)));
+                    vtable = new Mem(new BinOp(BinOp.OpType.SUB,node.getPrimary().ir_node, new Const(8)));
                 }   else  {
                     vtable = new Mem(node.getPrimary().ir_node);
                 }
@@ -622,7 +622,7 @@ public class IRTranslatorVisitor extends Visitor {
         } else { // TODO: array type
             ReferenceType type = (ReferenceType) node.getisInstanceOfRight();
             if (type instanceof ClassOrInterfaceType){
-                node.ir_node = (Expr_c) instanceOfTestGeneral(node.getOperatorLeft(), (ReferenceType)node.getisInstanceOfRight());
+                node.ir_node = (Expr_c) instanceOfTestGeneral(node.getOperatorLeft(), (ReferenceType)node.getisInstanceOfRight(), node.getOperatorLeft().ir_node);
             }
         }
     }
@@ -775,18 +775,18 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void nullcheck(List<Statement> stmts, Expr node, Expr_c expr_c){
-        Label ok_label = new Label("ok_label"+node.hashCode()+node.recursive_dectecter);
+        Label ok_label = new Label("ok_label"+tools.getLabelOffset());
         stmts.add(new CJump(new BinOp(BinOp.OpType.NEQ, expr_c, new Const(0)), ok_label.name()));
         stmts.add(new Exp(new Call(new Name("__exception"))));
         stmts.add(ok_label);
     }
 
     public void boundcheck(List<Statement> stmts, Expr node, Expr_c ta, Expr_c ti){
-        Label negative_index_exception = new Label("negative_index_exception"+node.hashCode()+node.recursive_dectecter);
-        Label lower_bound_ok_label = new Label("lower_bound_ok_label"+node.hashCode()+node.recursive_dectecter);
+        Label negative_index_exception = new Label("negative_index_exception"+tools.getLabelOffset());
+        Label lower_bound_ok_label = new Label("lower_bound_ok_label"+tools.getLabelOffset());
 
-        Label index_exception_label = new Label("index_exception_label"+node.hashCode()+node.recursive_dectecter);
-        Label bound_ok_label = new Label("bound_ok_label"+node.hashCode()+node.recursive_dectecter);
+        Label index_exception_label = new Label("index_exception_label"+tools.getLabelOffset());
+        Label bound_ok_label = new Label("bound_ok_label"+tools.getLabelOffset());
 
         // //check 0<=ti
         stmts.add(new CJump(new BinOp(BinOp.OpType.GEQ,ti, new Const(0)), lower_bound_ok_label.name(), negative_index_exception.name()));
@@ -795,7 +795,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(lower_bound_ok_label);
 
         // //check ti<size
-        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*2)))), bound_ok_label.name(), index_exception_label.name()));
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, ti, new Mem(new BinOp(BinOp.OpType.SUB, ta, new Const(4*3)))), bound_ok_label.name(), index_exception_label.name()));
         stmts.add(index_exception_label);
         stmts.add(new Exp(new Call(new Name("__exception"))));
         stmts.add(bound_ok_label);
@@ -835,6 +835,11 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ArrayCreationExpr node) {
+        ArrayType type = (ArrayType) node.type;
+        ClassDecl decl = null;
+        if (type.getType() instanceof ClassOrInterfaceType){
+            decl = (ClassDecl) ((ClassOrInterfaceType)type.getType()).typeDecl;
+        }
         List <Statement> stmts = new ArrayList<Statement>();
         Temp tn = new Temp("tn");
         
@@ -850,27 +855,36 @@ public class IRTranslatorVisitor extends Visitor {
          stmts.add(lower_bound_ok_label);
 
         Temp tm = new Temp("tm");
-        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(8)))));
+        stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(12)))));
         stmts.add(new Move(new Mem(tm), tn));
+
         //TODO dispatch vector
         stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(4), tm)), new Name(tools.getVtable(ObjectDecl, env))));
         compUnit.externStrs.add(tools.getVtable(ObjectDecl, env));
 
+        //Used for Casting check
+        if (decl != null) {
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(8), tm)), new Name(tools.getVtable(decl, env))));
+            compUnit.externStrs.add(tools.getVtable(decl, env));
+        }   else {
+            stmts.add(new Move(new Mem(new BinOp(BinOp.OpType.ADD, new Const(8), tm)), new Const(0)));
+        }
+
         // loop to clear memory locations.
         Temp cleaner = new Temp("cleaner");
-        stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, tm, new Const(4*2))));
+        stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, tm, new Const(4*3))));
 
         Label clean = new Label("clean"+node.hashCode());
         Label cleanup_done = new Label("cleanup_done"+node.hashCode());
         stmts.add(clean);
         stmts.add(new Move(new Mem(cleaner), new Const(0)));
         stmts.add(new Move(cleaner, new BinOp(BinOp.OpType.ADD, cleaner, new Const(4))));
-        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, cleaner, new BinOp(BinOp.OpType.ADD, tm, new BinOp(BinOp.OpType.ADD, new Const(4*2), new BinOp(BinOp.OpType.MUL, tn, new Const(4))))), clean.name(), cleanup_done.name()));
+        stmts.add(new CJump(new BinOp(BinOp.OpType.LT, cleaner, new BinOp(BinOp.OpType.ADD, tm, new BinOp(BinOp.OpType.ADD, new Const(4*3), new BinOp(BinOp.OpType.MUL, tn, new Const(4))))), clean.name(), cleanup_done.name()));
         stmts.add(cleanup_done);
 
 
         Temp res = new Temp("res");
-        stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, tm, new Const(4*2))));
+        stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, tm, new Const(4*3))));
         //stmts.add(new Exp(new Call(new Name("__exception"))));
         node.ir_node = new ESeq(new Seq(stmts), res);
     }
