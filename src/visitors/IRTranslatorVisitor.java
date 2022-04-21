@@ -438,10 +438,13 @@ public class IRTranslatorVisitor extends Visitor {
             funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, vtable, new Const(offset)));
             if (codes.stmts().isEmpty()){
                 node.ir_node = new Call(funcAddr, args);
+                ((Call)node.ir_node).funcLabel = callingMethod;
             }   else {
-                node.ir_node = new ESeq(codes, new Call(funcAddr, args));
+                Call call = new Call(funcAddr, args);
+                call.funcLabel =callingMethod;
+                node.ir_node = new ESeq(codes,call );
             }
-            ((Call)node.ir_node).funcLabel = callingMethod;
+
         } else if (node.whichMethod instanceof AbstractMethodDecl) {
             
             AbstractMethodDecl interface_method = (AbstractMethodDecl)node.whichMethod;
