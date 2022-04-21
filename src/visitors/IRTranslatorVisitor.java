@@ -277,7 +277,7 @@ public class IRTranslatorVisitor extends Visitor {
         if (node.getMethodHeader().ir_node != null) {
             stmts.addAll(node.getMethodHeader().ir_node);
         }
-        Seq seq_node = (Seq)node.getMethodBody().getBlock().ir_node;
+        Seq seq_node = (Seq)node.getMethodBody().ir_node;
 
         int paramNum = node.getMethodHeader().getMethodDeclarator().numParams();
         if (!node.isStatic()) {
@@ -309,7 +309,8 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(MethodBody node) {
-        node.ir_node = node.getBlock().ir_node;
+        if (node.getBlock() == null) node.ir_node = new Seq();
+        else node.ir_node = node.getBlock().ir_node;
     }
 
     public void visit(ArgumentList node) {
@@ -597,8 +598,9 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ReturnStmt node) {
-        Expr_c expr_c = node.getExpr().ir_node;
+
         if (node.getExpr() != null) {
+            Expr_c expr_c = node.getExpr().ir_node;
             node.ir_node = new Return(expr_c);
         } else {
             node.ir_node = new Return(new Const(0)); // dummy value

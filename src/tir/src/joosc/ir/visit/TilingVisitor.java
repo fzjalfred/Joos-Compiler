@@ -3,6 +3,7 @@ package tir.src.joosc.ir.visit;
 import ast.MethodDecl;
 import backend.asm.Register;
 import backend.asm.Tile;
+import exception.BackendError;
 import tir.src.joosc.ir.ast.FuncDecl;
 import tir.src.joosc.ir.ast.Node;
 import utils.Pair;
@@ -18,6 +19,9 @@ public class TilingVisitor extends AggregateVisitor<Tile>{
 
     @Override
     public Tile bind(Tile r1, Tile r2) {
+        if (r2 == null) throw new BackendError("null");
+        if (r2.codes == null) return r1;
+        if (r2.codes.isEmpty()) return r1;
         r1.codes.addAll(r2.codes);
         return r1;
     }
