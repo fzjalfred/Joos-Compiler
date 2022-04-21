@@ -82,7 +82,6 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(AndExpr node){
-
         node.ir_node = new BinOp(BinOp.OpType.ADD, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
     }
 
