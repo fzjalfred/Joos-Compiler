@@ -99,5 +99,7 @@ public abstract class Visitor {
     public void visit(StringLiteral node){}
     public void visit(ThisLiteral node){}
     public void visit(BoolLiteral node) {}
+    public void visit(AndExpr node){}
+    public void visit(OrExpr node){}
 
 }

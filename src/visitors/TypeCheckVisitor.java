@@ -1157,6 +1157,22 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         throw new SemanticError("Cannot cast " + t1 + " to " + t2);
     }
 
+    public void visit(AndExpr node){
+        if (node.getOperatorLeft().type.value.equals("boolean") && node.getOperatorRight().type.value.equals("boolean")){
+            node.type = node.getOperatorLeft().type;
+        }   else {
+            throw new SemanticError("no bitwise operation should occur");
+        }
+    }
+
+    public void visit(OrExpr node){
+        if (node.getOperatorLeft().type.value.equals("boolean") && node.getOperatorRight().type.value.equals("boolean")){
+            node.type = node.getOperatorLeft().type;
+        }   else {
+            throw new SemanticError("no bitwise operation should occur");
+        }
+    }
+
     @Override
     public void visit(MethodInvocation node) {
         Referenceable resMethod = null;

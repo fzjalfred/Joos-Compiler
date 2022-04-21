@@ -4,7 +4,7 @@ import visitors.Visitor;
 
 import java.util.List;
 
-public class EqualityExpr extends ConditionalAndExpr {
+public class EqualityExpr extends AndExpr {
     
     public EqualityExpr(List<ASTNode> children, String value){
         super(children, value);

@@ -833,9 +833,15 @@ equality_expr ::= relation_expr:e {:RESULT = e;:}
                 | equality_expr:e1 EQ:e2 relation_expr:e3 {:RESULT = new EqualityExpr(list(e1, e2, e3), "");:}
                 | equality_expr:e1 NE:e2 relation_expr:e3 {:RESULT = new EqualityExpr(list(e1, e2, e3), "");:};
 
+and_expr ::= equality_expr:e {:RESULT = e;:}
+            | and_expr:e1 BITWISEAND equality_expr:e2 {:RESULT = new AndExpr(list(e1, e2), "");:};
 
-conditional_and_expr ::= equality_expr:e {:RESULT = e;:}
-                        | conditional_and_expr:e1 BINARYAND equality_expr:e2 {:RESULT = new ConditionalAndExpr(list(e1, e2), "");:};
+or_expr ::= and_expr:e {:RESULT = e;:}
+          | or_expr:e1 BITWISEOR and_expr:e2 {:RESULT = new OrExpr(list(e1, e2), "");:};
+
+
+conditional_and_expr ::= or_expr:e {:RESULT = e;:}
+                        | conditional_and_expr:e1 BINARYAND or_expr:e2 {:RESULT = new ConditionalAndExpr(list(e1, e2), "");:};
 
 conditional_or_expr ::= conditional_and_expr:e {:RESULT = e;:}
                         | conditional_or_expr:e1 BINARYOR conditional_and_expr:e2 {:RESULT = new ConditionalOrExpr(list(e1, e2), "");:};
