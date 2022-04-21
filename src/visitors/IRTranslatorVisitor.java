@@ -82,35 +82,12 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(AndExpr node){
-        Temp temp = new Temp("t");
-        List <Statement> stmts = new ArrayList<Statement>();
 
-        Label true_label = new Label("true_"+node.hashCode());
-        Label false_label = new Label("false_"+node.hashCode());
-
-        stmts.add(new Move(temp, new Const(0)));
-        stmts.add(new CJump(node.getOperatorLeft().ir_node, true_label.name(), false_label.name()));
-        stmts.add(true_label);
-        stmts.add(new Move(temp, node.getOperatorRight().ir_node));
-        stmts.add(false_label);
-
-        node.ir_node = new ESeq(new Seq(stmts), temp);
+        node.ir_node = new BinOp(BinOp.OpType.ADD, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
     }
 
     public void visit(OrExpr node){
-        Temp temp = new Temp("t");
-        List <Statement> stmts = new ArrayList<Statement>();
-
-        Label true_label = new Label("true_"+node.hashCode());
-        Label false_label = new Label("false_"+node.hashCode());
-
-        stmts.add(new Move(temp, new Const(1)));
-        stmts.add(new CJump(node.getOperatorLeft().ir_node, true_label.name(), false_label.name()));
-        stmts.add(false_label);
-        stmts.add(new Move(temp, node.getOperatorRight().ir_node));
-        stmts.add(true_label);
-
-        node.ir_node = new ESeq(new Seq(stmts), temp);
+        node.ir_node = new BinOp(BinOp.OpType.OR, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
     }
 
 
@@ -680,12 +657,12 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.NEQ, expr_c1,expr_c2),
                 lt, lf));
-        } else if ((expr instanceof ConditionalAndExpr || expr instanceof AndExpr) && expr.children.size() == 2){
+        } else if ((expr instanceof ConditionalAndExpr) && expr.children.size() == 2){
             Label l = new Label("condAndlabel_" + expr.hashCode());
             stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), l.name(), lf));
             stmts.add(l);
             stmts.addAll(getConditionalIRNode(expr.getOperatorRight(), lt, lf));
-        } else if ((expr instanceof ConditionalOrExpr || expr instanceof OrExpr) && expr.children.size() == 2) {
+        } else if ((expr instanceof ConditionalOrExpr) && expr.children.size() == 2) {
             Label l = new Label("condOrlabel_" + expr.hashCode());
             stmts.addAll(getConditionalIRNode(expr.getOperatorLeft(), lt, l.name()));
             stmts.add(l);
