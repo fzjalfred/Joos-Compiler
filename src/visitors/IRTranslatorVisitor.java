@@ -204,14 +204,13 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(CastExpr node){
         if (node.type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)(node.type)).typeDecl == ObjectDecl && node.getOperatorRight().type instanceof ArrayType){
-            node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorRight().ir_node, new Const(4));
+            node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorRight().ir_node, new Const(8));
         }   else if (node.type instanceof ArrayType) {
             ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
             if (node.getOperatorRight().type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)node.getOperatorRight().type).typeDecl == ObjectDecl){
-               System.out.println("haha");
-		 Temp arrHead = new Temp("arrHead_"+node.hashCode());
+		        Temp arrHead = new Temp("arrHead_"+node.hashCode());
                 Temp resHead = new Temp("res"+node.hashCode());
-                Seq codes = new Seq(new Move(resHead,new BinOp(BinOp.OpType.ADD, node.getOperatorRight().ir_node, new Const(4))), new Move(arrHead, new Mem(resHead)));
+                Seq codes = new Seq(new Move(resHead,new BinOp(BinOp.OpType.ADD, node.getOperatorRight().ir_node, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, node.getOperatorRight().ir_node, new Const(4))));
                 Label trueLabel = new Label("TrueLabel_" +node.hashCode());
                 codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                 codes.stmts().add(new Exp(new Call(new Name("__exception"))));
@@ -220,7 +219,7 @@ public class IRTranslatorVisitor extends Visitor {
             }   else if (node.getOperatorRight().type instanceof ArrayType){
                 Expr_c right = new Temp("right_"+node.hashCode());
                 Temp arrHead = new Temp("arrHead_"+node.hashCode());
-                Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new Mem(right)));
+                Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new BinOp(BinOp.OpType.SUB, right, new Const(4))));
                 Label trueLabel = new Label("TrueLabel_" +node.hashCode());
                 codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                 codes.stmts().add(new Exp(new Call(new Name("__exception"))));
@@ -315,9 +314,18 @@ public class IRTranslatorVisitor extends Visitor {
             node.ir_node = new Move(acs.ir_node, ((Assignment)child).getAssignmentRight().ir_node );
         } else if (child instanceof Assignment){
             Assignment assignmentChild = (Assignment)child;
-            Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
-            Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
-            node.ir_node = new Move(left_res, right_res);
+            if (assignmentChild.getAssignmentLeft().type instanceof ClassOrInterfaceType && assignmentChild.getAssignmentRight().type instanceof ArrayType){
+                TypeDecl decl = ((ClassOrInterfaceType)assignmentChild.getAssignmentLeft().type).typeDecl;
+                if (decl != ObjectDecl) throw new BackendError("cannot assign arr type to non-Object type");
+                Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
+                Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
+                Temp tmp = new Temp("assArr_"+node.hashCode());
+                node.ir_node = new Seq(new Move(tmp, right_res), new Move(left_res, new BinOp(BinOp.OpType.SUB, tmp, new Const(8))));
+            }   else {
+                Expr_c right_res = assignmentChild.getAssignmentRight().ir_node;
+                Expr_c left_res = assignmentChild.getAssignmentLeft().ir_node;
+                node.ir_node = new Move(left_res, right_res);
+            }
         } else {
             node.ir_node = new Exp(node.getExpr().ir_node);
         }
