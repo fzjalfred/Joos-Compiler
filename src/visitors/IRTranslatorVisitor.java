@@ -208,21 +208,24 @@ public class IRTranslatorVisitor extends Visitor {
         }   else if (node.type instanceof ArrayType) {
             ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
             if (node.getOperatorRight().type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)node.getOperatorRight().type).typeDecl == ObjectDecl){
-                Temp arrHead = new Temp("arrHead_"+node.hashCode());
+               System.out.println("haha");
+		 Temp arrHead = new Temp("arrHead_"+node.hashCode());
                 Temp resHead = new Temp("res"+node.hashCode());
                 Seq codes = new Seq(new Move(resHead,new BinOp(BinOp.OpType.ADD, node.getOperatorRight().ir_node, new Const(4))), new Move(arrHead, new Mem(resHead)));
                 Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-                codes.stmts().add(new CJump(instanceOfTestGeneral(node.getOperatorRight(), classType), trueLabel.name()));
+                codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                 codes.stmts().add(new Exp(new Call(new Name("__exception"))));
-                node.ir_node = new ESeq(codes, resHead);
+                codes.stmts().add(trueLabel);
+		node.ir_node = new ESeq(codes, resHead);
             }   else if (node.getOperatorRight().type instanceof ArrayType){
                 Expr_c right = new Temp("right_"+node.hashCode());
                 Temp arrHead = new Temp("arrHead_"+node.hashCode());
                 Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new Mem(right)));
                 Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-                codes.stmts().add(new CJump(instanceOfTestGeneral(node.getOperatorRight(), classType), trueLabel.name()));
+                codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                 codes.stmts().add(new Exp(new Call(new Name("__exception"))));
-                node.ir_node = new ESeq(codes, right);
+                codes.stmts().add(trueLabel);
+		node.ir_node = new ESeq(codes, right);
             }   else {
                 throw new BackendError("no such cast " + node);
             }
