@@ -35,6 +35,7 @@ public class Main {
 		writer.println(new dcc(dcc.ccType.d, new LabelOperand( charListLabel.name )));
 		writer.println(new dcc(dcc.ccType.d, new Const(realStr.length())));
 		writer.println(new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(ObjectDecl, env))));
+		writer.println(new dcc(dcc.ccType.d, new Const(0)));
 		writer.println(charListLabel);
 		for (int i = 0; i < realStr.length(); i++){
 			writer.println(new dcc(dcc.ccType.d, new Const(realStr.charAt(i))));

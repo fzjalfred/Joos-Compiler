@@ -206,18 +206,32 @@ public class IRTranslatorVisitor extends Visitor {
         if (node.type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)(node.type)).typeDecl == ObjectDecl && node.getOperatorRight().type instanceof ArrayType){
             node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorRight().ir_node, new Const(8));
         }   else if (node.type instanceof ArrayType) {
-            ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
+
             if (node.getOperatorRight().type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)node.getOperatorRight().type).typeDecl == ObjectDecl){
-                Temp right = new Temp("right_"+node.hashCode());
-		        Temp arrHead = new Temp("arrHead_"+node.hashCode());
-                Temp resHead = new Temp("res"+node.hashCode());
-                Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(resHead,new BinOp(BinOp.OpType.ADD, right, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, right, new Const(4))));
-                Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-                codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
-                codes.stmts().add(new Exp(new Call(new Name("__exception"))));
-                codes.stmts().add(trueLabel);
-		node.ir_node = new ESeq(codes, resHead);
+                if (((ArrayType)node.type).getType() instanceof ClassOrInterfaceType){
+                    ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
+                    Temp right = new Temp("right_"+node.hashCode());
+                    Temp arrHead = new Temp("arrHead_"+node.hashCode());
+                    Temp resHead = new Temp("res"+node.hashCode());
+                    Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(resHead,new BinOp(BinOp.OpType.ADD, right, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, right, new Const(4))));
+                    Label trueLabel = new Label("TrueLabel_" +node.hashCode());
+                    codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
+                    codes.stmts().add(new Exp(new Call(new Name("__exception"))));
+                    codes.stmts().add(trueLabel);
+                    node.ir_node = new ESeq(codes, resHead);
+                }   else {
+                    Temp right = new Temp("right_"+node.hashCode());
+                    Temp arrHead = new Temp("arrHead_"+node.hashCode());
+                    Temp resHead = new Temp("res"+node.hashCode());
+                    Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(resHead,new BinOp(BinOp.OpType.ADD, right, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, right, new Const(4))));
+                    Label trueLabel = new Label("TrueLabel_" +node.hashCode());
+                    codes.stmts().add(new CJump(new BinOp(BinOp.OpType.EQ, new Mem(arrHead), new Const(0)), trueLabel.name()));
+                    codes.stmts().add(new Exp(new Call(new Name("__exception"))));
+                    codes.stmts().add(trueLabel);
+                    node.ir_node = new ESeq(codes, resHead);
+                }
             }   else if (node.getOperatorRight().type instanceof ArrayType){
+                ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
                 Expr_c right = new Temp("right_"+node.hashCode());
                 Temp arrHead = new Temp("arrHead_"+node.hashCode());
                 Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new BinOp(BinOp.OpType.SUB, right, new Const(4))));
