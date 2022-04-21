@@ -208,9 +208,10 @@ public class IRTranslatorVisitor extends Visitor {
         }   else if (node.type instanceof ArrayType) {
             ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
             if (node.getOperatorRight().type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)node.getOperatorRight().type).typeDecl == ObjectDecl){
+                Temp right = new Temp("right_"+node.hashCode());
 		        Temp arrHead = new Temp("arrHead_"+node.hashCode());
                 Temp resHead = new Temp("res"+node.hashCode());
-                Seq codes = new Seq(new Move(resHead,new BinOp(BinOp.OpType.ADD, node.getOperatorRight().ir_node, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, node.getOperatorRight().ir_node, new Const(4))));
+                Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(resHead,new BinOp(BinOp.OpType.ADD, right, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, right, new Const(4))));
                 Label trueLabel = new Label("TrueLabel_" +node.hashCode());
                 codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                 codes.stmts().add(new Exp(new Call(new Name("__exception"))));
@@ -376,6 +377,7 @@ public class IRTranslatorVisitor extends Visitor {
         List<tir.src.joosc.ir.ast.Expr> args = new ArrayList<tir.src.joosc.ir.ast.Expr>();
 
         MethodDecl method_decl = null;
+        Seq codes = new Seq();
         if (node.whichMethod instanceof MethodDecl) {
             //function_addr
             Expr_c vtable = null;
@@ -419,11 +421,13 @@ public class IRTranslatorVisitor extends Visitor {
                     }
                 }
             } else {
-                args.add(node.getPrimary().ir_node);
+                Temp arg = new Temp("argtmp_"+node.hashCode());
+                codes.stmts().add(new Move(arg, node.getPrimary().ir_node));
+                args.add(arg);
                 if (node.getPrimary().getType() instanceof ArrayType){
-                    vtable = new Mem(new BinOp(BinOp.OpType.SUB,node.getPrimary().ir_node, new Const(8)));
+                    vtable = new Mem(new BinOp(BinOp.OpType.SUB,arg, new Const(8)));
                 }   else  {
-                    vtable = new Mem(node.getPrimary().ir_node);
+                    vtable = new Mem(arg);
                 }
             }
             if(node.getArgumentList() != null) {
@@ -432,7 +436,11 @@ public class IRTranslatorVisitor extends Visitor {
             ClassDecl classDecl = (ClassDecl)env.ASTNodeToScopes.get(method_decl).typeDecl;
             int offset = classDecl.methodMap.get(method_decl);
             funcAddr = new Mem(new BinOp(BinOp.OpType.ADD, vtable, new Const(offset)));
-            node.ir_node = new Call(funcAddr, args);
+            if (codes.stmts().isEmpty()){
+                node.ir_node = new Call(funcAddr, args);
+            }   else {
+                node.ir_node = new ESeq(codes, new Call(funcAddr, args));
+            }
             ((Call)node.ir_node).funcLabel = callingMethod;
         } else if (node.whichMethod instanceof AbstractMethodDecl) {
             
