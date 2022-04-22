@@ -7,6 +7,7 @@ import ast.MethodDecl;
 import backend.asm.Tile;
 import exception.BackendError;
 import tir.src.joosc.ir.ast.*;
+import tir.src.joosc.ir.interpret.Simulator;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
@@ -70,6 +71,7 @@ public class IRTranslator {
         for (FieldDecl fieldDecl : fieldDecls) {
             ir_comps.get(0).externStrs.add(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
         }
+        System.out.println(ir_comps.get(0).functions());
 
     }
 

@@ -117,12 +117,12 @@ public class IRTranslatorVisitor extends Visitor {
     public tir.src.joosc.ir.ast.Expr instanceOfTest(Expr_c testee, ClassDecl type){
         compUnit.externStrs.add(tools.getVtable(type, env));
         List<Statement> stmts = new ArrayList<>();
-        Temp head = new Temp("head");
+        Temp head = new Temp("head_"+testee.hashCode());
         Const zeroConst = new Const(0);
         Label nullLabel = new Label("nullLabel_" + tools.getLabelOffset());
         stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, head, zeroConst), nullLabel.name()));
         stmts.add(new Move(head , new Mem(testee)));
-        Temp res = new Temp("res");
+        Temp res = new Temp("res_"+testee.hashCode());
         stmts.add(new Move(res , zeroConst));
         Label targetClassVtable = new Label(tools.getVtable(type, env));
         Label loopLabel = new Label("loopLabel_" + tools.getLabelOffset());
@@ -640,7 +640,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ConditionalAndExpr node) {
-        Temp temp = new Temp("t");
+        Temp temp = new Temp("t_"+node.hashCode());
         List <Statement> stmts = new ArrayList<Statement>();
 
         Label true_label = new Label("true_"+node.hashCode());
@@ -656,7 +656,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ConditionalOrExpr node) {
-        Temp temp = new Temp("t");
+        Temp temp = new Temp("t_"+node.hashCode());
         List <Statement> stmts = new ArrayList<Statement>();
 
         Label true_label = new Label("true_"+node.hashCode());
@@ -875,7 +875,7 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(ArrayAccess node){
         List <Statement> stmts = new ArrayList<Statement>();
-        Temp ta = new Temp("ta");
+        Temp ta = new Temp("ta_"+node.hashCode());
         tir.src.joosc.ir.ast.Expr e1 = null;
         if (node.hasName()) {
             if (node.refer instanceof FieldDecl && ((FieldDecl)(node.refer)).isStatic()){
@@ -890,17 +890,16 @@ public class IRTranslatorVisitor extends Visitor {
             e1 = node.getExpr().ir_node;
         }
         stmts.add(new Move(ta, e1));
-        
         // // null check
         nullcheck(stmts, node, ta);
 
-        Temp ti = new Temp("ti");
+        Temp ti = new Temp("ti_"+node.hashCode());
         stmts.add(new Move(ti, node.getDimExpr().ir_node));
         
         // // bounds check
         boundcheck(stmts, node, ta, ti);
 
-        Temp res = new Temp("res");
+        Temp res = new Temp("res_"+node.hashCode());
         stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, ta, new BinOp(BinOp.OpType.MUL, ti, new Const(4)))));
         node.ir_node = new ESeq(new Seq(stmts), new Mem(res));
 
@@ -913,7 +912,7 @@ public class IRTranslatorVisitor extends Visitor {
             decl = (ClassDecl) ((ClassOrInterfaceType)type.getType()).typeDecl;
         }
         List <Statement> stmts = new ArrayList<Statement>();
-        Temp tn = new Temp("tn");
+        Temp tn = new Temp("tn_"+node.hashCode());
         
         stmts.add(new Move(tn, node.getDimExpr().ir_node));
         
@@ -926,7 +925,7 @@ public class IRTranslatorVisitor extends Visitor {
          stmts.add(new Exp(new Call(new Name("__exception"))));
          stmts.add(lower_bound_ok_label);
 
-        Temp tm = new Temp("tm");
+        Temp tm = new Temp("tm_"+node.hashCode());
         stmts.add(new Move(tm, new Call(new Name("__malloc"), new BinOp(BinOp.OpType.ADD, new BinOp(BinOp.OpType.MUL, tn, new Const(4)), new Const(12)))));
         stmts.add(new Move(new Mem(tm), tn));
 
@@ -955,7 +954,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(cleanup_done);
 
 
-        Temp res = new Temp("res");
+        Temp res = new Temp("res_"+ node.hashCode());
         stmts.add(new Move(res, new BinOp(BinOp.OpType.ADD, tm, new Const(4*3))));
         //stmts.add(new Exp(new Call(new Name("__exception"))));
         node.ir_node = new ESeq(new Seq(stmts), res);
