@@ -308,7 +308,17 @@ public class IRTranslatorVisitor extends Visitor {
         if (node.getMethodHeader().ir_node != null) {
             stmts.addAll(node.getMethodHeader().ir_node);
         }
-        Seq seq_node = (Seq)node.getMethodBody().ir_node;
+
+        Seq seq_node;
+        if (node == ((MethodList)(env.lookup(tools.nameConstructor("java.io.OutputStream.nativeWrite")))).methods.get(0)) {
+            List <Statement> seqStmts = new ArrayList<Statement>();
+            List<tir.src.joosc.ir.ast.Expr> printArgs = new ArrayList<tir.src.joosc.ir.ast.Expr>();
+            printArgs.add(new Temp(node.getFirstParamName()));
+            seqStmts.add(new Exp(new Call(new Name("NATIVEjava.io.OutputStream.nativeWrite"), printArgs))); //debug
+            seq_node = new Seq(seqStmts);
+        } else {
+            seq_node = (Seq)node.getMethodBody().ir_node;
+        }
 
         int paramNum = node.getMethodHeader().getMethodDeclarator().numParams();
         if (!node.isStatic()) {
@@ -317,6 +327,8 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
         node.funcDecl = new FuncDecl(name, paramNum, body, new FuncDecl.Chunk());
+        System.out.println();
+        System.out.println(node.funcDecl);
         compUnit.appendFunc(node.funcDecl);
     }
 

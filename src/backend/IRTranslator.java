@@ -56,7 +56,7 @@ public class IRTranslator {
         List<FieldDecl> fieldDecls = new ArrayList<>();
         int index = 0;
         for (CompilationUnit comp : comps){
-            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String") || comp.fileName.contains("Arrays") ){
+            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String") || comp.fileName.contains("Arrays") || comp.fileName.contains("Stream") || comp.fileName.contains("Serializable")){
 //                System.out.println(comp.fileName);
                 comp.accept(visitor);
                 ir_comps.add(visitor.compUnit);

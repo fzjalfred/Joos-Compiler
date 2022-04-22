@@ -55,6 +55,17 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
         return mh.getName();
     }
 
+    public String getFirstParamName() {
+        MethodHeader mh = getMethodHeader();
+        MethodDeclarator methodDeclarator = mh.getMethodDeclarator();
+        if (methodDeclarator.hasParameterList()) {
+            ParameterList parameterList = methodDeclarator.getParameterList();
+            return parameterList.getParams().get(0).getVarDeclaratorID().getName();
+        } else {
+            return "";
+        }
+    }
+
     public List<Type> getParamType() {
         MethodHeader methodHeader = getMethodHeader();
         MethodDeclarator methodDeclarator = methodHeader.getMethodDeclarator();
