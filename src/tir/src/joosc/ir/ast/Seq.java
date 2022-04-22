@@ -141,7 +141,7 @@ public class Seq extends Statement {
         int index = 0;
         List<Statement> newStmts = new ArrayList<Statement>();
         boolean skipNext = false;
-        Tile restile = null;
+        Tile restile = v.unit();
         for (int i = 0; i < stmts().size(); i++) {
             Statement statement = stmts().get(i);
             if (i == stmts().size()-1){
