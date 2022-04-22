@@ -100,9 +100,22 @@ public class IRTranslatorVisitor extends Visitor {
             return new Const(0);
         }
     }
-    public tir.src.joosc.ir.ast.Expr instanceOfTestObjToArr(Expr_c testee, ArrayType type){
-        
-        return null;
+
+    public tir.src.joosc.ir.ast.Expr instanceOfTestGeneralCast(Expr expr, ReferenceType type, Expr_c ir){
+        if (expr.type instanceof NullType) {
+            return new Const(1);
+        }
+        if (type instanceof ClassOrInterfaceType) {
+            ClassDecl classDecl = (ClassDecl) ((ClassOrInterfaceType) type).typeDecl;
+            if (classDecl.parentClass == null) return new Const(1); // type is Object
+            else if (expr.type instanceof PrimitiveType) return new Const(0);
+            else if (expr.type instanceof ArrayType) {
+                return new BinOp(BinOp.OpType.EQ, ir, new Const(0));
+            }
+            else return instanceOfTestForCast(ir, classDecl);
+        }   else {
+            return new Const(0);
+        }
     }
 
     public void visit(AndExpr node){
@@ -113,6 +126,38 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = new BinOp(BinOp.OpType.OR, node.getOperatorLeft().ir_node, node.getOperatorRight().ir_node);
     }
 
+    public tir.src.joosc.ir.ast.Expr instanceOfTestForCast(Expr_c testee, ClassDecl type){
+        compUnit.externStrs.add(tools.getVtable(type, env));
+        List<Statement> stmts = new ArrayList<>();
+        Temp head = new Temp("head_"+testee.hashCode());
+        Const zeroConst = new Const(0);
+        Label nullLabel = new Label("nullLabel_" + tools.getLabelOffset());
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, head, zeroConst), nullLabel.name()));
+        stmts.add(new Move(head , new Mem(testee)));
+        Temp res = new Temp("res_"+testee.hashCode());
+        stmts.add(new Move(res , zeroConst));
+        Label targetClassVtable = new Label(tools.getVtable(type, env));
+        Label loopLabel = new Label("loopLabel_" + tools.getLabelOffset());
+        Label trueLabel = new Label("trueLabel_" + tools.getLabelOffset());
+        Label successLabel = new Label("successLabel_" + tools.getLabelOffset());
+        Label failLabel = new Label("failLabel_" + tools.getLabelOffset());
+        Label endLabel = new Label("endLabel_" + tools.getLabelOffset());
+        stmts.add(loopLabel);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.NEQ, head, zeroConst), trueLabel.name(), endLabel.name()));
+        stmts.add(trueLabel);
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, head, new Name(targetClassVtable.name())), successLabel.name(), failLabel.name()));
+        stmts.add(successLabel);
+        stmts.add(new Move(res, new Const(1)));
+        stmts.add(new Jump(new Name(endLabel.name())));
+        stmts.add(failLabel);
+        stmts.add(new Move(head, new Mem(new BinOp(BinOp.OpType.ADD, head, new Const(4)))));
+        stmts.add(new Jump(new Name(loopLabel.name())));
+        stmts.add(new Move(res, new Const(1)));
+        stmts.add(nullLabel);
+        stmts.add(endLabel);
+
+        return new ESeq(new Seq(stmts), res);
+    }
 
     public tir.src.joosc.ir.ast.Expr instanceOfTest(Expr_c testee, ClassDecl type){
         compUnit.externStrs.add(tools.getVtable(type, env));
@@ -229,11 +274,12 @@ public class IRTranslatorVisitor extends Visitor {
         }
     }
 
+
     public void visit(CastExpr node){
+        Label nullLabel = new Label("nullLabel_"+node.hashCode());
         if (node.type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)(node.type)).typeDecl == ObjectDecl && node.getOperatorRight().type instanceof ArrayType){
             node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorRight().ir_node, new Const(8));
         }   else if (node.type instanceof ArrayType) {
-
             if (node.getOperatorRight().type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)node.getOperatorRight().type).typeDecl == ObjectDecl){
                 if (((ArrayType)node.type).getType() instanceof ClassOrInterfaceType){
                     ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
@@ -242,7 +288,7 @@ public class IRTranslatorVisitor extends Visitor {
                     Temp resHead = new Temp("res"+node.hashCode());
                     Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(resHead,new BinOp(BinOp.OpType.ADD, right, new Const(8))), new Move(arrHead, new BinOp(BinOp.OpType.ADD, right, new Const(4))));
                     Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-                    codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
+                    codes.stmts().add(new CJump(instanceOfTestForCast(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                     codes.stmts().add(new Exp(new Call(new Name("__exception"))));
                     codes.stmts().add(trueLabel);
                     node.ir_node = new ESeq(codes, resHead);
@@ -264,7 +310,7 @@ public class IRTranslatorVisitor extends Visitor {
                     Temp arrHead = new Temp("arrHead_"+node.hashCode());
                     Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new BinOp(BinOp.OpType.SUB, right, new Const(4))));
                     Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-                    codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
+                    codes.stmts().add(new CJump(instanceOfTestForCast(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
                     codes.stmts().add(new Exp(new Call(new Name("__exception"))));
                     codes.stmts().add(trueLabel);
                     node.ir_node = new ESeq(codes, right);
@@ -280,7 +326,7 @@ public class IRTranslatorVisitor extends Visitor {
             List<Statement> codes = new ArrayList<>();
             codes.add(new Move(right, node.getOperatorRight().ir_node));
             Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-            codes.add(new CJump(instanceOfTestGeneral(node.getOperatorRight(), referenceType, right), trueLabel.name()));
+            codes.add(new CJump(instanceOfTestGeneralCast(node.getOperatorRight(), referenceType, right), trueLabel.name()));
             codes.add(new Exp(new Call(new Name("__exception"))));
             codes.add(trueLabel);
             node.ir_node = new ESeq(new Seq(codes), right);
@@ -985,7 +1031,7 @@ public class IRTranslatorVisitor extends Visitor {
 	    Temp thisTemp = new Temp("_THIS");
 	    stmts.add(new Move(thisTemp, heapStart));
 
-        for (FieldDecl fieldDecl : initClass.fieldMap.keySet()) {
+        for (FieldDecl fieldDecl : initClass.getAllNonStaticFieldDecls()) {
             int fieldOffset = initClass.fieldMap.get(fieldDecl);
             if (fieldDecl.hasRight()) {
                 Expr expr = fieldDecl.getExpr();
