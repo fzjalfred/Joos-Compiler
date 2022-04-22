@@ -231,15 +231,19 @@ public class IRTranslatorVisitor extends Visitor {
                     node.ir_node = new ESeq(codes, resHead);
                 }
             }   else if (node.getOperatorRight().type instanceof ArrayType){
-                ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
-                Expr_c right = new Temp("right_"+node.hashCode());
-                Temp arrHead = new Temp("arrHead_"+node.hashCode());
-                Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new BinOp(BinOp.OpType.SUB, right, new Const(4))));
-                Label trueLabel = new Label("TrueLabel_" +node.hashCode());
-                codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
-                codes.stmts().add(new Exp(new Call(new Name("__exception"))));
-                codes.stmts().add(trueLabel);
-		node.ir_node = new ESeq(codes, right);
+                if (((ArrayType)node.type).getType() instanceof ClassOrInterfaceType){
+                    ClassOrInterfaceType classType = ((ClassOrInterfaceType)((ArrayType)node.type).getType());
+                    Expr_c right = new Temp("right_"+node.hashCode());
+                    Temp arrHead = new Temp("arrHead_"+node.hashCode());
+                    Seq codes = new Seq(new Move(right, node.getOperatorRight().ir_node),new Move(arrHead, new BinOp(BinOp.OpType.SUB, right, new Const(4))));
+                    Label trueLabel = new Label("TrueLabel_" +node.hashCode());
+                    codes.stmts().add(new CJump(instanceOfTest(arrHead, (ClassDecl)classType.typeDecl), trueLabel.name()));
+                    codes.stmts().add(new Exp(new Call(new Name("__exception"))));
+                    codes.stmts().add(trueLabel);
+                    node.ir_node = new ESeq(codes, right);
+                }   else {
+                    node.ir_node = node.getOperatorRight().ir_node;
+                }
             }   else {
                 throw new BackendError("no such cast " + node);
             }
