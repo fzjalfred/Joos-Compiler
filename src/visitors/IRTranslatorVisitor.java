@@ -281,6 +281,10 @@ public class IRTranslatorVisitor extends Visitor {
 
     public void visit(CastExpr node){
         Label nullLabel = new Label("nullLabel_"+node.hashCode());
+        if (node.getOperatorRight().type instanceof  NullType) {
+            node.ir_node = node.getOperatorRight().ir_node;
+            return;
+        }
         if (node.type instanceof ClassOrInterfaceType && ((ClassOrInterfaceType)(node.type)).typeDecl == ObjectDecl && node.getOperatorRight().type instanceof ArrayType){
             node.ir_node = new BinOp(BinOp.OpType.SUB, node.getOperatorRight().ir_node, new Const(8));
         }   else if (node.type instanceof ArrayType) {
