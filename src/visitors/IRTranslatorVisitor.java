@@ -67,7 +67,7 @@ public class IRTranslatorVisitor extends Visitor {
     public tir.src.joosc.ir.ast.Expr instanceOfTestGeneral(Expr expr, ReferenceType type, Expr_c ir){
         if (type instanceof ClassOrInterfaceType) {
             ClassDecl classDecl = (ClassDecl) ((ClassOrInterfaceType) type).typeDecl;
-            if (classDecl.parentClass == null) return new Const(1); // type is Object
+            if (classDecl.parentClass == null) return new BinOp(BinOp.OpType.NEQ, ir, new Const(0)); // type is Object
             else if (expr.type instanceof PrimitiveType) return new Const(0);
             else if (expr.type instanceof ArrayType) {
                 return new Const(0);
@@ -75,7 +75,7 @@ public class IRTranslatorVisitor extends Visitor {
             else return instanceOfTest(ir, classDecl);
         }   else {
             ArrayType arrayType = (ArrayType)type;
-            if (arrayType.equals(expr.type)) return new Const(1);
+            if (arrayType.equals(expr.type)) return new BinOp(BinOp.OpType.NEQ, ir, new Const(0)); // type is Object
             if (expr.type instanceof ClassOrInterfaceType) {
                 ClassOrInterfaceType classOrInterfaceType = (ClassOrInterfaceType)expr.type;
                 if (classOrInterfaceType.typeDecl == ObjectDecl) {
