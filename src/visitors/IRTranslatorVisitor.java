@@ -622,7 +622,8 @@ public class IRTranslatorVisitor extends Visitor {
         if (node.getOperator().equals("*")){
             node.ir_node = new BinOp(BinOp.OpType.MUL,expr_c1, expr_c2);
         }   else if (node.getOperator().equals("/")){
-            node.ir_node = new ESeq(divisionByZeroCheck(expr_c2), new BinOp(BinOp.OpType.DIV,expr_c1, expr_c2));
+            Temp right = new Temp("right_"+node.hashCode());
+            node.ir_node = new ESeq(new Seq(new Move(right, expr_c2), divisionByZeroCheck(right)), new BinOp(BinOp.OpType.DIV,expr_c1, expr_c2));
         }   else {
             node.ir_node = new BinOp(BinOp.OpType.MOD,expr_c1, expr_c2);
         }
