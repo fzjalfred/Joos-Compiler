@@ -258,6 +258,26 @@ public class tools {
         return  prefix + '.' + classDecl.getName() + "_VTABLE";
     }
 
+    public static String getINTVtable(){
+        return "INT_VTABLE_" + 216812631;
+    }
+
+    public static String getCHARVtable(){
+        return "CHAR_VTABLE_" + 216812631;
+    }
+
+    public static String getSHORTVtable(){
+        return "SHORT_VTABLE_" + 216812631;
+    }
+
+    public static String getBYTEVtable(){
+        return "BYTE_VTABLE_" + 216812631;
+    }
+
+    public static String getBOOLEANVtable(){
+        return "BOOLEAN_VTABLE_" + 216812631;
+    }
+
     public static String getItable(ClassDecl classDecl, RootEnvironment env){
         String prefix = env.ASTNodeToScopes.get(classDecl).packageName;
         if (prefix.equals("")) return  classDecl.getName() + "_ITABLE";

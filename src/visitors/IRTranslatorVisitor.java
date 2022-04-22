@@ -63,16 +63,40 @@ public class IRTranslatorVisitor extends Visitor {
         }
         return new ESeq(fieldsReadCodes, new Mem(res));
     }
+    // TODO: null is not instanceof Others
     public tir.src.joosc.ir.ast.Expr instanceOfTestGeneral(Expr expr, ReferenceType type, Expr_c ir){
         if (type instanceof ClassOrInterfaceType) {
             ClassDecl classDecl = (ClassDecl) ((ClassOrInterfaceType) type).typeDecl;
             if (classDecl.parentClass == null) return new Const(1); // type is Object
             else if (expr.type instanceof PrimitiveType) return new Const(0);
-            else if (expr.type instanceof ArrayType) return new Const(0);
+            else if (expr.type instanceof ArrayType) {
+                return new Const(0);
+            }
             else return instanceOfTest(ir, classDecl);
         }   else {
             ArrayType arrayType = (ArrayType)type;
             if (arrayType.equals(expr.type)) return new Const(1);
+            if (expr.type instanceof ClassOrInterfaceType) {
+                ClassOrInterfaceType classOrInterfaceType = (ClassOrInterfaceType)expr.type;
+                if (classOrInterfaceType.typeDecl == ObjectDecl) {
+                    if (arrayType.getType() instanceof ClassOrInterfaceType){
+                        Seq codes = new Seq();
+                        Temp right = new Temp("right_" + expr.hashCode());
+                        codes.stmts().add(new Move(right, (new BinOp(BinOp.OpType.ADD, ir, new Const(4)))));
+                        return  new ESeq(codes, instanceOfTest(right, (ClassDecl) ((ClassOrInterfaceType)arrayType.getType()).typeDecl));
+                    }   else{
+                        Seq codes = new Seq();
+                        Temp right = new Temp("right_" + expr.hashCode());
+                        codes.stmts().add(new Move(right, (new BinOp(BinOp.OpType.ADD, ir, new Const(4)))));
+                        return new ESeq(codes, new BinOp(BinOp.OpType.EQ, right, new Const(0)));
+                    }
+                }
+            }   else if (expr.type instanceof ArrayType && ((ArrayType)expr.type).getType() instanceof ClassOrInterfaceType && arrayType.getType() instanceof ClassOrInterfaceType){
+                Seq codes = new Seq();
+                Temp right = new Temp("right_" + expr.hashCode());
+                codes.stmts().add(new Move(right, (new BinOp(BinOp.OpType.SUB, ir, new Const(4)))));
+                return  new ESeq(codes, instanceOfTest(right, (ClassDecl) ((ClassOrInterfaceType)arrayType.getType()).typeDecl));
+            }
             return new Const(0);
         }
     }
@@ -95,6 +119,8 @@ public class IRTranslatorVisitor extends Visitor {
         List<Statement> stmts = new ArrayList<>();
         Temp head = new Temp("head");
         Const zeroConst = new Const(0);
+        Label nullLabel = new Label("nullLabel_" + tools.getLabelOffset());
+        stmts.add(new CJump(new BinOp(BinOp.OpType.EQ, head, zeroConst), nullLabel.name()));
         stmts.add(new Move(head , new Mem(testee)));
         Temp res = new Temp("res");
         stmts.add(new Move(res , zeroConst));
@@ -115,6 +141,7 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(new Move(head, new Mem(new BinOp(BinOp.OpType.ADD, head, new Const(4)))));
         stmts.add(new Jump(new Name(loopLabel.name())));
         stmts.add(endLabel);
+        stmts.add(nullLabel);
 
         return new ESeq(new Seq(stmts), res);
     }
@@ -669,7 +696,7 @@ public class IRTranslatorVisitor extends Visitor {
             node.ir_node = new BinOp(BinOp.OpType.LEQ, expr_c1, expr_c2);
         } else { // TODO: array type
             ReferenceType type = (ReferenceType) node.getisInstanceOfRight();
-            if (type instanceof ClassOrInterfaceType){
+            if (type instanceof ReferenceType){
                 node.ir_node = (Expr_c) instanceOfTestGeneral(node.getOperatorLeft(), (ReferenceType)node.getisInstanceOfRight(), node.getOperatorLeft().ir_node);
             }
         }
@@ -719,7 +746,7 @@ public class IRTranslatorVisitor extends Visitor {
             stmts.add(new CJump(
                 new BinOp(BinOp.OpType.GEQ, expr_c1,expr_c2),
                 lt, lf));
-        } else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("==")) {
+        }   else if (expr instanceof EqualityExpr && ((EqualityExpr)expr).getOperator().equals("==")) {
             Expr_c expr_c1 = expr.getOperatorLeft().ir_node;
             Expr_c expr_c2 = expr.getOperatorRight().ir_node;;
             stmts.add(new CJump(
