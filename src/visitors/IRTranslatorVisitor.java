@@ -152,8 +152,8 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(failLabel);
         stmts.add(new Move(head, new Mem(new BinOp(BinOp.OpType.ADD, head, new Const(4)))));
         stmts.add(new Jump(new Name(loopLabel.name())));
-        stmts.add(new Move(res, new Const(1)));
         stmts.add(nullLabel);
+        stmts.add(new Move(res, new Const(1)));
         stmts.add(endLabel);
 
         return new ESeq(new Seq(stmts), res);
