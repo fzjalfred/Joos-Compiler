@@ -688,7 +688,7 @@ public class IRTranslatorVisitor extends Visitor {
         } else if (expr.boolStruct != null && expr.boolStruct.bool == false) {
             // C[false, lt, lf]
             stmts.add(new Jump(new Name(lf)));
-        } else if (expr instanceof PrimaryNoArray && expr.getSingleChild() instanceof Expr) {
+        } else if (expr instanceof PrimaryNoArray && expr.value.equals("()")) {
             return getConditionalIRNode(expr.getSingleChild(), lt, lf);
         } else if (expr instanceof UnaryExprNotPlusMinus && ((UnaryExprNotPlusMinus)expr).isNot()) {
             stmts.addAll(getConditionalIRNode(((UnaryExprNotPlusMinus)expr).getUnaryExpr(), lf, lt));
