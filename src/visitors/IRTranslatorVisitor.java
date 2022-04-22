@@ -327,8 +327,6 @@ public class IRTranslatorVisitor extends Visitor {
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
         node.funcDecl = new FuncDecl(name, paramNum, body, new FuncDecl.Chunk());
-        System.out.println();
-        System.out.println(node.funcDecl);
         compUnit.appendFunc(node.funcDecl);
     }
 
