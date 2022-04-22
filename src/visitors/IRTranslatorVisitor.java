@@ -710,13 +710,7 @@ public class IRTranslatorVisitor extends Visitor {
     public List<Statement> getConditionalIRNode(Expr expr, String lt, String lf) {
         List<Statement> stmts = new ArrayList<Statement>();
         Expr_c expr_c = expr.ir_node;
-        if (expr.boolStruct != null && expr.boolStruct.bool == true){
-            // C[true, lt, lf]
-            stmts.add(new Jump(new Name(lt)));
-        } else if (expr.boolStruct != null && expr.boolStruct.bool == false) {
-            // C[false, lt, lf]
-            stmts.add(new Jump(new Name(lf)));
-        }   else if (expr instanceof FieldAccess || expr instanceof MethodInvocation || expr instanceof ArrayAccess){
+        if (expr instanceof FieldAccess || expr instanceof MethodInvocation || expr instanceof ArrayAccess){
             stmts.add(new CJump(expr_c, lt, lf));
         }   else if (expr instanceof PrimaryNoArray && expr.value.equals("()")) {
             return getConditionalIRNode(expr.getSingleChild(), lt, lf);
