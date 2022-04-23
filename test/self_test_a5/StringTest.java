@@ -4,7 +4,8 @@ public class StringTest{
     }
 
     public static int test(){
-        if ("haha".equals("haha")) return 1;
-        return 0;
+        int res = 0;
+        for (int i = 0; i < "haha".length(); i = i+1) res = "haha".charAt(i) + res;
+        return res;
     }
 }

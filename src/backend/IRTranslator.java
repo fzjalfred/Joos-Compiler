@@ -55,13 +55,20 @@ public class IRTranslator {
     public void translate(){
         List<FieldDecl> fieldDecls = new ArrayList<>();
         int index = 0;
+        List <String> classTable = new ArrayList<>();
         for (CompilationUnit comp : comps){
-            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String") || comp.fileName.contains("Arrays")){
-//                System.out.println(comp.fileName);
+            if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String") || comp.fileName.contains("Arrays") 
+            || comp.fileName.contains("PrintStream") || comp.fileName.contains("Serializable") || comp.fileName.contains("System") || comp.fileName.contains("OutputStream")){
                 comp.accept(visitor);
                 ir_comps.add(visitor.compUnit);
                 if (index != 0) {
                     fieldDecls.addAll(visitor.compUnit.staticFields);
+                    classTable.addAll(visitor.compUnit.definedLabels);
+                    visitor.compUnit.constructFullName();
+                    if (visitor.compUnit.VTableName != "") {
+                        classTable.add(visitor.compUnit.VTableName);
+                        classTable.add(visitor.compUnit.ITableName);
+                    }  
                 }
             }
             index++;
@@ -71,6 +78,7 @@ public class IRTranslator {
         for (FieldDecl fieldDecl : fieldDecls) {
             ir_comps.get(0).externStrs.add(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
         }
+        ir_comps.get(0).externStrs.addAll(classTable);
         System.out.println(ir_comps.get(0).functions());
 
     }

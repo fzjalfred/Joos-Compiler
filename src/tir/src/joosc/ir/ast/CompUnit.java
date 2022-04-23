@@ -30,6 +30,15 @@ public class CompUnit extends Node_c {
     public RootEnvironment env;
     public Map<AbstractMethodDecl, Integer> interfaceMethodMap = null;
     public List<FieldDecl> staticFields = new ArrayList<FieldDecl>();
+    public String VTableName = "";
+    public String ITableName = "";
+
+    public void constructFullName() {
+        if (oriType instanceof ClassDecl) {
+            VTableName = tools.getVtable((ClassDecl)oriType, env);
+            ITableName = tools.getItable((ClassDecl)oriType, env);
+        } 
+    }
 
     public List<Code> constructVtable(){
         if (oriType instanceof ClassDecl){
@@ -42,6 +51,7 @@ public class CompUnit extends Node_c {
             if (classDecl.parentClass != null) {
                 codes[1] = new dcc(dcc.ccType.d, new LabelOperand(tools.getVtable(classDecl.parentClass, env)));
                 externStrs.add(tools.getVtable(classDecl.parentClass, env));
+                externStrs.add(tools.getVtable((ClassDecl)env.lookup(tools.nameConstructor("java.lang.Object")), env));
             }
             else codes[1] = new dcc(dcc.ccType.d, new LabelOperand("0"));
             for (MethodDecl methodDecl : classDecl.methodMap.keySet()) {

@@ -326,7 +326,10 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 checkProtected(currRes, null);
                 res = currRes;
                 if (currRes instanceof FieldDecl){
-                    first_reciever = new ThisLiteral(tools.empty(), "this");
+                    ThisLiteral receiver = new ThisLiteral(tools.empty(), "this");
+                    receiver.type = tools.getClassType(((ClassDecl)env.ASTNodeToScopes.get(node).typeDecl).getName(), env.ASTNodeToScopes.get(node).typeDecl);
+                    first_reciever = receiver;
+
                     fields.add((FieldDecl)currRes);
                 }   else {
                     first_reciever = currRes;
@@ -340,7 +343,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
             // second check inherit map
             if (containMap.containsKey(nameStr)){
-                first_reciever = new ThisLiteral(tools.empty(), "this");
+                ThisLiteral receiver = new ThisLiteral(tools.empty(), "this");
+                    receiver.type = tools.getClassType(((ClassDecl)env.ASTNodeToScopes.get(node).typeDecl).getName(), env.ASTNodeToScopes.get(node).typeDecl);
+                    first_reciever = receiver;
                 FieldDecl  field = tools.fetchField(containMap.get(nameStr));
                 if (field != null){
                     checkProtected(field, null);
@@ -1200,7 +1205,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             String[] receiver_str = methodNameStr.split("\\.");
             Expr receiver = null;
             if (receiver_str.length == 1) {
-                receiver = new ThisLiteral(Arrays.asList(), "this");
+                ThisLiteral _receiver = new ThisLiteral(tools.empty(), "this");
+                    _receiver.type = tools.getClassType(((ClassDecl)env.ASTNodeToScopes.get(node).typeDecl).getName(), env.ASTNodeToScopes.get(node).typeDecl);
+                    receiver = _receiver;
                 if (containMap.containsKey(methodNameStr)){
                     resMethod = tools.fetchMethod(containMap.get(methodNameStr), node.getArgumentTypeList(), this);
                     if (!checkStaticUse(resMethod)) throw new SemanticError("cannot use non-static method " + resMethod + " in static class member decl");
@@ -1337,7 +1344,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 nameStr += str;
                 if (isLastIdx(idx, names.size())){  // check method case
                     if (containMap.containsKey(nameStr)){
-                        node.receiver = new ThisLiteral(null, "this");
+                        ThisLiteral receiver = new ThisLiteral(tools.empty(), "this");
+                        receiver.type = tools.getClassType(((ClassDecl)env.ASTNodeToScopes.get(node).typeDecl).getName(), env.ASTNodeToScopes.get(node).typeDecl);
+                        node.receiver = receiver;
                         resMethod = tools.fetchMethod(containMap.get(nameStr), node.getArgumentTypeList(), this);
                         if (!checkStaticUse(resMethod)) throw new SemanticError("cannot use non-static method " + resMethod + " in static class member decl");
                         if (resMethod != null) break;

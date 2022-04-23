@@ -10,7 +10,7 @@ do
   rm $file
 done
 
-./joosc $* $(find stdlib/2.0/java/ -name *.java )
+./joosc $* $(find stdlib/5.0/java/ -name *.java )
 cd output
 FILES=($(ls *.s))
 
