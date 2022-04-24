@@ -63,6 +63,7 @@ public class IRTranslatorVisitor extends Visitor {
 
 
         }
+        //System.out.println("first reciever is " + first_receiver + " fields are " + fields + "res is " + new ESeq(fieldsReadCodes, new Mem(res)));
         return new ESeq(fieldsReadCodes, new Mem(res));
     }
     // TODO: null is not instanceof Others
@@ -352,7 +353,7 @@ public class IRTranslatorVisitor extends Visitor {
         //     System.out.println(node.funcDecl);
         //     System.out.println();
         // }
-        System.out.println("function decl in " + node + " is " + node.funcDecl);
+        //System.out.println("function decl in " + node + " is " + node.funcDecl);
         currFunc = node.funcDecl;
         compUnit.appendFunc(node.funcDecl);
     }
@@ -1025,7 +1026,7 @@ public class IRTranslatorVisitor extends Visitor {
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
 	    Temp thisTemp = new Temp("THIS_"+consName);
-
+        FuncDecl reserved = currFunc;
 	    if (callingConstructor.funcDecl == null){
             String name = callingConstructor.getName() + "_" + hashCode();
             callingConstructor.funcDecl = new FuncDecl(name, 0, null);
@@ -1079,12 +1080,14 @@ public class IRTranslatorVisitor extends Visitor {
         exprList.add(heapStart);
         if (node.getArgumentList() != null) {
             exprList.addAll(node.getArgumentList().ir_node);
+            //System.out.println("in class " + consName + " args are " + node.getArgumentList().ir_node);
             stmts.add(new Exp(new Call(consAddr, exprList)));
         } else {
 
             stmts.add(new Exp(new Call(consAddr, exprList)));
         }
         node.ir_node = new ESeq(new Seq(stmts), heapStart);
+        currFunc = reserved;
     }
 
     public void visit(ConstructorDeclarator node) {
