@@ -1136,7 +1136,11 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ClassDecl node) {
-        compUnit.staticFields.addAll(node.getStaticFieldDecls());
+        List<FieldDecl> fields = node.getStaticFieldDecls();
+        for (FieldDecl f : fields){
+            compUnit.definedLabels.add(f.getFirstVarName() + "_" + f.hashCode());
+        }
+        compUnit.staticFields.addAll(fields);
     }
 
 
