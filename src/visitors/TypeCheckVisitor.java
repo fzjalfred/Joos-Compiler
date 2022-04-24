@@ -962,12 +962,15 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         }
 
         // method map
-        List <MethodDecl> methodDecls = node.getMethodDecls();
+        List <MethodDecl> methodDecls = node.getAllNonStaticMethodDecls();
         int methodOffset = 8;
+//        System.out.println("ClassDecl: " + node.getName());
         for (MethodDecl methodDecl : methodDecls) {
+//            System.out.println("Method: "+ methodDecl.getName() + " offset: "+methodOffset);
             node.methodMap.put(methodDecl, methodOffset);
             methodOffset += 4;
         }
+//        System.out.println();
         currTypeDecl = node;
 
         /** check its super constructor */

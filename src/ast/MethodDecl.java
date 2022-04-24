@@ -19,6 +19,38 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
         funcDecl = null;
     }
 
+    public boolean hasSameSig(MethodDecl other) {
+        // compare 2 names
+        if (getName().equals(other.getName())) {
+            // compare paramList
+            List<Type> myTypes = getParamType();
+            List<Type> otherTypes = other.getParamType();
+
+            if (myTypes == null && otherTypes == null) {
+                return true;
+            } else if (myTypes == null || otherTypes == null) {
+                return false;
+            }
+
+            if (myTypes.size() == otherTypes.size()) {
+                int index = 0;
+                boolean same = true;
+                for (Type myType : myTypes) {
+                    Type otherType = otherTypes.get(index);
+                    if (!myType.equals(otherType)) {
+                        same = false;
+                        break;
+                    }
+                    index++;
+                }
+                if (same){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isTest() {
         String name = getName();
         if (name.equals("test")) {

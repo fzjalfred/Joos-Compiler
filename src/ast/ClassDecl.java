@@ -57,18 +57,48 @@ public class ClassDecl extends TypeDecl{
     }
 
 
-    public List<MethodDecl> getMethodDecls(){
-        List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
+//    public List<MethodDecl> getMethodDecls(){
+//        List <MethodDecl> methodDecls = new ArrayList<MethodDecl>();
+//
+//        for (String key : containMap.keySet()) {
+//            List <ASTNode> nodes = containMap.get(key);
+//            for (ASTNode node : nodes) {
+//                if (node instanceof MethodDecl && !((MethodDecl)node).isStatic()) {
+//                    methodDecls.add((MethodDecl) node);
+//                }
+//            }
+//        }
+//        return methodDecls;
+//    }
 
-        for (String key : containMap.keySet()) {
-            List <ASTNode> nodes = containMap.get(key);
-            for (ASTNode node : nodes) {
-                if (node instanceof MethodDecl && !((MethodDecl)node).isStatic()) {
-                    methodDecls.add((MethodDecl) node);
+
+    public List<MethodDecl> getAllNonStaticMethodDecls() {
+        if (parentClass != null) {
+            List <MethodDecl> parentMethods = parentClass.getAllNonStaticMethodDecls();
+            // iterate and replace
+            List <MethodDecl> declareMethods = getNonstaticMethodDecls();
+            for (MethodDecl selfMethod : declareMethods) {
+                int index = 0;
+                boolean overwriteOthers = false;
+                for (MethodDecl parentMethod : parentMethods) {
+                    if (selfMethod.hasSameSig(parentMethod)) {
+                        parentMethods.set(index, selfMethod);
+                        overwriteOthers = true;
+                        break;
+                    }
+                    index++;
+                }
+                if (overwriteOthers == false){
+                    parentMethods.add(selfMethod);
                 }
             }
+            return parentMethods;
         }
-        return methodDecls;
+        return getNonstaticMethodDecls();
+    }
+
+    public List<MethodDecl> getNonstaticMethodDecls(){
+        return getClassBodyDecls().getNonStaticMethodDecls();
     }
 
     public boolean isStatic() {

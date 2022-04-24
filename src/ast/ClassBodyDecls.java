@@ -39,19 +39,17 @@ public class ClassBodyDecls extends ASTNode{
         return decls;
     }
 
-    public List<MethodDecl> getMethodDecls(){
+    public List<MethodDecl> getNonStaticMethodDecls(){
         List<MethodDecl> decls = new ArrayList<MethodDecl>();
-        if (children.size() == 1 && children.get(0) instanceof MethodDecl){
-            decls.add((MethodDecl) children.get(0));
+        if (children.size() == 0) {
+            return decls;
         }
-        if (children.size() > 1){
-            decls.addAll(((ClassBodyDecls)children.get(0)).getMethodDecls());
-            if (children.get(1) instanceof MethodDecl) {
-                decls.add((MethodDecl) children.get(1));
+        for (ASTNode node : children) {
+            if (node instanceof MethodDecl && !(((MethodDecl)node).isStatic())) {
+                decls.add((MethodDecl) node);
             }
         }
         return decls;
-
     }
 
     @Override
