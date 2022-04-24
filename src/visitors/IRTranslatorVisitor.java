@@ -17,6 +17,7 @@ public class IRTranslatorVisitor extends Visitor {
     public CompUnit compUnit;
     private RootEnvironment env;
     private ClassDecl ObjectDecl;
+    public FuncDecl currFunc;
 
     /** return the memory address of the last field: u can decide to read or write */
     public Expr_c translateFieldAccess(Referenceable first_receiver, List<FieldDecl> fields){
@@ -24,7 +25,7 @@ public class IRTranslatorVisitor extends Visitor {
         Seq fieldsReadCodes = new Seq();
         boolean isStatic = false;
         if (first_receiver instanceof ThisLiteral){
-            res = new Temp("_THIS"); //fixme
+            res = currFunc.receiver; //fixme
         }   else if (first_receiver instanceof FieldDecl && ((FieldDecl)first_receiver).isStatic()){
             isStatic = true;
             FieldDecl _field = (FieldDecl)first_receiver;
@@ -343,13 +344,16 @@ public class IRTranslatorVisitor extends Visitor {
         }
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
-        
-        node.funcDecl = new FuncDecl(name, paramNum, body, new FuncDecl.Chunk());
+        node.funcDecl.body = body;
+        node.funcDecl.numParams = paramNum;
+        node.funcDecl.name = name;
         // if (true){
         //     System.out.println();
         //     System.out.println(node.funcDecl);
         //     System.out.println();
         // }
+        System.out.println("function decl in " + node + " is " + node.funcDecl);
+        currFunc = node.funcDecl;
         compUnit.appendFunc(node.funcDecl);
     }
 
@@ -358,7 +362,7 @@ public class IRTranslatorVisitor extends Visitor {
         MethodDeclarator methodDeclarator = node.getMethodDeclarator();
         int index = 0;
         if (!node.isStatic()) {
-            stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+            stmts.add(new Move(currFunc.receiver, new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
             index++;
         }
         if (methodDeclarator.hasParameterList()) {
@@ -481,7 +485,7 @@ public class IRTranslatorVisitor extends Visitor {
                 receiver = node.receiver;
                // System.out.println(node);
                 if (node.receiver instanceof ThisLiteral){
-                    Temp _this = new Temp("_THIS");
+                    Temp _this = currFunc.receiver;
                     args.add(_this);
                     vtable = new Mem(_this);
                 }   else {
@@ -545,7 +549,7 @@ public class IRTranslatorVisitor extends Visitor {
             // case: this.x
             if (node.hasName()) {
                 if (node.receiver instanceof ThisLiteral){
-                    Temp _this = new Temp("_THIS");
+                    Temp _this = currFunc.receiver;
                     args.add(_this);
                     vtable = new Mem(_this);
                 }   else {
@@ -1016,10 +1020,19 @@ public class IRTranslatorVisitor extends Visitor {
         List <FieldDecl> fieldDecls = initClass.getAllNonStaticFieldDecls();
         size += fieldDecls.size() * 4; // add 4 * field num
         List<Statement> stmts = new ArrayList<Statement>();
+        String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
 
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
-	    Temp thisTemp = new Temp("_THIS");
+	    Temp thisTemp = new Temp("THIS_"+consName);
+
+	    if (callingConstructor.funcDecl == null){
+            String name = callingConstructor.getName() + "_" + hashCode();
+            callingConstructor.funcDecl = new FuncDecl(name, 0, null);
+            currFunc = callingConstructor.funcDecl;
+        }   else {
+	        currFunc = callingConstructor.funcDecl;
+        }
 	    stmts.add(new Move(thisTemp, heapStart));
 
         for (FieldDecl fieldDecl : initClass.getAllNonStaticFieldDecls()) {
@@ -1059,7 +1072,7 @@ public class IRTranslatorVisitor extends Visitor {
         compUnit.externStrs.add(tools.getItable(initClass, env));
         stmts.add(new Move(new Mem(vtable_addr), new Name(tools.getItable(initClass, env))));
         // calling constructor like method invocation
-        String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
+
         compUnit.externStrs.add(consName);
         tir.src.joosc.ir.ast.Expr consAddr = new Name(consName);
         List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
@@ -1077,7 +1090,7 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(ConstructorDeclarator node) {
         List <Statement> stmts = new ArrayList<Statement>();
         int index = 0;
-        stmts.add(new Move(new Temp("_THIS"), new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
+        stmts.add(new Move(currFunc.receiver, new Temp(Configuration.ABSTRACT_ARG_PREFIX + index)));
         index++;
         if (node.hasParameterList()) {
             ParameterList parameterList = node.getParameterList();
@@ -1115,7 +1128,7 @@ public class IRTranslatorVisitor extends Visitor {
             String superConsName = superCons.getName() + "_" + superCons.hashCode();
             compUnit.externStrs.add(superConsName);
             List <tir.src.joosc.ir.ast.Expr> exprList = new ArrayList<tir.src.joosc.ir.ast.Expr>();
-            exprList.add(new Temp("_THIS"));
+            exprList.add(currFunc.receiver);
             stmts.add(new Exp(new Call(new Name(superConsName), exprList)));
         }
 
@@ -1127,12 +1140,13 @@ public class IRTranslatorVisitor extends Visitor {
 
         stmts.add(seq_node);
         Seq body = new Seq(stmts);
-        node.funcDecl = new FuncDecl(name, node.getConstructorDeclarator().numParams()+1, body, new FuncDecl.Chunk());
+        node.funcDecl.numParams = node.getConstructorDeclarator().numParams()+1;
+        node.funcDecl.body = body;
         compUnit.appendFunc(node.funcDecl);
     }
 
     public void visit(ThisLiteral node){
-        node.ir_node = new Temp("_THIS");
+        node.ir_node = currFunc.receiver;
     }
 
     public void visit(ClassDecl node) {

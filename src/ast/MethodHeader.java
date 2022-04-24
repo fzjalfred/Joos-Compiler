@@ -13,6 +13,7 @@ public class MethodHeader extends ASTNode {
     public Modifiers getModifiers(){
         return (Modifiers)children.get(0);
     }
+    public MethodDecl methodDecl;
     public String getName(){
         MethodDeclarator md = getMethodDeclarator();
         return md.getName();

@@ -14,9 +14,9 @@ import java.util.*;
 
 /** An IR function declaration */
 public class FuncDecl extends Node_c {
-    private String name;
+    public String name;
     public Statement body;
-    public Temp receiver = new Temp("_THIS");
+    public Temp receiver;
 
     static public class Chunk{
         public Set<String> vars;
@@ -52,7 +52,7 @@ public class FuncDecl extends Node_c {
         }
     }
     public Chunk chunk = null;
-    private int numParams;
+    public int numParams;
     private Map<String, Integer> argsOffset;
 
 
@@ -69,6 +69,7 @@ public class FuncDecl extends Node_c {
         this.body = body;
         this.numParams = numParams;
         this.chunk = new Chunk();
+        this.receiver = new Temp("THIS_"+name);
     }
 
     public FuncDecl(String name, int numParams, Statement body, Chunk chunk) {
@@ -76,6 +77,7 @@ public class FuncDecl extends Node_c {
         this.body = body;
         this.numParams = numParams;
         this.chunk = new Chunk();
+        this.receiver = new Temp("THIS_"+name);
     }
 
     public String name() {

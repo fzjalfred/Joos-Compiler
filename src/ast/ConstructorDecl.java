@@ -61,7 +61,11 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Cal
             uv.ifpaths.clear();
 
         } else if (v instanceof IRTranslatorVisitor){
+            getConstructorDeclarator().constructorDecl = this;
+            String name = getName() + "_" + hashCode();
+            funcDecl = new FuncDecl(name, 0, null);
             IRTranslatorVisitor iv = (IRTranslatorVisitor)v;
+            iv.currFunc = funcDecl;
             for (ASTNode node: children){
                 if (node != null) node.accept(v);
             }
