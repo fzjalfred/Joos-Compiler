@@ -58,6 +58,7 @@ public class IRTranslator {
         List <String> classTable = new ArrayList<>();
         for (CompilationUnit comp : comps){
             if (!comp.fileName.contains("stdlib") || comp.fileName.contains("Object") || comp.fileName.contains("String") || comp.fileName.contains("Arrays") 
+            || comp.fileName.contains("Integer") || comp.fileName.contains("Number") || comp.fileName.contains("Byte") || comp.fileName.contains("Character") || comp.fileName.contains("Short")
             || comp.fileName.contains("PrintStream") || comp.fileName.contains("Serializable") || comp.fileName.contains("System") || comp.fileName.contains("OutputStream")){
                 comp.accept(visitor);
                 ir_comps.add(visitor.compUnit);

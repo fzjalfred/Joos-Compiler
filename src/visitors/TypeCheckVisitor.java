@@ -592,6 +592,48 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         }
     }
 
+    private ASTNode convert_toString(ASTNode t, Type type, TypeCheckVisitor v) {
+        if (type instanceof NumericType) {
+            List<ASTNode> classinstance_children = new ArrayList<ASTNode>();
+            ClassOrInterfaceType integer_type = tools.getClassType("Integer", (ClassDecl)env.lookup(tools.nameConstructor("java.lang.Integer")));
+            classinstance_children.add(integer_type);
+
+            classinstance_children.get(0).accept(v);
+            classinstance_children.add(new ArgumentList(Arrays.asList(t), ""));
+            classinstance_children.get(1).accept(v);
+            t = new ClassInstanceCreateExpr(classinstance_children, "");
+            t.accept(v);
+        }
+        List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
+        mybuild_children.add(t);
+        
+        mybuild_children.add(new Token(2, "toString"));
+        mybuild_children.add(null);
+        MethodInvocation mybuild = new MethodInvocation(mybuild_children, "");
+        mybuild.accept(v);
+        return mybuild;
+    }
+
+    private ASTNode string_concat(ASTNode t1, ASTNode t2, TypeCheckVisitor v) {
+        List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
+        mybuild_children.add(t1);
+        
+        mybuild_children.add(new Token(2, "concat"));
+        mybuild_children.add(new ArgumentList(Arrays.asList(t2), ""));
+        mybuild_children.get(2).accept(v);
+        MethodInvocation mybuild = new MethodInvocation(mybuild_children, "");
+        mybuild.accept(v);
+        return mybuild;
+    }
+
+    private void checkStringAddValid(AdditiveExpr node, Type t1, Type t2) throws SemanticError {
+        if (node.isPlusOperator()) {
+            node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
+        } else {
+            throw new SemanticError("Invalid operator for String between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
+        }
+    }
+
     public void visit(AdditiveExpr node){
         if (node.children.size() == 1) {
             node.type = (node.getSingleChild()).type;
@@ -608,13 +650,18 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                     }
                 }
                 
-            } else if ( (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null)
-            || (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String") && t1 != null)) {
-                if (node.isPlusOperator()) {
-                    node.type = tools.getClassType("java.lang.String", (TypeDecl)env.lookup(tools.nameConstructor("java.lang.String")));
-                } else {
-                    throw new SemanticError("Invalid operator for String between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
-                }
+            } else if (t1 != null && t2 != null && (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") &&
+            t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String"))) {
+                checkStringAddValid(node, t1, t2);
+                node.string_concat = string_concat(node.getOperatorLeft(), node.getOperatorRight(), this);
+            } else if ( (t1 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t1, env).equals("java.lang.String") && t2 != null) ) {
+                checkStringAddValid(node, t1, t2);
+                node.children.set(2, convert_toString(node.getOperatorRight(), t2, this));
+                node.string_concat = string_concat(node.getOperatorLeft(), node.getOperatorRight(), this);
+            } else if (t2 instanceof ClassOrInterfaceType && tools.get_class_qualifed_name((ClassOrInterfaceType)t2, env).equals("java.lang.String") && t1 != null) {
+                checkStringAddValid(node, t1, t2);
+                node.children.set(0, convert_toString(node.getOperatorLeft(), t1, this));
+                node.string_concat = string_concat(node.getOperatorLeft(), node.getOperatorRight(), this);
             }   else {
                 throw new SemanticError("Invalid AdditiveExpr between "+ node.getOperatorLeft()+":"+t1 + " "+ node.getOperatorRight()+":"+t2);
             }
@@ -871,6 +918,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         if (lhs.isAssignable == false) {
             throw new SemanticError("A final field must not be assigned to. (Array.length is final)");
         }
+        if (node.getAssignmentRight() instanceof AdditiveExpr&& ((AdditiveExpr)node.getAssignmentRight()).string_concat != null ) {
+            node.children.set(1, ((AdditiveExpr)node.getAssignmentRight()).string_concat);
+        }
         Type t2 = (node.getAssignmentRight()).type;
         //System.out.println(node.getAssignmentLeft());
         if (lhs.hasName()) {
@@ -1017,6 +1067,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             Type t2 = node.getExpr().type;
             if (!isAssignable(fieldType, t2, env)) {
                 throw new SemanticError("Invalid FieldDecl between " +":"+fieldType + " and " +node.getExpr()+":"+ t2); 
+            }
+            if (node.getExpr() instanceof AdditiveExpr && ((AdditiveExpr)node.getExpr()).string_concat!=null) {
+                node.children.set(1, ((AdditiveExpr)node.getExpr()).string_concat);
             }
         }
         fieldType = null;
@@ -1451,6 +1504,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         }
         if (node.getExpr()!= null){
             if (!isAssignable(returnType, node.getExpr().type, env)) throw new SemanticError("return type " + returnType + " does not match " + node.getExpr().type);
+            if (node.getExpr() instanceof AdditiveExpr&& ((AdditiveExpr)node.getExpr()).string_concat != null ) {
+                node.children.set(0, ((AdditiveExpr)node.getExpr()).string_concat);
+            }
         }
     }
 }

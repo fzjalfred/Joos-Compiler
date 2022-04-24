@@ -5,6 +5,7 @@ import visitors.Visitor;
 import java.util.List;
 
 public class AdditiveExpr extends RelationExpr {
+    public ASTNode string_concat = null;
     public AdditiveExpr(List<ASTNode> children, String value){
         super(children, value);
     }
