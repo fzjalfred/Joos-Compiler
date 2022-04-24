@@ -27,7 +27,7 @@ import java_cup.runtime.*;
 LineTerminator = \r|\n|\r\n
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-NUM = -?([1-9][0-9]+)|[0-9]
+NUM = ([1-9][0-9]+)|[0-9]
 IDENT = [A-Za-z_][A-Za-z_0-9]*
 STRING = \"([^\\\"]|\\.)*\"
 SINGLECHAR = \'(.|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\"|\\\'|\\[0-1]?[0-7]?[A-Fa-f0-9]?)\'

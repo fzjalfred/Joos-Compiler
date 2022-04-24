@@ -636,7 +636,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(NumericLiteral node){
-        node.ir_node = new Const(Integer.parseInt(node.value));
+        node.ir_node = new Const((int)Long.parseLong(node.value));
     }
 
     public void visit(AdditiveExpr node){

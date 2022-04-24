@@ -635,7 +635,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                         node.integer_value = node.getOperatorLeft().integer_value * node.getOperatorRight().integer_value;
                     } else if (node.getOperator().equals("/")) {
                         if (node.getOperatorRight().integer_value == 0) node.integer_value = 0;
-                        node.integer_value = node.getOperatorLeft().integer_value / node.getOperatorRight().integer_value;
+                        else node.integer_value = node.getOperatorLeft().integer_value / node.getOperatorRight().integer_value;
                     } else if (node.getOperator().equals("%")) {
                         node.integer_value = node.getOperatorLeft().integer_value % node.getOperatorRight().integer_value;
                     }
