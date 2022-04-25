@@ -53,6 +53,7 @@ public class IRTranslatorVisitor extends Visitor {
             if (scopeEnvironment != null){
                 classDecl = (ClassDecl)scopeEnvironment.typeDecl;
             }
+            nullcheck(fieldsReadCodes.stmts(), res);
             if (i == fields.size()-1){
                 if (f.value.equals("length")){
                     fieldsReadCodes.stmts().add(new Move(res, new BinOp(BinOp.OpType.SUB,res,  new Const(12))));
@@ -531,11 +532,14 @@ public class IRTranslatorVisitor extends Visitor {
                         Temp resTemp = new Temp("nonStaticFieldAccess_" + node.hashCode() );
                         _receiver_code = new ESeq(new Move(resTemp, translateFieldAccess(_receiver.first_receiver, _receiver.subfields)), resTemp);
                     }
-                    args.add(_receiver_code);
+                    Temp receiver_tmp = new Temp("receiver_"+node.hashCode());
+                    codes.stmts().add(new Move(receiver_tmp, _receiver_code));
+                    args.add(receiver_tmp);
+                    nullcheck(codes.stmts(), receiver_tmp);
                     if (((PostFixExpr) node.receiver).getType() instanceof ArrayType ){
-                        vtable = new Mem(new BinOp(BinOp.OpType.SUB,_receiver_code, new Const(8)));
+                        vtable = new Mem(new BinOp(BinOp.OpType.SUB,receiver_tmp, new Const(8)));
                     }   else {
-                        vtable = new Mem(_receiver_code);
+                        vtable = new Mem(receiver_tmp);
                     }
                 }
             } else {
@@ -543,6 +547,7 @@ public class IRTranslatorVisitor extends Visitor {
                 Temp arg = new Temp("argtmp_"+node.hashCode());
                 codes.stmts().add(new Move(arg, node.getPrimary().ir_node));
                 args.add(arg);
+                nullcheck(codes.stmts(), arg);
                 if (node.getPrimary().getType() instanceof ArrayType){
                     vtable = new Mem(new BinOp(BinOp.OpType.SUB,arg, new Const(8)));
                 }   else  {
@@ -585,13 +590,28 @@ public class IRTranslatorVisitor extends Visitor {
                     vtable = new Mem(_this);
                 }   else {
                     PostFixExpr _receiver = (PostFixExpr)node.receiver;
-                    Expr_c _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
-                    args.add(_receiver_code);
-                    vtable = new Mem(_receiver_code);
+                    Expr_c _receiver_code = null;
+                    if (_receiver.refer instanceof FieldDecl && ((FieldDecl)(_receiver.refer)).isStatic()){
+                        Temp resTemp = new Temp("staticFieldAccess_" + node.hashCode() );
+                        FieldDecl _field = (FieldDecl)(_receiver.refer);
+                        compUnit.externStrs.add(_field.getFirstVarName() + "_" + _field.hashCode());
+                        _receiver_code = new ESeq(new Seq(new Move(resTemp, new Mem(new Name((_field.getFirstVarName() + "_" + _field.hashCode())))), new Move(resTemp, new Mem(resTemp))), resTemp);
+                    }   else {
+                        Temp resTemp = new Temp("nonStaticFieldAccess_" + node.hashCode() );
+                        _receiver_code = new ESeq(new Move(resTemp, translateFieldAccess(_receiver.first_receiver, _receiver.subfields)), resTemp);
+                    }
+                    Temp receiver_tmp = new Temp("receiver_"+node.hashCode());
+                    codes.stmts().add(new Move(receiver_tmp, _receiver_code));
+                    args.add(receiver_tmp);
+                    nullcheck(codes.stmts(), receiver_tmp);
+                    vtable = new Mem(receiver_tmp);
                 }
             } else {
-                args.add(node.getPrimary().ir_node);
-                vtable = new Mem(node.getPrimary().ir_node);
+                Temp arg = new Temp("argtmp_"+node.hashCode());
+                codes.stmts().add(new Move(arg, node.getPrimary().ir_node));
+                args.add(arg);
+                nullcheck(codes.stmts(), arg);
+                vtable = new Mem(arg);
             }
             if(node.getArgumentList() != null) {
                 args.addAll(node.getArgumentList().ir_node);
@@ -933,7 +953,7 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = node.getSingleChild().ir_node;
     }
 
-    public void nullcheck(List<Statement> stmts, Expr node, Expr_c expr_c){
+    public void nullcheck(List<Statement> stmts, Expr_c expr_c){
         Label ok_label = new Label("ok_label"+tools.getLabelOffset());
         stmts.add(new CJump(new BinOp(BinOp.OpType.NEQ, expr_c, new Const(0)), ok_label.name()));
         stmts.add(new Exp(new Call(new Name("__exception"))));
@@ -979,7 +999,7 @@ public class IRTranslatorVisitor extends Visitor {
         }
         stmts.add(new Move(ta, e1));
         // // null check
-        nullcheck(stmts, node, ta);
+        nullcheck(stmts, ta);
 
         Temp ti = new Temp("ti_"+node.hashCode());
         stmts.add(new Move(ti, node.getDimExpr().ir_node));
@@ -1053,6 +1073,8 @@ public class IRTranslatorVisitor extends Visitor {
         ClassDecl initClass = callingConstructor.whichClass;
 
         // calc heap size
+        compUnit.externStrs.add(tools.getVtable(initClass, env));
+        compUnit.externStrs.add(tools.getItable(initClass, env));
         int size = 4; // vtb addr
         List <FieldDecl> fieldDecls = initClass.getAllNonStaticFieldDecls();
         size += fieldDecls.size() * 4; // add 4 * field num
