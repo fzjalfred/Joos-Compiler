@@ -645,10 +645,16 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(AdditiveExpr node){
+       // System.out.println("node has type " + node.type);
         Expr_c expr_c1 = node.getOperatorLeft().ir_node;
         Expr_c expr_c2 = node.getOperatorRight().ir_node;;
         if (node.isPlusOperator()){
-            node.ir_node = new BinOp(BinOp.OpType.ADD, expr_c1, expr_c2);
+            if (node.type instanceof ClassOrInterfaceType){ //String case
+                node.string_concat.accept(this);
+                node.ir_node = node.string_concat.ir_node;
+            }    else {
+                node.ir_node = new BinOp(BinOp.OpType.ADD, expr_c1, expr_c2);
+            }
         }   else {
             node.ir_node = new BinOp(BinOp.OpType.SUB, expr_c1, expr_c2);
         }

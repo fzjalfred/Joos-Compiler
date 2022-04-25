@@ -326,9 +326,9 @@ public class HierarchyChecking {
                     if (get_mods(m_base).contains("public") && (get_mods(m).contains("protected"))) {
                         throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
                     }
-                    // if (get_mods(m_base).contains("protected") && (get_mods(m).contains("public") && m instanceof AbstractMethodDecl)) {
-                    //     throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
-                    // }
+                    if (get_mods(m_base).contains("protected") && (get_mods(m).contains("public") && m instanceof AbstractMethodDecl)) {
+                        throw new Exception("A protected method \'"+ get_sig(m).get(0) + "\' must not replace a public method.");
+                    }
                 }
             }
         }
