@@ -68,7 +68,9 @@ public class IRTranslatorVisitor extends Visitor {
     }
     // TODO: null is not instanceof Others
     public tir.src.joosc.ir.ast.Expr instanceOfTestGeneral(Expr expr, ReferenceType type, Expr_c ir){
+        //System.out.println("type is " + type);
         if (type instanceof ClassOrInterfaceType) {
+            if (((ClassOrInterfaceType) type).typeDecl instanceof InterfaceDecl) return new Const(1);
             ClassDecl classDecl = (ClassDecl) ((ClassOrInterfaceType) type).typeDecl;
             if (classDecl.parentClass == null) return new BinOp(BinOp.OpType.NEQ, ir, new Const(0)); // type is Object
             else if (expr.type instanceof PrimitiveType) return new Const(0);
@@ -1056,7 +1058,6 @@ public class IRTranslatorVisitor extends Visitor {
         size += fieldDecls.size() * 4; // add 4 * field num
         List<Statement> stmts = new ArrayList<Statement>();
         String consName = callingConstructor.getName() + "_" + callingConstructor.hashCode();
-
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
 	    Temp thisTemp = new Temp("THIS_"+callingConstructor.getName());

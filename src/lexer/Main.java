@@ -24,6 +24,8 @@ public class Main {
 		w.println(new label(l));
 	}
 
+	static Set<String> filenames = new HashSet<>();
+
 	static public void writeString(String s, label strLabel, PrintWriter writer, RootEnvironment env){
 
 		String realStr = s.substring(1, s.length()-1);
@@ -47,6 +49,13 @@ public class Main {
 			List<Code> vtable = compUnit.constructVtable();
 			List<Code> itable = compUnit.constructItable();
 			String filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + ".s";
+			if (!filenames.contains(filename)){
+				filenames.add(filename);
+			}	else {
+				filename = compUnit.name().split(".+?/(?=[^/]+$)")[1] + "1" + ".s";
+				filenames.add(filename);
+			}
+			
 			PrintWriter printWriter = new PrintWriter("output/" + filename, "UTF-8");
 			printWriter.println("section .text");
 			for (String str : compUnit.externStrs){
@@ -117,6 +126,7 @@ public class Main {
 		for (CompUnit compUnit : translator.ir_comps){
 			if (Foo.contains(compUnit.name())){
 				Foo.writeAssembly(compUnit);
+				idx++;
 			}	else {
 				translator.canonicalize(compUnit);
 				createAssembly(translator, compUnit, idx);

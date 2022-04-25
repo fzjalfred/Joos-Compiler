@@ -1,7 +1,6 @@
 package backend.asm;
 
-import tir.src.joosc.ir.ast.BinOp;
-import tir.src.joosc.ir.ast.FuncDecl;
+import tir.src.joosc.ir.ast.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,7 @@ public class setcc extends UnaryOpCodeS{
         if (op instanceof Register && Register.isAbstractRegister((Register)op)){
             Register _reg = (Register)op;
             int offset =funcDecl.getOffset(_reg.name);
+            res.add(new xor(Register.ecx, Register.ecx));
             res.add(new setcc(cc, Register.ecx.l));
             res.add(new mov(new mem(Register.ebp, BinOp.OpType.SUB, new Const(offset)), Register.ecx));
             return res;
