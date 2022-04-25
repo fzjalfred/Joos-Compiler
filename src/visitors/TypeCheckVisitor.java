@@ -616,6 +616,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
 
     private ASTNode string_concat(ASTNode t1, ASTNode t2, TypeCheckVisitor v) {
         List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
+        if (!(t1 instanceof Primary)){
+            t1 = new PrimaryNoArray(tools.list(t1), "()");
+        }
         mybuild_children.add(t1);
         
         mybuild_children.add(new Token(2, "concat"));
@@ -1324,6 +1327,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             }
             node.receiver = receiver;
         } /* if has name */   else {
+            //System.out.println("left is " + node.children.get(0));
             Primary primary = node.getPrimary();
             if (primary.type instanceof ClassOrInterfaceType){
                 TypeDecl typeDecl = ((ClassOrInterfaceType)primary.type).typeDecl;
