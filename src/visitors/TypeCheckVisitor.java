@@ -614,7 +614,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         return mybuild;
     }
 
-    private ASTNode string_concat(ASTNode t1, ASTNode t2, TypeCheckVisitor v) {
+    private Expr string_concat(ASTNode t1, ASTNode t2, TypeCheckVisitor v) {
         List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
         if (!(t1 instanceof Primary)){
             t1 = new PrimaryNoArray(tools.list(t1), "()");
