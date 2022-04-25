@@ -80,7 +80,7 @@ public class IRTranslator {
             ir_comps.get(0).externStrs.add(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
         }
         ir_comps.get(0).externStrs.addAll(classTable);
-        System.out.println(ir_comps.get(0).functions());
+        //System.out.println(ir_comps.get(0).functions());
 
     }
 

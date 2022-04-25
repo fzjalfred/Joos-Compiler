@@ -921,9 +921,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         if (lhs.isAssignable == false) {
             throw new SemanticError("A final field must not be assigned to. (Array.length is final)");
         }
-        if (node.getAssignmentRight() instanceof AdditiveExpr&& ((AdditiveExpr)node.getAssignmentRight()).string_concat != null ) {
-            node.children.set(1, ((AdditiveExpr)node.getAssignmentRight()).string_concat);
-        }
+        // if (node.getAssignmentRight() instanceof AdditiveExpr&& ((AdditiveExpr)node.getAssignmentRight()).string_concat != null ) {
+        //     node.children.set(1, ((AdditiveExpr)node.getAssignmentRight()).string_concat);
+        // }
         Type t2 = (node.getAssignmentRight()).type;
         //System.out.println(node.getAssignmentLeft());
         if (lhs.hasName()) {
@@ -1071,9 +1071,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (!isAssignable(fieldType, t2, env)) {
                 throw new SemanticError("Invalid FieldDecl between " +":"+fieldType + " and " +node.getExpr()+":"+ t2); 
             }
-            if (node.getExpr() instanceof AdditiveExpr && ((AdditiveExpr)node.getExpr()).string_concat!=null) {
-                node.children.set(1, ((AdditiveExpr)node.getExpr()).string_concat);
-            }
+            // if (node.getExpr() instanceof AdditiveExpr && ((AdditiveExpr)node.getExpr()).string_concat!=null) {
+            //     node.children.set(1, ((AdditiveExpr)node.getExpr()).string_concat);
+            // }
         }
         fieldType = null;
     }
@@ -1508,9 +1508,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         }
         if (node.getExpr()!= null){
             if (!isAssignable(returnType, node.getExpr().type, env)) throw new SemanticError("return type " + returnType + " does not match " + node.getExpr().type);
-            if (node.getExpr() instanceof AdditiveExpr&& ((AdditiveExpr)node.getExpr()).string_concat != null ) {
-                node.children.set(0, ((AdditiveExpr)node.getExpr()).string_concat);
-            }
+            // if (node.getExpr() instanceof AdditiveExpr&& ((AdditiveExpr)node.getExpr()).string_concat != null ) {
+            //     node.children.set(0, ((AdditiveExpr)node.getExpr()).string_concat);
+            // }
         }
     }
 }
