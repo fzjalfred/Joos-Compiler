@@ -617,14 +617,21 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         if (!(t instanceof Primary)){
             t = new PrimaryNoArray(tools.list(t), "()");
         }
-        List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
-        mybuild_children.add(t);
-        
-        mybuild_children.add(new Token(2, "toString"));
-        mybuild_children.add(null);
-        MethodInvocation mybuild = new MethodInvocation(mybuild_children, "");
-        mybuild.accept(v);
-        return mybuild;
+        Expr res = null;
+        if (t instanceof NullLiteral){
+            res = new StringLiteral(tools.empty(), "\"null\"");
+            res.accept(v);
+        }   else {
+            List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
+            mybuild_children.add(t);
+
+            mybuild_children.add(new Token(2, "toString"));
+            mybuild_children.add(null);
+            MethodInvocation mybuild = new MethodInvocation(mybuild_children, "");
+            mybuild.accept(v);
+            res = mybuild;
+        }
+        return res;
     }
 
     private Expr string_concat(ASTNode t1, ASTNode t2, TypeCheckVisitor v) {
