@@ -6,6 +6,7 @@ import tir.src.joosc.ir.visit.AggregateVisitor;
 import tir.src.joosc.ir.visit.IRVisitor;
 import tir.src.joosc.ir.visit.TilingVisitor;
 import utils.Pair;
+import utils.tools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,14 +155,24 @@ public class BinOp extends Expr_c {
         }
     }
 
-    setcc genSetInst(OpType type, Register res){
-        if (type == OpType.EQ) return new setcc(setcc.ccType.e, res);
-        if (type == OpType.NEQ) return new setcc(setcc.ccType.ne, res);
-        if (type == OpType.LEQ) return new setcc(setcc.ccType.le, res);
-        if (type == OpType.GEQ) return new setcc(setcc.ccType.ge, res);
-        if (type == OpType.GT) return new setcc(setcc.ccType.g, res);
-        if (type == OpType.LT) return new setcc(setcc.ccType.l, res);
-        return null;
+    List<Code> genSetInst(OpType type, Register res){
+        jcc jumpIns = null;
+        String l1 = "true_"+ tools.getLabelOffset();
+        String l2 = "end_"+ tools.getLabelOffset();
+        if (type == OpType.EQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        if (type == OpType.NEQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        if (type == OpType.LEQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        if (type == OpType.GEQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        if (type == OpType.GT) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        if (type == OpType.LT) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        List<Code> codes = new ArrayList<Code>();
+        codes.add(jumpIns);
+        codes.add(new mov(res, new backend.asm.Const(0)));
+        codes.add(new jmp(new LabelOperand(l2)));
+        codes.add(new label(l1));
+        codes.add(new mov(res, new backend.asm.Const(1)));
+        codes.add(new label(l2));
+        return codes;
     }
 
     Code genLogicInst(OpType type, Register dest, Operand src){
@@ -175,15 +186,15 @@ public class BinOp extends Expr_c {
         if (node instanceof Temp){
             Register reg2 = Register.tempToReg((Temp)node);
             codes.add(new cmp(t1, reg2));
-            codes.add(genSetInst(type, res_register));
+            codes.addAll(genSetInst(type, res_register));
         }   else if (right instanceof Const){
             backend.asm.Const c2 = new backend.asm.Const(((Const)right).value());
             codes.add(new cmp(t1, c2));
-            codes.add(genSetInst(type, res_register));
+            codes.addAll(genSetInst(type, res_register));
         }   else {
             Register reg2 = RegFactory.getRegister();
             codes.add(new cmp(t1, reg2));
-            codes.add(genSetInst(type, res_register));
+            codes.addAll(genSetInst(type, res_register));
             right.setResReg(reg2);
             nodes.add(right);
         }
