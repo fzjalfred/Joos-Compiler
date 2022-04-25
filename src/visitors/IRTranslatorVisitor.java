@@ -221,9 +221,29 @@ public class IRTranslatorVisitor extends Visitor {
         node.ir_node = res;
     }
 
+    String parseStr(String s){
+        //System.out.println("original str is " + s);
+        String res = "";
+        for (int i = 0; i < s.length(); i++){
+            char c = s.charAt(i);
+            if (c == '\\' && i < s.length()-1){
+                char next = s.charAt(i+1);
+                if (next == 'n') res += '\n';
+                if (next == 't') res += '\t';
+                if (next == 'r') res += '\r';
+                i++;
+            }   else {
+                res += c;
+            }
+        }
+        //System.out.println("parsed str is " + res);
+        return res;
+    }
+
     public void visit(StringLiteral node){
+        String parsedStr = parseStr(node.value);
         String labelName = "StringLiteral"+ "_" + node.hashCode();
-        if (!compUnit.stringLiteralToLabel.containsKey(node.value)){
+        if (!compUnit.stringLiteralToLabel.containsKey(parsedStr)){
             //System.out.println(node.value + " is not in " + compUnit.stringLiteralToLabel);
             compUnit.stringLiteralToLabel.put(node.value, labelName);
         }   else {

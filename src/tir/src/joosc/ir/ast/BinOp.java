@@ -160,11 +160,11 @@ public class BinOp extends Expr_c {
         String l1 = "true_"+ tools.getLabelOffset();
         String l2 = "end_"+ tools.getLabelOffset();
         if (type == OpType.EQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
-        if (type == OpType.NEQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
-        if (type == OpType.LEQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
-        if (type == OpType.GEQ) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
-        if (type == OpType.GT) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
-        if (type == OpType.LT) jumpIns = new jcc(jcc.ccType.e, new LabelOperand(l1));
+        if (type == OpType.NEQ) jumpIns = new jcc(jcc.ccType.ne, new LabelOperand(l1));
+        if (type == OpType.LEQ) jumpIns = new jcc(jcc.ccType.le, new LabelOperand(l1));
+        if (type == OpType.GEQ) jumpIns = new jcc(jcc.ccType.ge, new LabelOperand(l1));
+        if (type == OpType.GT) jumpIns = new jcc(jcc.ccType.g, new LabelOperand(l1));
+        if (type == OpType.LT) jumpIns = new jcc(jcc.ccType.l, new LabelOperand(l1));
         List<Code> codes = new ArrayList<Code>();
         codes.add(jumpIns);
         codes.add(new mov(res, new backend.asm.Const(0)));
