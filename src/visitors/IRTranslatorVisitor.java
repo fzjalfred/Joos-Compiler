@@ -606,20 +606,19 @@ public class IRTranslatorVisitor extends Visitor {
                         compUnit.externStrs.add(_field.getFirstVarName() + "_" + _field.hashCode());
                         _receiver_code = new ESeq(new Seq(new Move(resTemp, new Mem(new Name((_field.getFirstVarName() + "_" + _field.hashCode())))), new Move(resTemp, new Mem(resTemp))), resTemp);
                     }   else {
-                        Temp resTemp = new Temp("nonStaticFieldAccess_" + node.hashCode() );
-                        _receiver_code = new ESeq(new Move(resTemp, translateFieldAccess(_receiver.first_receiver, _receiver.subfields)), resTemp);
+                        _receiver_code = translateFieldAccess(_receiver.first_receiver, _receiver.subfields);
                     }
                     Temp receiver_tmp = new Temp("receiver_"+node.hashCode());
-                    codes.stmts().add(new Move(receiver_tmp, _receiver_code));
+                    stmts.add(new Move(receiver_tmp, _receiver_code));
                     args.add(receiver_tmp);
-                    nullcheck(codes.stmts(), receiver_tmp);
+                    nullcheck(stmts, receiver_tmp);
                     vtable = new Mem(receiver_tmp);
                 }
             } else {
                 Temp arg = new Temp("argtmp_"+node.hashCode());
-                codes.stmts().add(new Move(arg, node.getPrimary().ir_node));
+                stmts.add(new Move(arg, node.getPrimary().ir_node));
                 args.add(arg);
-                nullcheck(codes.stmts(), arg);
+                nullcheck(stmts, arg);
                 vtable = new Mem(arg);
             }
             if(node.getArgumentList() != null) {
