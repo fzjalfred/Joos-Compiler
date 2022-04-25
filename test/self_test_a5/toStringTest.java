@@ -12,6 +12,8 @@ public class toStringTest {
         String op2 = "88";
         String c1 = new Integer(a).toString() + op2;
         String c2 = a + op2;
+        System.out.println(c1);
+        System.out.println(c2);
         return 22;
     }
 }
