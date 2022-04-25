@@ -38,14 +38,23 @@ public class IRTranslator {
         Label label = new Label("staticInit");
         stmts.add(label);
         for (FieldDecl staticField : fieldDecls) {
-            if (staticField.hasRight() && !(staticField.getExpr().ir_node instanceof Const)) {
+            if (staticField.hasRight()) {
                 Expr expr = staticField.getExpr();
                 if (expr.ir_node == null) {
                     throw new BackendError("field decl not visited");
                 }
                 Temp temp = new Temp("staticFieldInit");
                 stmts.add(new Move(temp, new Name(staticField.getFirstVarName() + "_" + staticField.hashCode())));
-                stmts.add(new Move(new Mem(temp), expr.ir_node));
+                if (staticField.getExpr().ir_node instanceof Const) {
+                    Temp content = new Temp("staticInitVal");
+                    stmts.add(new Move(content, new Const(0)));
+                    stmts.add(new Move(content, expr.ir_node));
+                    stmts.add(new Move(new Mem(temp), content));
+
+                } else {
+                    stmts.add(new Move(new Mem(temp), expr.ir_node));
+                }
+
             }
         }
         stmts.add(new Return(new Const(0)));

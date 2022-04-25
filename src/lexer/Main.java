@@ -95,12 +95,13 @@ public class Main {
 			for (FieldDecl fieldDecl : compUnit.staticFields) {
 				printWriter.println("global " + fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode());
 				printWriter.println(fieldDecl.getFirstVarName() + "_" + fieldDecl.hashCode()+":");
-				if (fieldDecl.hasRight() && fieldDecl.getExpr().ir_node instanceof tir.src.joosc.ir.ast.Const) {
-					tir.src.joosc.ir.ast.Const fieldConst = (tir.src.joosc.ir.ast.Const) fieldDecl.getExpr().ir_node;
-					printWriter.println(new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(fieldConst.value()))));
-				} else {
-					printWriter.println(new dcc(dcc.ccType.d, new LabelOperand("0")));
-				}
+//				if (fieldDecl.hasRight() && fieldDecl.getExpr().ir_node instanceof tir.src.joosc.ir.ast.Const) {
+//					tir.src.joosc.ir.ast.Const fieldConst = (tir.src.joosc.ir.ast.Const) fieldDecl.getExpr().ir_node;
+//					printWriter.println(new dcc(dcc.ccType.d, new LabelOperand(Integer.toString(fieldConst.value()))));
+//				} else {
+//					printWriter.println(new dcc(dcc.ccType.d, new LabelOperand("0")));
+//				}
+				printWriter.println(new dcc(dcc.ccType.d, new LabelOperand("0")));
 			}
 			
 			printWriter.close();
