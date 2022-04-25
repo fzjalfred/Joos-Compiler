@@ -418,10 +418,18 @@ public class IRTranslatorVisitor extends Visitor {
 
 
     public void visit(Assignment node){
-    Temp res = new Temp("assignRes_"+node.hashCode());
-    Seq codes = new Seq(new Move(res, node.getAssignmentRight().ir_node), new Move(node.getAssignmentLeft().ir_node, res));	            
-    node.ir_node = new ESeq(codes,res);
-    
+        Expr_c left = node.getAssignmentLeft().ir_node;
+        Expr_c right = node.getAssignmentRight().ir_node;
+        if (left instanceof ESeq){
+            node.ir_node = new ESeq(new Move(left, right), ((ESeq)left).expr());
+        }   else if (left instanceof Mem && ((Mem)left).expr() instanceof ESeq){
+            tir.src.joosc.ir.ast.Expr res = ((ESeq)((Mem)left).expr()).expr();
+            node.ir_node = new ESeq(new Move(left, right), res);
+        }   else {
+            Temp res = new Temp("assignRes_"+node.hashCode());
+            Seq codes = new Seq(new Move(res, node.getAssignmentRight().ir_node), new Move(node.getAssignmentLeft().ir_node, res));
+            node.ir_node = new ESeq(codes,res);
+        }
     }
 
     public void visit(FieldAccess node){
