@@ -633,7 +633,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 }
             }
         }
-        if (!(t instanceof Primary)){
+        if (!(t instanceof Primary) || t instanceof ArrayCreationExpr){
             t = new PrimaryNoArray(tools.list(t), "()");
         }
         Expr res = null;

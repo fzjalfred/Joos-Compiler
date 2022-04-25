@@ -245,9 +245,9 @@ public class IRTranslatorVisitor extends Visitor {
         String labelName = "StringLiteral"+ "_" + node.hashCode();
         if (!compUnit.stringLiteralToLabel.containsKey(parsedStr)){
             //System.out.println(node.value + " is not in " + compUnit.stringLiteralToLabel);
-            compUnit.stringLiteralToLabel.put(node.value, labelName);
+            compUnit.stringLiteralToLabel.put(parsedStr, labelName);
         }   else {
-            labelName = compUnit.stringLiteralToLabel.get(node.value);
+            labelName = compUnit.stringLiteralToLabel.get(parsedStr);
         }
         Temp strTemp = new Temp("static_tmp_" + node.hashCode());
         node.ir_node = new ESeq(new Move(strTemp, new Name(labelName)), strTemp);
