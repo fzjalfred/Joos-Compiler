@@ -30,7 +30,7 @@ do
   testDir=${PREF}/${dir}
   #files=$(find $z -name *.java)
   returnCode=$? #extract return code
-  print_result $file $returnCode
+  print_result $testDir $returnCode
   ./${EXE} $testDir  #execute compiler
 done
 
@@ -42,6 +42,6 @@ do
 #   echo $testDir
   #files=$(find $z -name *.java)
   returnCode=$? #extract return code
-  print_result $file
+  print_result $testDir
   ./${EXE} $MainDir $testDir  #execute compiler
 done
