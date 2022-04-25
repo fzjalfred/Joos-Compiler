@@ -63,7 +63,7 @@ public class ConstructorDecl extends ClassBodyDecl implements Referenceable, Cal
         } else if (v instanceof IRTranslatorVisitor){
             getConstructorDeclarator().constructorDecl = this;
             String name = getName() + "_" + hashCode();
-            funcDecl = new FuncDecl(name, 0, null);
+            funcDecl = new FuncDecl(name, 0, null, "THIS_"+getName());
             IRTranslatorVisitor iv = (IRTranslatorVisitor)v;
             iv.currFunc = funcDecl;
             for (ASTNode node: children){

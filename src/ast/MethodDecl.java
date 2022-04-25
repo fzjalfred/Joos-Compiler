@@ -178,7 +178,7 @@ public class MethodDecl extends ClassMemberDecl implements Callable {
         }   else if (v instanceof IRTranslatorVisitor){
             getMethodHeader().methodDecl = this;
             String name = getName() + "_" + hashCode();
-            funcDecl = new FuncDecl(name, 0, null);
+            funcDecl = new FuncDecl(name, 0, null, "THIS_"+name);
             IRTranslatorVisitor iv = (IRTranslatorVisitor)v;
             iv.currFunc = funcDecl;
             for (ASTNode node: children){

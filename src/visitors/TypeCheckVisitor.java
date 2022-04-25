@@ -592,10 +592,20 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         }
     }
 
+    String typeToString(PrimitiveType type){
+        if (type.value.equals("boolean")) return "java.lang.Boolean";
+        if (type.value.equals("char")) return "java.lang.Character";
+        if (type.value.equals("short")) return "java.lang.Short";
+        if (type.value.equals("byte")) return "java.lang.Byte";
+        return "java.lang.Integer";
+    }
+
     private ASTNode convert_toString(ASTNode t, Type type, TypeCheckVisitor v) {
-        if (type instanceof NumericType) {
+
+        if (type instanceof PrimitiveType) {
+            String typeString = typeToString((PrimitiveType)type);
             List<ASTNode> classinstance_children = new ArrayList<ASTNode>();
-            ClassOrInterfaceType integer_type = tools.getClassType("Integer", (ClassDecl)env.lookup(tools.nameConstructor("java.lang.Integer")));
+            ClassOrInterfaceType integer_type = tools.getClassType(typeString, (ClassDecl)env.lookup(tools.nameConstructor(typeString)));
             classinstance_children.add(integer_type);
 
             classinstance_children.get(0).accept(v);
@@ -603,6 +613,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             classinstance_children.get(1).accept(v);
             t = new ClassInstanceCreateExpr(classinstance_children, "");
             t.accept(v);
+        }
+        if (!(t instanceof Primary)){
+            t = new PrimaryNoArray(tools.list(t), "()");
         }
         List<ASTNode> mybuild_children = new ArrayList<ASTNode>();
         mybuild_children.add(t);
@@ -921,9 +934,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         if (lhs.isAssignable == false) {
             throw new SemanticError("A final field must not be assigned to. (Array.length is final)");
         }
-        // if (node.getAssignmentRight() instanceof AdditiveExpr&& ((AdditiveExpr)node.getAssignmentRight()).string_concat != null ) {
-        //     node.children.set(1, ((AdditiveExpr)node.getAssignmentRight()).string_concat);
-        // }
+        if (node.getAssignmentRight() instanceof AdditiveExpr&& ((AdditiveExpr)node.getAssignmentRight()).string_concat != null ) {
+            node.children.set(1, ((AdditiveExpr)node.getAssignmentRight()).string_concat);
+        }
         Type t2 = (node.getAssignmentRight()).type;
         //System.out.println(node.getAssignmentLeft());
         if (lhs.hasName()) {
@@ -1071,9 +1084,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             if (!isAssignable(fieldType, t2, env)) {
                 throw new SemanticError("Invalid FieldDecl between " +":"+fieldType + " and " +node.getExpr()+":"+ t2); 
             }
-            // if (node.getExpr() instanceof AdditiveExpr && ((AdditiveExpr)node.getExpr()).string_concat!=null) {
-            //     node.children.set(1, ((AdditiveExpr)node.getExpr()).string_concat);
-            // }
+            if (node.getExpr() instanceof AdditiveExpr && ((AdditiveExpr)node.getExpr()).string_concat!=null) {
+                node.children.set(1, ((AdditiveExpr)node.getExpr()).string_concat);
+            }
         }
         fieldType = null;
     }
@@ -1508,9 +1521,9 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
         }
         if (node.getExpr()!= null){
             if (!isAssignable(returnType, node.getExpr().type, env)) throw new SemanticError("return type " + returnType + " does not match " + node.getExpr().type);
-            // if (node.getExpr() instanceof AdditiveExpr&& ((AdditiveExpr)node.getExpr()).string_concat != null ) {
-            //     node.children.set(0, ((AdditiveExpr)node.getExpr()).string_concat);
-            // }
+            if (node.getExpr() instanceof AdditiveExpr&& ((AdditiveExpr)node.getExpr()).string_concat != null ) {
+                node.children.set(0, ((AdditiveExpr)node.getExpr()).string_concat);
+            }
         }
     }
 }

@@ -1031,11 +1031,11 @@ public class IRTranslatorVisitor extends Visitor {
 
         Temp heapStart = new Temp("heapStart_"+node.hashCode());
         stmts.add(new Move(heapStart, new Call(new Name("__malloc"), new Const(size))));
-	    Temp thisTemp = new Temp("THIS_"+consName);
+	    Temp thisTemp = new Temp("THIS_"+callingConstructor.getName());
         FuncDecl reserved = currFunc;
 	    if (callingConstructor.funcDecl == null){
             String name = callingConstructor.getName() + "_" + hashCode();
-            callingConstructor.funcDecl = new FuncDecl(name, 0, null);
+            callingConstructor.funcDecl = new FuncDecl(name, 0, null, "THIS_"+callingConstructor.getName());
             currFunc = callingConstructor.funcDecl;
         }   else {
 	        currFunc = callingConstructor.funcDecl;
@@ -1159,6 +1159,7 @@ public class IRTranslatorVisitor extends Visitor {
     }
 
     public void visit(ClassDecl node) {
+        currFunc = new FuncDecl(node.getName(), 0, null, "THIS_"+node.getName());
         List<FieldDecl> fields = node.getStaticFieldDecls();
         for (FieldDecl f : fields){
             compUnit.definedLabels.add(f.getFirstVarName() + "_" + f.hashCode());

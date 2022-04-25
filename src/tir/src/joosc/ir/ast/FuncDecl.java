@@ -69,7 +69,15 @@ public class FuncDecl extends Node_c {
         this.body = body;
         this.numParams = numParams;
         this.chunk = new Chunk();
-        this.receiver = new Temp("THIS_"+name);
+        this.receiver = null;
+    }
+
+    public FuncDecl(String name, int numParams, Statement body, String thisName) {
+        this.name = name;
+        this.body = body;
+        this.numParams = numParams;
+        this.chunk = new Chunk();
+        this.receiver = new Temp(thisName);
     }
 
     public FuncDecl(String name, int numParams, Statement body, Chunk chunk) {
@@ -77,7 +85,14 @@ public class FuncDecl extends Node_c {
         this.body = body;
         this.numParams = numParams;
         this.chunk = new Chunk();
-        this.receiver = new Temp("THIS_"+name);
+    }
+
+    public FuncDecl(String name, int numParams, Statement body, Chunk chunk, String thisName) {
+        this.name = name;
+        this.body = body;
+        this.numParams = numParams;
+        this.chunk = new Chunk();
+        this.receiver = new Temp(thisName);
     }
 
     public String name() {
