@@ -613,6 +613,25 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
             classinstance_children.get(1).accept(v);
             t = new ClassInstanceCreateExpr(classinstance_children, "");
             t.accept(v);
+        }   else if (t instanceof PostFixExpr){
+            PostFixExpr _postfixexpr = (PostFixExpr)t;
+            if (_postfixexpr.refer instanceof LocalVarDecl){
+                LocalVarDecl localVarDecl = (LocalVarDecl)_postfixexpr.refer;
+                if (localVarDecl.getVarDeclarators().getLastVarDeclarator().getExpr() instanceof NullLiteral) {
+                    Expr res = null;
+                    res = new StringLiteral(tools.empty(), "\"null\"");
+                    res.accept(v);
+                    return res;
+                }
+            }   else if (_postfixexpr.refer instanceof FieldDecl){
+                FieldDecl _field = (FieldDecl)_postfixexpr.refer;
+                if (_field.getVarDeclarators().getLastVarDeclarator().getExpr() instanceof NullLiteral) {
+                    Expr res = null;
+                    res = new StringLiteral(tools.empty(), "\"null\"");
+                    res.accept(v);
+                    return res;
+                }
+            }
         }
         if (!(t instanceof Primary)){
             t = new PrimaryNoArray(tools.list(t), "()");
