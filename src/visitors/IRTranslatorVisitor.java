@@ -443,11 +443,20 @@ public class IRTranslatorVisitor extends Visitor {
     public void visit(Assignment node){
         Expr_c left = node.getAssignmentLeft().ir_node;
         Expr_c right = node.getAssignmentRight().ir_node;
+        Statement stmts = null;
+        if (node.getAssignmentLeft().type instanceof ClassOrInterfaceType && node.getAssignmentRight().type instanceof ArrayType){
+            TypeDecl decl = ((ClassOrInterfaceType)node.getAssignmentLeft().type).typeDecl;
+            if (decl != ObjectDecl) throw new BackendError("cannot assign arr type to non-Object type");
+            Temp tmp = new Temp("assArr_"+node.hashCode());
+            stmts = new Seq(new Move(tmp, right), new Move(left, new BinOp(BinOp.OpType.SUB, tmp, new Const(8))));
+        }   else {
+            stmts = new Move(left, right);
+        }
         if (left instanceof ESeq){
-            node.ir_node = new ESeq(new Move(left, right), ((ESeq)left).expr());
+            node.ir_node = new ESeq(stmts, ((ESeq)left).expr());
         }   else if (left instanceof Mem && ((Mem)left).expr() instanceof ESeq){
             tir.src.joosc.ir.ast.Expr res = ((ESeq)((Mem)left).expr()).expr();
-            node.ir_node = new ESeq(new Move(left, right), res);
+            node.ir_node = new ESeq(stmts, res);
         }   else {
             Temp res = new Temp("assignRes_"+node.hashCode());
             Seq codes = new Seq(new Move(res, node.getAssignmentRight().ir_node), new Move(node.getAssignmentLeft().ir_node, res));
