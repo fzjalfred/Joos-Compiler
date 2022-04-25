@@ -4,6 +4,7 @@ import java.util.*;
 
 import ast.ClassDecl;
 import ast.FieldDecl;
+import ast.Foo;
 import backend.IRTranslator;
 import backend.RegistorAllocator;
 import backend.asm.*;
@@ -114,9 +115,13 @@ public class Main {
 	static public void sim(IRTranslator translator, RootEnvironment env) throws FileNotFoundException, UnsupportedEncodingException {
 		int idx = 0;
 		for (CompUnit compUnit : translator.ir_comps){
-			translator.canonicalize(compUnit);
-			createAssembly(translator, compUnit, idx);
-			idx++;
+			if (Foo.contains(compUnit.name())){
+				Foo.writeAssembly(compUnit);
+			}	else {
+				translator.canonicalize(compUnit);
+				createAssembly(translator, compUnit, idx);
+				idx++;
+			}
 		}
 		// IR interpreter demo
         /*{

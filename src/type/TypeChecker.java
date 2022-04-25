@@ -41,6 +41,7 @@ public class TypeChecker {
 
     private void checkTypeRules() throws SemanticError {
         for (CompilationUnit comp : env.compilationUnits){
+            if (Foo.contains(comp.fileName)) continue;
             SemanticError.currFile = comp.fileName;
             comp.accept(visitor);
         }
@@ -49,6 +50,7 @@ public class TypeChecker {
 
     private void checkUnreachableStmts() throws SemanticError{
         for (CompilationUnit comp : env.compilationUnits){
+            if (Foo.contains(comp.fileName)) continue;
             SemanticError.currFile = comp.fileName;
             comp.accept(dataflowVisitor);
         }

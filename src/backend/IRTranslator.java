@@ -1,12 +1,11 @@
 package backend;
 
-import ast.CompilationUnit;
+import ast.*;
 import ast.Expr;
-import ast.FieldDecl;
-import ast.MethodDecl;
 import backend.asm.Tile;
 import exception.BackendError;
 import tir.src.joosc.ir.ast.*;
+import tir.src.joosc.ir.ast.Name;
 import tir.src.joosc.ir.interpret.Simulator;
 import tir.src.joosc.ir.visit.CanonicalizeVisitor;
 import tir.src.joosc.ir.visit.CheckCanonicalIRVisitor;
@@ -66,6 +65,10 @@ public class IRTranslator {
         int index = 0;
         List <String> classTable = new ArrayList<>();
         for (CompilationUnit comp : comps){
+            if (Foo.contains(comp.fileName)){
+                ir_comps.add(new CompUnit(comp.fileName));
+                continue;
+            }
             comp.accept(visitor);
             ir_comps.add(visitor.compUnit);
             if (index != 0) {
