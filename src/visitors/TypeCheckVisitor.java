@@ -625,7 +625,7 @@ public class TypeCheckVisitor extends Visitor{ //TODO: static method/field use J
                 }
             }   else if (_postfixexpr.refer instanceof FieldDecl){
                 FieldDecl _field = (FieldDecl)_postfixexpr.refer;
-                if (_field.getVarDeclarators().getLastVarDeclarator().getExpr() instanceof NullLiteral) {
+                if (_field.getVarDeclarators().getLastVarDeclarator().getExpr() instanceof NullLiteral || _field.getVarDeclarators().getLastVarDeclarator().getExpr() == null) {
                     Expr res = null;
                     res = new StringLiteral(tools.empty(), "\"null\"");
                     res.accept(v);

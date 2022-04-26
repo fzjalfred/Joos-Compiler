@@ -50,3 +50,10 @@ submitzipA4:
 	git log > a4.log
 	zip -r a4.zip build/ lib/ src/ Makefile test/self_testcases/ a4.log
 	rm a4.log
+
+submitzipA5:
+	rm -rf build/*
+	rm -f a5.zip
+	git log > a5.log
+	zip -r a5.zip build/ lib/ src/ Makefile test/self_testcases/a5/ a5.log
+	rm a5.log
