@@ -16,3 +16,5 @@ src/lexer/parser.java
 src/lexer/sym.java
 tmp.out
 test.out
+build/
+*.iml
